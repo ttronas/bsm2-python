@@ -86,9 +86,9 @@ class ASM1reactor:
         t_span = [0, 2*t_step]
         t_eval = np.arange(0, 2*t_step, t_step)
         sol = solve_ivp(self.derivatives, t_span, y0, t_eval=t_eval, args=(y_in, parasm,))
-        print(sol.y)
+        # print(sol.y)
         ode = odeint(self.derivatives, y0, t_eval, tfirst = True, args=(y_in, parasm,))
-        print(ode)
+        # print(ode)
 
 
 # volumes of the reactors:
