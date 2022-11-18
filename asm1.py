@@ -4,13 +4,14 @@ from scipy.integrate import solve_ivp, odeint
 
 class ASM1reactor:
 
-    def __init__(self, volume, kla, sosat=8):
+    def __init__(self, volume, kla, sosat, y0):
         self.volume = volume    # volume of the reactor compartment
         self.kla = kla       # oxygen transfer coefficient in aerated reactors
-        self.sosat = sosat      # saturation concentration for oxygen, default is 8 g/m³
+        self.sosat = sosat      # saturation concentration for oxygen
+        self.y0 = y0        # initial states for integration (damit man es anpassen kann)
 
     # differential equations:
-    def derivatives (self, t, y, y_in, parasm):
+    def derivatives(self, t, y, y_in, parasm):
         S_I, S_S, X_I, X_S, X_BH, X_BA, X_P, S_O, S_NO, S_NH, S_ND, X_ND, S_ALK, TSS, Q, T, S_D1, S_D2, S_D3, X_D4, X_D5 = y
         S_I_in, S_S_in, X_I_in, X_S_in, X_BH_in, X_BA_in, X_P_in, S_O_in, S_NO_in, S_NH_in, S_ND_in, X_ND_in, S_ALK_in, TSS_in, Q_in, T_in, S_D1_in, S_D2_in, S_D3_in, X_D4_in, X_D5_in = y_in
         mu_H, K_S, K_OH, K_NO, b_H, mu_A, K_NH, K_OA, b_A, ny_g, k_a, k_h, K_X, ny_h, Y_H, Y_A, f_P, i_XB, i_XP = parasm
@@ -80,29 +81,49 @@ class ASM1reactor:
 
         return f
 
-    def output (self, xinit, y_in, parasm):
-        y0 = xinit
-        t_step = 15/(6*24)
-        t_span = [0, 2*t_step]
-        t_eval = np.arange(0, 2*t_step, t_step)
-        sol = solve_ivp(self.derivatives, t_span, y0, t_eval=t_eval, args=(y_in, parasm,))
-        print(sol.y)
-        ode = odeint(self.derivatives, y0, t_eval, tfirst = True, args=(y_in, parasm,))
-        print(ode)
+    def output(self, timestep, step, y_in, parasm):
+        t_span = [step-timestep, step+timestep]
+        t_eval = np.arange(step-timestep, step+timestep, timestep)
+        if len(t_eval) > 2:
+            t_eval = np.array([t_eval[0], t_eval[1]])  # macht sonst teilweise einen zu großen Array
+        sol = solve_ivp(self.derivatives, t_span, self.y0, t_eval=t_eval, args=(y_in, parasm,))
+        y_out = np.array([x[1] for x in sol.y])
+        self.y0 = y_out
+        # ode = odeint(self.derivatives, y0, t_eval, tfirst=True, args=(y_in, parasm,))
+        # y_out = ode[1]
+        # print(z)
+
+        # TSS fehlt noch!
+        return y_out
 
 
-# volumes of the reactors:
-VOL1 = 1000
+# Initialization:
 
-# oxygen transfer coefficients:
-KLa1 = 0
+import asm1init
+Qin = asm1init.Qin
+Qintr = asm1init.Qintr
+Qr = asm1init.Qr
+Qw = asm1init.Qw
+
+PAR = asm1init.PAR  #in Matlab wird nochmal aufgeteilt in die Reaktoren (aber ist immer gleich)
 
 # definition of the reactors:
-reactor1 = ASM1reactor(VOL1, KLa1)
+reactor1 = ASM1reactor(asm1init.VOL1, asm1init.KLa1, asm1init.SOSAT1, asm1init.XINIT1)
+reactor2 = ASM1reactor(asm1init.VOL2, asm1init.KLa2, asm1init.SOSAT2, asm1init.XINIT2)
+reactor3 = ASM1reactor(asm1init.VOL3, asm1init.KLa3, asm1init.SOSAT3, asm1init.XINIT3)
+reactor4 = ASM1reactor(asm1init.VOL4, asm1init.KLa4, asm1init.SOSAT4, asm1init.XINIT4)
+reactor5 = ASM1reactor(asm1init.VOL5, asm1init.KLa5, asm1init.SOSAT5, asm1init.XINIT5)
+
 
 # nur zum ausprobieren:
-parasm = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 y_in1 = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-xinit1 = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 
-reactor1.output(xinit1, y_in1, parasm)
+timestep = 15/(60*24)
+time = np.arange(timestep, 3*15/(60*24), timestep)
+
+for step in time:
+    y_out1 = reactor1.output(timestep, step, y_in1, PAR)
+    y_out2 = reactor2.output(timestep, step, y_out1, PAR)
+    y_in1 = y_out2
+
+
