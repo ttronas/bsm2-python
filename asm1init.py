@@ -10,7 +10,8 @@ Qr = Qin0
 Qw = 385
 
 # concentrations in different AS reactors (1 to 5):
-# keine Ahnung wo diese Werte herkommen
+# Matlab: 'The state values are based on BSM2 openloop results using the constant
+# input file.'
 S_I1 = 28.0643
 S_S1 = 3.0503
 X_I1 = 1532.3
