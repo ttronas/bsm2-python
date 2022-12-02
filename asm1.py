@@ -15,7 +15,7 @@ class ASM1reactor:
     def derivatives(self, t, y, y_in, parasm):
         # S_I, S_S, X_I, X_S, X_BH, X_BA, X_P, S_O, S_NO, S_NH, S_ND, X_ND, S_ALK, TSS, Q, T, S_D1, S_D2, S_D3, X_D4, X_D5 = y
         S_I_in, S_S_in, X_I_in, X_S_in, X_BH_in, X_BA_in, X_P_in, S_O_in, S_NO_in, S_NH_in, S_ND_in, X_ND_in, S_ALK_in, TSS_in, Q_in, T_in, S_D1_in, S_D2_in, S_D3_in, X_D4_in, X_D5_in = y_in
-        mu_H, K_S, K_OH, K_NO, b_H, mu_A, K_NH, K_OA, b_A, ny_g, k_a, k_h, K_X, ny_h, Y_H, Y_A, f_P, i_XB, i_XP = parasm
+        mu_H, K_S, K_OH, K_NO, b_H, mu_A, K_NH, K_OA, b_A, ny_g, k_a, k_h, K_X, ny_h, Y_H, Y_A, f_P, i_XB, i_XP, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS = parasm
         # add decay parameter here
 
         # temperature compensation:
@@ -27,6 +27,7 @@ class ASM1reactor:
         k_a = k_a * math.exp((math.log(k_a/0.04)/5.0) * (T_in - 15.0))
         SO_sat_temp = 0.9997743214 * 8.0/10.5 * (56.12 * 6791.5 * math.exp(-66.7354 + 87.4755/((T_in + 273.15)/100.0) + 24.4526 * math.log((T_in + 273.15)/100.0)))  # van't Hoff equation
         KLa_temp = self.kla * pow(1.024, (T_in - 15.0))
+
         # TEMPMODEL hier einbauen
 
         # analog zu Matlab:
@@ -50,7 +51,6 @@ class ASM1reactor:
         proc6 = k_a*S_ND_temp*X_BH_temp
         proc7 = k_h*((X_S_temp/X_BH_temp)/(K_X+(X_S_temp/X_BH_temp)))*((S_O_temp/(K_OH+S_O_temp))+ny_h*(K_OH/(K_OH+S_O_temp))*(S_NO_temp/(K_NO+S_NO_temp)))*X_BH_temp
         proc8 = proc7*(X_ND_temp/X_S_temp)
-
 
         # conversion rates:
         reac1 = 0.0
@@ -115,9 +115,13 @@ class ASM1reactor:
         ode = odeint(self.derivatives, self.y0, t_eval, tfirst=True, args=(y_in, parasm,), rtol=1e-13, atol=1e-13)
         y_out = ode[1]
 
-        y_out[13] = 0.75 * (y_out[2] + y_out[3] + y_out[4] + y_out[5] + y_out[6])  # TSS
+        y_out[13] = parasm[19] * y_out[2] + parasm[20] * y_out[3] + parasm[21] * y_out[4] + parasm[22] * y_out[5] + parasm[23] * y_out[6]  # TSS
         y_out[14] = y_in[14]  # Flow
         y_out[15] = y_in[15]  # Temperature, TEMPMODEL fehlt hier noch
         self.y0 = y_out
+        # print('SO_sat:', self.sosat)
+        # print('SO_sat_temp:', self.derivatives.SO_sat_temp)
+        # print('kla:', self.kla)
+        # print('KLa_temp:', self.derivatives.KLa_temp)
 
         return y_out

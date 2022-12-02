@@ -162,8 +162,13 @@ Y_A = 0.24
 f_P = 0.08
 i_XB = 0.08
 i_XP = 0.06
-PAR = np.array([mu_H, K_S, K_OH, K_NO, b_H, mu_A, K_NH,
-                K_OA, b_A, ny_g, k_a, k_h, K_X, ny_h, Y_H, Y_A, f_P, i_XB, i_XP])
+X_I2TSS = 0.75
+X_S2TSS = 0.75
+X_BH2TSS = 0.75
+X_BA2TSS = 0.75
+X_P2TSS = 0.75
+PAR = np.array([mu_H, K_S, K_OH, K_NO, b_H, mu_A, K_NH, K_OA,
+                b_A, ny_g, k_a, k_h, K_X, ny_h, Y_H, Y_A, f_P, i_XB, i_XP, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS])
 
 # Parameter für TSS fehlen in PAR und die für DECAY
 
