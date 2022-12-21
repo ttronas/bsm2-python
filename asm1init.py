@@ -122,25 +122,25 @@ S_D3_5 = 0
 X_D4_5 = 0
 X_D5_5 = 0
 
-XINIT1 = np.array([S_I1, S_S1, X_I1, X_S1, X_BH1, X_BA1, X_P1, S_O1, S_NO1, S_NH1, S_ND1, X_ND1, S_ALK1,
+YINIT1 = np.array([S_I1, S_S1, X_I1, X_S1, X_BH1, X_BA1, X_P1, S_O1, S_NO1, S_NH1, S_ND1, X_ND1, S_ALK1,
                    TSS1, Q1, T1, S_D1_1, S_D2_1, S_D3_1, X_D4_1, X_D5_1])
-XINIT2 = np.array([S_I2, S_S2, X_I2, X_S2, X_BH2, X_BA2, X_P2, S_O2, S_NO2, S_NH2, S_ND2, X_ND2, S_ALK2,
+YINIT2 = np.array([S_I2, S_S2, X_I2, X_S2, X_BH2, X_BA2, X_P2, S_O2, S_NO2, S_NH2, S_ND2, X_ND2, S_ALK2,
                    TSS2, Q2, T2, S_D1_2, S_D2_2, S_D3_2, X_D4_2, X_D5_2])
-XINIT3 = np.array([S_I3, S_S3, X_I3, X_S3, X_BH3, X_BA3, X_P3, S_O3, S_NO3, S_NH3, S_ND3, X_ND3, S_ALK3,
+YINIT3 = np.array([S_I3, S_S3, X_I3, X_S3, X_BH3, X_BA3, X_P3, S_O3, S_NO3, S_NH3, S_ND3, X_ND3, S_ALK3,
                    TSS3, Q3, T3, S_D1_3, S_D2_3, S_D3_3, X_D4_3, X_D5_3])
-XINIT4 = np.array([S_I4, S_S4, X_I4, X_S4, X_BH4, X_BA4, X_P4, S_O4, S_NO4, S_NH4, S_ND4, X_ND4, S_ALK4,
+YINIT4 = np.array([S_I4, S_S4, X_I4, X_S4, X_BH4, X_BA4, X_P4, S_O4, S_NO4, S_NH4, S_ND4, X_ND4, S_ALK4,
                    TSS4, Q4, T4, S_D1_4, S_D2_4, S_D3_4, X_D4_4, X_D5_4])
-XINIT5 = np.array([S_I5, S_S5, X_I5, X_S5, X_BH5, X_BA5, X_P5, S_O5, S_NO5, S_NH5, S_ND5, X_ND5, S_ALK5,
+YINIT5 = np.array([S_I5, S_S5, X_I5, X_S5, X_BH5, X_BA5, X_P5, S_O5, S_NO5, S_NH5, S_ND5, X_ND5, S_ALK5,
                    TSS5, Q5, T5, S_D1_5, S_D2_5, S_D3_5, X_D4_5, X_D5_5])
 
 # used to avoid stiff solver to get stuck when running steady state for
 # long time periods and starting to close to correct value
 # Text genau so in Matlab
-XINIT1 = XINIT1*(np.random.rand(21)/5)
-XINIT2 = XINIT2*(np.random.rand(21)/5)
-XINIT3 = XINIT3*(np.random.rand(21)/5)
-XINIT4 = XINIT4*(np.random.rand(21)/5)
-XINIT5 = XINIT5*(np.random.rand(21)/5)
+# YINIT1 = YINIT1*(np.random.rand(21)/5)
+# YINIT2 = YINIT2*(np.random.rand(21)/5)
+# YINIT3 = YINIT3*(np.random.rand(21)/5)
+# YINIT4 = YINIT4*(np.random.rand(21)/5)
+# YINIT5 = YINIT5*(np.random.rand(21)/5)
 
 # parameters for AS system at 15 degC, based on Alex et al (2018) (BSM1)
 mu_H = 4.0
@@ -167,8 +167,12 @@ X_S2TSS = 0.75
 X_BH2TSS = 0.75
 X_BA2TSS = 0.75
 X_P2TSS = 0.75
-PAR = np.array([mu_H, K_S, K_OH, K_NO, b_H, mu_A, K_NH, K_OA,
+PAR1 = np.array([mu_H, K_S, K_OH, K_NO, b_H, mu_A, K_NH, K_OA,
                 b_A, ny_g, k_a, k_h, K_X, ny_h, Y_H, Y_A, f_P, i_XB, i_XP, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS])
+PAR2 = PAR1
+PAR3 = PAR1
+PAR4 = PAR1
+PAR5 = PAR1
 
 # Parameter für TSS fehlen in PAR und die für DECAY
 
