@@ -2,27 +2,41 @@ import numpy as np
 import pandas as pd
 import time
 import asm1init
-import settlerinit
+import settler1dinit_asm1
 import asm1
-import settler
+import settler1d_asm1
 import xlsxwriter
+from pyexcelerate import Workbook
+
+
+DECAY = False       # if DECAY is True the decay of heterotrophs and autotrophs is depending on the electron acceptor present
+                    # if DECAY is False the decay do not change
+
+SETTLER = False     # if SETTLER is False the settling model is non-reactive
+                    # if SETTLER IS True the settling model is reactive
+
+TEMPMODEL = False   # if TEMPMODEL is False influent wastewater temperature is just passed through process reactors
+                    # if TEMPMODEL is True mass balance for the wastewater temperature is used in process reactors
+
+ACTIVATE = False    # if ACTIVATE is False dummy states are 0
+                    # if ACTIVATE is True dummy states are activated
 
 
 # definition of the reactors:
 
-reactor1 = asm1.ASM1reactor(asm1init.VOL1, asm1init.KLa1, asm1init.SOSAT1, asm1init.YINIT1, asm1init.PAR1)
-reactor2 = asm1.ASM1reactor(asm1init.VOL2, asm1init.KLa2, asm1init.SOSAT2, asm1init.YINIT2, asm1init.PAR2)
-reactor3 = asm1.ASM1reactor(asm1init.VOL3, asm1init.KLa3, asm1init.SOSAT3, asm1init.YINIT3, asm1init.PAR3)
-reactor4 = asm1.ASM1reactor(asm1init.VOL4, asm1init.KLa4, asm1init.SOSAT4, asm1init.YINIT4, asm1init.PAR4)
-reactor5 = asm1.ASM1reactor(asm1init.VOL5, asm1init.KLa5, asm1init.SOSAT5, asm1init.YINIT5, asm1init.PAR5)
-settler = settler.Settler(settlerinit.DIM, settlerinit.LAYER, asm1init.Qr, asm1init.Qw, settlerinit.SETTLERINIT, settlerinit.SETTLERPAR)
+reactor1 = asm1.ASM1reactor(asm1init.KLa1, asm1init.VOL1, asm1init.SOSAT1, asm1init.YINIT1, asm1init.PAR1, TEMPMODEL, ACTIVATE, DECAY)
+reactor2 = asm1.ASM1reactor(asm1init.KLa2, asm1init.VOL2, asm1init.SOSAT2, asm1init.YINIT2, asm1init.PAR2, TEMPMODEL, ACTIVATE, DECAY)
+reactor3 = asm1.ASM1reactor(asm1init.KLa3, asm1init.VOL3, asm1init.SOSAT3, asm1init.YINIT3, asm1init.PAR3, TEMPMODEL, ACTIVATE, DECAY)
+reactor4 = asm1.ASM1reactor(asm1init.KLa4, asm1init.VOL4, asm1init.SOSAT4, asm1init.YINIT4, asm1init.PAR4, TEMPMODEL, ACTIVATE, DECAY)
+reactor5 = asm1.ASM1reactor(asm1init.KLa5, asm1init.VOL5, asm1init.SOSAT5, asm1init.YINIT5, asm1init.PAR5, TEMPMODEL, ACTIVATE, DECAY)
+settler = settler1d_asm1.Settler(settler1dinit_asm1.DIM, settler1dinit_asm1.LAYER, asm1init.Qr, asm1init.Qw, settler1dinit_asm1.SETTLERINIT, settler1dinit_asm1.SETTLERPAR, asm1init.PAR1, TEMPMODEL, DECAY, SETTLER)
 
 # CONSTINFLUENT:
 y_in = np.array([30, 69.5000000000000, 51.2000000000000, 202.320000000000, 28.1700000000000, 0, 0, 0, 0, 31.5600000000000, 6.95000000000000, 10.5900000000000, 7, 211.267500000000, 18446, 15, 0, 0, 0, 0, 0])
 
 timestep = 15/(60*24)
 endtime = 200
-simtime = np.arange(timestep, endtime, timestep)
+simtime = np.arange(0, endtime, timestep)
 
 y_out5 = np.zeros(21)
 ys_out = np.zeros(21)
@@ -36,6 +50,15 @@ react4 = np.zeros((int(endtime/timestep), 21))
 react5 = np.zeros((int(endtime/timestep), 21))
 settlerout = np.zeros((int(endtime/timestep), 21))
 settlerall = np.zeros((int(endtime/timestep), 203))
+
+# reactin = np.zeros((900, 21))
+# react1 = np.zeros((900, 21))
+# react2 = np.zeros((900, 21))
+# react3 = np.zeros((900, 21))
+# react4 = np.zeros((900, 21))
+# react5 = np.zeros((900, 21))
+# settlerout = np.zeros((900, 21))
+# settlerall = np.zeros((900, 203))
 
 number = 0
 
@@ -90,30 +113,22 @@ print('Simulationszeit: ', stop - start)
 print('Output bei t = 200 d: ', ys_out)
 
 start_writer = time.perf_counter()
+# wb = Workbook()
+# ws = wb.new_sheet("yin", data=reactin)
+# ws = wb.new_sheet("yout1", data=react1)
+# ws = wb.new_sheet("yout2", data=react2)
+# ws = wb.new_sheet("yout3", data=react3)
+# ws = wb.new_sheet("yout4", data=react4)
+# ws = wb.new_sheet("yout5", data=react5)
+# ws = wb.new_sheet("ysout", data=settlerout)
+# ws = wb.new_sheet("ysout_all", data=settlerall)
+# wb.save("results_ss_all_ode.xlsx")
 
-dfin = pd.DataFrame(reactin)
-df1 = pd.DataFrame(react1)
-df2 = pd.DataFrame(react2)
-df3 = pd.DataFrame(react3)
-df4 = pd.DataFrame(react4)
-df5 = pd.DataFrame(react5)
-dfs = pd.DataFrame(settlerout)
-dfs_all = pd.DataFrame(settlerall)
-with pd.ExcelWriter('results_ss_all_ode.xlsx') as writer:
-    dfin.to_excel(writer, sheet_name='yin', header=False, index=False)
-    df1.to_excel(writer, sheet_name='yout1', header=False, index=False)
-    df2.to_excel(writer, sheet_name='yout2', header=False, index=False)
-    df3.to_excel(writer, sheet_name='yout3', header=False, index=False)
-    df4.to_excel(writer, sheet_name='yout4', header=False, index=False)
-    df5.to_excel(writer, sheet_name='yout5', header=False, index=False)
-    dfs.to_excel(writer, sheet_name='ysout', header=False, index=False)
-    dfs_all.to_excel(writer, sheet_name='ysout_all', header=False, index=False)
-
-output_all = np.zeros((7, 21))
 output_all = [react1[number-1], react2[number-1], react3[number-1], react4[number-1], react5[number-1], settlerout[number-1], settler.ys0]
 
-df_all = pd.DataFrame(output_all)
-df_all.to_excel("results_ss_ode.xlsx", header=False, index=False)
+wb2 = Workbook()
+ws = wb2.new_sheet("sheet1", data=output_all)
+wb2.save("results_ss_ode.xlsx")
 
 stop_writer = time.perf_counter()
 
