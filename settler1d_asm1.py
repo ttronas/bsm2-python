@@ -6,7 +6,7 @@ from numba import jit, njit
 # differential equations in function because @jit does not compile class methods in nopython mode
 @jit(nopython=True)
 def derivativess(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, asmpar, tempmodel, decay_switch, reactive_settler):
-    """Returns an array containing the differential equations a reactive 10 layer sedimentation tank, which is compatible with ASM1 model
+    """Returns an array containing the differential equations of a reactive 10 layer sedimentation tank, which is compatible with ASM1 model
 
     Parameters
     ----------
