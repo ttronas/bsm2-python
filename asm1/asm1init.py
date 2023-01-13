@@ -1,17 +1,22 @@
-import numpy as np
+"""Initialisation file for all states and parameters related to the AS systems (reactors 1-5)
 
+All state values are based on Alex et al. (2018), from BSM2 openloop results using the constant input file.
+
+This file will be executed when running the asm1run or asm1runss file.
+"""
+
+
+import numpy as np
 
 # flows:
 Qin0 = 18446
 
-Qin = Qin0  # evtl brauch ich das gar nicht --> im Hauptcode auch ändern
+Qin = Qin0
 Qintr = 3*Qin0
 Qr = Qin0
 Qw = 385
 
 # concentrations in different AS reactors (1 to 5):
-# Matlab: 'The state values are based on BSM2 openloop results using the constant
-# input file.'
 S_I1 = 28.0643
 S_S1 = 3.0503
 X_I1 = 1532.3
