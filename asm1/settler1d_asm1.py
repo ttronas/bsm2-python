@@ -104,8 +104,8 @@ def derivativess(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, asmpar, tempmodel, de
     dys = np.zeros(200)
 
     area = dim[0]
-    h = dim[1] / layer[1]
     feedlayer = layer[0]
+    h = dim[1] / layer[1]
     volume = area * dim[1]
 
     eps = 0.01
@@ -426,49 +426,6 @@ def derivativess(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, asmpar, tempmodel, de
 
 
 class Settler:
-    """
-    A class representing a settler as a reactive sedimentation tank with certain number of layers, which is compatible with ASM1 model.
-
-    Attributes
-    ----------
-    dim : np.ndarray
-        Dimensions of the settler, area and height
-
-    layer : np.ndarray
-        Feedlayer and number of layers in the settler
-
-    Qr : int
-        Return sludge flow rate
-
-    Qw : int
-        flow rate of waste sludge
-
-    ys0 : np.ndarray
-        Initial values for the 20 components (without Q) for each layer, sorted by components
-
-    sedpar : np.ndarray
-        6 parameters needed for settler equations
-
-    asmpar : np.ndarray
-        26 parameters needed for ASM1 equations
-
-    tempmodel : bool
-        If true, mass balance for the wastewater temperature is used in process rates,
-        otherwise influent wastewater temperature is just passed through process reactors
-
-    decay_switch : bool
-        If true, the decay of heterotrophs and autotrophs is depending on the electron acceptor present,
-        otherwise the decay do not change
-
-    reactive_settler : bool
-        If true, the settling model is non-reactive, otherwise the settling model is reactive
-
-    Methods
-    -------
-    outputs(timestep, step, ys_in)
-        Returns the solved differential equations of settling model
-    """
-
     def __init__(self, dim, layer, Qr, Qw, ys0, sedpar, asmpar, tempmodel, decay_switch, reactive_settler):
         """
         Parameters
