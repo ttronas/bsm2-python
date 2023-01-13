@@ -1,3 +1,11 @@
+"""Initialisation file for all states and parameters related to the secondary clarifier.
+
+All state values are based on Ales et al. (2018), from BSM2 openloop results using the constant input file.
+
+This file will be executed when running the asm1run or asm1runss file.
+"""
+
+
 import numpy as np
 
 SI_1 = 28.0643
