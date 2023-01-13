@@ -161,43 +161,6 @@ def derivatives(t, y, y_in, asmpar, kla, volume, sosat, tempmodel, decay_switch)
 
 
 class ASM1reactor:
-    """
-    A class representing a reactor for activated sludge modelling using ASM1 equations.
-
-    Attributes
-    ----------
-    kla : int
-        Oxygen transfer coefficient in aerated reactors
-
-    volume : int
-        Volume of the reactor
-
-    sosat : int
-        Saturation concentration for oxygen
-
-    y0 : np.ndarray
-        Initial values for the 21 components
-
-    asmpar : np.ndarray
-        26 parameters needed for ASM1 equations
-
-    tempmodel : bool
-        If true, mass balance for the wastewater temperature is used in process rates,
-        otherwise influent wastewater temperature is just passed through process reactors
-
-    activate : bool
-        If true, dummy states are activated, otherwise dummy states are activated
-
-    decay_switch : bool
-        If true, the decay of heterotrophs and autotrophs is depending on the electron acceptor present,
-        otherwise the decay do not change
-
-    Methods
-    -------
-    output(timestep, step, y_in)
-        Returns the solved differential equations of ASM1 model
-    """
-
     def __init__(self,  kla, volume, sosat, y0, asmpar, tempmodel, activate, decay_switch):
         """
         Parameters
