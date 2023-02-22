@@ -6,22 +6,21 @@ file and are necessary for further simulation.
 This script requires that the following packages are installed within the Python environment you are running this script
 in: 'numpy', 'pyexcelerate', 'scipy.integrate', 'numba'.
 
-The parameters 'DECAY', 'SETTLER', 'TEMPMODEL' and 'ACTIVATE' can be set to 'True' if you want to activate them.
+The parameters 'DECAY', 'TEMPMODEL' and 'ACTIVATE' can be set to 'True' if you want to activate them.
 """
 
 
 import numpy as np
+import csv
 import time         # dieses Package am Ende immernoch?
 import asm1init
 import settler1dinit_asm1
 import asm1
 import settler1d_asm1
+from pyexcelerate import Workbook
 
 DECAY = False       # if DECAY is True the decay of heterotrophs and autotrophs is depending on the electron acceptor present
                     # if DECAY is False the decay do not change
-
-SETTLER = False     # if SETTLER is False the settling model is non-reactive
-                    # if SETTLER is True the settling model is reactive
 
 TEMPMODEL = False   # if TEMPMODEL is False influent wastewater temperature is just passed through process reactors
                     # if TEMPMODEL is True mass balance for the wastewater temperature is used in process reactors
@@ -31,12 +30,12 @@ ACTIVATE = False    # if ACTIVATE is False dummy states are 0
 
 
 # definition of the reactors:
-reactor1 = asm1.ASM1reactor(asm1init.KLa1, asm1init.VOL1, asm1init.SOSAT1, asm1init.YINIT1, asm1init.PAR1, TEMPMODEL, ACTIVATE, DECAY)
-reactor2 = asm1.ASM1reactor(asm1init.KLa2, asm1init.VOL2, asm1init.SOSAT2, asm1init.YINIT2, asm1init.PAR2, TEMPMODEL, ACTIVATE, DECAY)
-reactor3 = asm1.ASM1reactor(asm1init.KLa3, asm1init.VOL3, asm1init.SOSAT3, asm1init.YINIT3, asm1init.PAR3, TEMPMODEL, ACTIVATE, DECAY)
-reactor4 = asm1.ASM1reactor(asm1init.KLa4, asm1init.VOL4, asm1init.SOSAT4, asm1init.YINIT4, asm1init.PAR4, TEMPMODEL, ACTIVATE, DECAY)
-reactor5 = asm1.ASM1reactor(asm1init.KLa5, asm1init.VOL5, asm1init.SOSAT5, asm1init.YINIT5, asm1init.PAR5, TEMPMODEL, ACTIVATE, DECAY)
-settler = settler1d_asm1.Settler(settler1dinit_asm1.DIM, settler1dinit_asm1.LAYER, asm1init.Qr, asm1init.Qw, settler1dinit_asm1.SETTLERINIT, settler1dinit_asm1.SETTLERPAR, asm1init.PAR1, TEMPMODEL, DECAY, SETTLER)
+reactor1 = asm1.ASM1reactor(asm1init.KLa1, asm1init.VOL1, asm1init.yinit1, asm1init.PAR1, asm1init.carb1, asm1init.carbonsourceconc, TEMPMODEL, ACTIVATE, DECAY)
+reactor2 = asm1.ASM1reactor(asm1init.KLa2, asm1init.VOL2, asm1init.yinit2, asm1init.PAR2, asm1init.carb2, asm1init.carbonsourceconc, TEMPMODEL, ACTIVATE, DECAY)
+reactor3 = asm1.ASM1reactor(asm1init.KLa3, asm1init.VOL3, asm1init.yinit3, asm1init.PAR3, asm1init.carb3, asm1init.carbonsourceconc, TEMPMODEL, ACTIVATE, DECAY)
+reactor4 = asm1.ASM1reactor(asm1init.KLa4, asm1init.VOL4, asm1init.yinit4, asm1init.PAR4, asm1init.carb4, asm1init.carbonsourceconc, TEMPMODEL, ACTIVATE, DECAY)
+reactor5 = asm1.ASM1reactor(asm1init.KLa5, asm1init.VOL5, asm1init.yinit5, asm1init.PAR5, asm1init.carb5, asm1init.carbonsourceconc, TEMPMODEL, ACTIVATE, DECAY)
+settler = settler1d_asm1.Settler(settler1dinit_asm1.DIM, settler1dinit_asm1.LAYER, asm1init.Qr, asm1init.Qw, settler1dinit_asm1.settlerinit, settler1dinit_asm1.SETTLERPAR, asm1init.PAR1, TEMPMODEL, DECAY)
 
 # CONSTINFLUENT:
 y_in = np.array([30, 69.5000000000000, 51.2000000000000, 202.320000000000, 28.1700000000000, 0, 0, 0, 0, 31.5600000000000, 6.95000000000000, 10.5900000000000, 7, 211.267500000000, 18446, 15, 0, 0, 0, 0, 0])
@@ -73,22 +72,26 @@ for step in simtime:
     if ys_in[14] < 0.0:
         ys_in[14] = 0.0
 
-    ys_out, ys_out_all = settler.outputs(timestep, step, ys_in)
+    ys_out, ys_eff, ys_TSS = settler.outputs(timestep, step, ys_in)
 
 stop = time.perf_counter()
 
 print('Simulationszeit: ', stop - start)
-print('Output bei t = 200 d: ', ys_out)
+print('Output bei t = 200 d: ', ys_out, ys_eff)
 
-# start_writer = time.perf_counter()
 
-# output = [y_out1, y_out2, y_out3, y_out4, y_out5, ys_out, settler.ys0]
-#
-# wb2 = Workbook()
-# ws = wb2.new_sheet("sheet1", data=output)
-# wb2.save("results_ss_ode.xlsx")
-#
-# stop_writer = time.perf_counter()
-#
-# print('Zeit für Excel: ', stop_writer - start_writer)
+with open('asm1_values_ss_val.csv', 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile, delimiter=' ')
+    writer.writerow(y_out1)
+    writer.writerow(y_out2)
+    writer.writerow(y_out3)
+    writer.writerow(y_out4)
+    writer.writerow(y_out5)
+    writer.writerow(ys_out)
+    writer.writerow(ys_eff)
+    writer.writerow(settler.ys0)
+
+
+
+
 
