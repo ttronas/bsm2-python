@@ -1,10 +1,13 @@
 import numpy as np
-from scipy.integrate import solve_ivp, odeint
-from numba import jit, njit
+from scipy.integrate import odeint
+from numba import jit
 
+
+indices_components = np.arange(21)
+SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = indices_components
 
 @jit(nopython=True)
-def derivatives(t, y, y_in, asmpar, kla, volume, sosat, tempmodel, decay_switch):
+def derivatives(t, y, y_in, asmpar, kla, volume, tempmodel, decay_switch, activate):
     """Returns an array containing the differential equations of ASM1
 
     Parameters
@@ -38,6 +41,9 @@ def derivatives(t, y, y_in, asmpar, kla, volume, sosat, tempmodel, decay_switch)
         If true, the decay of heterotrophs and autotrophs is depending on the electron acceptor present,
         otherwise the decay do not change
 
+    activate : bool
+            If true, dummy states are activated, otherwise dummy states are activated
+
     Returns
     -------
     np.ndarray
@@ -46,9 +52,7 @@ def derivatives(t, y, y_in, asmpar, kla, volume, sosat, tempmodel, decay_switch)
     """
 
     dy = np.zeros(21)
-
-    indices_components = np.arange(21)
-    SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = indices_components
+    reac = np.zeros(21)
 
     mu_H, K_S, K_OH, K_NO, b_H, mu_A, K_NH, K_OA, b_A, ny_g, k_a, k_h, K_X, ny_h, Y_H, Y_A, f_P, i_XB, i_XP, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS, hH_NO3_end, hA_NO3_end = asmpar
 
@@ -80,88 +84,64 @@ def derivatives(t, y, y_in, asmpar, kla, volume, sosat, tempmodel, decay_switch)
     # concentrations should not be negative:
     ytemp = y
     ytemp[ytemp < 0.0] = 0.0
+    y[y < 0.0] = 0.0
 
     # for fixed oxygen concentration:
     if kla < 0.0:
         y[SO] = abs(kla)
 
     # process rates:
+    proc1 = mu_H * (ytemp[SS] / (K_S + ytemp[SS])) * (ytemp[SO] / (K_OH + ytemp[SO])) * ytemp[XBH]
+    proc2 = mu_H * (ytemp[SS] / (K_S + ytemp[SS])) * (K_OH / (K_OH + ytemp[SO])) * (ytemp[SNO] / (K_NO + ytemp[SNO])) * ny_g * ytemp[XBH]
+    proc3 = mu_A * (ytemp[SNH] / (K_NH + ytemp[SNH])) * (ytemp[SO] / (K_OA + ytemp[SO])) * ytemp[XBA]
     if decay_switch:
-        proc1 = mu_H * (ytemp[SS] / (K_S + ytemp[SS])) * (ytemp[SO] / (K_OH + ytemp[SO])) * ytemp[XBH]
-        proc2 = mu_H * (ytemp[SS] / (K_S + ytemp[SS])) * (K_OH / (K_OH + ytemp[SO])) * (ytemp[SNO] / (K_NO + ytemp[SNO])) * ny_g * ytemp[XBH]
-        proc3 = mu_A * (ytemp[SNH] / (K_NH + ytemp[SNH])) * (ytemp[SO] / (K_OA + ytemp[SO])) * ytemp[XBA]
         proc4 = b_H * (ytemp[SO] / (K_OH + ytemp[SO]) + hH_NO3_end * K_OH / (K_OH + ytemp[SO]) * ytemp[SNO] / (K_NO + ytemp[SNO])) * ytemp[XBH]
         proc5 = b_A * (ytemp[SO] / (K_OH + ytemp[SO]) + hA_NO3_end * K_OH / (K_OH + ytemp[SO]) * ytemp[SNO] / (K_NO + ytemp[SNO])) * ytemp[XBA]
-        proc6 = k_a * ytemp[SND] * ytemp[XBH]
-        proc7 = k_h * ((ytemp[XS] / ytemp[XBH]) / (K_X + (ytemp[XS] / ytemp[XBH]))) * ((ytemp[SO] / (K_OH + ytemp[SO])) + ny_h * (K_OH / (K_OH + ytemp[SO])) * (ytemp[SNO] / (K_NO + ytemp[SNO]))) * ytemp[XBH]
-        proc8 = proc7 * (ytemp[XND] / ytemp[XS])
-
-    elif not decay_switch:
-        proc1 = mu_H * (ytemp[SS] / (K_S + ytemp[SS])) * (ytemp[SO] / (K_OH + ytemp[SO])) * ytemp[XBH]
-        proc2 = mu_H * (ytemp[SS] / (K_S + ytemp[SS])) * (K_OH / (K_OH + ytemp[SO])) * (ytemp[SNO] / (K_NO + ytemp[SNO])) * ny_g * ytemp[XBH]
-        proc3 = mu_A * (ytemp[SNH] / (K_NH + ytemp[SNH])) * (ytemp[SO] / (K_OA + ytemp[SO])) * ytemp[XBA]
+    else:
         proc4 = b_H * ytemp[XBH]
         proc5 = b_A * ytemp[XBA]
-        proc6 = k_a * ytemp[SND] * ytemp[XBH]
-        proc7 = k_h * ((ytemp[XS] / ytemp[XBH]) / (K_X + (ytemp[XS] / ytemp[XBH]))) * ((ytemp[SO] / (K_OH + ytemp[SO])) + ny_h * (K_OH / (K_OH + ytemp[SO])) * (ytemp[SNO] / (K_NO + ytemp[SNO]))) * ytemp[XBH]
-        proc8 = proc7 * (ytemp[XND] / ytemp[XS])
+    proc6 = k_a * ytemp[SND] * ytemp[XBH]
+    proc7 = k_h * ((ytemp[XS] / ytemp[XBH]) / (K_X + (ytemp[XS] / ytemp[XBH]))) * ((ytemp[SO] / (K_OH + ytemp[SO])) + ny_h * (K_OH / (K_OH + ytemp[SO])) * (ytemp[SNO] / (K_NO + ytemp[SNO]))) * ytemp[XBH]
+    proc8 = proc7 * (ytemp[XND] / ytemp[XS])
 
     # conversion rates:
-    reac1 = 0.0
-    reac2 = (-proc1 - proc2) / Y_H + proc7
-    reac3 = 0.0
-    reac4 = (1.0 - f_P) * (proc4 + proc5) - proc7
-    reac5 = proc1 + proc2 - proc4
-    reac6 = proc3 - proc5
-    reac7 = f_P * (proc4 + proc5)
-    reac8 = -((1.0 - Y_H) / Y_H) * proc1 - ((4.57 - Y_A) / Y_A) * proc3
-    reac9 = -((1.0 - Y_H) / (2.86 * Y_H)) * proc2 + proc3 / Y_A
-    reac10 = -i_XB * (proc1 + proc2) - (i_XB + (1.0 / Y_A)) * proc3 + proc6
-    reac11 = -proc6 + proc8
-    reac12 = (i_XB - f_P * i_XP) * (proc4 + proc5) - proc8
-    reac13 = -i_XB / 14.0 * proc1 + ((1.0 - Y_H) / (14.0 * 2.86 * Y_H) - (i_XB / 14.0)) * proc2 - (
+    reac[SI] = 0.0
+    reac[SS] = (-proc1 - proc2) / Y_H + proc7
+    reac[XI] = 0.0
+    reac[XS] = (1.0 - f_P) * (proc4 + proc5) - proc7
+    reac[XBH] = proc1 + proc2 - proc4
+    reac[XBA] = proc3 - proc5
+    reac[XP] = f_P * (proc4 + proc5)
+    reac[SO] = -(1.0 - Y_H) / Y_H * proc1 - (4.57 - Y_A) / Y_A * proc3
+    reac[SNO] = -((1.0 - Y_H) / (2.86 * Y_H)) * proc2 + proc3 / Y_A
+    reac[SNH] = -i_XB * (proc1 + proc2) - (i_XB + (1.0 / Y_A)) * proc3 + proc6
+    reac[SND] = -proc6 + proc8
+    reac[XND] = (i_XB - f_P * i_XP) * (proc4 + proc5) - proc8
+    reac[SALK] = -i_XB / 14.0 * proc1 + ((1.0 - Y_H) / (14.0 * 2.86 * Y_H) - (i_XB / 14.0)) * proc2 - (
                 (i_XB / 14.0) + 1.0 / (7.0 * Y_A)) * proc3 + proc6 / 14.0
-    reac16 = 0.0
-    reac17 = 0.0
-    reac18 = 0.0
-    reac19 = 0.0
-    reac20 = 0.0
+    reac[SD1] = 0.0
+    reac[SD2] = 0.0
+    reac[SD3] = 0.0
+    reac[XD4] = 0.0
+    reac[XD5] = 0.0
 
     # differential equations:
-    dy[SI] = 1.0 / volume * (y_in[Q] * (y_in[SI] - y[SI])) + reac1
-    dy[SS] = 1.0 / volume * (y_in[Q] * (y_in[SS] - y[SS])) + reac2
-    dy[XI] = 1.0 / volume * (y_in[Q] * (y_in[XI] - y[XI])) + reac3
-    dy[XS] = 1.0 / volume * (y_in[Q] * (y_in[XS] - y[XS])) + reac4
-    dy[XBH] = 1.0 / volume * (y_in[Q] * (y_in[XBH] - y[XBH])) + reac5
-    dy[XBA] = 1.0 / volume * (y_in[Q] * (y_in[XBA] - y[XBA])) + reac6
-    dy[XP] = 1.0 / volume * (y_in[Q] * (y_in[XP] - y[XP])) + reac7
-    if kla < 0.0:
-        dy[SO] = 0.0
-    else:
-        dy[SO] = 1.0 / volume * (y_in[Q] * (y_in[SO] - y[SO])) + reac8 + KLa_temp * (SO_sat_temp - y[SO])
-    dy[SNO] = 1.0 / volume * (y_in[Q] * (y_in[SNO] - y[SNO])) + reac9
-    dy[SNH] = 1.0 / volume * (y_in[Q] * (y_in[SNH] - y[SNH])) + reac10
-    dy[SND] = 1.0 / volume * (y_in[Q] * (y_in[SND] - y[SND])) + reac11
-    dy[XND] = 1.0 / volume * (y_in[Q] * (y_in[XND] - y[XND])) + reac12
-    dy[SALK] = 1.0 / volume * (y_in[Q] * (y_in[SALK] - y[SALK])) + reac13
-    dy[TSS] = 0.0
-    dy[Q] = 0.0
-    if not tempmodel:
-        dy[TEMP] = 0.0
-    else:
+    dy[0:7] = 1.0 / volume * (y_in[Q] * (y_in[0:7] - y[0:7])) + reac[0:7]
+    if kla >= 0.0:
+        dy[SO] = 1.0 / volume * (y_in[Q] * (y_in[SO] - y[SO])) + reac[SO] + KLa_temp * (SO_sat_temp - y[SO])
+    dy[8:13] = 1.0 / volume * (y_in[Q] * (y_in[8:13] - y[8:13])) + reac[8:13]
+
+    if tempmodel:
         dy[TEMP] = 1.0 / volume * (y_in[Q] * (y_in[TEMP] - y[TEMP]))
 
-    dy[SD1] = 1.0 / volume * (y_in[Q] * (y_in[SD1] - y[SD1])) + reac16
-    dy[SD2] = 1.0 / volume * (y_in[Q] * (y_in[SD2] - y[SD2])) + reac17
-    dy[SD3] = 1.0 / volume * (y_in[Q] * (y_in[SD3] - y[SD3])) + reac18
-    dy[XD4] = 1.0 / volume * (y_in[Q] * (y_in[XD4] - y[XD4])) + reac19
-    dy[XD5] = 1.0 / volume * (y_in[Q] * (y_in[XD5] - y[XD5])) + reac20
+    if activate:
+        dy[16:21] = 1.0 / volume * (y_in[Q] * (y_in[16:21] - y[16:21]))
 
     return dy
 
 
 class ASM1reactor:
-    def __init__(self,  kla, volume, sosat, y0, asmpar, tempmodel, activate, decay_switch):
+    def __init__(self,  kla, volume, y0, asmpar, carb, csourceconc, tempmodel, activate, decay_switch):
         """
         Parameters
         ----------
@@ -171,14 +151,17 @@ class ASM1reactor:
         volume : int
             Volume of the reactor
 
-        sosat : int
-            Saturation concentration for oxygen
-
         y0 : np.ndarray
             Initial values for the 21 components
 
         asmpar : np.ndarray
             26 parameters needed for ASM1 equations
+
+        carb : int
+            external carbon flow rates for carbon addition to a reator
+
+        csourceconc : int
+            external carbon source concentration
 
         tempmodel : bool
             If true, mass balance for the wastewater temperature is used in process rates,
@@ -194,12 +177,37 @@ class ASM1reactor:
 
         self.kla = kla              # oxygen transfer coefficient in aerated reactors
         self.volume = volume  # volume of the reactor compartment
-        self.sosat = sosat          # saturation concentration for oxygen
         self.y0 = y0                # initial states for integration (damit man es anpassen kann)
         self.asmpar = asmpar        # Parameters of ASM1-Model
+        self.carb = carb
+        self.csourceconc = csourceconc
         self.tempmodel = tempmodel
         self.activate = activate
         self.decay_switch = decay_switch
+
+    def carbonaddition(self, y_in):
+        """Returns the reactor inlet concentrations after adding an external carbon source.
+
+        Parameters:
+        ----------
+        y_in : np.ndarray
+            Reactor inlet concentrations of the 20 components (13 ASM3 components, Q, T and 5 dummy states) before adding external carbon source.
+
+        Returns
+        -------
+        np.ndarray
+            Array containing the reactor inlet concentrations of the 21 components (14 ASM3 components, Q, T and 5 dummy states) after adding external carbon source
+        """
+
+        y_in[SI] = (y_in[SI] * y_in[Q]) / (self.carb + y_in[Q])
+        y_in[SS] = (y_in[SS] * y_in[Q] + self.csourceconc * self.carb) / (self.carb + y_in[Q])
+        y_in[3:14] = (y_in[3:14] * y_in[Q]) / (self.carb + y_in[Q])
+        # Temperature stays the same
+        y_in[16:21] = (y_in[16:21] * y_in[Q]) / (self.carb + y_in[Q])
+        y_in[Q] = self.carb + y_in[Q]
+
+
+        return y_in
 
     def output(self, timestep, step, y_in):
         """Returns the solved differential equations of ASM1 model.
@@ -221,16 +229,20 @@ class ASM1reactor:
 
         t_eval = np.array([step, step+timestep])    # time interval for odeint
 
-        ode = odeint(derivatives, self.y0, t_eval, tfirst=True, args=(y_in, self.asmpar, self.kla, self.volume, self.sosat, self.tempmodel, self.decay_switch,), rtol=1e-5, atol=1e-8)
+        if self.carb > 0.0:
+            y_in = self.carbonaddition(y_in)
+
+        ode = odeint(derivatives, self.y0, t_eval, tfirst=True, args=(y_in, self.asmpar, self.kla, self.volume, self.tempmodel, self.decay_switch, self.activate))
         y_out = ode[1]
 
-        y_out[13] = self.asmpar[19] * y_out[2] + self.asmpar[20] * y_out[3] + self.asmpar[21] * y_out[4] + self.asmpar[22] * y_out[5] + self.asmpar[23] * y_out[6]  # TSS
-        y_out[14] = y_in[14]  # Flow
+        y_out[TSS] = self.asmpar[19] * y_out[XI] + self.asmpar[20] * y_out[XS] + self.asmpar[21] * y_out[XBH] + self.asmpar[22] * y_out[XBA] + self.asmpar[23] * y_out[XP]
+        y_out[Q] = y_in[Q]
         if not self.tempmodel:
-            y_out[15] = y_in[15]  # Temperature
+            y_out[TEMP] = y_in[TEMP]
 
         if not self.activate:
             y_out[16:20] = 0.0
+
         self.y0 = y_out
 
         return y_out
