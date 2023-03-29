@@ -82,7 +82,7 @@ KLa1 = 0
 KLa2 = 0
 KLa3 = 240
 KLa4 = 240
-KLa5 = 84
+KLa5 = 144
 
 # external carbon flow rates for reactor 1 to 5:
 carb1 = 0
