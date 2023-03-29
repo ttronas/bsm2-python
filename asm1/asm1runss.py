@@ -80,7 +80,7 @@ print('Simulationszeit: ', stop - start)
 print('Output bei t = 200 d: ', ys_out, ys_eff)
 
 
-with open('asm1_values_ss_val.csv', 'w', newline='') as csvfile:
+with open('asm1_values_ss_aerationsetoff.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter=' ')
     writer.writerow(y_out1)
     writer.writerow(y_out2)
