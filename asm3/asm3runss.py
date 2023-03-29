@@ -4,19 +4,19 @@ This script will run the plant (ams3 model + settling model) to steady state. Th
 file and are necessary for further simulation.
 
 This script requires that the following packages are installed within the Python environment you are running this script
-in: 'numpy', 'pyexcelerate', 'scipy.integrate', 'numba'.
+in: 'numpy', 'csv', 'scipy.integrate', 'numba'.
 
 The parameters 'TEMPMODEL' and 'ACTIVATE' can be set to 'True' if you want to activate them.
 """
 
 
 import numpy as np
+import csv
 import time         # dieses Package am Ende immernoch?
 import asm3init
 import settler1dinit_asm3
 import asm3
 import settler1d_asm3
-from pyexcelerate import Workbook
 
 
 tempmodel = False   # if TEMPMODEL is False influent wastewater temperature is just passed through process reactors
@@ -73,14 +73,20 @@ stop = time.perf_counter()
 
 print('Simulationszeit: ', stop - start)
 print('Output bei t = 200 d: ', ys_out, ys_eff)
+print('TSS Output: ', settler.ys0[70:80])
 
 start_writer = time.perf_counter()
 
-output = [y_out1[0:20], y_out2[0:20], y_out3[0:20], y_out4[0:20], y_out5[0:20], ys_out, ys_eff, settler.ys0]
-
-wb2 = Workbook()
-ws = wb2.new_sheet("sheet1", data=output)
-wb2.save("results_ss.xlsx")
+# with open('asm3_values_ss_val.csv', 'w', newline='') as csvfile:
+#     writer = csv.writer(csvfile, delimiter=' ')
+#     writer.writerow(y_out1[0:20])
+#     writer.writerow(y_out2[0:20])
+#     writer.writerow(y_out3[0:20])
+#     writer.writerow(y_out4[0:20])
+#     writer.writerow(y_out5[0:20])
+#     writer.writerow(ys_out)
+#     writer.writerow(ys_eff)
+#     writer.writerow(settler.ys0)
 #
 stop_writer = time.perf_counter()
 

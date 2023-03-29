@@ -12,6 +12,13 @@ Qintr = 3*Qin
 Qr = Qin
 Qw = 385
 
+# yinit1 = np.ones(20)
+# yinit1[13] = Qin
+# yinit1[15:20] = 0
+# yinit2 = yinit1
+# yinit3 = yinit1
+# yinit4 = yinit1
+# yinit5 = yinit1
 S_O2_1 = 2
 S_I_1 = 30
 S_S_1 = 2
@@ -189,7 +196,7 @@ kla1 = 0
 kla2 = 0
 kla3 = 240
 kla4 = 240
-kla5 = 240
+kla5 = 84
 
 # external carbon flow rates for reactor 1 to 5:
 carb1 = 0

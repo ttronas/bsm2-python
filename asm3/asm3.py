@@ -51,6 +51,7 @@ def derivatives(t, y, y_in, asm3par, kla, volume, tempmodel, activate):
     asm3kinpar_10 = np.array([2, 1, 2.5, 0.6, 0.2, 0.5, 2, 1, 1, 0.01, 0.1, 0.1, 0.05, 0.1, 0.05, 0.35, 1, 0.5, 0.5,
                               0.05, 0.02])
     asm3par_temp = np.zeros(21)
+
     # temperature compensation of kinetic parameters, saturation concentration of O2 and KLa:
     if not tempmodel:
         # compensation with the temperature at the inlet of the reactor:
@@ -61,64 +62,151 @@ def derivatives(t, y, y_in, asm3par, kla, volume, tempmodel, activate):
         kla_temp = kla * pow(1.024, (y_in[TEMP] - 15))  # from Gernaey, 2015 (ASCE, 1993)
     else:
         # compensation with the current temperature in the reactor:
-        asm3par[0:21] = asm3par[0:21] * np.exp(np.log(asm3par[0:21] / asm3kinpar_10) / (20 - 10) * (y[TEMP] - 20))
+        asm3par_temp[0:21] = asm3par[0:21] * np.exp(np.log(asm3par[0:21] / asm3kinpar_10) / (20 - 10) * (y[TEMP] - 20))
         sosat_temp = 0.9997743214 * 8.0 / 10.5 * (56.12 * 6791.5 * np.exp(-66.7354 + 87.4755 / ((y[TEMP] + 273.15) /
                         100.0) + 24.4526 * np.log((y[TEMP] + 273.15) / 100.0)))  # van't Hoff equation (Gernaey, 2015
                                                                                  # (Lide, 2004))
         kla_temp = kla * pow(1.024, (y[TEMP] - 15))  # from Gernaey, 2015 (ASCE, 1993)
 
+
+
     k_H, K_X, k_STO, ny_NOX, K_O2, K_NOX, K_S, K_STO, mu_H, K_NH4, K_ALK, b_HO2, b_HNOX, b_STOO2, b_STONOX, mu_A, \
     K_ANH4, K_AO2, K_AALK, b_AO2, b_ANOX = asm3par_temp[0:21]
     f_SI, Y_STOO2, Y_STONOX, Y_HO2, Y_HNOX, Y_A, f_XI, i_NSI, i_NSS, i_NXI, i_NXS, i_NBM, i_SSXI, i_SSXS, i_SSBM, i_SSSTO = asm3par[21:37]
 
-    # # from Gujer, 1999 and Hauduc, 2010 with original notation
-    x1 = 1 - f_SI
-    x2 = - (1 - Y_STOO2)
-    x3 = - (1 - Y_STONOX) / 2.86
-    x4 = - (1 - Y_HO2) / Y_HO2
-    x5 = - (1 - Y_HNOX) / Y_HNOX * 1 / 2.86
-    x6 = - (1 - f_XI)
-    x7 = - (1 - f_XI) / 2.86
-    x8 = - 1
-    x9 = - 1 / 2.86
-    x10 = - (4.57 - Y_A) / Y_A
-    x11 = - (1 - f_XI)
-    x12 = - (1 - f_XI) / 2.86
+    # # temperature compensation like WEST:
+    # k_H, K_X, k_STO, ny_NOX, K_O2, K_NOX, K_S, K_STO, mu_H, K_NH4, K_ALK, b_HO2, b_HNOX, b_STOO2, b_STONOX, mu_A, \
+    # K_ANH4, K_AO2, K_AALK, b_AO2, b_ANOX, f_SI, Y_STOO2, Y_STONOX, Y_HO2, Y_HNOX, Y_A, f_XI, i_NSI, i_NSS, i_NXI, i_NXS, i_NBM, i_SSXI, i_SSXS, i_SSBM, i_SSSTO = asm3par
+    # b_ANOX = b_ANOX * pow(1.096, 15-20)
+    # b_AO2 = b_AO2 * pow(1.116, 15-20)
+    # b_HNOX = b_HNOX * pow(1.072, 15-20)
+    # b_HO2 = b_HO2 * pow(1.072, 15-20)
+    # b_STONOX = b_STONOX * pow(1.072, 15-20)
+    # b_STOO2 = b_STOO2 * pow(1.072, 15-20)
+    # k_STO = k_STO * pow(1.072, 15-20)
+    # k_H = k_H * pow(1.041, 15-20)
+    # mu_A = mu_A * pow(1.111, 15-20)
+    # mu_H = mu_H * pow(1.072, 15-20)
+    #
+    # sosat_temp = 0.9997743214 * 8.0 / 10.5 * (56.12 * 6791.5 * np.exp(-66.7354 + 87.4755 / ((y_in[14] + 273.15) / 100.0) + 24.4526 * np.log((y_in[14] + 273.15) / 100.0)))
+    # kla_temp = kla * pow(1.024, (y_in[14] - 15.0))  # diese Korrektur mit 20 °C ist falsch!
 
-    y1 = - (1 - f_SI) * i_NSS - f_SI * i_NSI + i_NXS
+    # k_H, K_X, k_STO, ny_NOX, K_O2, K_NOX, K_S, K_STO, mu_H, K_NH4, K_ALK, b_HO2, b_HNOX, b_STOO2, b_STONOX, mu_A, \
+    # K_ANH4, K_AO2, K_AALK, b_AO2, b_ANOX, f_SI, Y_STOO2, Y_STONOX, Y_HO2, Y_HNOX, Y_A, f_XI, i_NSI, i_NSS, i_NXI, i_NXS, i_NBM, i_SSXI, i_SSXS, i_SSBM, i_SSSTO = asm3par
+    #
+    # k_H = k_H * np.exp((np.log(k_H / 2) / 10.0) * (y_in[TEMP] - 20.0))
+    #
+    # k_STO = k_STO * np.exp((np.log(k_STO / 2.5) / 10.0) * (y_in[14] - 20.0))
+    # mu_H = mu_H * np.exp((np.log(mu_H / 1.0) / 10.0) * (y_in[14] - 20.0))
+    # b_HO2 = b_HO2 * np.exp((np.log(b_HO2 / 0.1) / 10.0) * (y_in[14] - 20.0))
+    # b_HNOX = b_HNOX * np.exp((np.log(b_HNOX / 0.05) / 10.0) * (y_in[14] - 20.0))
+    # b_STOO2 = b_STOO2 * np.exp((np.log(b_STOO2 / 0.1) / 10.0) * (y_in[14] - 20.0))
+    # b_STONOX = b_STONOX * np.exp((np.log(b_STONOX / 0.05) / 10.0) * (y_in[14] - 20.0))
+    #
+    # mu_A = mu_A * np.exp((np.log(mu_A / 0.35) / 10.0) * (y_in[14] - 20.0))
+    # b_AO2 = b_AO2 * np.exp((np.log(b_AO2 / 0.05) / 10.0) * (y_in[14] - 20.0))
+    # b_ANOX = b_ANOX * np.exp((np.log(b_ANOX / 0.02) / 10.0) * (y_in[14] - 20.0))
+    #
+    # sosat_temp = 0.9997743214 * 8.0 / 10.5 * (56.12 * 6791.5 * np.exp(-66.7354 + 87.4755 / ((y_in[14] + 273.15) / 100.0) + 24.4526 * np.log((y_in[14] + 273.15) / 100.0)))
+    # kla_temp = kla * pow(1.024, (y_in[14] - 15.0))  # diese Korrektur mit 20 °C ist falsch!
+
+    # # from Gujer, 1999 and Hauduc, 2010 with original notation
+    # x1 = 1 - f_SI
+    # x2 = - (1 - Y_STOO2)
+    # x3 = - (1 - Y_STONOX) / 2.86
+    # x4 = - (1 - Y_HO2) / Y_HO2
+    # x5 = - (1 - Y_HNOX) / Y_HNOX * 1 / 2.86
+    # x6 = - (1 - f_XI)
+    # x7 = - (1 - f_XI) / 2.86
+    # x8 = - 1
+    # x9 = - 1 / 2.86
+    # x10 = - (4.57 - Y_A) / Y_A
+    # x11 = - (1 - f_XI)
+    # x12 = - (1 - f_XI) / 2.86
+    #
+    # y1 = - (1 - f_SI) * i_NSS - f_SI * i_NSI + i_NXS
+    # y2 = i_NSS
+    # y3 = i_NSS
+    # y4 = - i_NBM
+    # y5 = - i_NBM
+    # y6 = - f_XI * i_NXI + i_NBM
+    # y7 = - f_XI * i_NXI + i_NBM
+    # y10 = - 1 / Y_A - i_NBM
+    # y11 = - f_XI * i_NXI + i_NBM
+    # y12 = - f_XI * i_NXI + i_NBM
+    #
+    # z1 = y1 / 14     # in original: 1/14
+    # z2 = y2 / 14
+    # z3 = y3 / 14 + x3 / (-14)   # in original: - 1/14
+    # z4 = y4 / 14
+    # z5 = y5 / 14 + x5 / (-14)
+    # z6 = y6 / 14
+    # z7 = y7 / 14 + x7 / (-14)
+    # z9 = x9 / (- 14)
+    # z10 = y10 / 14 + 1 / (Y_A * (-14))
+    # z11 = y11 / 14
+    # z12 = y12 / 14 + x12 / (-14)
+    #
+    # t2 = Y_STOO2 * i_SSSTO
+    # t3 = Y_STONOX * i_SSSTO
+    # t4 = (- 1 / Y_HO2) * i_SSSTO + i_SSBM
+    # t5 = (- 1 / Y_HNOX) * i_SSSTO + i_SSBM
+    # t6 = - i_SSBM + f_XI * i_SSXI
+    # t7 = - i_SSBM + f_XI * i_SSXI
+    # t8 = - i_SSSTO
+    # t9 = - i_SSSTO
+    # t10 = i_SSBM
+    # t11 = - i_SSBM + f_XI * i_SSXI
+    # t12 = - i_SSBM + f_XI * i_SSXI
+
+    x1 = 1.0 - f_SI
+    x2 = -1.0 + Y_STOO2
+    x3 = (-1.0 + Y_STONOX) / (64.0 / 14.0 - 24.0 / 14.0)
+    x4 = 1.0 - 1.0 / Y_HO2
+    x5 = (+1.0 - 1.0 / Y_HNOX) / (64.0 / 14.0 - 24.0 / 14.0)
+    x6 = -1.0 + f_XI
+    x7 = (f_XI - 1.0) / (64.0 / 14.0 - 24.0 / 14.0)
+    x8 = -1.0
+    x9 = -1.0 / (64.0 / 14.0 - 24.0 / 14.0)
+    x10 = -(64.0 / 14.0) / Y_A + 1.0
+    x11 = f_XI - 1.0
+    x12 = (f_XI - 1.0) / (64.0 / 14.0 - 24.0 / 14.0)
+
+    y1 = -f_SI * i_NSI - (1.0 - f_SI) * i_NSS + i_NXS
     y2 = i_NSS
     y3 = i_NSS
-    y4 = - i_NBM
-    y5 = - i_NBM
-    y6 = - f_XI * i_NXI + i_NBM
-    y7 = - f_XI * i_NXI + i_NBM
-    y10 = - 1 / Y_A - i_NBM
-    y11 = - f_XI * i_NXI + i_NBM
-    y12 = - f_XI * i_NXI + i_NBM
+    y4 = -i_NBM
+    y5 = -i_NBM
+    y6 = -f_XI * i_NXI + i_NBM
+    y7 = -f_XI * i_NXI + i_NBM
+    y10 = -1.0 / Y_A - i_NBM
+    y11 = -f_XI * i_NXI + i_NBM
+    y12 = -f_XI * i_NXI + i_NBM
 
-    z1 = y1 / 14     # in original: 1/14
-    z2 = y2 / 14
-    z3 = y3 / 14 + x3 / (-14)   # in original: - 1/14
-    z4 = y4 / 14
-    z5 = y5 / 14 + x5 / (-14)
-    z6 = y6 / 14
-    z7 = y7 / 14 + x7 / (-14)
-    z9 = x9 / (- 14)
-    z10 = y10 / 14 + 1 / (Y_A * (-14))
-    z11 = y11 / 14
-    z12 = y12 / 14 + x12 / (-14)
+    z1 = y1 / 14.0
+    z2 = y2 / 14.0
+    z3 = y3 / 14.0 - x3 / 14.0
+    z4 = y4 / 14.0
+    z5 = y5 / 14.0 - x5 / 14.0
+    z6 = y6 / 14.0
+    z7 = y7 / 14.0 - x7 / 14.0
+    z9 = -x9 / 14.0
+    z10 = y10 / 14.0 - 1.0 / (Y_A * 14.0)
+    z11 = y11 / 14.0
+    z12 = y12 / 14.0 - x12 / 14.0
 
+    t1 = -i_SSXS
     t2 = Y_STOO2 * i_SSSTO
     t3 = Y_STONOX * i_SSSTO
-    t4 = (- 1 / Y_HO2) * i_SSSTO + i_SSBM
-    t5 = (- 1 / Y_HNOX) * i_SSSTO + i_SSBM
-    t6 = - i_SSBM + f_XI * i_SSXI
-    t7 = - i_SSBM + f_XI * i_SSXI
-    t8 = - i_SSSTO
-    t9 = - i_SSSTO
+    t4 = i_SSBM - 1.0 / Y_HO2 * i_SSSTO
+    t5 = i_SSBM - 1.0 / Y_HNOX * i_SSSTO
+    t6 = f_XI * i_SSXI - i_SSBM
+    t7 = f_XI * i_SSXI - i_SSBM
+    t8 = -i_SSSTO
+    t9 = -i_SSSTO
     t10 = i_SSBM
-    t11 = - i_SSBM + f_XI * i_SSXI
-    t12 = - i_SSBM + f_XI * i_SSXI
+    t11 = f_XI * i_SSXI - i_SSBM
+    t12 = f_XI * i_SSXI - i_SSBM
 
     y[y < 0.0] = 0.0    # concentrations can not be negative
 
@@ -139,8 +227,8 @@ def derivatives(t, y, y_in, asm3par, kla, volume, tempmodel, activate):
     proc8 = b_STOO2 * y[SO2] / (K_O2 + y[SO2]) * y[XSTO]
     proc9 = b_STONOX * K_O2 / (K_O2 + y[SO2]) * y[SNOX] / (K_NOX + y[SNOX]) * y[XSTO]
     proc10 = mu_A * y[SO2] / (K_AO2 + y[SO2]) * y[SNH4] / (K_ANH4 + y[SNH4]) * y[SALK] / (K_AALK + y[SALK]) * y[XA]
-    proc11 = b_AO2 * y[SO2] / (K_AO2 + y[SO2]) * y[XA]
-    proc12 = b_ANOX * K_AO2 / (K_AO2 + y[SO2]) * y[SNOX] / (K_NOX + y[SNOX]) * y[XA]  
+    proc11 = b_AO2 * y[SO2] / (K_AO2 + y[SO2]) * y[XA]    # Änderung: in WEST wird statt K_AO2 K_AO2 verwendet
+    proc12 = b_ANOX * K_AO2 / (K_AO2 + y[SO2]) * y[SNOX] / (K_NOX + y[SNOX]) * y[XA]    # Änderung: in WEST wird statt K_AO2 K_AO2 verwendet
 
     # conversion rates:
     reac[SO2] = x2 * proc2 + x4 * proc4 + x6 * proc6 + x8 * proc8 + x10 * proc10 + x11 * proc11
@@ -235,10 +323,10 @@ class ASM3reactor:
             Array containing the reactor inlet concentrations of the 20 components (13 ASM3 components, Q, T and 5 dummy states) after adding external carbon source
         """
 
-        y_in[SO2] = (y_in[SO2] * y_in[Q]) / (self.carb + y_in[Q])
-        y_in[SI] = (y_in[SI] * y_in[Q] + self.csourceconc * self.carb) / (self.carb + y_in[Q])
-        y_in[2:13] = (y_in[2:13] * y_in[Q]) / (self.carb + y_in[Q])
-        y_in[14:20] = (y_in[14:20] * y_in[Q]) / (self.carb + y_in[Q])
+        y_in[0:2] = (y_in[0:2] * y_in[Q]) / (self.carb + y_in[Q])
+        y_in[SS] = (y_in[SS] * y_in[Q] + self.csourceconc * self.carb) / (self.carb + y_in[Q])
+        y_in[3:13] = (y_in[3:13] * y_in[Q]) / (self.carb + y_in[Q])
+        y_in[15:20] = (y_in[15:20] * y_in[Q]) / (self.carb + y_in[Q])
         y_in[Q] = self.carb + y_in[Q]
 
         return y_in
@@ -267,9 +355,9 @@ class ASM3reactor:
 
         if self.carb > 0.0:
             y_in = self.carbonaddition(y_in)
+
         ode = odeint(derivatives, self.y0, t_eval, tfirst=True,
-                     args=(y_in, self.asm3par, self.kla, self.volume, self.tempmodel, self.activate,),
-                     rtol=1e-5, atol=1e-8)
+                     args=(y_in, self.asm3par, self.kla, self.volume, self.tempmodel, self.activate,))
         y_out[0:20] = ode[1]
 
         y_out[Q] = y_in[Q]  # Flow

@@ -8,7 +8,8 @@ This file will be executed when running the asm3run or asm3runss file.
 
 import numpy as np
 
-
+# settlerinit = np.ones(120)
+# settlerinit[90:120] = 0
 SO_1 = 2
 SO_2 = 2
 SO_3 = 2
@@ -141,28 +142,6 @@ SD3_8 = 0
 SD3_9 = 0
 SD3_10 = 0
 
-XD4_1 = 0
-XD4_2 = 0
-XD4_3 = 0
-XD4_4 = 0
-XD4_5 = 0
-XD4_6 = 0
-XD4_7 = 0
-XD4_8 = 0
-XD4_9 = 0
-XD4_10 = 0
-
-XD5_1 = 0
-XD5_2 = 0
-XD5_3 = 0
-XD5_4 = 0
-XD5_5 = 0
-XD5_6 = 0
-XD5_7 = 0
-XD5_8 = 0
-XD5_9 = 0
-XD5_10 = 0
-
 settlerinit = np.array([SO_1, SO_2, SO_3, SO_4, SO_5, SO_6, SO_7, SO_8, SO_9, SO_10, SI_1, SI_2, SI_3, SI_4, SI_5, SI_6, SI_7, SI_8, SI_9, SI_10,
                SS_1, SS_2, SS_3, SS_4, SS_5, SS_6, SS_7, SS_8, SS_9, SS_10, SNH_1, SNH_2, SNH_3, SNH_4, SNH_5, SNH_6, SNH_7, SNH_8,
                SNH_9, SNH_10, SN2_1, SN2_2, SN2_3, SN2_4, SN2_5, SN2_6, SN2_7, SN2_8, SN2_9, SN2_10, SNO3_1, SNO3_2, SNO3_3, SNO3_4,
@@ -174,7 +153,7 @@ settlerinit = np.array([SO_1, SO_2, SO_3, SO_4, SO_5, SO_6, SO_7, SO_8, SO_9, SO
 
 v0_max = 250
 v0 = 474
-r_h = 0.000576
+r_h = 0.000576     # (0.148 + 0.00210 * 100)/1000    # 0.000576    # (0.148 + 0.00210 * 100)/1000   # Änderung: berechnen in WEST diesen Parameter so, statt 0.000576
 r_p = 0.00286
 f_ns = 0.00228
 X_t = 3000
@@ -187,6 +166,7 @@ height = 4
 
 dim = np.array([area, height])
 
+# layers are flexible, default model is a 10 layer sedimentation tank
 feedlayer = 5
 nooflayers = 10
 

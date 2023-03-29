@@ -4,20 +4,20 @@ This script will run a 14 d - simulation with an input file (.xlsx) containing m
 are saved as excel (.xlsx). It is necessary to run the steady state file first.
 
 This script requires that the following packages are installed within the Python environment you are running this script
-in: 'numpy', 'pandas', 'pyexcelerate', 'scipy.integrate', 'numba'.
+in: 'numpy', 'csv', 'scipy.integrate', 'numba'.
 
 The parameters 'TEMPMODEL' and 'ACTIVATE' can be set to 'True' if you want to activate them.
 """
 
-
 import numpy as np
+import csv
 import pandas as pd
 import time
 import asm3init
 import settler1dinit_asm3
 import asm3
 import settler1d_asm3
-from pyexcelerate import Workbook
+import average_asm3
 
 
 tempmodel = False   # if tempmodel is False influent wastewater temperature is just passed through process reactors
@@ -26,14 +26,15 @@ tempmodel = False   # if tempmodel is False influent wastewater temperature is j
 activate = False    # if activate is False dummy states are 0
                     # if activate is True dummy states are activated
 
-# Initial values from steady state simulation:
-df_init = pd.read_excel('results_ss.xlsx', header=None)     # vielleicht eine Fehlermeldung einbauen, wenn man ss noch nicht gemacht hat
-yinit1 = df_init.loc[0, 0:19].to_numpy()
-yinit2 = df_init.loc[1, 0:19].to_numpy()
-yinit3 = df_init.loc[2, 0:19].to_numpy()
-yinit4 = df_init.loc[3, 0:19].to_numpy()
-yinit5 = df_init.loc[4, 0:19].to_numpy()
-settlerinit = df_init.loc[7].to_numpy()
+with open('asm3_values_ss_val.csv', 'r') as f:
+    initdata = list(csv.reader(f, delimiter=" "))
+yinit1 = np.array(initdata[0]).astype(np.float64)
+yinit2 = np.array(initdata[1]).astype(np.float64)
+yinit3 = np.array(initdata[2]).astype(np.float64)
+yinit4 = np.array(initdata[3]).astype(np.float64)
+yinit5 = np.array(initdata[4]).astype(np.float64)
+settlerinit = np.array(initdata[7]).astype(np.float64)
+
 
 # definition of the reactors:
 reactor1 = asm3.ASM3reactor(asm3init.par1, yinit1, asm3init.kla1, asm3init.vol1, asm3init.carb1, asm3init.carbonsourceconc, tempmodel, activate)
@@ -46,13 +47,17 @@ settler = settler1d_asm3.Settler(settler1dinit_asm3.dim, settler1dinit_asm3.laye
 # Dynamic Influent (Dryinfluent):
 df = pd.read_excel('dryinfluent_asm3.xlsx', 'Tabelle1', header=None)     # select input file here
 
-timestep = 1/(60*24)
-sampleinterval = 15/(60*24)
+integration = 1/6     # step of integration in min
+sample = 15         # results are saved every 15 min step
+
+timestep = integration/(60*24)
+sampleinterval = sample/(60*24)
 endtime = 14
 simtime = np.arange(0, endtime, timestep)
+evaltime = np.array([7, 14])
 y_out5 = yinit5
 ys_in = np.zeros(20)
-ys_out = df_init.loc[5, 0:19].to_numpy()
+ys_out = np.array(initdata[5]).astype(np.float64)
 Qintr = asm3init.Qintr
 numberstep = 1
 
@@ -60,28 +65,23 @@ start = time.perf_counter()
 row = 0
 y_in = df.loc[row, 1:20].to_numpy()
 
-reactin = np.zeros((int(endtime/sampleinterval+1), 20))
-react1 = np.zeros((int(endtime/sampleinterval+1), 20))
-react2 = np.zeros((int(endtime/sampleinterval+1), 20))
-react3 = np.zeros((int(endtime/sampleinterval+1), 20))
-react4 = np.zeros((int(endtime/sampleinterval+1), 20))
-react5 = np.zeros((int(endtime/sampleinterval+1), 20))
-settlerout = np.zeros((int(endtime/sampleinterval+1), 20))
-settlereff = np.zeros((int(endtime/sampleinterval+1), 20))
+reactin = np.zeros((int((evaltime[1]-evaltime[0])/sampleinterval), 20))
+react1 = np.zeros((int((evaltime[1]-evaltime[0])/sampleinterval), 24))
+react2 = np.zeros((int((evaltime[1]-evaltime[0])/sampleinterval), 24))
+react3 = np.zeros((int((evaltime[1]-evaltime[0])/sampleinterval), 24))
+react4 = np.zeros((int((evaltime[1]-evaltime[0])/sampleinterval), 24))
+react5 = np.zeros((int((evaltime[1]-evaltime[0])/sampleinterval), 24))
+settlerout = np.zeros((int((evaltime[1]-evaltime[0])/sampleinterval), 20))
+settlereff = np.zeros((int((evaltime[1]-evaltime[0])/sampleinterval), 24))
+
 
 number = 0
-reactin[number] = y_in
-react1[number] = yinit1
-react2[number] = yinit2
-react3[number] = yinit3
-react4[number] = yinit4
-react5[number] = yinit5
-settlerout[number] = df_init.loc[5, 0:19].to_numpy()
-settlereff[number] = df_init.loc[6, 0:19].to_numpy()
-number = number + 1
 
 for step in simtime:
-    if (numberstep-1) % 15 == 0.0:
+    if len(simtime) > 60 / integration * 24 * 14:
+        if step > (14 - timestep):
+            break
+    if (numberstep-1) % (int(sample/integration)) == 0.0:
         y_in = df.loc[row, 1:20].to_numpy()
         row = row + 1
     y_in_r = (y_in * y_in[13] + ys_out[0:20] * ys_out[13]) / (y_in[13] + ys_out[13])
@@ -103,18 +103,49 @@ for step in simtime:
 
     ys_out, ys_eff = settler.outputs(timestep, step, ys_in)
 
-    # print('settler:', ys_out)
+    numberstep = numberstep + 1
 
-    if numberstep % 15 == 0.0:
-        reactin[[number]] = y_in1[0:20]
-        react1[[number]] = y_out1[0:20]
-        react2[[number]] = y_out2[0:20]
-        react3[[number]] = y_out3[0:20]
-        react4[[number]] = y_out4[0:20]
-        react5[[number]] = y_out5[0:20]
-        settlerout[[number]] = ys_out[0:20]
-        settlereff[[number]] = ys_eff[0:20]
-        number = number + 1
+number = 0
+row = 0
+numberstep = 1
+
+for step in simtime:
+    if len(simtime) > 60 / integration * 24 * 14:
+        if step > (14 - timestep):
+            break
+    if (numberstep-1) % (int(sample/integration)) == 0.0:
+        y_in = df.loc[row, 1:20].to_numpy()
+        row = row + 1
+    y_in_r = (y_in * y_in[13] + ys_out[0:20] * ys_out[13]) / (y_in[13] + ys_out[13])
+    y_in_r[13] = y_in[13] + ys_out[13]
+    y_in1 = (y_in_r * y_in_r[13] + y_out5[0:20] * Qintr) / (y_in_r[13] + Qintr)
+    y_in1[13] = y_in_r[13] + Qintr
+
+    y_out1 = reactor1.output(timestep, step, y_in1)
+    y_out2 = reactor2.output(timestep, step, y_out1[0:20])
+    y_out3 = reactor3.output(timestep, step, y_out2[0:20])
+    y_out4 = reactor4.output(timestep, step, y_out3[0:20])
+    y_out5 = reactor5.output(timestep, step, y_out4[0:20])
+
+    Qintr = asm3init.Qintr
+
+    ys_in[0:13] = y_out5[0:13]
+    ys_in[13] = y_out5[13] - Qintr
+    ys_in[14:20] = y_out5[14:20]
+
+    ys_out, ys_eff = settler.outputs(timestep, step, ys_in)
+    if step >= (evaltime[0] - timestep):
+        if (numberstep - 1) % (int(sample / integration)) == 0.0:
+            print(step)
+            reactin[[number]] = y_in1
+            react1[[number]] = y_out1
+            react2[[number]] = y_out2
+            react3[[number]] = y_out3
+            react4[[number]] = y_out4
+            react5[[number]] = y_out5
+            settlerout[[number]] = ys_out
+            settlereff[[number]] = ys_eff
+            number = number + 1
 
     numberstep = numberstep + 1
 
@@ -122,26 +153,16 @@ stop = time.perf_counter()
 
 print('Simulationszeit: ', stop - start)
 print('Output bei t = 14 d: ', ys_out, ys_eff)
+ys_eff_av = np.transpose(average_asm3.averages(settlereff, sampleinterval, evaltime))
+print('Average effluent values after 14 d simulation', ys_eff_av)
 
-start_writer = time.perf_counter()
-wb = Workbook()
-ws = wb.new_sheet("yin", data=reactin)
-ws = wb.new_sheet("yout1", data=react1)
-ws = wb.new_sheet("yout2", data=react2)
-ws = wb.new_sheet("yout3", data=react3)
-ws = wb.new_sheet("yout4", data=react4)
-ws = wb.new_sheet("yout5", data=react5)
-ws = wb.new_sheet("ysout", data=settlerout)
-ws = wb.new_sheet("yseff", data=settlereff)
-wb.save("results_all_asm3.xlsx")
+# Daten als csv-File abspeichern:
+with open('asm3_effluentav_val_10s.csv', 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile, delimiter=' ')
+    writer.writerow(ys_eff_av)
 
-output_all = [react1[number-1], react2[number-1], react3[number-1], react4[number-1], react5[number-1], settlerout[number-1], settlereff[number-1], settler.ys0]
-
-wb2 = Workbook()
-ws = wb2.new_sheet("sheet1", data=output_all)
-wb2.save("results_asm3.xlsx")
-
-stop_writer = time.perf_counter()
+with open('asm3_effluent_val_10s.csv', 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile, delimiter=' ')
+    writer.writerows(settlereff)
 
 
-print('Zeit für Excel: ', stop_writer - start_writer)
