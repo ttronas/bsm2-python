@@ -85,6 +85,9 @@ number = 0
 
 start1 = time.perf_counter()
 for step in simtime:
+    if len(simtime) > 60 / integration * 24 * 14:
+        if step > (14-timestep):
+            break
     if (numberstep-1) % (int(sample/integration)) == 0.0:
         y_in = df.loc[row, 1:21].to_numpy()
         row = row + 1
@@ -114,6 +117,9 @@ row = 0
 numberstep = 1
 start2 = time.perf_counter()
 for step in simtime:
+    if len(simtime) > 60 / integration * 24 * 14:
+        if step > (14-timestep):
+            break
     if (numberstep-1) % (int(sample/integration)) == 0.0:
         y_in = df.loc[row, 1:21].to_numpy()
         row = row + 1
@@ -133,8 +139,8 @@ for step in simtime:
     ys_in[15:21] = y_out5[15:21]
 
     ys_out, ys_eff, ys_TSS = settler.outputs(timestep, step, ys_in)
-    if step >= (evaltime[0]):
-        if numberstep % (int(sample/integration)) == 0.0:
+    if step >= (evaltime[0] - timestep):
+        if (numberstep - 1) % (int(sample / integration)) == 0.0:
             reactin[[number]] = y_in1
             react1[[number]] = y_out1
             react2[[number]] = y_out2
@@ -153,11 +159,11 @@ print('Second 14 d simulation completed after', stop2 - start2)
 ys_eff_av = average_asm1.averages(settlereff, sampleinterval, evaltime)
 print('Average effluent values after second 14 d simulation', ys_eff_av)
 
-# Daten als csv-File abspeichern:
-with open('asm1_effluentav_val.csv', 'w', newline='') as csvfile:
-    writer = csv.writer(csvfile, delimiter=' ')
-    writer.writerow(ys_eff_av)
-
-with open('asm1_effluent_val.csv', 'w', newline='') as csvfile:
-    writer = csv.writer(csvfile, delimiter=' ')
-    writer.writerows(settlereff)
+# # Daten als csv-File abspeichern:
+# with open('asm1_effluentav_val.csv', 'w', newline='') as csvfile:
+#     writer = csv.writer(csvfile, delimiter=' ')
+#     writer.writerow(ys_eff_av)
+#
+# with open('asm1_effluent_val.csv', 'w', newline='') as csvfile:
+#     writer = csv.writer(csvfile, delimiter=' ')
+#     writer.writerows(settlereff)
