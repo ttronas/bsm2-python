@@ -10,22 +10,21 @@ class Oxygensensor:
         self.T_SO = T_SO
         self.std_SO = std_SO
 
-    def measureSO(self, SO, step, timestep, numberstep, noise_SO):
+    def measureSO(self, SO, step, controlnumber, noise_SO, transferfunction, control):
         num_SO = [1]
         den_SO = [self.T_SO*self.T_SO, 2 * self.T_SO, 1]
-
+        timestep = control/(60*24)
         if step == 0:
-            SO_meas = SO[14] + noise_SO * self.max_SO * self.std_SO
-
-        elif step <= 15/(60*24):
+            SO_meas = SO[int(transferfunction/control)-1] + noise_SO * self.max_SO * self.std_SO
+        elif step <= transferfunction/(60*24):
             t_SO_lower15 = np.arange(0, step+timestep, timestep)
-            tout_SO, yout_SO, xout_SO = signal.lsim((num_SO, den_SO), SO[(16-numberstep):16], t_SO_lower15)
-            SO_meas = yout_SO[numberstep-1] + noise_SO * self.max_SO * self.std_SO
+            tout_SO, yout_SO, xout_SO = signal.lsim((num_SO, den_SO), SO[((int(transferfunction/control)+1) - controlnumber):(int(transferfunction/control)+1)], t_SO_lower15[0:controlnumber])
+            SO_meas = yout_SO[controlnumber - 1] + noise_SO * self.max_SO * self.std_SO
 
         else:
-            t_SO_15 = np.arange(step-15/(60*24), step+timestep, timestep)
-            tout_SO, yout_SO, xout_SO = signal.lsim((num_SO, den_SO), SO, t_SO_15[0:16])
-            SO_meas = yout_SO[15] + noise_SO * self.max_SO * self.std_SO
+            t_SO_15 = np.arange(step-transferfunction/control*timestep, step+timestep, timestep)
+            tout_SO, yout_SO, xout_SO = signal.lsim((num_SO, den_SO), SO, t_SO_15[0:(int(transferfunction/control)+1)])
+            SO_meas = yout_SO[int(transferfunction/control)] + noise_SO * self.max_SO * self.std_SO
 
         if SO_meas < self.min_SO:
             SO_meas = self.min_SO
@@ -85,20 +84,21 @@ class KLaactuator:
     def __init__(self, T_KLa):
         self.T_KLa = T_KLa
 
-    def real_actuator (self, kla, step, timestep, numberstep):
+    def real_actuator (self, kla, step, controlnumber, transferfunction, control):
         num_kla = [1]
         den_kla = [self.T_KLa*self.T_KLa, 2*self.T_KLa, 1]
+        timestep = control / (60 * 24)
         if step == 0:
             kla = kla[14]
-        elif step <= 15 / (60 * 24):
+        elif step <= transferfunction / (60 * 24):
             t_kla_lower15 = np.arange(0, step + timestep, timestep)
-            tout_kla, yout_kla, xout_kla = signal.lsim((num_kla, den_kla), kla[(16 - numberstep):16], t_kla_lower15)
-            kla = yout_kla[numberstep - 1]
+            tout_kla, yout_kla, xout_kla = signal.lsim((num_kla, den_kla), kla[((int(transferfunction/control)+1) - controlnumber):(int(transferfunction/control)+1)], t_kla_lower15[0:controlnumber])
+            kla = yout_kla[controlnumber - 1]
 
         else:
-            t_kla_15 = np.arange(step - 15 / (60 * 24), step + timestep, timestep)
-            tout_kla, yout_kla, xout_kla = signal.lsim((num_kla, den_kla), kla, t_kla_15[0:16])
-            kla = yout_kla[15]
+            t_kla_15 = np.arange(step - transferfunction/control*timestep, step + timestep, timestep)
+            tout_kla, yout_kla, xout_kla = signal.lsim((num_kla, den_kla), kla, t_kla_15[0:(int(transferfunction/control)+1)])
+            kla = yout_kla[int(transferfunction/control)]
 
         return kla
 

@@ -48,8 +48,10 @@ kla5_actuator = aerationcontrol.KLaactuator(aerationcontrolinit.T_KLa5)
 # Dynamic Influent (Dryinfluent):
 df = pd.read_excel('dryinfluent.xlsx', 'Tabelle1', header=None)     # select input file here
 
-integration = 1     # step of integration in min
-sample = 15         # results are saved every 15 min step
+integration = 1             # step of integration in min
+sample = 15                 # results are saved every 15 min step
+control = 1                 # step of aeration control in min
+transferfunction = 15       # interval for transferfunction in min
 
 timestep = integration/(60*24)
 sampleinterval = sample/(60*24)
@@ -61,6 +63,7 @@ ys_in = np.zeros(21)
 ys_out = np.array(initdata[5]).astype(np.float64)
 Qintr = asm1init.Qintr
 numberstep = 1
+controlnumber = 1
 
 # sensor noise for oxygen sensor:
 # noise_SO5 = np.zeros(20161)  # use this when no noise should be used
@@ -81,12 +84,11 @@ settlereff = np.zeros((int((evaltime[1]-evaltime[0])/sampleinterval), 25))
 settlerTSS = np.zeros((int((evaltime[1]-evaltime[0])/sampleinterval), settler1dinit_asm1.nooflayers))
 
 number = 0
-
-SO5 = np.zeros(16)
-kla5 = np.zeros(16)
-SO5[14] = y_out5[7]         # for first step
-kla5_a = asm1init.KLa5      # for first step
-
+SO5 = np.zeros(int(transferfunction/control)+1)
+kla5 = np.zeros(int(transferfunction/control)+1)
+SO5[int(transferfunction/control)-1] = y_out5[7]               # for first step
+kla5[int(transferfunction / control) - 1] = asm1init.KLa5      # for first step
+number_noise = -1
 start1 = time.perf_counter()
 for step in simtime:
     if len(simtime) > 60 / integration * 24 * 14:
@@ -105,19 +107,20 @@ for step in simtime:
     y_out3 = reactor3.output(timestep, step, y_out2)
     y_out4 = reactor4.output(timestep, step, y_out3)
     y_out5 = reactor5.output(timestep, step, y_out4)
-    SO5[15] = y_out5[7]
 
-    SO5_meas = SO5_sensor.measureSO(SO5, step, timestep, numberstep, noise_SO5[numberstep - 1])
-
-    kla5[14] = kla5_a
-    kla5[15] = aerationcontrol5.output(SO5_meas, step, timestep)
-    kla5_a = kla5_actuator.real_actuator(kla5, step, timestep, numberstep)
-    reactor5 = asm1.ASM1reactor(kla5_a, asm1init.VOL5, y_out5, asm1init.PAR5, asm1init.carb5,
-                                asm1init.carbonsourceconc, TEMPMODEL, ACTIVATE, DECAY)
-
-    # for next step:
-    SO5[0:15] = SO5[1:16]
-    kla5[0:15] = kla5[1:16]
+    if (numberstep - 1) % (int(1/integration)) == 0:
+        number_noise = number_noise + 1
+    if (numberstep - 1) % (int(control / integration)) == 0:
+        SO5[int(transferfunction / control)] = y_out5[7]
+        SO5_meas = SO5_sensor.measureSO(SO5, step, controlnumber, noise_SO5[number_noise], transferfunction, control)
+        kla5[int(transferfunction / control)] = aerationcontrol5.output(SO5_meas, step, timestep)
+        kla5_a = kla5_actuator.real_actuator(kla5, step, controlnumber, transferfunction, control)
+        reactor5 = asm1.ASM1reactor(kla5_a, asm1init.VOL5, y_out5, asm1init.PAR5, asm1init.carb5,
+                                    asm1init.carbonsourceconc, TEMPMODEL, ACTIVATE, DECAY)
+        # for next step:
+        SO5[0:int(transferfunction / control)] = SO5[1:(int(transferfunction / control) + 1)]
+        kla5[0:int(transferfunction / control)] = kla5[1:(int(transferfunction / control) + 1)]
+        controlnumber = controlnumber + 1
 
     ys_in[0:14] = y_out5[0:14]
     ys_in[14] = y_out5[14] - Qintr
@@ -131,13 +134,15 @@ stop1 = time.perf_counter()
 
 print('First 14 d simulation completed after', stop1-start1)
 
-SO5 = np.zeros(16)
-kla5 = np.zeros(16)
-SO5[14] = y_out5[7]
+SO5 = np.zeros(int(transferfunction/control)+1)
+kla5 = np.zeros(int(transferfunction/control)+1)
+SO5[int(transferfunction/control)-1] = y_out5[7]        # for first step
+kla5[int(transferfunction/control)-1] = kla5_a          # for first step
 number = 0
 row = 0
 numberstep = 1
-
+number_noise = -1
+controlnumber = 1
 start2 = time.perf_counter()
 for step in simtime:
     if len(simtime) > 60 / integration * 24 * 14:
@@ -157,17 +162,20 @@ for step in simtime:
     y_out4 = reactor4.output(timestep, step, y_out3)
     y_out5 = reactor5.output(timestep, step, y_out4)
 
-    SO5[15] = y_out5[7]
+    if (numberstep - 1) % (int(1 / integration)) == 0:
+        number_noise = number_noise + 1
+    if (numberstep - 1) % (int(control / integration)) == 0:
+        SO5[int(transferfunction/control)] = y_out5[7]
+        SO5_meas = SO5_sensor.measureSO(SO5, step, controlnumber, noise_SO5[number_noise], transferfunction, control)
+        kla5[int(transferfunction/control)] = aerationcontrol5.output(SO5_meas, step, timestep)
+        kla5_a = kla5_actuator.real_actuator(kla5, step, controlnumber, transferfunction, control)
+        reactor5 = asm1.ASM1reactor(kla5_a, asm1init.VOL5, y_out5, asm1init.PAR5, asm1init.carb5,
+                                    asm1init.carbonsourceconc, TEMPMODEL, ACTIVATE, DECAY)
 
-    SO5_meas = SO5_sensor.measureSO(SO5, step, timestep, numberstep, noise_SO5[numberstep - 1])
-    kla5[14] = kla5_a
-    kla5[15] = aerationcontrol5.output(SO5_meas, step, timestep)
-    kla5_a = kla5_actuator.real_actuator(kla5, step, timestep, numberstep)
-    reactor5 = asm1.ASM1reactor(kla5_a, asm1init.VOL5, y_out5, asm1init.PAR5, asm1init.carb5,
-                                asm1init.carbonsourceconc, TEMPMODEL, ACTIVATE, DECAY)
-    # for next step:
-    SO5[0:15] = SO5[1:16]
-    kla5[0:15] = kla5[1:16]
+        # for next step:
+        SO5[0:int(transferfunction/control)] = SO5[1:(int(transferfunction/control)+1)]
+        kla5[0:int(transferfunction/control)] = kla5[1:(int(transferfunction/control)+1)]
+        controlnumber = controlnumber+1
 
     ys_in[0:14] = y_out5[0:14]
     ys_in[14] = y_out5[14] - Qintr
@@ -195,11 +203,11 @@ ys_eff_av = average_asm1.averages(settlereff, sampleinterval, evaltime)
 print('Average effluent values after second 14 d simulation', ys_eff_av)
 
 
-# # Save data in csv-File:
-# with open('asm1_effluentav_val_1min_ac.csv', 'w', newline='') as csvfile:
-#     writer = csv.writer(csvfile, delimiter=' ')
-#     writer.writerow(ys_eff_av)
-#
+# Save data in csv-File:
+with open('asm1_effluentav_val_1min_ac.csv', 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile, delimiter=' ')
+    writer.writerow(ys_eff_av)
+
 # with open('asm1_effluent_val.csv', 'w', newline='') as csvfile:
 #     writer = csv.writer(csvfile, delimiter=' ')
 #     writer.writerows(settlereff)
