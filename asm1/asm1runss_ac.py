@@ -7,6 +7,7 @@ import asm1
 import settler1d_asm1
 import aerationcontrol
 import aerationcontrolinit
+import plantperformance
 
 
 DECAY = False       # if DECAY is True the decay of heterotrophs and autotrophs is depending on the electron acceptor present
@@ -77,19 +78,78 @@ print('Simulationszeit: ', stop - start)
 print('Output bei t = 200 d: ', ys_out, ys_eff)
 
 
-# with open('asm1_values_ss_ac.csv', 'w', newline='') as csvfile:
-#     writer = csv.writer(csvfile, delimiter=' ')
-#     writer.writerow(y_out1)
-#     writer.writerow(y_out2)
-#     writer.writerow(y_out3)
-#     writer.writerow(y_out4)
-#     writer.writerow(y_out5)
-#     writer.writerow(ys_out)
-#     writer.writerow(ys_eff)
-#     writer.writerow(settler.ys0)
-#
-# aerationvalues = np.array([kla5, aerationcontrol5.SOintstate, aerationcontrol5.SOawstate, aerationcontrol5.kla_lim, aerationcontrol5.kla_berechnet])
-# with open('asm1_aerationvalues_ss_ac.csv', 'w', newline='') as csvfile:
-#     writer = csv.writer(csvfile, delimiter=' ')
-#     writer.writerow(aerationvalues)
+with open('asm1_values_ss_ac_aw.csv', 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile, delimiter=' ')
+    writer.writerow(y_out1)
+    writer.writerow(y_out2)
+    writer.writerow(y_out3)
+    writer.writerow(y_out4)
+    writer.writerow(y_out5)
+    writer.writerow(ys_out)
+    writer.writerow(ys_eff)
+    writer.writerow(settler.ys0)
 
+aerationvalues = np.array([kla5, aerationcontrol5.SOintstate, aerationcontrol5.SOawstate, aerationcontrol5.kla_lim, aerationcontrol5.kla_calc])
+with open('asm1_aerationvalues_ss_ac_aw.csv', 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile, delimiter=' ')
+    writer.writerow(aerationvalues)
+
+# plant performance:
+evaltime = np.array([0, 2*timestep])
+# aerationenergy:
+kla = np.zeros((5, 2))
+kla[0] = np.array([reactor1.kla, reactor1.kla])
+kla[1] = np.array([reactor2.kla, reactor2.kla])
+kla[2] = np.array([reactor3.kla, reactor3.kla])
+kla[3] = np.array([reactor4.kla, reactor4.kla])
+kla[4] = np.array([reactor5.kla, reactor5.kla])
+vol = np.array([[reactor1.volume], [reactor2.volume], [reactor3.volume], [reactor4.volume], [reactor5.volume]])
+sosat = np.array([[asm1init.SOSAT1], [asm1init.SOSAT2], [asm1init.SOSAT3], [asm1init.SOSAT4], [asm1init.SOSAT5]])
+
+ae = plantperformance.aerationenergy(kla, vol, sosat, timestep, evaltime)
+print(ae)
+
+# pumping energy:
+pumpfactor = np.array([[0.004], [0.008], [0.05]])
+flows = np.zeros((3, 2))
+flows[0] = np.array([asm1init.Qintr, asm1init.Qintr])
+flows[1] = np.array([asm1init.Qr, asm1init.Qr])
+flows[2] = np.array([asm1init.Qw, asm1init.Qw])
+
+pe = plantperformance.pumpingenergy(flows, pumpfactor, timestep, evaltime)
+print(pe)
+
+# mixing energy:
+me = plantperformance.mixingenergy(kla, vol, timestep, evaltime)
+print(me)
+
+
+# SNH limit violations:
+SNH_eff = np.array(ys_eff[7], ys_eff[7])
+SNH_limit = 4
+SNH_violationtime, SNH_violationperc = plantperformance.violation(SNH_eff, SNH_limit, timestep, evaltime)
+print(SNH_violationtime, SNH_violationperc)
+
+# TSS limit violations:
+TSS_eff = np.array(ys_eff[13], ys_eff[13])
+TSS_limit = 30
+TSS_violationtime, TSS_violationperc = plantperformance.violation(TSS_eff, TSS_limit, timestep, evaltime)
+print(TSS_violationtime, TSS_violationperc)
+
+# totalN limit violations:
+totalN_eff = np.array(ys_eff[22], ys_eff[22])
+totalN_limit = 18
+totalN_violationtime, totalN_violationperc = plantperformance.violation(totalN_eff, totalN_limit, timestep, evaltime)
+print(totalN_violationtime, totalN_violationperc)
+
+# COD limit violations:
+COD_eff = np.array(ys_eff[23], ys_eff[23])
+COD_limit = 100
+COD_violationtime, COD_violationperc = plantperformance.violation(COD_eff, COD_limit, timestep, evaltime)
+print(COD_violationtime, COD_violationperc)
+
+# BOD5 limit violations:
+BOD5_eff = np.array(ys_eff[24], ys_eff[24])
+BOD5_limit = 10
+BOD5_violationtime, BOD5_violationperc = plantperformance.violation(BOD5_eff, BOD5_limit, timestep, evaltime)
+print(BOD5_violationtime, BOD5_violationperc)
