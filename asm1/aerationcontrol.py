@@ -66,9 +66,10 @@ class PIaeration:
 
         ode_aw = odeint(function_aw, self.SOawstate, t_ac, tfirst=True)
         antiwindup = float(ode_aw[1])
+        # print(antiwindup)
 
         self.SOawstate = antiwindup
-        self.kla_calc = error_SO + integral_ac + self.KLaoffset + 0 * antiwindup
+        self.kla_calc = error_SO + integral_ac + self.KLaoffset + antiwindup
 
         kla = float(self.kla_calc)
         if kla < 0:
