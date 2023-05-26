@@ -2,7 +2,7 @@
 
 All state values are based on ASM3 implementation within BSM1 from Matlab-file asm3init.m
 
-This file will be executed when running the asm3run or asm3runss file.
+This file will be executed when running the asm3runss.py or asm3run.py.
 """
 
 import numpy as np
@@ -12,128 +12,13 @@ Qintr = 3*Qin
 Qr = Qin
 Qw = 385
 
-# yinit1 = np.ones(20)
-# yinit1[13] = Qin
-# yinit1[15:20] = 0
-# yinit2 = yinit1
-# yinit3 = yinit1
-# yinit4 = yinit1
-# yinit5 = yinit1
-S_O2_1 = 2
-S_I_1 = 30
-S_S_1 = 2
-S_NH4_1 = 20
-S_N2_1 = 0
-S_NOX_1 = 0
-S_ALK_1 = 5
-X_I_1 = 100
-X_S_1 = 40
-X_H_1 = 100
-X_STO_1 = 40
-X_A_1 = 1
-X_SS_1 = 200
-Q_1 = Qin + Qr + Qintr
-T_1 = 14.8581
-S_D1_1 = 0
-S_D2_1 = 0
-S_D3_1 = 0
-X_D4_1 = 0
-X_D5_1 = 0
-
-S_O2_2 = 2
-S_I_2 = 30
-S_S_2 = 2
-S_NH4_2 = 20
-S_N2_2 = 0
-S_NOX_2 = 0
-S_ALK_2 = 5
-X_I_2 = 100
-X_S_2 = 40
-X_H_2 = 100
-X_STO_2 = 40
-X_A_2 = 1
-X_SS_2 = 200
-Q_2 = Qin + Qr + Qintr
-T_2 = 14.8581
-S_D1_2 = 0
-S_D2_2 = 0
-S_D3_2 = 0
-X_D4_2 = 0
-X_D5_2 = 0
-
-S_O2_3 = 2
-S_I_3 = 30
-S_S_3 = 2
-S_NH4_3 = 20
-S_N2_3 = 0
-S_NOX_3 = 0
-S_ALK_3 = 5
-X_I_3 = 100
-X_S_3 = 40
-X_H_3 = 100
-X_STO_3 = 40
-X_A_3 = 1
-X_SS_3 = 200
-Q_3 = Qin + Qr + Qintr
-T_3 = 14.8581
-S_D1_3 = 0
-S_D2_3 = 0
-S_D3_3 = 0
-X_D4_3 = 0
-X_D5_3 = 0
-
-S_O2_4 = 2
-S_I_4 = 30
-S_S_4 = 2
-S_NH4_4 = 20
-S_N2_4 = 0
-S_NOX_4 = 0
-S_ALK_4 = 5
-X_I_4 = 100
-X_S_4 = 40
-X_H_4 = 100
-X_STO_4 = 40
-X_A_4 = 1
-X_SS_4 = 200
-Q_4 = Qin + Qr + Qintr
-T_4 = 14.8581
-S_D1_4 = 0
-S_D2_4 = 0
-S_D3_4 = 0
-X_D4_4 = 0
-X_D5_4 = 0
-
-S_O2_5 = 2
-S_I_5 = 30
-S_S_5 = 2
-S_NH4_5 = 20
-S_N2_5 = 0
-S_NOX_5 = 0
-S_ALK_5 = 5
-X_I_5 = 100
-X_S_5 = 40
-X_H_5 = 100
-X_STO_5 = 40
-X_A_5 = 1
-X_SS_5 = 200
-Q_5 = Qin + Qr + Qintr
-T_5 = 14.8581
-S_D1_5 = 0
-S_D2_5 = 0
-S_D3_5 = 0
-X_D4_5 = 0
-X_D5_5 = 0
-
-yinit1 = np.array([S_O2_1, S_I_1, S_S_1, S_NH4_1, S_N2_1, S_NOX_1, S_ALK_1, X_I_1, X_S_1, X_H_1, X_STO_1, X_A_1, X_SS_1,
-                   Q_1, T_1, S_D1_1, S_D2_1, S_D3_1, X_D4_1, X_D5_1])
-yinit2 = np.array([S_O2_2, S_I_2, S_S_2, S_NH4_2, S_N2_2, S_NOX_2, S_ALK_2, X_I_2, X_S_2, X_H_2, X_STO_2, X_A_2, X_SS_2,
-                   Q_2, T_2, S_D1_2, S_D2_2, S_D3_2, X_D4_2, X_D5_2])
-yinit3 = np.array([S_O2_3, S_I_3, S_S_3, S_NH4_3, S_N2_3, S_NOX_3, S_ALK_3, X_I_3, X_S_3, X_H_3, X_STO_3, X_A_3, X_SS_3,
-                   Q_3, T_3, S_D1_3, S_D2_3, S_D3_3, X_D4_3, X_D5_3])
-yinit4 = np.array([S_O2_4, S_I_4, S_S_4, S_NH4_4, S_N2_4, S_NOX_4, S_ALK_4, X_I_4, X_S_4, X_H_4, X_STO_4, X_A_4, X_SS_4,
-                   Q_4, T_4, S_D1_4, S_D2_4, S_D3_4, X_D4_4, X_D5_4])
-yinit5 = np.array([S_O2_5, S_I_5, S_S_5, S_NH4_5, S_N2_5, S_NOX_5, S_ALK_5, X_I_5, X_S_5, X_H_5, X_STO_5, X_A_5, X_SS_5,
-                   Q_5, T_5, S_D1_5, S_D2_5, S_D3_5, X_D4_5, X_D5_5])
+yinit1 = np.ones(20)
+yinit1[13] = Qin
+yinit1[15:20] = 0
+yinit2 = yinit1
+yinit3 = yinit1
+yinit4 = yinit1
+yinit5 = yinit1
 
 # kinetic parameters of asm3 at 20 °C from Gujer, 1999 (Table 3)
 k_H = 3
@@ -189,7 +74,12 @@ vol3 = 1333
 vol4 = vol3
 vol5 = vol3
 
-# sosat lasse ich jetzt weg, da es überhaupt nicht benutzt wird
+# oxygen saturation concentration at 15 degC, based on BSM1
+SOSAT1 = 8
+SOSAT2 = SOSAT1
+SOSAT3 = SOSAT1
+SOSAT4 = SOSAT1
+SOSAT5 = SOSAT1
 
 # Default KLa (oxygen transfer coefficient) values for AS reactors:
 kla1 = 0

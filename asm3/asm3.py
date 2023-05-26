@@ -9,39 +9,32 @@ SO2, SI, SS, SNH4, SN2, SNOX, SALK, XI, XS, XH, XSTO, XA, XSS, Q, TEMP, SD1, SD2
 
 @jit(nopython=True)
 def derivatives(t, y, y_in, asm3par, kla, volume, tempmodel, activate):
-    """Returns an array containing the differential equations of ASM3
+    """Returns an array containing the differential equations basend on ASM3
 
         Parameters
         ----------
         t : np.ndarray
             Time interval for integration, needed for the solver
-
         y : np.ndarray
             Solution of the differential equations, needed for the solver
-
         y_in : np.ndarray
             Reactor inlet concentrations of the 20 components (13 ASM3 components, Q, T and 5 dummy states)
-
         asm3par : np.ndarray
             37 parameters needed for ASM3 equations
-
         kla : int
             Oxygen transfer coefficient in aerated reactors
-
         volume : int
             Volume of the reactor
-
         tempmodel : bool
             If true, mass balance for the wastewater temperature is used in process rates,
             otherwise influent wastewater temperature is just passed through process reactors
-
         activate : bool
-            If true, dummy states are activated, otherwise dummy states are activated
+            If true, dummy states are activated, otherwise dummy states are not activated
 
         Returns
         -------
         np.ndarray
-            Array containing the 20 differential equations of ASM3 model
+            Array containing the 20 differential equations based on ASM3 model
 
         """
 
@@ -68,97 +61,11 @@ def derivatives(t, y, y_in, asm3par, kla, volume, tempmodel, activate):
                                                                                  # (Lide, 2004))
         kla_temp = kla * pow(1.024, (y[TEMP] - 15))  # from Gernaey, 2015 (ASCE, 1993)
 
-
-
     k_H, K_X, k_STO, ny_NOX, K_O2, K_NOX, K_S, K_STO, mu_H, K_NH4, K_ALK, b_HO2, b_HNOX, b_STOO2, b_STONOX, mu_A, \
     K_ANH4, K_AO2, K_AALK, b_AO2, b_ANOX = asm3par_temp[0:21]
     f_SI, Y_STOO2, Y_STONOX, Y_HO2, Y_HNOX, Y_A, f_XI, i_NSI, i_NSS, i_NXI, i_NXS, i_NBM, i_SSXI, i_SSXS, i_SSBM, i_SSSTO = asm3par[21:37]
 
-    # # temperature compensation like WEST:
-    # k_H, K_X, k_STO, ny_NOX, K_O2, K_NOX, K_S, K_STO, mu_H, K_NH4, K_ALK, b_HO2, b_HNOX, b_STOO2, b_STONOX, mu_A, \
-    # K_ANH4, K_AO2, K_AALK, b_AO2, b_ANOX, f_SI, Y_STOO2, Y_STONOX, Y_HO2, Y_HNOX, Y_A, f_XI, i_NSI, i_NSS, i_NXI, i_NXS, i_NBM, i_SSXI, i_SSXS, i_SSBM, i_SSSTO = asm3par
-    # b_ANOX = b_ANOX * pow(1.096, 15-20)
-    # b_AO2 = b_AO2 * pow(1.116, 15-20)
-    # b_HNOX = b_HNOX * pow(1.072, 15-20)
-    # b_HO2 = b_HO2 * pow(1.072, 15-20)
-    # b_STONOX = b_STONOX * pow(1.072, 15-20)
-    # b_STOO2 = b_STOO2 * pow(1.072, 15-20)
-    # k_STO = k_STO * pow(1.072, 15-20)
-    # k_H = k_H * pow(1.041, 15-20)
-    # mu_A = mu_A * pow(1.111, 15-20)
-    # mu_H = mu_H * pow(1.072, 15-20)
-    #
-    # sosat_temp = 0.9997743214 * 8.0 / 10.5 * (56.12 * 6791.5 * np.exp(-66.7354 + 87.4755 / ((y_in[14] + 273.15) / 100.0) + 24.4526 * np.log((y_in[14] + 273.15) / 100.0)))
-    # kla_temp = kla * pow(1.024, (y_in[14] - 15.0))  # diese Korrektur mit 20 °C ist falsch!
-
-    # k_H, K_X, k_STO, ny_NOX, K_O2, K_NOX, K_S, K_STO, mu_H, K_NH4, K_ALK, b_HO2, b_HNOX, b_STOO2, b_STONOX, mu_A, \
-    # K_ANH4, K_AO2, K_AALK, b_AO2, b_ANOX, f_SI, Y_STOO2, Y_STONOX, Y_HO2, Y_HNOX, Y_A, f_XI, i_NSI, i_NSS, i_NXI, i_NXS, i_NBM, i_SSXI, i_SSXS, i_SSBM, i_SSSTO = asm3par
-    #
-    # k_H = k_H * np.exp((np.log(k_H / 2) / 10.0) * (y_in[TEMP] - 20.0))
-    #
-    # k_STO = k_STO * np.exp((np.log(k_STO / 2.5) / 10.0) * (y_in[14] - 20.0))
-    # mu_H = mu_H * np.exp((np.log(mu_H / 1.0) / 10.0) * (y_in[14] - 20.0))
-    # b_HO2 = b_HO2 * np.exp((np.log(b_HO2 / 0.1) / 10.0) * (y_in[14] - 20.0))
-    # b_HNOX = b_HNOX * np.exp((np.log(b_HNOX / 0.05) / 10.0) * (y_in[14] - 20.0))
-    # b_STOO2 = b_STOO2 * np.exp((np.log(b_STOO2 / 0.1) / 10.0) * (y_in[14] - 20.0))
-    # b_STONOX = b_STONOX * np.exp((np.log(b_STONOX / 0.05) / 10.0) * (y_in[14] - 20.0))
-    #
-    # mu_A = mu_A * np.exp((np.log(mu_A / 0.35) / 10.0) * (y_in[14] - 20.0))
-    # b_AO2 = b_AO2 * np.exp((np.log(b_AO2 / 0.05) / 10.0) * (y_in[14] - 20.0))
-    # b_ANOX = b_ANOX * np.exp((np.log(b_ANOX / 0.02) / 10.0) * (y_in[14] - 20.0))
-    #
-    # sosat_temp = 0.9997743214 * 8.0 / 10.5 * (56.12 * 6791.5 * np.exp(-66.7354 + 87.4755 / ((y_in[14] + 273.15) / 100.0) + 24.4526 * np.log((y_in[14] + 273.15) / 100.0)))
-    # kla_temp = kla * pow(1.024, (y_in[14] - 15.0))  # diese Korrektur mit 20 °C ist falsch!
-
-    # # from Gujer, 1999 and Hauduc, 2010 with original notation
-    # x1 = 1 - f_SI
-    # x2 = - (1 - Y_STOO2)
-    # x3 = - (1 - Y_STONOX) / 2.86
-    # x4 = - (1 - Y_HO2) / Y_HO2
-    # x5 = - (1 - Y_HNOX) / Y_HNOX * 1 / 2.86
-    # x6 = - (1 - f_XI)
-    # x7 = - (1 - f_XI) / 2.86
-    # x8 = - 1
-    # x9 = - 1 / 2.86
-    # x10 = - (4.57 - Y_A) / Y_A
-    # x11 = - (1 - f_XI)
-    # x12 = - (1 - f_XI) / 2.86
-    #
-    # y1 = - (1 - f_SI) * i_NSS - f_SI * i_NSI + i_NXS
-    # y2 = i_NSS
-    # y3 = i_NSS
-    # y4 = - i_NBM
-    # y5 = - i_NBM
-    # y6 = - f_XI * i_NXI + i_NBM
-    # y7 = - f_XI * i_NXI + i_NBM
-    # y10 = - 1 / Y_A - i_NBM
-    # y11 = - f_XI * i_NXI + i_NBM
-    # y12 = - f_XI * i_NXI + i_NBM
-    #
-    # z1 = y1 / 14     # in original: 1/14
-    # z2 = y2 / 14
-    # z3 = y3 / 14 + x3 / (-14)   # in original: - 1/14
-    # z4 = y4 / 14
-    # z5 = y5 / 14 + x5 / (-14)
-    # z6 = y6 / 14
-    # z7 = y7 / 14 + x7 / (-14)
-    # z9 = x9 / (- 14)
-    # z10 = y10 / 14 + 1 / (Y_A * (-14))
-    # z11 = y11 / 14
-    # z12 = y12 / 14 + x12 / (-14)
-    #
-    # t2 = Y_STOO2 * i_SSSTO
-    # t3 = Y_STONOX * i_SSSTO
-    # t4 = (- 1 / Y_HO2) * i_SSSTO + i_SSBM
-    # t5 = (- 1 / Y_HNOX) * i_SSSTO + i_SSBM
-    # t6 = - i_SSBM + f_XI * i_SSXI
-    # t7 = - i_SSBM + f_XI * i_SSXI
-    # t8 = - i_SSSTO
-    # t9 = - i_SSSTO
-    # t10 = i_SSBM
-    # t11 = - i_SSBM + f_XI * i_SSXI
-    # t12 = - i_SSBM + f_XI * i_SSXI
-
+    # from Gujer, 1999 and Hauduc, 2010 with original notation
     x1 = 1.0 - f_SI
     x2 = -1.0 + Y_STOO2
     x3 = (-1.0 + Y_STONOX) / (64.0 / 14.0 - 24.0 / 14.0)
@@ -227,8 +134,8 @@ def derivatives(t, y, y_in, asm3par, kla, volume, tempmodel, activate):
     proc8 = b_STOO2 * y[SO2] / (K_O2 + y[SO2]) * y[XSTO]
     proc9 = b_STONOX * K_O2 / (K_O2 + y[SO2]) * y[SNOX] / (K_NOX + y[SNOX]) * y[XSTO]
     proc10 = mu_A * y[SO2] / (K_AO2 + y[SO2]) * y[SNH4] / (K_ANH4 + y[SNH4]) * y[SALK] / (K_AALK + y[SALK]) * y[XA]
-    proc11 = b_AO2 * y[SO2] / (K_AO2 + y[SO2]) * y[XA]    # Änderung: in WEST wird statt K_AO2 K_AO2 verwendet
-    proc12 = b_ANOX * K_AO2 / (K_AO2 + y[SO2]) * y[SNOX] / (K_NOX + y[SNOX]) * y[XA]    # Änderung: in WEST wird statt K_AO2 K_AO2 verwendet
+    proc11 = b_AO2 * y[SO2] / (K_AO2 + y[SO2]) * y[XA]
+    proc12 = b_ANOX * K_AO2 / (K_AO2 + y[SO2]) * y[SNOX] / (K_NOX + y[SNOX]) * y[XA]
 
     # conversion rates:
     reac[SO2] = x2 * proc2 + x4 * proc4 + x6 * proc6 + x8 * proc8 + x10 * proc10 + x11 * proc11
@@ -247,7 +154,6 @@ def derivatives(t, y, y_in, asm3par, kla, volume, tempmodel, activate):
     reac[XA] = proc10 - proc11 - proc12
     reac[XSS] = -i_SSXI * proc1 + t2 * proc2 + t3 * proc3 + t4 * proc4 + t5 * proc5 + t6 * proc6 + t7 * proc7 + t8 * \
                 proc8 + t9 * proc9 + t10 * proc10 + t11 * proc11 + t12 * proc12
-
     reac[SD1] = 0.0
     reac[SD2] = 0.0
     reac[SD3] = 0.0
@@ -275,42 +181,34 @@ class ASM3reactor:
         ----------
         asm3par : np.ndarray
             37 parameters needed for ASM3 equations
-
         y0 : np.ndarray
-            Initial values for the 20 components (13 ASM3 components, Q, T and 5 dummy states)
-
+            Initial integration values for the 20 components (13 ASM3 components, Q, T and 5 dummy states)
         kla : int
             Oxygen transfer coefficient in aerated reactors
-
         volume : int
             Volume of the reactor
-
         carb : int
-            external carbon flow rates for carbon addition to a reator
-
+            external carbon flow rates for carbon addition to a reactor
         csourceconc : int
             external carbon source concentration
-
         tempmodel : bool
             If true, mass balance for the wastewater temperature is used in process rates,
             otherwise influent wastewater temperature is just passed through process reactors
-
         activate : bool
-            If true, dummy states are activated, otherwise dummy states are activated
+            If true, dummy states are activated, otherwise dummy states are not activated
         """
 
         self.asm3par = asm3par
         self.y0 = y0
         self.kla = kla
         self.volume = volume
-        # self.sosat = sosat      # kann man das vllt rausschmeißen? nimmt man eh nie
         self.carb = carb
         self.csourceconc = csourceconc
         self.tempmodel = tempmodel
         self.activate = activate
 
     def carbonaddition(self, y_in):
-        """Returns the reactor inlet concentrations after adding an external carbon source.
+        """Returns the reactor inlet concentrations after adding an external carbon source
 
         Parameters:
         ----------
@@ -326,13 +224,14 @@ class ASM3reactor:
         y_in[0:2] = (y_in[0:2] * y_in[Q]) / (self.carb + y_in[Q])
         y_in[SS] = (y_in[SS] * y_in[Q] + self.csourceconc * self.carb) / (self.carb + y_in[Q])
         y_in[3:13] = (y_in[3:13] * y_in[Q]) / (self.carb + y_in[Q])
+        # Temperature stays the same
         y_in[15:20] = (y_in[15:20] * y_in[Q]) / (self.carb + y_in[Q])
         y_in[Q] = self.carb + y_in[Q]
 
         return y_in
 
     def output(self, timestep, step, y_in):
-        """Returns the solved differential equations of ASM3 model.
+        """Returns the solved differential equations based on ASM3 model
 
         Parameters
         ----------
@@ -346,7 +245,7 @@ class ASM3reactor:
         Returns
         -------
         np.ndarray
-            Array containing the concentrations of the 20 components at the current time step after the integration
+            Array containing the values of the 20 components at the current time step after the integration
         """
 
         k_H, K_X, k_STO, ny_NOX, K_O2, K_NOX, K_S, K_STO, mu_H, K_NH4, K_ALK, b_HO2, b_HNOX, b_STOO2, b_STONOX, mu_A, K_ANH4, K_AO2, K_AALK, b_AO2, b_ANOX, f_SI, Y_STOO2, Y_STONOX, Y_HO2, Y_HNOX, Y_A, f_XI, i_NSI, i_NSS, i_NXI, i_NXS, i_NBM, i_SSXI, i_SSXS, i_SSBM, i_SSSTO = self.asm3par
@@ -356,14 +255,14 @@ class ASM3reactor:
         if self.carb > 0.0:
             y_in = self.carbonaddition(y_in)
 
-        ode = odeint(derivatives, self.y0, t_eval, tfirst=True,
-                     args=(y_in, self.asm3par, self.kla, self.volume, self.tempmodel, self.activate,))
+        ode = odeint(derivatives, self.y0, t_eval, tfirst=True, args=(y_in, self.asm3par, self.kla, self.volume, self.tempmodel, self.activate,))
         y_out[0:20] = ode[1]
 
         y_out[Q] = y_in[Q]  # Flow
         if not self.tempmodel:
             y_out[TEMP] = y_in[TEMP]  # Temperature
 
+        # was mach ich damit?
         y_out[COD] = - y_out[SO2] + y_out[SI] + y_out[SS] - 1.71 * y_out[SN2] - 4.57 * y_out[SNOX] + y_out[XI] +\
                      y_out[XS] + y_out[XH] + y_out[XSTO] + y_out[XA]
         y_out[N2] = i_NSI * y_out[SI] + i_NSS * y_out[SS] + y_out[SNH4] + y_out[SN2] + y_out[SNOX] + i_NXI * y_out[XI]\
@@ -372,7 +271,7 @@ class ASM3reactor:
         y_out[TSS] = i_SSXI * y_out[XI] + i_SSXS * y_out[XS] + i_SSBM * y_out[XH] + 0.6 * y_out[XSTO] + i_SSBM *\
                      y_out[XA]
 
-        self.y0 = y_out[0:20]
+        self.y0 = y_out[0:20]   # initial integration values for next integration
 
         return y_out
 
