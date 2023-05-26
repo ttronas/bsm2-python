@@ -14,9 +14,9 @@ import csv
 import pandas as pd
 import time
 import asm3init
-import settler1dinit_asm3
+import settler1dinitv1_asm3
 import asm3
-import settler1d_asm3
+import settler1dv1_asm3
 import average_asm3
 
 

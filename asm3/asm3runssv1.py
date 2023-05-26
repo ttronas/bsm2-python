@@ -14,9 +14,9 @@ import numpy as np
 import csv
 import time         # dieses Package am Ende immernoch?
 import asm3init
-import settler1dinit_asm3
+import settler1dinitv1_asm3
 import asm3
-import settler1d_asm3
+import settler1dv1_asm3
 
 
 tempmodel = False   # if TEMPMODEL is False influent wastewater temperature is just passed through process reactors
