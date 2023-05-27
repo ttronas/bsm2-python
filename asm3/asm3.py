@@ -262,7 +262,7 @@ class ASM3reactor:
         if not self.tempmodel:
             y_out[TEMP] = y_in[TEMP]  # Temperature
 
-        # was mach ich damit?
+        # from composition matrix:
         y_out[COD] = - y_out[SO2] + y_out[SI] + y_out[SS] - 1.71 * y_out[SN2] - 4.57 * y_out[SNOX] + y_out[XI] +\
                      y_out[XS] + y_out[XH] + y_out[XSTO] + y_out[XA]
         y_out[N2] = i_NSI * y_out[SI] + i_NSS * y_out[SS] + y_out[SNH4] + y_out[SN2] + y_out[SNOX] + i_NXI * y_out[XI]\
