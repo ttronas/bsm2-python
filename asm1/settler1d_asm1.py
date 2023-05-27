@@ -1,62 +1,43 @@
 import numpy as np
-from scipy.integrate import solve_ivp, odeint
-from numba import jit, njit
+from scipy.integrate import odeint
+from numba import jit
 
 
 indices_components = np.arange(21)
 SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = indices_components
 
 
-# differential equations in function because @jit does not compile class methods in nopython mode
 @jit(nopython=True)
-def derivativess(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel, decay_switch):
+def settlerequations(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel):
     """Returns an array containing the differential equations of a non-reactive sedimentation tank with variable number of layers (default model is 10 layers), which is compatible with ASM1 model
 
     Parameters
     ----------
     t : np.ndarray
         Time interval for integration, needed for the solver
-
     ys : np.ndarray
         Solution of the differential equations, needed for the solver
-
     ys_in : np.ndarray
-        Settler inlet concentrations of the 21 ASM1 components
-
+        Settler inlet concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
     sedpar : np.ndarray
         6 parameters needed for settler equations
-
     dim : np.ndarray
         Dimensions of the settler, area and height
-
     layer : np.ndarray
         Feedlayer and number of layers in the settler
-
     Qr : int
         Return sludge flow rate
-
     Qw : int
         flow rate of waste sludge
-
-    asmpar : np.ndarray
-        26 parameters needed for ASM1 equations
-
     tempmodel : bool
-        If true, mass balance for the wastewater temperature is used in process rates,
-        otherwise influent wastewater temperature is just passed through process reactors
-
-    decay_switch : bool
-        If true, the decay of heterotrophs and autotrophs is depending on the electron acceptor present,
-        otherwise the decay do not change
+        If true, differential equation for the wastewater temperature is used,
+        otherwise influent wastewater temperature is just passed through the settler
 
     Returns
     -------
     np.ndarray
-        Array containing 200 differential equations of settling model with 10 layers
-
+        Array containing the differential equations of settling model with certain number of layers
     """
-
-    # mu_H, K_S, K_OH, K_NO, b_H, mu_A, K_NH, K_OA, b_A, ny_g, k_a, k_h, K_X, ny_h, Y_H, Y_A, f_P, i_XB, i_XP, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS, hH_NO3_end, hA_NO3_end = asmpar
 
     area = dim[0]
     feedlayer = layer[0]
@@ -68,7 +49,7 @@ def derivativess(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel, decay_swit
     Js = np.zeros(nooflayers+1)
     Js_temp = np.zeros(nooflayers)
 
-    dys = np.zeros(12*nooflayers)   # only soluble components, TSS and Temperature
+    dys = np.zeros(12*nooflayers)   # differential equations only for soluble components, TSS and Temperature
 
     eps = 0.01
     v_in = ys_in[Q] / area
@@ -82,23 +63,16 @@ def derivativess(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel, decay_swit
     ystemp[ystemp < 0.0] = 0.00001
     ys[ys < 0.0] = 0.00001
 
-    # sedimentations velocity for each of the layers:
+    # sedimentation velocity for each of the layers:
     for i in range(nooflayers):
         vs[i] = sedpar[1] * (np.exp(-sedpar[2] * (ystemp[i + 7 * nooflayers] - sedpar[4] * ys_in[TSS])) - np.exp(
-            -sedpar[3] * (ystemp[i + 7 * nooflayers] - sedpar[4] * ys_in[TSS])))
-        vs[vs > sedpar[0]] = sedpar[0]      # ystemp[i+7*nooflayers] is TSS
+            -sedpar[3] * (ystemp[i + 7 * nooflayers] - sedpar[4] * ys_in[TSS])))  # ystemp[i+7*nooflayers] is TSS
+        vs[vs > sedpar[0]] = sedpar[0]
         vs[vs < 0.0] = 0.0
 
     # sludge flux due to sedimentation for each layer (not taking into account X limit)
     for i in range(nooflayers):
         Js_temp[i] = vs[i] * ystemp[i + 7 * nooflayers]
-
-    # # sludge flux due to the liquid flow (upflow or downflow, depending on layer)
-    # for i in range(nooflayers+1):
-    #     if i < (feedlayer - eps):
-    #         Jflow[i] = v_up * ystemp[i + 7*nooflayers]
-    #     else:
-    #         Jflow[i] = v_dn * ystemp[i - 1 + 7*nooflayers]
 
     # sludge flux due to sedimentation of each layer:
     for i in range(nooflayers-1):
@@ -109,6 +83,7 @@ def derivativess(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel, decay_swit
         else:
             Js[i + 1] = Js_temp[i + 1]
 
+    # differential equations:
     # soluble component S_I:
     for i in range(nooflayers):
         if i < (feedlayer - 1 - eps):
@@ -182,14 +157,14 @@ def derivativess(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel, decay_swit
             dys[i + 7*nooflayers] = (v_in * ys_in[TSS] - v_up * ystemp[i + 7*nooflayers] - v_dn * ystemp[i + 7*nooflayers] - Js[i + 1] + Js[i]) / h
 
     # Temperature:
-    # if tempmodel:
-    for i in range(nooflayers):
-        if i < (feedlayer - 1 - eps):
-            dys[i + 8*nooflayers] = (-v_up * ystemp[i + 8*nooflayers] + v_up * ystemp[i + 1 + 8*nooflayers]) / h
-        elif i > (feedlayer - eps):
-            dys[i + 8*nooflayers] = (v_dn * ystemp[i - 1 + 8*nooflayers] - v_dn * ystemp[i + 8*nooflayers]) / h
-        else:
-            dys[i + 8*nooflayers] = (v_in * ys_in[TEMP] - v_up * ystemp[i + 8*nooflayers] - v_dn * ystemp[i + 8*nooflayers]) / h
+    if tempmodel:
+        for i in range(nooflayers):
+            if i < (feedlayer - 1 - eps):
+                dys[i + 8*nooflayers] = (-v_up * ystemp[i + 8*nooflayers] + v_up * ystemp[i + 1 + 8*nooflayers]) / h
+            elif i > (feedlayer - eps):
+                dys[i + 8*nooflayers] = (v_dn * ystemp[i - 1 + 8*nooflayers] - v_dn * ystemp[i + 8*nooflayers]) / h
+            else:
+                dys[i + 8*nooflayers] = (v_in * ys_in[TEMP] - v_up * ystemp[i + 8*nooflayers] - v_dn * ystemp[i + 8*nooflayers]) / h
 
     # soluble component S_D1:
     for i in range(nooflayers):
@@ -222,36 +197,27 @@ def derivativess(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel, decay_swit
 
 
 class Settler:
-    def __init__(self, dim, layer, Qr, Qw, ys0, sedpar, asm1par, tempmodel, decay_switch):
+    def __init__(self, dim, layer, Qr, Qw, ys0, sedpar, asm1par, tempmodel):
         """
         Parameters
         ----------
         dim : np.ndarray
             Dimensions of the settler, area and height
-
         layer : np.ndarray
             Feedlayer and number of layers in the settler
-
         Qr : int
             Return sludge flow rate
-
         Qw : int
             flow rate of waste sludge
-
         ys0 : np.ndarray
-            Initial values for the 20 components (without Q) for each layer, sorted by components
-
+            Initial values for the 12 components (without Q and particulates) for each layer, sorted by components
         sedpar : np.ndarray
             6 parameters needed for settler equations
-
+        asm1par : np.ndarray
+            24 parameters needed for ASM1 equations
         tempmodel : bool
-            If true, mass balance for the wastewater temperature is used in process rates,
-            otherwise influent wastewater temperature is just passed through process reactors
-
-        decay_switch : bool
-            If true, the decay of heterotrophs and autotrophs is depending on the electron acceptor present,
-            otherwise the decay do not change
-
+            If true, differential equation for the wastewater temperature is used,
+            otherwise influent wastewater temperature is just passed through the settler
         """
 
         self.dim = dim
@@ -262,7 +228,6 @@ class Settler:
         self.sedpar = sedpar
         self.asm1par = asm1par
         self.tempmodel = tempmodel
-        self.decay_switch = decay_switch
 
     def outputs(self, timestep, step, ys_in):
         """Returns the solved differential equations of settling model.
@@ -274,12 +239,16 @@ class Settler:
         step : int or float
             Upper boundary for integration interval in days
         ys_in : np.ndarray
-            Settler inlet concentrations of the 21 ASM1 components
+            Settler inlet concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
 
         Returns
         -------
-        np.ndarray
-            Array containing the concentrations of the 20 components in each layer at the current time step after the integration, sorted by layer plus Qe, Qr, Qw
+        (np.ndarray, np.ndarray)
+            Tuple containing three array:
+                ys_out: Array containing the values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+                in the effluent (top layer of settler) at the current time step after the integration
+                ys_eff: Array containing the values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+                in the underflow (bottom layer of settler) at the current time step after the integration
         """
 
         nooflayers = self.layer[1]
@@ -288,7 +257,7 @@ class Settler:
         ys_TSS = np.zeros(nooflayers)
         t_eval = np.array([step, step + timestep])
 
-        odes = odeint(derivativess, self.ys0, t_eval, tfirst=True, args=(ys_in, self.sedpar, self.dim, self.layer, self.Qr, self.Qw, self.tempmodel, self.decay_switch))
+        odes = odeint(settlerequations, self.ys0, t_eval, tfirst=True, args=(ys_in, self.sedpar, self.dim, self.layer, self.Qr, self.Qw, self.tempmodel))
         ys_int = odes[1]
 
         self.ys0 = ys_int
@@ -359,7 +328,4 @@ class Settler:
         # BOD5 concentration:
         ys_eff[24] = 0.25 * (ys_eff[SS] + ys_eff[XS] + (1-self.asm1par[16]) * (ys_eff[XBH] + ys_eff[XBA]))
 
-        # TSS in every layer:
-        ys_TSS = ys_int[(7*nooflayers):(7*nooflayers+nooflayers)]
-
-        return ys_out, ys_eff, ys_TSS
+        return ys_out, ys_eff
