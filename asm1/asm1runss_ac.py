@@ -1,6 +1,18 @@
+"""Execution file for asm1 model with second clarifier and aeration control in reactor 5 in steady state simulation
+
+This script will run the plant (ams1 model + settling model + aeration control model) to steady state. The results are
+saved as csv file and are necessary for further dynamic simulations.
+
+This script requires that the following packages are installed within the Python environment you are running this script
+in: 'numpy', 'csv', 'time', 'scipy.integrate', 'numba', 'scipy'.
+
+The parameters 'tempmodel' and 'activate' can be set to 'True' if you want to activate them.
+"""
+
+
 import numpy as np
 import csv
-import time         # dieses Package am Ende immernoch?
+import time
 import asm1init
 import settler1dinit_asm1
 import asm1
@@ -10,25 +22,22 @@ import aerationcontrolinit
 import plantperformance
 
 
-DECAY = False       # if DECAY is True the decay of heterotrophs and autotrophs is depending on the electron acceptor present
-                    # if DECAY is False the decay do not change
+tempmodel = False   # if tempmodel is False influent wastewater temperature is just passed through process reactors and settler
+                    # if tempmodel is True mass balance for the wastewater temperature is used in process reactors and settler
 
-TEMPMODEL = False   # if TEMPMODEL is False influent wastewater temperature is just passed through process reactors
-                    # if TEMPMODEL is True mass balance for the wastewater temperature is used in process reactors
-
-ACTIVATE = False    # if ACTIVATE is False dummy states are 0
-                    # if ACTIVATE is True dummy states are activated
+activate = False    # if activate is False dummy states are 0
+                    # if activate is True dummy states are activated
 
 
 # definition of the reactors:
-reactor1 = asm1.ASM1reactor(asm1init.KLa1, asm1init.VOL1, asm1init.yinit1, asm1init.PAR1, asm1init.carb1, asm1init.carbonsourceconc, TEMPMODEL, ACTIVATE, DECAY)
-reactor2 = asm1.ASM1reactor(asm1init.KLa2, asm1init.VOL2, asm1init.yinit2, asm1init.PAR2, asm1init.carb2, asm1init.carbonsourceconc, TEMPMODEL, ACTIVATE, DECAY)
-reactor3 = asm1.ASM1reactor(asm1init.KLa3, asm1init.VOL3, asm1init.yinit3, asm1init.PAR3, asm1init.carb3, asm1init.carbonsourceconc, TEMPMODEL, ACTIVATE, DECAY)
-reactor4 = asm1.ASM1reactor(asm1init.KLa4, asm1init.VOL4, asm1init.yinit4, asm1init.PAR4, asm1init.carb4, asm1init.carbonsourceconc, TEMPMODEL, ACTIVATE, DECAY)
-reactor5 = asm1.ASM1reactor(asm1init.KLa5, asm1init.VOL5, asm1init.yinit5, asm1init.PAR5, asm1init.carb5, asm1init.carbonsourceconc, TEMPMODEL, ACTIVATE, DECAY)
-settler = settler1d_asm1.Settler(settler1dinit_asm1.DIM, settler1dinit_asm1.LAYER, asm1init.Qr, asm1init.Qw, settler1dinit_asm1.settlerinit, settler1dinit_asm1.SETTLERPAR, asm1init.PAR1, TEMPMODEL, DECAY)
+reactor1 = asm1.ASM1reactor(asm1init.KLa1, asm1init.VOL1, asm1init.yinit1, asm1init.PAR1, asm1init.carb1, asm1init.carbonsourceconc, tempmodel, activate)
+reactor2 = asm1.ASM1reactor(asm1init.KLa2, asm1init.VOL2, asm1init.yinit2, asm1init.PAR2, asm1init.carb2, asm1init.carbonsourceconc, tempmodel, activate)
+reactor3 = asm1.ASM1reactor(asm1init.KLa3, asm1init.VOL3, asm1init.yinit3, asm1init.PAR3, asm1init.carb3, asm1init.carbonsourceconc, tempmodel, activate)
+reactor4 = asm1.ASM1reactor(asm1init.KLa4, asm1init.VOL4, asm1init.yinit4, asm1init.PAR4, asm1init.carb4, asm1init.carbonsourceconc, tempmodel, activate)
+reactor5 = asm1.ASM1reactor(asm1init.KLa5, asm1init.VOL5, asm1init.yinit5, asm1init.PAR5, asm1init.carb5, asm1init.carbonsourceconc, tempmodel, activate)
+settler = settler1d_asm1.Settler(settler1dinit_asm1.DIM, settler1dinit_asm1.LAYER, asm1init.Qr, asm1init.Qw, settler1dinit_asm1.settlerinit, settler1dinit_asm1.SETTLERPAR, asm1init.PAR1, tempmodel)
 
-aerationcontrol5 = aerationcontrol.PIaeration(aerationcontrolinit.KLa5_max, aerationcontrolinit.KSO5, aerationcontrolinit.TiSO5, aerationcontrolinit.TtSO5, aerationcontrolinit.SO5ref, aerationcontrolinit.KLa5offset, aerationcontrolinit.SO5intstate, aerationcontrolinit.SO5awstate, aerationcontrolinit.kla_lim, aerationcontrolinit.kla_calc)
+aerationcontrol5 = aerationcontrol.PIaeration(aerationcontrolinit.KLa5_min, aerationcontrolinit.KLa5_max, aerationcontrolinit.KSO5, aerationcontrolinit.TiSO5, aerationcontrolinit.TtSO5, aerationcontrolinit.SO5ref, aerationcontrolinit.KLa5offset, aerationcontrolinit.SO5intstate, aerationcontrolinit.SO5awstate, aerationcontrolinit.kla_lim, aerationcontrolinit.kla_calc)
 
 # CONSTINFLUENT:
 y_in = np.array([30, 69.5000000000000, 51.2000000000000, 202.320000000000, 28.1700000000000, 0, 0, 0, 0, 31.5600000000000, 6.95000000000000, 10.5900000000000, 7, 211.267500000000, 18446, 15, 0, 0, 0, 0, 0])
@@ -42,6 +51,7 @@ ys_out = np.zeros(21)
 ys_in = np.zeros(21)
 Qintr = 0
 
+kla5 = asm1init.KLa5
 
 start = time.perf_counter()
 
@@ -51,6 +61,8 @@ for step in simtime:
     y_in1 = (y_in_r*y_in_r[14]+y_out5*Qintr)/(y_in_r[14]+Qintr)
     y_in1[14] = y_in_r[14]+Qintr
 
+    reactor5.kla = kla5
+
     y_out1 = reactor1.output(timestep, step, y_in1)
     y_out2 = reactor2.output(timestep, step, y_out1)
     y_out3 = reactor3.output(timestep, step, y_out2)
@@ -58,9 +70,6 @@ for step in simtime:
     y_out5 = reactor5.output(timestep, step, y_out4)
 
     kla5 = aerationcontrol5.output(y_out5[7], step, timestep)
-
-    reactor5 = asm1.ASM1reactor(kla5, asm1init.VOL5, y_out5, asm1init.PAR5, asm1init.carb5,
-                                asm1init.carbonsourceconc, TEMPMODEL, ACTIVATE, DECAY)
 
     Qintr = asm1init.Qintr
 
@@ -70,15 +79,15 @@ for step in simtime:
     if ys_in[14] < 0.0:
         ys_in[14] = 0.0
 
-    ys_out, ys_eff, ys_TSS = settler.outputs(timestep, step, ys_in)
+    ys_out, ys_eff = settler.outputs(timestep, step, ys_in)
 
 stop = time.perf_counter()
 
-print('Simulationszeit: ', stop - start)
-print('Output bei t = 200 d: ', ys_out, ys_eff)
+print('Steady state simulation completed after: ', stop - start)
+print('Effluent at t = 200 d: ', ys_eff)
 
 
-with open('asm1_values_ss_ac_aw.csv', 'w', newline='') as csvfile:
+with open('asm1_values_ac_ss.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter=' ')
     writer.writerow(y_out1)
     writer.writerow(y_out2)
@@ -90,7 +99,7 @@ with open('asm1_values_ss_ac_aw.csv', 'w', newline='') as csvfile:
     writer.writerow(settler.ys0)
 
 aerationvalues = np.array([kla5, aerationcontrol5.SOintstate, aerationcontrol5.SOawstate, aerationcontrol5.kla_lim, aerationcontrol5.kla_calc])
-with open('asm1_aerationvalues_ss_ac_aw.csv', 'w', newline='') as csvfile:
+with open('asm1_aerationvalues_ac_ss.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter=' ')
     writer.writerow(aerationvalues)
 
@@ -107,7 +116,6 @@ vol = np.array([[reactor1.volume], [reactor2.volume], [reactor3.volume], [reacto
 sosat = np.array([[asm1init.SOSAT1], [asm1init.SOSAT2], [asm1init.SOSAT3], [asm1init.SOSAT4], [asm1init.SOSAT5]])
 
 ae = plantperformance.aerationenergy(kla, vol, sosat, timestep, evaltime)
-print(ae)
 
 # pumping energy:
 pumpfactor = np.array([[0.004], [0.008], [0.05]])
@@ -117,39 +125,42 @@ flows[1] = np.array([asm1init.Qr, asm1init.Qr])
 flows[2] = np.array([asm1init.Qw, asm1init.Qw])
 
 pe = plantperformance.pumpingenergy(flows, pumpfactor, timestep, evaltime)
-print(pe)
 
 # mixing energy:
 me = plantperformance.mixingenergy(kla, vol, timestep, evaltime)
-print(me)
 
 
 # SNH limit violations:
 SNH_eff = np.array(ys_eff[7], ys_eff[7])
 SNH_limit = 4
-SNH_violationtime, SNH_violationperc = plantperformance.violation(SNH_eff, SNH_limit, timestep, evaltime)
-print(SNH_violationtime, SNH_violationperc)
+SNH_violationvalues = plantperformance.violation(SNH_eff, SNH_limit, timestep, evaltime)
 
 # TSS limit violations:
 TSS_eff = np.array(ys_eff[13], ys_eff[13])
 TSS_limit = 30
-TSS_violationtime, TSS_violationperc = plantperformance.violation(TSS_eff, TSS_limit, timestep, evaltime)
-print(TSS_violationtime, TSS_violationperc)
+TSS_violationvalues = plantperformance.violation(TSS_eff, TSS_limit, timestep, evaltime)
 
 # totalN limit violations:
 totalN_eff = np.array(ys_eff[22], ys_eff[22])
 totalN_limit = 18
-totalN_violationtime, totalN_violationperc = plantperformance.violation(totalN_eff, totalN_limit, timestep, evaltime)
-print(totalN_violationtime, totalN_violationperc)
+totalN_violationvalues = plantperformance.violation(totalN_eff, totalN_limit, timestep, evaltime)
 
 # COD limit violations:
 COD_eff = np.array(ys_eff[23], ys_eff[23])
 COD_limit = 100
-COD_violationtime, COD_violationperc = plantperformance.violation(COD_eff, COD_limit, timestep, evaltime)
-print(COD_violationtime, COD_violationperc)
+COD_violationvalues = plantperformance.violation(COD_eff, COD_limit, timestep, evaltime)
 
 # BOD5 limit violations:
 BOD5_eff = np.array(ys_eff[24], ys_eff[24])
 BOD5_limit = 10
-BOD5_violationtime, BOD5_violationperc = plantperformance.violation(BOD5_eff, BOD5_limit, timestep, evaltime)
-print(BOD5_violationtime, BOD5_violationperc)
+BOD5_violationvalues = plantperformance.violation(BOD5_eff, BOD5_limit, timestep, evaltime)
+
+data = [[ae], [pe], [me], SNH_violationvalues, TSS_violationvalues, totalN_violationvalues, COD_violationvalues, BOD5_violationvalues]
+names = ['aeration energy [kWh/d]', 'pumping energy [kWh/d]', 'mixing energy [kWh/d]', 'SNH: days of violation / percentage of time', 'TSS: days of violation / percentage of time', 'totalN: days of violation / percentage of time', 'COD: days of violation / percentage of time', 'BOD5: days of violation / percentage of time']
+
+with open('evaluation_ac_ss.csv', 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile, delimiter=' ')
+    for name, datarow in zip(names, data):
+        output_row = [name]
+        output_row.extend(datarow)
+        writer.writerow(output_row)
