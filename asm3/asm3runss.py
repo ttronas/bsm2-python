@@ -84,8 +84,3 @@ with open('asm3_values_ss.csv', 'w', newline='') as csvfile:
     writer.writerow(ys_out)
     writer.writerow(ys_eff)
     writer.writerow(settler.ys0)
-    writer.writerow(y_out1[20:24])
-    writer.writerow(y_out2[20:24])
-    writer.writerow(y_out3[20:24])
-    writer.writerow(y_out4[20:24])
-    writer.writerow(y_out5[20:24])
