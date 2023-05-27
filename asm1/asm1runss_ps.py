@@ -86,7 +86,7 @@ for step in simtime:
     if ys_in[14] < 0.0:
         ys_in[14] = 0.0
 
-    ys_out, ys_eff, ys_TSS = settler.outputs(timestep, step, ys_in)
+    ys_out, ys_eff = settler.outputs(timestep, step, ys_in)
 
 stop = time.perf_counter()
 
@@ -94,7 +94,7 @@ print('Steady state simulation completed after: ', stop - start)
 print('Effluent at t = 200 d: ', ys_eff)
 
 
-with open('asm1_values_ss_ps_test.csv', 'w', newline='') as csvfile:
+with open('asm1_values_ss_ps.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter=' ')
     writer.writerow(y_out1)
     writer.writerow(y_out2)
@@ -109,7 +109,7 @@ aerationvalues = np.zeros((3, 5))
 aerationvalues[0] = np.array([kla3, aerationcontrol3.SOintstate, aerationcontrol3.SOawstate, aerationcontrol3.kla_lim, aerationcontrol3.kla_calc])
 aerationvalues[1] = np.array([kla4, aerationcontrol4.SOintstate, aerationcontrol4.SOawstate, aerationcontrol4.kla_lim, aerationcontrol4.kla_calc])
 aerationvalues[2] = np.array([kla5, aerationcontrol5.SOintstate, aerationcontrol5.SOawstate, aerationcontrol5.kla_lim, aerationcontrol5.kla_calc])
-with open('asm1_aerationvalues_ss_ps_test.csv', 'w', newline='') as csvfile:
+with open('asm1_aerationvalues_ss_ps.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter=' ')
     writer.writerows(aerationvalues)
 
@@ -167,7 +167,7 @@ BOD5_violationvalues = plantperformance.violation(BOD5_eff, BOD5_limit, timestep
 data = [[ae], [pe], [me], SNH_violationvalues, TSS_violationvalues, totalN_violationvalues, COD_violationvalues, BOD5_violationvalues]
 names = ['aeration energy [kWh/d]', 'pumping energy [kWh/d]', 'mixing energy [kWh/d]', 'SNH: days of violation / percentage of time', 'TSS: days of violation / percentage of time', 'totalN: days of violation / percentage of time', 'COD: days of violation / percentage of time', 'BOD5: days of violation / percentage of time']
 
-with open('evaluation_ps_ss_test.csv', 'w', newline='') as csvfile:
+with open('evaluation_ps_ss.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter=' ')
     for name, datarow in zip(names, data):
         output_row = [name]

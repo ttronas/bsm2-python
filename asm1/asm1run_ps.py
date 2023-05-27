@@ -6,7 +6,7 @@ are saved as csv files. It is necessary to run the steady state file first.
 This script also includes the scenarios for the flexible aeration study.
 
 This script requires that the following packages are installed within the Python environment you are running this script
-in: 'numpy', 'csv', 'time', 'scipy.integrate', 'numba', 'scipy'.
+in: 'numpy', 'csv', 'pandas', 'time', 'scipy.integrate', 'numba', 'scipy'.
 
 The parameters 'tempmodel' and 'activate' can be set to 'True' if you want to activate them.
 """
@@ -33,7 +33,7 @@ activate = False    # if activate is False dummy states are 0
                     # if activate is True dummy states are activated
 
 # Initial values from steady state simulation:
-with open('asm1_values_ss_ps_test.csv', 'r') as f:
+with open('asm1_values_ss_ps.csv', 'r') as f:
     initdata = list(csv.reader(f, delimiter=" "))
 yinit1 = np.array(initdata[0]).astype(np.float64)
 yinit2 = np.array(initdata[1]).astype(np.float64)
@@ -42,7 +42,7 @@ yinit4 = np.array(initdata[3]).astype(np.float64)
 yinit5 = np.array(initdata[4]).astype(np.float64)
 settlerinit = np.array(initdata[7]).astype(np.float64)
 
-with open('asm1_aerationvalues_ss_ps_test.csv', 'r') as f:
+with open('asm1_aerationvalues_ss_ps.csv', 'r') as f:
     controldata = list(csv.reader(f, delimiter=" "))
 aerationvalues3 = np.array(controldata[0]).astype(np.float64)
 aerationvalues4 = np.array(controldata[1]).astype(np.float64)
@@ -165,9 +165,9 @@ for step in simtime:
         indexstrom = indexstrom + 1
 
     # Scenario 1:
-    # reactor3.kla = kla3_a
-    # reactor4.kla = kla4_a
-    # reactor5.kla = kla5_a
+    reactor3.kla = kla3_a
+    reactor4.kla = kla4_a
+    reactor5.kla = kla5_a
 
     # Scenario 2 and 3:
     # if stromdaten[indexstrom] >= 261.97:
@@ -200,18 +200,18 @@ for step in simtime:
     #     reactor5.kla = kla5_a
 
     # Scenario 7:
-    if stromdaten[indexstrom] >= 261.97 and y_in[9] < 25.0:
-        reactor3.kla = 0
-        reactor4.kla = 0
-        reactor5.kla = 0
-    elif stromdaten[indexstrom] >= 261.97 and ys_eff[9] < 4.0:
-        reactor3.kla = 117
-        reactor4.kla = 87
-        reactor5.kla = 68
-    else:
-        reactor3.kla = kla3_a
-        reactor4.kla = kla4_a
-        reactor5.kla = kla5_a
+    # if stromdaten[indexstrom] >= 261.97 and y_in[9] < 25.0:
+    #     reactor3.kla = 0
+    #     reactor4.kla = 0
+    #     reactor5.kla = 0
+    # elif stromdaten[indexstrom] >= 261.97 and ys_eff[9] < 4.0:
+    #     reactor3.kla = 117
+    #     reactor4.kla = 87
+    #     reactor5.kla = 68
+    # else:
+    #     reactor3.kla = kla3_a
+    #     reactor4.kla = kla4_a
+    #     reactor5.kla = kla5_a
 
     if indexstrom+1 == len(stromdaten):
         indexstrom = -1
@@ -255,7 +255,7 @@ for step in simtime:
     ys_in[14] = y_out5[14] - Qintr
     ys_in[15:21] = y_out5[15:21]
 
-    ys_out, ys_eff, ys_TSS = settler.outputs(timestep, step, ys_in)
+    ys_out, ys_eff = settler.outputs(timestep, step, ys_in)
 
     numberstep = numberstep + 1
 
@@ -305,9 +305,9 @@ for step in simtime:
         indexstrom = indexstrom + 1
 
     # Scenario 1:
-    # reactor3.kla = kla3_a
-    # reactor4.kla = kla4_a
-    # reactor5.kla = kla5_a
+    reactor3.kla = kla3_a
+    reactor4.kla = kla4_a
+    reactor5.kla = kla5_a
 
     # Scenario 2 and 3:
     # if stromdaten[indexstrom] >= 261.97:
@@ -340,18 +340,18 @@ for step in simtime:
     #     reactor5.kla = kla5_a
 
     # Scenario 7:
-    if stromdaten[indexstrom] >= 261.97 and y_in[9] < 25.0:
-        reactor3.kla = 0
-        reactor4.kla = 0
-        reactor5.kla = 0
-    elif stromdaten[indexstrom] >= 261.97 and ys_eff[9] < 4.0:
-        reactor3.kla = 117
-        reactor4.kla = 87
-        reactor5.kla = 68
-    else:
-        reactor3.kla = kla3_a
-        reactor4.kla = kla4_a
-        reactor5.kla = kla5_a
+    # if stromdaten[indexstrom] >= 261.97 and y_in[9] < 25.0:
+    #     reactor3.kla = 0
+    #     reactor4.kla = 0
+    #     reactor5.kla = 0
+    # elif stromdaten[indexstrom] >= 261.97 and ys_eff[9] < 4.0:
+    #     reactor3.kla = 117
+    #     reactor4.kla = 87
+    #     reactor5.kla = 68
+    # else:
+    #     reactor3.kla = kla3_a
+    #     reactor4.kla = kla4_a
+    #     reactor5.kla = kla5_a
 
     if indexstrom+1 == len(stromdaten):
         indexstrom = -1
@@ -395,7 +395,7 @@ for step in simtime:
     ys_in[14] = y_out5[14] - Qintr
     ys_in[15:21] = y_out5[15:21]
 
-    ys_out, ys_eff, ys_TSS = settler.outputs(timestep, step, ys_in)
+    ys_out, ys_eff = settler.outputs(timestep, step, ys_in)
     if step >= (evaltime[0] - timestep):
         if (numberstep - 1) % (int(sample / integration)) == 0.0:
             reactin[[number]] = y_in1
@@ -433,33 +433,32 @@ print('Second 14 d simulation completed after', stop2 - start2, 'seconds')
 ys_eff_av = average_asm1.averages(settlereff, sampleinterval, evaltime)
 print('Average effluent values after second 14 d simulation', ys_eff_av)
 
-# with open('ps1_klaflex_test.csv', 'w', newline='') as csvfile:
-#     writer = csv.writer(csvfile, delimiter=' ')
-#     writer.writerows(kla_flex)
+with open('ps_klaflex.csv', 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile, delimiter=' ')
+    writer.writerows(kla_flex)
 
 kla = np.array([kla1in, kla2in, kla3in, kla4in, kla5in])
-with open('ps7_kla_test.csv', 'w', newline='') as csvfile:
+with open('ps_kla.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter=' ')
     writer.writerows(kla)
-#
-# # Save data in csv-File:
-with open('ps7_effav_test.csv', 'w', newline='') as csvfile:
+
+with open('ps_effav.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter=' ')
     writer.writerow(ys_eff_av)
 
-with open('ps7_eff_test.csv', 'w', newline='') as csvfile:
+with open('ps_eff.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter=' ')
     writer.writerows(settlereff)
 
-with open('ps7_energy_test.csv', 'w', newline='') as csvfile:
+with open('ps_energy.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter=' ')
     writer.writerows(energy)
 
-with open('ps7_energycosts_test.csv', 'w', newline='') as csvfile:
+with open('ps_energycosts.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter=' ')
     writer.writerow(energycosts)
 
-with open('ps7_energycostsflex_test.csv', 'w', newline='') as csvfile:
+with open('ps_energycostsflex.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter=' ')
     writer.writerow(energycosts_flex)
 
@@ -508,7 +507,7 @@ me_flex = plantperformance.mixingenergy(np.transpose(kla_flex), vol, sampleinter
 data = [[ae], [pe], [me], [ae_flex], [me_flex], [SNH_violationvalues], [TSS_violationvalues], [totalN_violationvalues], [COD_violationvalues], [BOD5_violationvalues]]
 names = ['aeration energy [kWh/d]', 'pumping energy [kWh/d]', 'mixing energy [kWh/d]', 'aeration energy during flex time [kWh/d]', 'mixing energy during flex time [kWh/d]' 'SNH: days of violation / percentage of time', 'TSS: days of violation / percentage of time', 'totalN: days of violation / percentage of time', 'COD: days of violation / percentage of time', 'BOD5: days of violation / percentage of time']
 
-with open('ps7_evaluation_test.csv', 'w', newline='') as csvfile:
+with open('ps_evaluation.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter=' ')
     for name, datarow in zip(names, data):
         output_row = [name]
