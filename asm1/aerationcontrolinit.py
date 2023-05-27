@@ -1,5 +1,10 @@
-import numpy as np
-import pandas as pd
+"""Initialisation file for all states and parameters related to the aeration control system in reactor 3 to 5
+
+All parameters and specifications are based on BSM1 model.
+
+This file will be executed when running asm1runss_ac.py, asm1run_ac.py, asm1runss_ps.py or asm1run_ps.py.
+"""
+
 
 # initial values for sensor 3:
 T90_SO3 = 1     # response time 1 min
@@ -9,6 +14,7 @@ T_SO3 = T90_SO3 / (60*24) / 3.89
 std_SO3 = 0.025
 
 # values for PI controller 3:
+KLa3_min = 0
 KLa3_max = 360
 KSO3 = 25
 TiSO3 = 0.002
@@ -32,6 +38,7 @@ T_SO4 = T90_SO4 / (60*24) / 3.89
 std_SO4 = 0.025
 
 # values for PI controller 4:
+KLa4_min = 0
 KLa4_max = 360
 KSO4 = 25
 TiSO4 = 0.002
@@ -55,6 +62,7 @@ T_SO5 = T90_SO5 / (60*24) / 3.89
 std_SO5 = 0.025
 
 # values for PI controller 5:
+KLa5_min = 0
 KLa5_max = 360
 KSO5 = 25
 TiSO5 = 0.002
