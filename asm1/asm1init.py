@@ -2,7 +2,7 @@
 
 All parameters and specifications are based on BSM1 model.
 
-This file will be executed when running the asm1run or asm1runss file.
+This file will be executed when running asm1runss.py or asm1run.py.
 """
 
 
@@ -17,7 +17,6 @@ Qr = Qin0
 Qw = 385
 
 yinit1 = np.ones(21)
-# yinit1[0:15] = np.random.rand(15)
 yinit1[16:21] = 0
 
 yinit2 = yinit1
@@ -51,13 +50,8 @@ X_BH2TSS = 0.75
 X_BA2TSS = 0.75
 X_P2TSS = 0.75
 
-# Additional parameters (e- decay dependency)
-
-hH_NO3_end = 0.5    # Anoxic reduction factor for endogenous respiration
-hA_NO3_end = 0.33   # Anoxic reduction factor for decay of autotrophs
-
 PAR1 = np.array([mu_H, K_S, K_OH, K_NO, b_H, mu_A, K_NH, K_OA, b_A, ny_g, k_a, k_h, K_X, ny_h, Y_H, Y_A, f_P,
-                 i_XB, i_XP, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS, hH_NO3_end, hA_NO3_end])
+                 i_XB, i_XP, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS])
 PAR2 = PAR1
 PAR3 = PAR1
 PAR4 = PAR1
@@ -82,7 +76,7 @@ KLa1 = 0
 KLa2 = 0
 KLa3 = 240
 KLa4 = 240
-KLa5 = 144
+KLa5 = 84
 
 # external carbon flow rates for reactor 1 to 5:
 carb1 = 0
