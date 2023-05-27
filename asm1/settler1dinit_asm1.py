@@ -2,16 +2,17 @@
 
 All parameters and specifications are based on BSM1 model.
 
-This file will be executed when running the asm1run or asm1runss file.
+This file will be executed when running asm1runss.py or asm1run.py.
 """
 
 
 import numpy as np
 
 settlerinit = np.ones(120)
-# settlerinit[0:90] = np.random.rand(90)
+settlerinit[80:90] = 15
 settlerinit[90:120] = 0
 
+# parameters for Takács settler model, based on Alex et al (2018) (BSM1)
 v0_max = 250
 v0 = 474
 r_h = 0.000576
@@ -26,7 +27,7 @@ height = 4
 
 DIM = np.array([area, height])
 
-# layers are flexible, default model is a 10 layer sedimentation tank
+# number of layers is flexible, default model is a 10 layer sedimentation tank
 feedlayer = 5
 nooflayers = 10
 
