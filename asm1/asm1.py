@@ -7,54 +7,39 @@ indices_components = np.arange(21)
 SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = indices_components
 
 @jit(nopython=True)
-def derivatives(t, y, y_in, asmpar, kla, volume, tempmodel, decay_switch, activate):
-    """Returns an array containing the differential equations of ASM1
+def asm1equations(t, y, y_in, asm1par, kla, volume, tempmodel, activate):
+    """Returns an array containing the differential equations based on ASM1
 
     Parameters
     ----------
     t : np.ndarray
         Time interval for integration, needed for the solver
-
     y : np.ndarray
         Solution of the differential equations, needed for the solver
-
     y_in : np.ndarray
-        Reactor inlet concentrations of the 21 ASM1 components
-
-    asmpar : np.ndarray
-        26 parameters needed for ASM1 equations
-
+        Reactor inlet concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+    asm1par : np.ndarray
+        24 parameters needed for ASM1 equations
     kla : int
         Oxygen transfer coefficient in aerated reactors
-
     volume : int
         Volume of the reactor
-
-    sosat : int
-        Saturation concentration for oxygen
-
     tempmodel : bool
         If true, mass balance for the wastewater temperature is used in process rates,
         otherwise influent wastewater temperature is just passed through process reactors
-
-    decay_switch : bool
-        If true, the decay of heterotrophs and autotrophs is depending on the electron acceptor present,
-        otherwise the decay do not change
-
     activate : bool
-            If true, dummy states are activated, otherwise dummy states are activated
+            If true, dummy states are activated, otherwise dummy states are not activated
 
     Returns
     -------
     np.ndarray
-        Array containing the 21 differential equations of ASM1 model
-
+        Array containing the 21 differential equations based on ASM1 model
     """
 
     dy = np.zeros(21)
     reac = np.zeros(21)
 
-    mu_H, K_S, K_OH, K_NO, b_H, mu_A, K_NH, K_OA, b_A, ny_g, k_a, k_h, K_X, ny_h, Y_H, Y_A, f_P, i_XB, i_XP, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS, hH_NO3_end, hA_NO3_end = asmpar
+    mu_H, K_S, K_OH, K_NO, b_H, mu_A, K_NH, K_OA, b_A, ny_g, k_a, k_h, K_X, ny_h, Y_H, Y_A, f_P, i_XB, i_XP, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS = asm1par
 
     # temperature compensation:
     if not tempmodel:
@@ -94,12 +79,8 @@ def derivatives(t, y, y_in, asmpar, kla, volume, tempmodel, decay_switch, activa
     proc1 = mu_H * (ytemp[SS] / (K_S + ytemp[SS])) * (ytemp[SO] / (K_OH + ytemp[SO])) * ytemp[XBH]
     proc2 = mu_H * (ytemp[SS] / (K_S + ytemp[SS])) * (K_OH / (K_OH + ytemp[SO])) * (ytemp[SNO] / (K_NO + ytemp[SNO])) * ny_g * ytemp[XBH]
     proc3 = mu_A * (ytemp[SNH] / (K_NH + ytemp[SNH])) * (ytemp[SO] / (K_OA + ytemp[SO])) * ytemp[XBA]
-    if decay_switch:
-        proc4 = b_H * (ytemp[SO] / (K_OH + ytemp[SO]) + hH_NO3_end * K_OH / (K_OH + ytemp[SO]) * ytemp[SNO] / (K_NO + ytemp[SNO])) * ytemp[XBH]
-        proc5 = b_A * (ytemp[SO] / (K_OH + ytemp[SO]) + hA_NO3_end * K_OH / (K_OH + ytemp[SO]) * ytemp[SNO] / (K_NO + ytemp[SNO])) * ytemp[XBA]
-    else:
-        proc4 = b_H * ytemp[XBH]
-        proc5 = b_A * ytemp[XBA]
+    proc4 = b_H * ytemp[XBH]
+    proc5 = b_A * ytemp[XBA]
     proc6 = k_a * ytemp[SND] * ytemp[XBH]
     proc7 = k_h * ((ytemp[XS] / ytemp[XBH]) / (K_X + (ytemp[XS] / ytemp[XBH]))) * ((ytemp[SO] / (K_OH + ytemp[SO])) + ny_h * (K_OH / (K_OH + ytemp[SO])) * (ytemp[SNO] / (K_NO + ytemp[SNO]))) * ytemp[XBH]
     proc8 = proc7 * (ytemp[XND] / ytemp[XS])
@@ -135,68 +116,56 @@ def derivatives(t, y, y_in, asmpar, kla, volume, tempmodel, decay_switch, activa
         dy[TEMP] = 1.0 / volume * (y_in[Q] * (y_in[TEMP] - y[TEMP]))
 
     if activate:
-        dy[16:21] = 1.0 / volume * (y_in[Q] * (y_in[16:21] - y[16:21]))
+        dy[16:21] = 1.0 / volume * (y_in[Q] * (y_in[16:21] - y[16:21])) + reac[16:21]
 
     return dy
 
 
 class ASM1reactor:
-    def __init__(self,  kla, volume, y0, asmpar, carb, csourceconc, tempmodel, activate, decay_switch):
+    def __init__(self,  kla, volume, y0, asm1par, carb, csourceconc, tempmodel, activate):
         """
         Parameters
         ----------
         kla : int
             Oxygen transfer coefficient in aerated reactors
-
         volume : int
             Volume of the reactor
-
         y0 : np.ndarray
-            Initial values for the 21 components
-
-        asmpar : np.ndarray
-            26 parameters needed for ASM1 equations
-
+            Initial integration values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        asm1par : np.ndarray
+            24 parameters needed for ASM1 equations
         carb : int
-            external carbon flow rates for carbon addition to a reator
-
+            external carbon flow rate for carbon addition to a reactor
         csourceconc : int
             external carbon source concentration
-
         tempmodel : bool
             If true, mass balance for the wastewater temperature is used in process rates,
             otherwise influent wastewater temperature is just passed through process reactors
-
         activate : bool
-            If true, dummy states are activated, otherwise dummy states are activated
-
-        decay_switch : bool
-            If true, the decay of heterotrophs and autotrophs is depending on the electron acceptor present,
-            otherwise the decay do not change
+            If true, dummy states are activated, otherwise dummy states are not activated
         """
 
-        self.kla = kla              # oxygen transfer coefficient in aerated reactors
-        self.volume = volume  # volume of the reactor compartment
-        self.y0 = y0                # initial states for integration (damit man es anpassen kann)
-        self.asmpar = asmpar        # Parameters of ASM1-Model
+        self.kla = kla
+        self.volume = volume
+        self.y0 = y0
+        self.asm1par = asm1par
         self.carb = carb
         self.csourceconc = csourceconc
         self.tempmodel = tempmodel
         self.activate = activate
-        self.decay_switch = decay_switch
 
     def carbonaddition(self, y_in):
-        """Returns the reactor inlet concentrations after adding an external carbon source.
+        """Returns the reactor inlet concentrations after adding an external carbon source
 
-        Parameters:
+        Parameters
         ----------
         y_in : np.ndarray
-            Reactor inlet concentrations of the 20 components (13 ASM3 components, Q, T and 5 dummy states) before adding external carbon source.
+            Reactor inlet concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states) before adding external carbon source.
 
         Returns
         -------
         np.ndarray
-            Array containing the reactor inlet concentrations of the 21 components (14 ASM3 components, Q, T and 5 dummy states) after adding external carbon source
+            Array containing the reactor inlet concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states) after adding external carbon source
         """
 
         y_in[SI] = (y_in[SI] * y_in[Q]) / (self.carb + y_in[Q])
@@ -206,25 +175,24 @@ class ASM1reactor:
         y_in[16:21] = (y_in[16:21] * y_in[Q]) / (self.carb + y_in[Q])
         y_in[Q] = self.carb + y_in[Q]
 
-
         return y_in
 
     def output(self, timestep, step, y_in):
-        """Returns the solved differential equations of ASM1 model.
+        """Returns the solved differential equations based on ASM1 model
 
         Parameters
         ----------
         timestep : int or float
             Size of integration interval in days
         step : int or float
-            Upper boundary for integration interval in days
+            Bottom boundary for integration interval in days
         y_in : np.ndarray
-            Reactor inlet concentrations of the 21 ASM1 components
+            Reactor inlet concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
 
         Returns
         -------
         np.ndarray
-            Array containing the concentrations of the 21 components at the current time step after the integration
+            Array containing the values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states) at the current time step after the integration
         """
 
         t_eval = np.array([step, step+timestep])    # time interval for odeint
@@ -232,17 +200,18 @@ class ASM1reactor:
         if self.carb > 0.0:
             y_in = self.carbonaddition(y_in)
 
-        ode = odeint(derivatives, self.y0, t_eval, tfirst=True, args=(y_in, self.asmpar, self.kla, self.volume, self.tempmodel, self.decay_switch, self.activate))
+        ode = odeint(asm1equations, self.y0, t_eval, tfirst=True, args=(y_in, self.asm1par, self.kla, self.volume, self.tempmodel, self.activate))
         y_out = ode[1]
 
-        y_out[TSS] = self.asmpar[19] * y_out[XI] + self.asmpar[20] * y_out[XS] + self.asmpar[21] * y_out[XBH] + self.asmpar[22] * y_out[XBA] + self.asmpar[23] * y_out[XP]
+        y_out[TSS] = self.asm1par[19] * y_out[XI] + self.asm1par[20] * y_out[XS] + self.asm1par[21] * y_out[XBH] + self.asm1par[22] * y_out[XBA] + self.asm1par[23] * y_out[XP]
         y_out[Q] = y_in[Q]
+
         if not self.tempmodel:
             y_out[TEMP] = y_in[TEMP]
 
         if not self.activate:
             y_out[16:20] = 0.0
 
-        self.y0 = y_out
+        self.y0 = y_out  # initial integration values for next integration
 
         return y_out
