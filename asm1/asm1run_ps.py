@@ -504,8 +504,8 @@ ae_flex = plantperformance.aerationenergy(np.transpose(kla_flex), vol, sosat, sa
 # mixing energy during flextime:
 me_flex = plantperformance.mixingenergy(np.transpose(kla_flex), vol, sampleinterval, evaltime)
 
-data = [[ae], [pe], [me], [ae_flex], [me_flex], [SNH_violationvalues], [TSS_violationvalues], [totalN_violationvalues], [COD_violationvalues], [BOD5_violationvalues]]
-names = ['aeration energy [kWh/d]', 'pumping energy [kWh/d]', 'mixing energy [kWh/d]', 'aeration energy during flex time [kWh/d]', 'mixing energy during flex time [kWh/d]' 'SNH: days of violation / percentage of time', 'TSS: days of violation / percentage of time', 'totalN: days of violation / percentage of time', 'COD: days of violation / percentage of time', 'BOD5: days of violation / percentage of time']
+data = [[ae], [pe], [me], [ae_flex], [me_flex], SNH_violationvalues, TSS_violationvalues, totalN_violationvalues, COD_violationvalues, BOD5_violationvalues]
+names = ['aeration energy [kWh/d]', 'pumping energy [kWh/d]', 'mixing energy [kWh/d]', 'aeration energy during flex time [kWh/d]', 'mixing energy during flex time [kWh/d]', 'SNH: days of violation / percentage of time', 'TSS: days of violation / percentage of time', 'totalN: days of violation / percentage of time', 'COD: days of violation / percentage of time', 'BOD5: days of violation / percentage of time']
 
 with open('ps_evaluation.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter=' ')
