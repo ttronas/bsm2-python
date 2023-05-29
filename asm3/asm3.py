@@ -4,7 +4,7 @@ from numba import jit
 
 # definition of constants for indexing:
 indices_components = np.arange(24)
-SO2, SI, SS, SNH4, SN2, SNOX, SALK, XI, XS, XH, XSTO, XA, XSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5, COD, N2, ION, TSS = indices_components
+SO2, SI, SS, SNH4, SN2, SNOX, SALK, XI, XS, XH, XSTO, XA, XTSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5, COD, N2, ION, TSS = indices_components
 
 
 @jit(nopython=True)
@@ -152,8 +152,8 @@ def derivatives(t, y, y_in, asm3par, kla, volume, tempmodel, activate):
     reac[XH] = proc4 + proc5 - proc6 - proc7
     reac[XSTO] = Y_STOO2 * proc2 + Y_STONOX * proc3 - 1/Y_HO2 * proc4 - 1/Y_HNOX * proc5 - proc8 - proc9
     reac[XA] = proc10 - proc11 - proc12
-    reac[XSS] = -i_SSXI * proc1 + t2 * proc2 + t3 * proc3 + t4 * proc4 + t5 * proc5 + t6 * proc6 + t7 * proc7 + t8 * \
-                proc8 + t9 * proc9 + t10 * proc10 + t11 * proc11 + t12 * proc12
+    reac[XTSS] = -i_SSXI * proc1 + t2 * proc2 + t3 * proc3 + t4 * proc4 + t5 * proc5 + t6 * proc6 + t7 * proc7 + t8 * \
+                 proc8 + t9 * proc9 + t10 * proc10 + t11 * proc11 + t12 * proc12
     reac[SD1] = 0.0
     reac[SD2] = 0.0
     reac[SD3] = 0.0
