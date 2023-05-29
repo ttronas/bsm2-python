@@ -1,7 +1,7 @@
 import numpy as np
 
 indices_components = np.arange(24)
-SO2, SI, SS, SNH4, SN2, SNOX, SALK, XI, XS, XH, XSTO, XA, XSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5, COD, N2, ION, TSS = indices_components
+SO2, SI, SS, SNH4, SN2, SNOX, SALK, XI, XS, XH, XSTO, XA, XTSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5, COD, N2, ION, TSS = indices_components
 
 
 def averages(y_array, sampleinterval, evaltime):
