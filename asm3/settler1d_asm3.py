@@ -4,7 +4,7 @@ from numba import jit
 
 
 indices_components = np.arange(20)
-SO2, SI, SS, SNH4, SN2, SNOX, SALK, XI, XS, XH, XSTO, XA, XSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = indices_components
+SO2, SI, SS, SNH4, SN2, SNOX, SALK, XI, XS, XH, XSTO, XA, XTSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = indices_components
 
 @jit(nopython=True)
 def derivativess(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel):
@@ -64,25 +64,25 @@ def derivativess(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel):
 
     # sedimentation velocity for each of the layers:
     for i in range(10):
-        vs[i] = sedpar[1] * (np.exp(-sedpar[2] * (ystemp[i + XSS * 10] - sedpar[4] * ys_in[XSS])) - np.exp(
-            -sedpar[3] * (ystemp[i + XSS * 10] - sedpar[4] * ys_in[XSS])))
+        vs[i] = sedpar[1] * (np.exp(-sedpar[2] * (ystemp[i + XTSS * 10] - sedpar[4] * ys_in[XTSS])) - np.exp(
+            -sedpar[3] * (ystemp[i + XTSS * 10] - sedpar[4] * ys_in[XTSS])))
         vs[vs > sedpar[0]] = sedpar[0]
         vs[vs < 0.0] = 0.0
 
     # sludge flux due to sedimentation for each layer (not taking into account X limit)
     for i in range(10):
-        Js_temp[i] = vs[i] * ystemp[i + XSS * 10]
+        Js_temp[i] = vs[i] * ystemp[i + XTSS * 10]
 
     # sludge flux due to the liquid flow (upflow or downflow, depending on layer)
     for i in range(11):
         if i < (feedlayer - eps):
-            Jflow[i] = v_up * ystemp[i + XSS * 10]
+            Jflow[i] = v_up * ystemp[i + XTSS * 10]
         else:
-            Jflow[i] = v_dn * ystemp[i - 1 + XSS * 10]
+            Jflow[i] = v_dn * ystemp[i - 1 + XTSS * 10]
 
     # sludge flux due to sedimentation of each layer:
     for i in range(9):
-        if i < (feedlayer - 1 - eps) and ystemp[i + 1 + XSS * 10] <= sedpar[5]:
+        if i < (feedlayer - 1 - eps) and ystemp[i + 1 + XTSS * 10] <= sedpar[5]:
             Js[i + 1] = Js_temp[i]
         elif Js_temp[i] < Js_temp[i + 1]:
             Js[i + 1] = Js_temp[i]
@@ -218,14 +218,14 @@ def derivativess(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel):
             dys[i + 110] = ((ystemp[i + 110] / ystemp[i + 120]) * (-Jflow[i] - Jflow[i + 1] - Js[i + 1]) + (
                     ystemp[i - 1 + 110] / ystemp[i - 1 + 120]) * Js[i] + v_in * ys_in[XA]) / h
 
-    # particulate component X_SS:
+    # particulate component X_TSS:
     for i in range(10):
         if i < (feedlayer - 1 - eps):
             dys[i + 120] = ((-Jflow[i] - Js[i + 1]) + Js[i] + Jflow[i + 1]) / h
         elif i > (feedlayer - eps):
             dys[i + 120] = ((-Jflow[i + 1] - Js[i + 1]) + (Jflow[i] + Js[i])) / h
         else:
-            dys[i + 120] = ((-Jflow[i] - Jflow[i + 1] - Js[i + 1]) + Js[i] + v_in * ys_in[XSS]) / h
+            dys[i + 120] = ((-Jflow[i] - Jflow[i + 1] - Js[i + 1]) + Js[i] + v_in * ys_in[XTSS]) / h
 
     # Temperature:
     if tempmodel:
