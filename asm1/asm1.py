@@ -126,17 +126,17 @@ class ASM1reactor:
         """
         Parameters
         ----------
-        kla : int
+        kla : float
             Oxygen transfer coefficient in aerated reactors
-        volume : int
+        volume : float
             Volume of the reactor
         y0 : np.ndarray
             Initial integration values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
         asm1par : np.ndarray
             24 parameters needed for ASM1 equations
-        carb : int
+        carb : float
             external carbon flow rate for carbon addition to a reactor
-        csourceconc : int
+        csourceconc : float
             external carbon source concentration
         tempmodel : bool
             If true, mass balance for the wastewater temperature is used in process rates,
