@@ -42,8 +42,13 @@ timestep = 15/(60*24)
 endtime = 200
 simtime = np.arange(0, endtime, timestep)
 
+y_out1 = np.zeros(21)
+y_out2 = np.zeros(21)
+y_out3 = np.zeros(21)
+y_out4 = np.zeros(21)
 y_out5 = np.zeros(21)
 ys_out = np.zeros(21)
+ys_eff = np.zeros(25)
 ys_in = np.zeros(21)
 Qintr = 0
 
@@ -114,14 +119,13 @@ pe = plantperformance.pumpingenergy(flows, pumpfactor, timestep, evaltime)
 
 # mixing energy:
 me = plantperformance.mixingenergy(kla, vol, timestep, evaltime)
-print(me)
 
 # SNH limit violations:
 SNH_eff = np.array(ys_eff[7], ys_eff[7])
 SNH_limit = 4
 SNH_violationvalues = plantperformance.violation(SNH_eff, SNH_limit, timestep, evaltime)
 
-# SNH limit violations:
+# TSS limit violations:
 TSS_eff = np.array(ys_eff[13], ys_eff[13])
 TSS_limit = 30
 TSS_violationvalues = plantperformance.violation(TSS_eff, TSS_limit, timestep, evaltime)
