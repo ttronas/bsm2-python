@@ -71,6 +71,7 @@ y_out5 = yinit5
 ys_in = np.zeros(21)
 ys_out = np.array(initdata[5]).astype(np.float64)
 Qintr = asm1init.Qintr
+# TODO: rename numberstep to iter in all files (just as in asm1run.py)
 numberstep = 1
 controlnumber = 1
 
@@ -262,7 +263,7 @@ SNH_violationvalues = plantperformance.violation(settlereff[:, 9], SNH_limit, sa
 TSS_limit = 30
 TSS_violationvalues = plantperformance.violation(settlereff[:, 13], TSS_limit, sampleinterval, evaltime)
 
-# SNH limit violations:
+# totalN limit violations:
 totalN_limit = 18
 totalN_violationvalues = plantperformance.violation(settlereff[:, 22], totalN_limit, sampleinterval, evaltime)
 

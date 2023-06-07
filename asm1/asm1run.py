@@ -29,8 +29,12 @@ activate = False    # if activate is False dummy states are 0
                     # if activate is True dummy states are activated
 
 # Initial values from steady state simulation:
-with open('asm1_values_ss.csv', 'r') as f:
-    initdata = list(csv.reader(f, delimiter=" "))
+try:
+    with open('asm1_values_ss.csv', 'r') as f:
+        initdata = list(csv.reader(f, delimiter=" "))
+except FileNotFoundError:
+    print("FileNotFoundError: File 'asm1_values_ss.csv' not found. Please run steady state file first.")
+
 yinit1 = np.array(initdata[0]).astype(np.float64)
 yinit2 = np.array(initdata[1]).astype(np.float64)
 yinit3 = np.array(initdata[2]).astype(np.float64)
@@ -47,8 +51,9 @@ reactor4 = asm1.ASM1reactor(asm1init.KLa4, asm1init.VOL4, yinit4, asm1init.PAR4,
 reactor5 = asm1.ASM1reactor(asm1init.KLa5, asm1init.VOL5, yinit5, asm1init.PAR5, asm1init.carb5, asm1init.carbonsourceconc, tempmodel, activate)
 settler = settler1d_asm1.Settler(settler1dinit_asm1.DIM, settler1dinit_asm1.LAYER, asm1init.Qr, asm1init.Qw, settlerinit, settler1dinit_asm1.SETTLERPAR, asm1init.PAR1, tempmodel)
 
+# TODO: make compatible to relative path with separate working directory
 # Dynamic Influent (Dryinfluent):
-df = pd.read_excel('dryinfluent.xlsx', 'Tabelle1', header=None)     # select input file here
+df = pd.read_excel('/mnt/c/users/BuB/Jonas Nextcloud/Jonas_Dokumente/Arbeit/EVT_WiMi/Privater Ordner Uni/Repositories/asm-python/asm1/dryinfluent.xlsx', 'Tabelle1', header=None)     # select input file here
 
 integration = 1     # step of integration in min
 sample = 15         # results are saved every 15 min step
@@ -58,6 +63,11 @@ sampleinterval = sample/(60*24)
 endtime = 14
 simtime = np.arange(0, endtime, timestep)
 evaltime = np.array([7, 14])
+y_in = np.zeros(21)
+y_out1 = yinit1
+y_out2 = yinit2
+y_out3 = yinit3
+y_out4 = yinit4
 y_out5 = yinit5
 ys_in = np.zeros(21)
 ys_out = np.array(initdata[5]).astype(np.float64)
@@ -81,15 +91,15 @@ flows = np.zeros((3, int((evaltime[1]-evaltime[0])/sampleinterval)))
 
 number = 0
 row = 0
-numberstep = 1
+iter = 0
 
 start1 = time.perf_counter()
 
 for step in simtime:
-    if len(simtime) > 60 / integration * 24 * 14:
-        if step > (14-timestep):
+    if len(simtime) > 60 / integration * 24 * endtime:
+        if step > (endtime-timestep):
             break
-    if (numberstep-1) % (int(sample/integration)) == 0.0:
+    if iter % (int(sample/integration)) == 0.0:
         y_in = df.loc[row, 1:21].to_numpy()
         row = row + 1
     y_in_r = (y_in * y_in[14] + ys_out * ys_out[14]) / (y_in[14] + ys_out[14])
@@ -109,20 +119,21 @@ for step in simtime:
 
     ys_out, ys_eff = settler.outputs(timestep, step, ys_in)
 
-    numberstep = numberstep + 1
+    iter = iter + 1
 stop1 = time.perf_counter()
 print('First 14 d simulation completed after', stop1-start1, 'seconds')
 
 number = 0
 row = 0
-numberstep = 1
+iter = 0
 
+# TODO: This can also be put in one loop, where the first 14 days are simulated and then the 14 days are simulated again
 start2 = time.perf_counter()
 for step in simtime:
     if len(simtime) > 60 / integration * 24 * 14:
         if step > (14-timestep):
             break
-    if (numberstep-1) % (int(sample/integration)) == 0.0:
+    if iter % (int(sample/integration)) == 0.0:
         y_in = df.loc[row, 1:21].to_numpy()
         row = row + 1
     y_in_r = (y_in * y_in[14] + ys_out * ys_out[14]) / (y_in[14] + ys_out[14])
@@ -142,7 +153,7 @@ for step in simtime:
 
     ys_out, ys_eff = settler.outputs(timestep, step, ys_in)
     if step >= (evaltime[0] - timestep):
-        if (numberstep - 1) % (int(sample / integration)) == 0.0:
+        if iter % (int(sample / integration)) == 0.0:
             reactin[[number]] = y_in1
             react1[[number]] = y_out1
             react2[[number]] = y_out2
@@ -162,7 +173,7 @@ for step in simtime:
 
             number = number + 1
 
-    numberstep = numberstep + 1
+    iter = iter + 1
 
 stop2 = time.perf_counter()
 
@@ -202,7 +213,7 @@ SNH_violationvalues = plantperformance.violation(settlereff[:, 9], SNH_limit, sa
 TSS_limit = 30
 TSS_violationvalues = plantperformance.violation(settlereff[:, 13], TSS_limit, sampleinterval, evaltime)
 
-# SNH limit violations:
+# totalN limit violations:
 totalN_limit = 18
 totalN_violationvalues = plantperformance.violation(settlereff[:, 22], totalN_limit, sampleinterval, evaltime)
 
