@@ -39,7 +39,13 @@ If you find any issues inside the repo, don't hesitate to raise an Issue.
 
 ## Roadmap
 In the future, this repo will aim to contain a complete description of BSM1.
+Missing for BSM1:
+- Alternative standard control (internal return should be determined via nitrate value).
+- Determine some indices, EQI or similar.
+- Determine energy required by external carbon stream
+
 After implementing an ADM and other components, the BSM2 can also be described.
+
 
 ## Authors and acknowledgment
 Thanks to Maike Böhm for first implementing the ASM in Python in her Masters Thesis.
