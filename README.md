@@ -1,15 +1,15 @@
 # ASM-Python
 
 This is a Python implementation of ASM1 and ASM3 in parts of BSM1 layout.
-Description of BSM1 can be found here: http://iwa-mia.org/wp-content/uploads/2018/01/BSM_TG_Tech_Report_no_1_BSM1_General_Description.pdf 
+Description of BSM1 can be found [here](http://iwa-mia.org/wp-content/uploads/2018/01/BSM_TG_Tech_Report_no_1_BSM1_General_Description.pdf).
 
 
 ## Installation
+To run the project, in addition to the Python scripts, the following packages must be installed: `numpy`, `csv`, `pandas`, `time`, `scipy.integrate`, `numba`, `scipy`.
+You can simply execute any `*runss*.py` file to see some standard results on a steady state (ss) dataset.
+For dynamic results, make sure to run a ss file first to equilibrate the reactors before.
 
-ToTo run the project, in addition to the Python scripts, the following packages must be installed: numpy, csv, pandas, time, scipy.integrate, numba, scipy.
-You can simply execute any *run.py file to see some standard results.
 ## File Descriptions
-
 - `asm1.py`, `asm3.py`: 
 Files containing equations of Activated Sludge Model No. 1 and 3. With the class ASMxreactor, a reactor unit can be created as an object in which the equations are solved with the method output.
 - `settler1d_asm1.py`, `settler1d_asm3.py`:
@@ -34,7 +34,6 @@ In case of ASM1, you can choose between three different configurations of the pl
 With tempmodel and activate, differential equations for temperature and additional components can be added. 
 If you want to create your own plant layout, use the `run` files as template. Put your own parameters and values in extra `init` files. 
 
-
 ## Support
 If you find any issues inside the repo, don't hesitate to raise an Issue.
 
@@ -43,7 +42,7 @@ In the future, this repo will aim to contain a complete description of BSM1.
 After implementing an ADM and other components, the BSM2 can also be described.
 
 ## Authors and acknowledgment
-Thanks to Maike Böhm for first implementing the ASM in Python in her Masters Thesis 
+Thanks to Maike Böhm for first implementing the ASM in Python in her Masters Thesis.
 
 ## License
 This project is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
