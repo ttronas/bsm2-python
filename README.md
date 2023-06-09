@@ -1,92 +1,52 @@
 # ASM-Python
 
+This is a Python implementation of ASM1 and ASM3 in parts of BSM1 layout.
+Description of BSM1 can be found here: http://iwa-mia.org/wp-content/uploads/2018/01/BSM_TG_Tech_Report_no_1_BSM1_General_Description.pdf 
 
-
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.rrze.fau.de/evt/klaeffizient/asm-python.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.rrze.fau.de/evt/klaeffizient/asm-python/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+
+ToTo run the project, in addition to the Python scripts, the following packages must be installed: numpy, csv, pandas, time, scipy.integrate, numba, scipy.
+You can simply execute any *run.py file to see some standard results.
+## File Descriptions
+
+- `asm1.py`, `asm3.py`: 
+Files containing equations of Activated Sludge Model No. 1 and 3. With the class ASMxreactor, a reactor unit can be created as an object in which the equations are solved with the method output.
+- `settler1d_asm1.py`, `settler1d_asm3.py`:
+Files containing equations of a 10-layer one dimensional settler model. With the class Settler, the settler can be created as an object in which the equations are solved with the method outputs. For a simulation based on ASM1, number of layers can be chosen flexibly.
+- `aerationcontrol.py`:
+Files containing equations of PI controller of aeration, which maintains oxygen at a certain setpoint in reactor unit. With the class PIaeration, the PI controller can be created as an object which determines the KLa value for adjusting the oxygen with the method output. For a non-ideal system, two extra objects to delay the signals can be added with the classes Oxygensensor and KLaactuator. In case of Oxygensensor, the method measureSO gives the measured oxygen value in the reactor unit. For KLaactuator, the method real_actuator returns the delayed KLa value.
+- `average_asm1.py`, `average_asm3.py`:
+Files containing the function averages which returns average values of the components during a certain evaluation time.
+- `plantperformance.py`:
+File containing equations to determine energy consumption (pumping, aeration and mixing energy) and effluent quality during the evaluation time. In case of effluent quality, the method violation returns the time in days and percentage of time in which a certain component is over the limit.
+- `asm1init.py`, `asm3init.py`, `settler1dinit_asm1.py`, `settler1dinit_asm3.py`, `aerationcontrolinit.py`: 
+Files containing values for all parameters and states to run the simulation in BSM1 layout.
+- `asm1runss.py`, `asm1run.py`, `asm3runss.py`, `asm3run.py`:
+When running these files, the BSM1 plant without any control strategy (Openloop) can be simulated in steady state (ss) or as dynamic system.
+- `asm1runss_ac.py`, `asm1run_ac.py`:
+When running these files, the BSM1 plant with aeration control in reactor unit 5 can be simulated in steady state (ss) or as dynamic system.
+- `asm1runss_ps.py`, `asm1run_ps.py`:
+When running these files, the BSM1 plant with aeration control in reactor unit 3, 4 and 5 can be simulated in steady state (ss) or as dynamic system. The script also contains 7 different scenarios for flexible aeration. In scenario 1, no flexible aeration is adjusted.
 
 ## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+In case of ASM1, you can choose between three different configurations of the plant: without any control, with aeration control in tank 5 (ac) and with aeration control in tank 3, 4 and 5 (ps). The chosen BSM1 plant must be brought into a steady-state condition with the steady state file (ss). The results are saved as csv file and serve as the initial state for any dynamic simulation. When nothing is changed, every dynamic simulation can be started from this point. Three input files for different weather conditions from BSM1 can be used for the dynamic simulation. The results of the simulation are saved as csv files. 
+With tempmodel and activate, differential equations for temperature and additional components can be added. 
+If you want to create your own plant layout, use the `run` files as template. Put your own parameters and values in extra `init` files. 
+
 
 ## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+If you find any issues inside the repo, don't hesitate to raise an Issue.
 
 ## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+In the future, this repo will aim to contain a complete description of BSM1.
+After implementing an ADM and other components, the BSM2 can also be described.
 
 ## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+Thanks to Maike Böhm for first implementing the ASM in Python in her Masters Thesis 
 
 ## License
-For open source projects, say how it is licensed.
+This project is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
 ## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+As I am maintaining this repo in my free time, don't expect rapid development. However, if any Issues are popping up, I will try to fix them in time.
