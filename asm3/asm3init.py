@@ -61,6 +61,8 @@ i_SSXS = 0.75
 i_SSBM = 0.90
 i_SSSTO = 0.60  # from stoichiometric matrix of ASM3 from Gujer, 1999 (Table 1)
 
+f_P = 0.08
+
 par1 = np.array([k_H, K_X, k_STO, ny_NOX, K_O2, K_NOX, K_S, K_STO, mu_H, K_NH4, K_ALK, b_HO2, b_HNOX, b_STOO2, b_STONOX, mu_A, K_ANH4, K_AO2, K_AALK, b_AO2, b_ANOX, f_SI, Y_STOO2, Y_STONOX, Y_HO2, Y_HNOX, Y_A, f_XI, i_NSI, i_NSS, i_NXI, i_NXS, i_NBM, i_SSXI, i_SSXS, i_SSBM, i_SSSTO])
 par2 = par1
 par3 = par1

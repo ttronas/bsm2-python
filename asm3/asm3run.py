@@ -43,7 +43,7 @@ reactor2 = asm3.ASM3reactor(asm3init.par2, yinit2, asm3init.kla2, asm3init.vol2,
 reactor3 = asm3.ASM3reactor(asm3init.par3, yinit3, asm3init.kla3, asm3init.vol3, asm3init.carb3, asm3init.carbonsourceconc, tempmodel, activate)
 reactor4 = asm3.ASM3reactor(asm3init.par4, yinit4, asm3init.kla4, asm3init.vol4, asm3init.carb4, asm3init.carbonsourceconc, tempmodel, activate)
 reactor5 = asm3.ASM3reactor(asm3init.par5, yinit5, asm3init.kla5, asm3init.vol5, asm3init.carb5, asm3init.carbonsourceconc, tempmodel, activate)
-settler = settler1d_asm3.Settler(settler1dinit_asm3.dim, settler1dinit_asm3.layer, asm3init.Qr, asm3init.Qw, settlerinit, settler1dinit_asm3.settlerpar, tempmodel)
+settler = settler1d_asm3.Settler(settler1dinit_asm3.dim, settler1dinit_asm3.layer, asm3init.Qr, asm3init.Qw, settlerinit, settler1dinit_asm3.settlerpar, asm3init.par5, tempmodel)
 
 # Dynamic Influent (Dryinfluent):
 df = pd.read_excel('dryinfluent_asm3.xlsx', 'Tabelle1', header=None)     # select input file here
