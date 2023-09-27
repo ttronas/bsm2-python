@@ -359,7 +359,7 @@ class Settler:
         ys_out = np.zeros(20)
         ys_eff = np.zeros(24)
         t_eval = np.array([step, step + timestep])
-
+        odes = derivativess(t_eval[0], self.ys0, ys_in, self.sedpar, self.dim, self.layer, self.Qr, self.Qw, self.tempmodel)
         odes = odeint(derivativess, self.ys0, t_eval, tfirst=True, args=(ys_in, self.sedpar, self.dim, self.layer, self.Qr, self.Qw, self.tempmodel))
         ys_int = odes[1]
 
@@ -377,9 +377,9 @@ class Settler:
         ys_out_all[2 + 19*nooflayers] = self.Qw
 
         # underflow:
-        ys_out[0:13] = ys_out_all[1 + 17*nooflayers : 14 + 17*nooflayers]
+        ys_out[0:13] = ys_out_all[19*nooflayers - 19 : 19*nooflayers - 6]
         ys_out[13] = self.Qr
-        ys_out[14:20] = ys_out_all[14 + 17*nooflayers : 20 + 17*nooflayers]
+        ys_out[14:20] = ys_out_all[19*nooflayers - 6 : 19*nooflayers]
 
         # effluent:
         ys_eff[0:13] = ys_out_all[0:13]

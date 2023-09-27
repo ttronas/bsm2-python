@@ -7,9 +7,7 @@ This file will be executed when running asm3runss.py or asm3run.py.
 
 import numpy as np
 
-settlerinit = np.ones(190)
-settlerinit[130:140] = 15
-settlerinit[140:190] = 0
+
 
 v0_max = 250
 v0 = 474
@@ -30,3 +28,7 @@ feedlayer = 5
 nooflayers = 10
 
 layer = np.array([feedlayer, nooflayers])
+
+settlerinit = np.ones(19*nooflayers)
+settlerinit[13*nooflayers:14*nooflayers] = 15
+settlerinit[14*nooflayers:19*nooflayers] = 0
