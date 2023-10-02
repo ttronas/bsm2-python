@@ -64,14 +64,15 @@ def settlerequations(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel):
     ys[ys < 0.0] = 0.00001
 
     # sedimentation velocity for each of the layers:
-
-    vs[0:nooflayers] = sedpar[1] * (np.exp(-sedpar[2] * (ystemp[7 * nooflayers : nooflayers + 7 * nooflayers] - sedpar[4] * ys_in[TSS])) - np.exp(
-            -sedpar[3] * (ystemp[7 * nooflayers : nooflayers + 7 * nooflayers] - sedpar[4] * ys_in[TSS])))  # ystemp[i+7*nooflayers] is TSS
-    vs[vs > sedpar[0]] = sedpar[0]
-    vs[vs < 0.0] = 0.0
+    for i in range(nooflayers):
+        vs[i] = sedpar[1] * (np.exp(-sedpar[2] * (ystemp[i + 7 * nooflayers] - sedpar[4] * ys_in[TSS])) - np.exp(
+            -sedpar[3] * (ystemp[i + 7 * nooflayers] - sedpar[4] * ys_in[TSS])))  # ystemp[i+7*nooflayers] is TSS
+        vs[vs > sedpar[0]] = sedpar[0]
+        vs[vs < 0.0] = 0.0
 
     # sludge flux due to sedimentation for each layer (not taking into account X limit)
-    Js_temp[0:nooflayers] = vs[0:nooflayers] * ystemp[7 * nooflayers : nooflayers + 7 * nooflayers]
+    for i in range(nooflayers):
+        Js_temp[i] = vs[i] * ystemp[i + 7 * nooflayers]
 
     # sludge flux due to sedimentation of each layer:
     for i in range(nooflayers-1):
@@ -84,72 +85,90 @@ def settlerequations(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel):
 
     # differential equations:
     # soluble component S_I:
-    dys[0:feedlayer-1] = (-v_up * ystemp[0:feedlayer-1] + v_up * ystemp[1:feedlayer]) / h
+    for i in range(feedlayer-1):
+        dys[i] = (-v_up * ystemp[i] + v_up * ystemp[i + 1]) / h
     dys[feedlayer-1] = (v_in * ys_in[SI] - v_up * ystemp[feedlayer-1] - v_dn * ystemp[feedlayer-1]) / h
-    dys[feedlayer:nooflayers] = (v_dn * ystemp[feedlayer-1:nooflayers-1] - v_dn * ystemp[feedlayer:nooflayers]) / h
+    for i in range(feedlayer, nooflayers):
+        dys[i] = (v_dn * ystemp[i - 1] - v_dn * ystemp[i]) / h
 
     # soluble component S_S:
-    dys[nooflayers : feedlayer-1 + nooflayers] = (-v_up * ystemp[nooflayers : feedlayer-1 + nooflayers] + v_up * ystemp[nooflayers + 1 : feedlayer-1 + 1 + nooflayers]) / h
+    for i in range(feedlayer-1):
+        dys[i + nooflayers] = (-v_up * ystemp[i + nooflayers] + v_up * ystemp[i + 1 + nooflayers]) / h
     dys[feedlayer-1 + nooflayers] = (v_in * ys_in[SS] - v_up * ystemp[feedlayer-1 + nooflayers] - v_dn * ystemp[feedlayer-1 + nooflayers]) / h
-    dys[feedlayer + nooflayers : nooflayers + nooflayers] = (v_dn * ystemp[feedlayer - 1 + nooflayers : nooflayers - 1 + nooflayers] - v_dn * ystemp[feedlayer + nooflayers : nooflayers + nooflayers]) / h
-
-    # for i in range(feedlayer-1):
-    #     dys[i + nooflayers] = (-v_up * ystemp[i + nooflayers] + v_up * ystemp[i + 1 + nooflayers]) / h
-    # dys[feedlayer-1 + nooflayers] = (v_in * ys_in[SS] - v_up * ystemp[feedlayer-1 + nooflayers] - v_dn * ystemp[feedlayer-1 + nooflayers]) / h
-    # for i in range(feedlayer, nooflayers):
-    #     dys[i + nooflayers] = (v_dn * ystemp[i - 1 + nooflayers] - v_dn * ystemp[i + nooflayers]) / h
+    for i in range(feedlayer, nooflayers):
+        dys[i + nooflayers] = (v_dn * ystemp[i - 1 + nooflayers] - v_dn * ystemp[i + nooflayers]) / h
 
     # soluble component S_O:
-    dys[2*nooflayers : feedlayer-1 + 2*nooflayers] = (-v_up * ystemp[2*nooflayers : feedlayer-1 + 2*nooflayers] + v_up * ystemp[2*nooflayers + 1 : feedlayer-1 + 1 + 2*nooflayers]) / h
+    for i in range(feedlayer-1):
+        dys[i + 2*nooflayers] = (-v_up * ystemp[i + 2*nooflayers] + v_up * ystemp[i + 1 + 2*nooflayers]) / h
     dys[feedlayer-1 + 2*nooflayers] = (v_in * ys_in[SO] - v_up * ystemp[feedlayer-1 + 2*nooflayers] - v_dn * ystemp[feedlayer-1 + 2*nooflayers]) / h
-    dys[feedlayer + 2*nooflayers : nooflayers + 2*nooflayers] = (v_dn * ystemp[feedlayer - 1 + 2*nooflayers : nooflayers - 1 + 2*nooflayers] - v_dn * ystemp[feedlayer + 2*nooflayers : nooflayers + 2*nooflayers]) / h
-    
+    for i in range(feedlayer, nooflayers):
+        dys[i + 2*nooflayers] = (v_dn * ystemp[i - 1 + 2*nooflayers] - v_dn * ystemp[i + 2*nooflayers]) / h
+
     # soluble component S_NO:
-    dys[3*nooflayers : feedlayer-1 + 3*nooflayers] = (-v_up * ystemp[3*nooflayers : feedlayer-1 + 3*nooflayers] + v_up * ystemp[3*nooflayers + 1 : feedlayer-1 + 1 + 3*nooflayers]) / h
+    for i in range(feedlayer-1):
+        dys[i + 3*nooflayers] = (-v_up * ystemp[i + 3*nooflayers] + v_up * ystemp[i + 1 + 3*nooflayers]) / h
     dys[feedlayer-1 + 3*nooflayers] = (v_in * ys_in[SNO] - v_up * ystemp[feedlayer-1 + 3*nooflayers] - v_dn * ystemp[feedlayer-1 + 3*nooflayers]) / h
-    dys[feedlayer + 3*nooflayers : nooflayers + 3*nooflayers] = (v_dn * ystemp[feedlayer - 1 + 3*nooflayers : nooflayers - 1 + 3*nooflayers] - v_dn * ystemp[feedlayer + 3*nooflayers : nooflayers + 3*nooflayers]) / h
+    for i in range(feedlayer, nooflayers):
+        dys[i + 3*nooflayers] = (v_dn * ystemp[i - 1 + 3*nooflayers] - v_dn * ystemp[i + 3*nooflayers]) / h
 
     # soluble component S_NH:
-    dys[4*nooflayers : feedlayer-1 + 4*nooflayers] = (-v_up * ystemp[4*nooflayers : feedlayer-1 + 4*nooflayers] + v_up * ystemp[4*nooflayers + 1 : feedlayer-1 + 1 + 4*nooflayers]) / h
+    for i in range(feedlayer-1):
+        dys[i + 4*nooflayers] = (-v_up * ystemp[i + 4*nooflayers] + v_up * ystemp[i + 1 + 4*nooflayers]) / h
     dys[feedlayer-1 + 4*nooflayers] = (v_in * ys_in[SNH] - v_up * ystemp[feedlayer-1 + 4*nooflayers] - v_dn * ystemp[feedlayer-1 + 4*nooflayers]) / h
-    dys[feedlayer + 4*nooflayers : nooflayers + 4*nooflayers] = (v_dn * ystemp[feedlayer - 1 + 4*nooflayers : nooflayers - 1 + 4*nooflayers] - v_dn * ystemp[feedlayer + 4*nooflayers : nooflayers + 4*nooflayers]) / h
-    
+    for i in range(feedlayer, nooflayers):
+        dys[i + 4*nooflayers] = (v_dn * ystemp[i - 1 + 4*nooflayers] - v_dn * ystemp[i + 4*nooflayers]) / h
+
     # soluble component S_ND:
-    dys[5*nooflayers : feedlayer-1 + 5*nooflayers] = (-v_up * ystemp[5*nooflayers : feedlayer-1 + 5*nooflayers] + v_up * ystemp[5*nooflayers + 1 : feedlayer-1 + 1 + 5*nooflayers]) / h
+    for i in range(feedlayer-1):
+        dys[i + 5*nooflayers] = (-v_up * ystemp[i + 5*nooflayers] + v_up * ystemp[i + 1 + 5*nooflayers]) / h
     dys[feedlayer-1 + 5*nooflayers] = (v_in * ys_in[SND] - v_up * ystemp[feedlayer-1 + 5*nooflayers] - v_dn * ystemp[feedlayer-1 + 5*nooflayers]) / h
-    dys[feedlayer + 5*nooflayers : nooflayers + 5*nooflayers] = (v_dn * ystemp[feedlayer - 1 + 5*nooflayers : nooflayers - 1 + 5*nooflayers] - v_dn * ystemp[feedlayer + 5*nooflayers : nooflayers + 5*nooflayers]) / h
-    
+    for i in range(feedlayer, nooflayers):
+        dys[i + 5*nooflayers] = (v_dn * ystemp[i - 1 + 5*nooflayers] - v_dn * ystemp[i + 5*nooflayers]) / h
+
     # soluble component S_ALK:
-    dys[6*nooflayers : feedlayer-1 + 6*nooflayers] = (-v_up * ystemp[6*nooflayers : feedlayer-1 + 6*nooflayers] + v_up * ystemp[6*nooflayers + 1 : feedlayer-1 + 1 + 6*nooflayers]) / h
+    for i in range(feedlayer-1):
+        dys[i + 6*nooflayers] = (-v_up * ystemp[i + 6*nooflayers] + v_up * ystemp[i + 1 + 6*nooflayers]) / h
     dys[feedlayer-1 + 6*nooflayers] = (v_in * ys_in[SALK] - v_up * ystemp[feedlayer-1 + 6*nooflayers] - v_dn * ystemp[feedlayer-1 + 6*nooflayers]) / h
-    dys[feedlayer + 6*nooflayers : nooflayers + 6*nooflayers] = (v_dn * ystemp[feedlayer - 1 + 6*nooflayers : nooflayers - 1 + 6*nooflayers] - v_dn * ystemp[feedlayer + 6*nooflayers : nooflayers + 6*nooflayers]) / h
+    for i in range(feedlayer, nooflayers):
+        dys[i + 6*nooflayers] = (v_dn * ystemp[i - 1 + 6*nooflayers] - v_dn * ystemp[i + 6*nooflayers]) / h
 
     # particulate component X_TSS:
-    dys[7*nooflayers : feedlayer-1 + 7*nooflayers] = ((-v_up * ystemp[7*nooflayers : feedlayer-1 + 7*nooflayers] + v_up * ystemp[7*nooflayers + 1 : feedlayer-1 + 1 + 7*nooflayers] - Js[1:feedlayer]) + Js[0:feedlayer-1]) / h
-    dys[feedlayer-1 + 7*nooflayers] = (v_in * ys_in[TSS] - v_up * ystemp[feedlayer-1 + 7*nooflayers] - v_dn * ystemp[feedlayer-1 + 7*nooflayers] - Js[feedlayer] + Js[feedlayer-1]) / h
-    dys[feedlayer + 7*nooflayers : nooflayers + 7*nooflayers] = (v_dn * ystemp[feedlayer - 1 + 7*nooflayers : nooflayers - 1 + 7*nooflayers] - v_dn * ystemp[feedlayer + 7*nooflayers : nooflayers + 7*nooflayers] - Js[feedlayer+1:nooflayers+1] + Js[feedlayer:nooflayers]) / h
-    
+    for i in range(feedlayer-1):
+        dys[i + 7*nooflayers] = ((-v_up * ystemp[i + 7*nooflayers] + v_up * ystemp[i + 1 + 7*nooflayers] - Js[i + 1]) + Js[i]) / h
+    dys[feedlayer-1 + 7*nooflayers] = (v_in * ys_in[TSS] - v_up * ystemp[feedlayer-1 + 7*nooflayers] - v_dn * ystemp[feedlayer-1 + 7*nooflayers] - Js[feedlayer-1 + 1] + Js[feedlayer-1]) / h
+    for i in range(feedlayer, nooflayers):
+        dys[i + 7*nooflayers] = (v_dn * ystemp[i - 1 + 7*nooflayers] - v_dn * ystemp[i + 7*nooflayers] - Js[i + 1] + Js[i]) / h
+
     # Temperature:
     if tempmodel:
-        dys[8*nooflayers : feedlayer-1 + 8*nooflayers] = (-v_up * ystemp[8*nooflayers : feedlayer-1 + 8*nooflayers] + v_up * ystemp[8*nooflayers + 1 : feedlayer-1 + 1 + 8*nooflayers]) / h
+        for i in range(feedlayer-1):
+            dys[i + 8*nooflayers] = (-v_up * ystemp[i + 8*nooflayers] + v_up * ystemp[i + 1 + 8*nooflayers]) / h
         dys[feedlayer-1 + 8*nooflayers] = (v_in * ys_in[TEMP] - v_up * ystemp[feedlayer-1 + 8*nooflayers] - v_dn * ystemp[feedlayer-1 + 8*nooflayers]) / h
-        dys[feedlayer + 8*nooflayers : nooflayers + 8*nooflayers] = (v_dn * ystemp[feedlayer - 1 + 8*nooflayers : nooflayers - 1 + 8*nooflayers] - v_dn * ystemp[feedlayer + 8*nooflayers : nooflayers + 8*nooflayers]) / h
-        
+        for i in range(feedlayer, nooflayers):
+            dys[i + 8*nooflayers] = (v_dn * ystemp[i - 1 + 8*nooflayers] - v_dn * ystemp[i + 8*nooflayers]) / h
+
     # soluble component S_D1:
-    dys[9*nooflayers : feedlayer-1 + 9*nooflayers] = (-v_up * ystemp[9*nooflayers : feedlayer-1 + 9*nooflayers] + v_up * ystemp[9*nooflayers + 1 : feedlayer-1 + 1 + 9*nooflayers]) / h
+    for i in range(feedlayer-1):
+        dys[i + 9*nooflayers] = (-v_up * ystemp[i + 9*nooflayers] + v_up * ystemp[i + 1 + 9*nooflayers]) / h
     dys[feedlayer-1 + 9*nooflayers] = (v_in * ys_in[SD1] - v_up * ystemp[feedlayer-1 + 9*nooflayers] - v_dn * ystemp[feedlayer-1 + 9*nooflayers]) / h
-    dys[feedlayer + 9*nooflayers : nooflayers + 9*nooflayers] = (v_dn * ystemp[feedlayer - 1 + 9*nooflayers : nooflayers - 1 + 9*nooflayers] - v_dn * ystemp[feedlayer + 9*nooflayers : nooflayers + 9*nooflayers]) / h
-    
+    for i in range(feedlayer, nooflayers):
+        dys[i + 9*nooflayers] = (v_dn * ystemp[i - 1 + 9*nooflayers] - v_dn * ystemp[i + 9*nooflayers]) / h
+
     # soluble component S_D2:
-    dys[10*nooflayers : feedlayer-1 + 10*nooflayers] = (-v_up * ystemp[10*nooflayers : feedlayer-1 + 10*nooflayers] + v_up * ystemp[10*nooflayers + 1 : feedlayer-1 + 1 + 10*nooflayers]) / h
+    for i in range(feedlayer-1):
+        dys[i + 10*nooflayers] = (-v_up * ystemp[i + 10*nooflayers] + v_up * ystemp[i + 1 + 10*nooflayers]) / h
     dys[feedlayer-1 + 10*nooflayers] = (v_in * ys_in[SD2] - v_up * ystemp[feedlayer-1 + 10*nooflayers] - v_dn * ystemp[feedlayer-1 + 10*nooflayers]) / h
-    dys[feedlayer + 10*nooflayers : nooflayers + 10*nooflayers] = (v_dn * ystemp[feedlayer - 1 + 10*nooflayers : nooflayers - 1 + 10*nooflayers] - v_dn * ystemp[feedlayer + 10*nooflayers : nooflayers + 10*nooflayers]) / h
-    
+    for i in range(feedlayer, nooflayers):
+        dys[i + 10*nooflayers] = (v_dn * ystemp[i - 1 + 10*nooflayers] - v_dn * ystemp[i + 10*nooflayers]) / h
+
     # soluble component S_D3:
-    dys[11*nooflayers : feedlayer-1 + 11*nooflayers] = (-v_up * ystemp[11*nooflayers : feedlayer-1 + 11*nooflayers] + v_up * ystemp[11*nooflayers + 1 : feedlayer-1 + 1 + 11*nooflayers]) / h
+    for i in range(feedlayer-1):
+        dys[i + 11*nooflayers] = (-v_up * ystemp[i + 11*nooflayers] + v_up * ystemp[i + 1 + 11*nooflayers]) / h
     dys[feedlayer-1 + 11*nooflayers] = (v_in * ys_in[SD3] - v_up * ystemp[feedlayer-1 + 11*nooflayers] - v_dn * ystemp[feedlayer-1 + 11*nooflayers]) / h
-    dys[feedlayer + 11*nooflayers : nooflayers + 11*nooflayers] = (v_dn * ystemp[feedlayer - 1 + 11*nooflayers : nooflayers - 1 + 11*nooflayers] - v_dn * ystemp[feedlayer + 11*nooflayers : nooflayers + 11*nooflayers]) / h
-    
+    for i in range(feedlayer, nooflayers):
+        dys[i + 11*nooflayers] = (v_dn * ystemp[i - 1 + 11*nooflayers] - v_dn * ystemp[i + 11*nooflayers]) / h
+
     return dys
 
 
