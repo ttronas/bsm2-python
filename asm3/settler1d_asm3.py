@@ -271,6 +271,76 @@ def derivativess(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel):
 
     return dys
 
+@jit(nopython=True)
+def get_outputs(ys_int, ys_in, nooflayers, tempmodel, Qr, Qw, asm3par):
+    """
+    Returns the values of the 20 components (13 ASM3 components, Q, T and 5 dummy states)
+    in the effluent (top layer of settler) and underflow (bottom layer of settler) at the current time step after the integration
+
+    Parameters
+    ----------
+    ys_int : np.ndarray
+        Solution of the differential equations of the Solver
+    ys_in : np.ndarray
+        Settler inlet concentrations of the 20 components (13 ASM3 components, Q, T and 5 dummy states)
+    nooflayers : int
+        Number of layers in the settler
+    tempmodel : bool
+        If true, differential equation for the wastewater temperature is used,
+        otherwise influent wastewater temperature is just passed through the settler
+    Qr : int
+        Return sludge flow rate
+    Qw : int
+        flow rate of waste sludge
+    asm3par : np.ndarray
+        37 parameters needed for ASM3 equations
+        
+    Returns
+    -------
+    (np.ndarray, np.ndarray)
+        Tuple containing two arrays:
+            ys_out: Array containing the values of the 20 components (13 ASM3 components, Q, T and 5 dummy states)
+            in the effluent (top layer of settler) at the current time step after the integration
+            ys_eff: Array containing the values of the 20 components (13 ASM3 components, Q, T and 5 dummy states)
+            in the underflow (bottom layer of settler) at the current time step after the integration
+    """
+
+    ys_out_all = np.zeros(13 + 19*nooflayers)
+    ys_out = np.zeros(20)
+    ys_eff = np.zeros(24)
+
+    for i in range(nooflayers):
+        for j in range(19):
+            ys_out_all[(i * 19) + j] = ys_int[i + j * nooflayers]
+        if not tempmodel:
+            ys_out_all[(i * 19) + 13] = ys_in[14]
+
+    # flow rates out of the clarifier:
+    ys_out_all[0 + 19*nooflayers] = ys_in[13] - Qr - Qw
+    ys_out_all[1 + 19*nooflayers] = Qr
+    ys_out_all[2 + 19*nooflayers] = Qw
+
+    # underflow:
+    ys_out[0:13] = ys_out_all[19*nooflayers - 19 : 19*nooflayers - 6]
+    ys_out[13] = Qr
+    ys_out[14:20] = ys_out_all[19*nooflayers - 6 : 19*nooflayers]
+
+    # effluent:
+    ys_eff[0:13] = ys_out_all[0:13]
+    ys_eff[13] = ys_out_all[19*nooflayers]
+    ys_eff[14:20] = ys_out_all[13:19]
+
+    # additional values to compare:
+    # Kjeldahl N concentration:
+    ys_eff[20] = ys_eff[SNH4] + asm3par[28]*ys_eff[SI] + asm3par[29]*ys_eff[SS] + asm3par[30]*ys_eff[XI] + asm3par[31]*ys_eff[XS] + asm3par[32]*(ys_eff[XH] + ys_eff[XA])
+    # total N concentration:
+    ys_eff[21] = ys_eff[20] + ys_eff[SNOX]
+    # total COD concentration:
+    ys_eff[22] = ys_eff[SI] + ys_eff[SS] + ys_eff[XI] + ys_eff[XS] + ys_eff[XH] + ys_eff[XA] + ys_eff[XSTO]
+    # BOD5 concentration:
+    ys_eff[23] = 0.65 * (ys_eff[SS] + ys_eff[XS] + (1-asm3init.f_P)*(ys_eff[XH] + ys_eff[XA] + ys_eff[XSTO]))
+    
+    return ys_out, ys_eff
 
 class Settler:
     def __init__(self, dim, layer, Qr, Qw, ys0, sedpar, asm3par, tempmodel):
@@ -328,47 +398,12 @@ class Settler:
         """
 
         nooflayers = self.layer[1]
-        ys_out_all = np.zeros(13 + 19*nooflayers)
-        ys_out = np.zeros(20)
-        ys_eff = np.zeros(24)
         t_eval = np.array([step, step + timestep])
-        odes = derivativess(t_eval[0], self.ys0, ys_in, self.sedpar, self.dim, self.layer, self.Qr, self.Qw, self.tempmodel)
         odes = odeint(derivativess, self.ys0, t_eval, tfirst=True, args=(ys_in, self.sedpar, self.dim, self.layer, self.Qr, self.Qw, self.tempmodel))
         ys_int = odes[1]
 
         self.ys0 = ys_int
+        ys_out, ys_eff = get_outputs(ys_int, ys_in, nooflayers, self.tempmodel, self.Qr, self.Qw, self.asm3par)
 
-        for i in range(nooflayers):
-            for j in range(19):
-                ys_out_all[(i * 19) + j] = ys_int[i + j * nooflayers]
-            if not self.tempmodel:
-                ys_out_all[(i * 19) + 13] = ys_in[14]
-
-        # flow rates out of the clarifier:
-        ys_out_all[0 + 19*nooflayers] = ys_in[13] - self.Qr - self.Qw
-        ys_out_all[1 + 19*nooflayers] = self.Qr
-        ys_out_all[2 + 19*nooflayers] = self.Qw
-
-        # underflow:
-        ys_out[0:13] = ys_out_all[19*nooflayers - 19 : 19*nooflayers - 6]
-        ys_out[13] = self.Qr
-        ys_out[14:20] = ys_out_all[19*nooflayers - 6 : 19*nooflayers]
-
-        # effluent:
-        ys_eff[0:13] = ys_out_all[0:13]
-        ys_eff[13] = ys_out_all[19*nooflayers]
-        ys_eff[14:20] = ys_out_all[13:19]
-        # additional values to compare:
-        # Kjeldahl N concentration:
-        # SNHeav + i_NSI*(SIeav) + i_NSS*(SSeav) + i_NXI*(XIeav) + i_NXS*(XSeav) + i_NBM*( XBHeav + XBAeav))
-        ys_eff[20] = ys_eff[SNH4] + self.asm3par[28]*ys_eff[SI] + self.asm3par[29]*ys_eff[SS] + self.asm3par[30]*ys_eff[XI] + self.asm3par[31]*ys_eff[XS] + self.asm3par[32]*(ys_eff[XH] + ys_eff[XA])
-        # total N concentration:
-        # SNOeav + SNHeav+ i_NSI*(SIeav) + i_NSS*(SSeav) + i_NXI*(XIeav) + i_NXS*(XSeav) + i_NBM*( XBHeav + XBAeav))
-        ys_eff[21] = ys_eff[20] + ys_eff[SNOX]
-        # total COD concentration:
-        # SIeav+SSeav+XIeav+XSeav+XBHeav+XBAeav+XSTOeav
-        ys_eff[22] = ys_eff[SI] + ys_eff[SS] + ys_eff[XI] + ys_eff[XS] + ys_eff[XH] + ys_eff[XA] + ys_eff[XSTO]
-        # BOD5 concentration:
-        # 0.65*(SSeav+XSeav+(1-f_P)*(XBHeav+XBAeav + XBAeav))
-        ys_eff[23] = 0.65 * (ys_eff[SS] + ys_eff[XS] + (1-asm3init.f_P)*(ys_eff[XH] + ys_eff[XA] + ys_eff[XSTO]))
         return ys_out, ys_eff
+    

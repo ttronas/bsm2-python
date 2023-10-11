@@ -173,6 +173,33 @@ def derivatives(t, y, y_in, asm3par, kla, volume, tempmodel, activate):
 
     return dy
 
+@jit(nopython=True)
+def carbonaddition(y_in, carb, csourceconc):
+    """Returns the reactor inlet concentrations after adding an external carbon source
+
+    Parameters:
+    ----------
+    y_in : np.ndarray
+        Reactor inlet concentrations of the 20 components (13 ASM3 components, Q, T and 5 dummy states) before adding external carbon source.
+    carb : int
+        external carbon flow rates for carbon addition to a reactor
+    csourceconc : int
+        external carbon source concentration
+
+    Returns
+    -------
+    np.ndarray
+        Array containing the reactor inlet concentrations of the 20 components (13 ASM3 components, Q, T and 5 dummy states) after adding external carbon source
+    """
+
+    y_in[0:2] = (y_in[0:2] * y_in[Q]) / (carb + y_in[Q])
+    y_in[SS] = (y_in[SS] * y_in[Q] + csourceconc * carb) / (carb + y_in[Q])
+    y_in[3:13] = (y_in[3:13] * y_in[Q]) / (carb + y_in[Q])
+    # Temperature stays the same
+    y_in[15:20] = (y_in[15:20] * y_in[Q]) / (carb + y_in[Q])
+    y_in[Q] = carb + y_in[Q]
+
+    return y_in
 
 class ASM3reactor:
     def __init__(self, asm3par, y0, kla, volume, carb, csourceconc, tempmodel, activate):
@@ -207,29 +234,6 @@ class ASM3reactor:
         self.tempmodel = tempmodel
         self.activate = activate
 
-    def carbonaddition(self, y_in):
-        """Returns the reactor inlet concentrations after adding an external carbon source
-
-        Parameters:
-        ----------
-        y_in : np.ndarray
-            Reactor inlet concentrations of the 20 components (13 ASM3 components, Q, T and 5 dummy states) before adding external carbon source.
-
-        Returns
-        -------
-        np.ndarray
-            Array containing the reactor inlet concentrations of the 20 components (13 ASM3 components, Q, T and 5 dummy states) after adding external carbon source
-        """
-
-        y_in[0:2] = (y_in[0:2] * y_in[Q]) / (self.carb + y_in[Q])
-        y_in[SS] = (y_in[SS] * y_in[Q] + self.csourceconc * self.carb) / (self.carb + y_in[Q])
-        y_in[3:13] = (y_in[3:13] * y_in[Q]) / (self.carb + y_in[Q])
-        # Temperature stays the same
-        y_in[15:20] = (y_in[15:20] * y_in[Q]) / (self.carb + y_in[Q])
-        y_in[Q] = self.carb + y_in[Q]
-
-        return y_in
-
     def output(self, timestep, step, y_in):
         """Returns the solved differential equations based on ASM3 model
 
@@ -253,7 +257,7 @@ class ASM3reactor:
         t_eval = np.array([step, step + timestep])  # time interval for odeint
 
         if self.carb > 0.0:
-            y_in = self.carbonaddition(y_in)
+            y_in = carbonaddition(y_in, self.carb, self.csourceconc)
 
         ode = odeint(derivatives, self.y0, t_eval, tfirst=True, args=(y_in, self.asm3par, self.kla, self.volume, self.tempmodel, self.activate,))
         y_out[0:20] = ode[1]
