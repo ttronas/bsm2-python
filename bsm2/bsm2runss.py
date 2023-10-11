@@ -1,4 +1,4 @@
-"""Execution file for asm1 model with second clarifier in steady state simulation
+"""Execution file for bsm2 model with primary clarifier, 5 asm1-reactors and a second clarifier in steady state simulation
 
 This script will run the plant (ams1 model + settling model) to steady state. The results are saved as csv file and
 are necessary for further dynamic simulations.
@@ -8,19 +8,24 @@ in: 'numpy', 'csv', 'time', 'scipy.integrate', 'numba'.
 
 The parameters 'tempmodel' and 'activate' can be set to 'True' if you want to activate them.
 """
-
+import sys
+import os
+path_name = os.path.dirname(__file__)
+sys.path.append(path_name + '/..')
 
 import numpy as np
 import csv
 import time
-import asm1init
-import settler1dinit_asm1
-import asm1
-import settler1d_asm1
-from plantperformance import PlantPerformance
+import primclarinit_bsm2
+from primclar_bsm2 import PrimaryClarifier
+from settler1d_bsm2 import Settler
+import asm1init_bsm2 as asm1init
+import settler1dinit_bsm2 as settler1dinit
+from asm1.asm1 import ASM1reactor
 
+from asm1.plantperformance import PlantPerformance
 
-tempmodel = False   # if tempmodel is False influent wastewater temperature is just passed through process reactors and settler
+tempmodel = True   # if tempmodel is False influent wastewater temperature is just passed through process reactors and settler
                     # if tempmodel is True mass balance for the wastewater temperature is used in process reactors and settler
 
 activate = False    # if activate is False dummy states are 0
@@ -28,17 +33,18 @@ activate = False    # if activate is False dummy states are 0
 
 
 # definition of the reactors:
-reactor1 = asm1.ASM1reactor(asm1init.KLa1, asm1init.VOL1, asm1init.yinit1, asm1init.PAR1, asm1init.carb1, asm1init.carbonsourceconc, tempmodel, activate)
-reactor2 = asm1.ASM1reactor(asm1init.KLa2, asm1init.VOL2, asm1init.yinit2, asm1init.PAR2, asm1init.carb2, asm1init.carbonsourceconc, tempmodel, activate)
-reactor3 = asm1.ASM1reactor(asm1init.KLa3, asm1init.VOL3, asm1init.yinit3, asm1init.PAR3, asm1init.carb3, asm1init.carbonsourceconc, tempmodel, activate)
-reactor4 = asm1.ASM1reactor(asm1init.KLa4, asm1init.VOL4, asm1init.yinit4, asm1init.PAR4, asm1init.carb4, asm1init.carbonsourceconc, tempmodel, activate)
-reactor5 = asm1.ASM1reactor(asm1init.KLa5, asm1init.VOL5, asm1init.yinit5, asm1init.PAR5, asm1init.carb5, asm1init.carbonsourceconc, tempmodel, activate)
-settler = settler1d_asm1.Settler(settler1dinit_asm1.DIM, settler1dinit_asm1.LAYER, asm1init.Qr, asm1init.Qw, settler1dinit_asm1.settlerinit, settler1dinit_asm1.SETTLERPAR, asm1init.PAR1, tempmodel)
+primclar = PrimaryClarifier(primclarinit_bsm2.VOL_P, primclarinit_bsm2.yinit1, primclarinit_bsm2.PAR_P, asm1init.PAR1, primclarinit_bsm2.XVECTOR_P, tempmodel, activate)
+reactor1 = ASM1reactor(asm1init.KLa1, asm1init.VOL1, asm1init.yinit1, asm1init.PAR1, asm1init.carb1, asm1init.carbonsourceconc, tempmodel, activate)
+reactor2 = ASM1reactor(asm1init.KLa2, asm1init.VOL2, asm1init.yinit2, asm1init.PAR2, asm1init.carb2, asm1init.carbonsourceconc, tempmodel, activate)
+reactor3 = ASM1reactor(asm1init.KLa3, asm1init.VOL3, asm1init.yinit3, asm1init.PAR3, asm1init.carb3, asm1init.carbonsourceconc, tempmodel, activate)
+reactor4 = ASM1reactor(asm1init.KLa4, asm1init.VOL4, asm1init.yinit4, asm1init.PAR4, asm1init.carb4, asm1init.carbonsourceconc, tempmodel, activate)
+reactor5 = ASM1reactor(asm1init.KLa5, asm1init.VOL5, asm1init.yinit5, asm1init.PAR5, asm1init.carb5, asm1init.carbonsourceconc, tempmodel, activate)
+settler = Settler(settler1dinit.DIM, settler1dinit.LAYER, asm1init.Qr, asm1init.Qw, settler1dinit.settlerinit, settler1dinit.SETTLERPAR, asm1init.PAR1, tempmodel, settler1dinit.MODELTYPE)
 
 plantperformance = PlantPerformance()
 
 # CONSTINFLUENT from BSM1:
-y_in = np.array([30, 69.5000000000000, 51.2000000000000, 202.320000000000, 28.1700000000000, 0, 0, 0, 0, 31.5600000000000, 6.95000000000000, 10.5900000000000, 7, 211.267500000000, 18446, 15, 0, 0, 0, 0, 0])
+y_in = np.array([2.7226191e1, 5.8176186e1, 9.2499001e1, 3.6394347e2, 5.0683288e1, 0, 0, 0, 0, 2.3859466e1, 5.6516060e0, 1.6129816e1, 7.0000000e0, 3.8034432e2, 2.0648361e4, 1.4858080e1, 0, 0, 0, 0, 0])
 
 timestep = 15/(60*24)
 endtime = 200
@@ -63,7 +69,9 @@ for step in simtime:
     y_in1 = (y_in_r*y_in_r[14]+y_out5*Qintr)/(y_in_r[14]+Qintr)
     y_in1[14] = y_in_r[14]+Qintr
 
-    y_out1 = reactor1.output(timestep, step, y_in1)
+    yp_out, yp_eff = primclar.output(timestep, step, y_in1)
+
+    y_out1 = reactor1.output(timestep, step, yp_eff[:21])
     y_out2 = reactor2.output(timestep, step, y_out1)
     y_out3 = reactor3.output(timestep, step, y_out2)
     y_out4 = reactor4.output(timestep, step, y_out3)
@@ -74,8 +82,7 @@ for step in simtime:
     ys_in[0:14] = y_out5[0:14]
     ys_in[14] = y_out5[14] - Qintr
     ys_in[15:21] = y_out5[15:21]
-    if ys_in[14] < 0.0:
-        ys_in[14] = 0.0
+    ys_in[14] = max(0, ys_in[14])
 
     ys_out, ys_eff = settler.outputs(timestep, step, ys_in)
 
