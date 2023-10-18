@@ -21,7 +21,7 @@ from primclar_bsm2 import PrimaryClarifier
 from settler1d_bsm2 import Settler
 import asm1init_bsm2 as asm1init
 import settler1dinit_bsm2 as settler1dinit
-from asm1.asm1 import ASM1reactor
+from asm1_bsm2 import ASM1reactor
 
 from asm1.plantperformance import PlantPerformance
 
@@ -44,7 +44,7 @@ settler = Settler(settler1dinit.DIM, settler1dinit.LAYER, asm1init.Qr, asm1init.
 plantperformance = PlantPerformance()
 
 # CONSTINFLUENT from BSM1:
-y_in = np.array([2.7226191e1, 5.8176186e1, 9.2499001e1, 3.6394347e2, 5.0683288e1, 0, 0, 0, 0, 2.3859466e1, 5.6516060e0, 1.6129816e1, 7.0000000e0, 3.8034432e2, 2.0648361e4, 1.4858080e1, 0, 0, 0, 0, 0])
+y_in = np.array([27.2261906234849, 58.1761856778940, 92.4990010554089, 363.943473006786, 50.6832881484832, 0, 0, 0, 0, 23.8594656340447, 5.65160603095694, 16.1298160611318, 7, 380.344321658009, 20648.3612112084, 14.8580800598190, 0, 0, 0, 0, 0])
 
 timestep = 15/(60*24)
 endtime = 200
@@ -89,7 +89,7 @@ for step in simtime:
 stop = time.perf_counter()
 
 print('Steady state simulation completed after: ', stop - start, 'seconds')
-print('Effluent at t = 200 d: ', ys_eff)
+print('Effluent at t = 200 d: \n', ys_eff)
 
 
 with open('asm1_values_ss.csv', 'w', newline='') as csvfile:

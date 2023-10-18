@@ -2,6 +2,7 @@ import numpy as np
 from copy import deepcopy
 from scipy.integrate import odeint
 from numba import jit
+import numba.types as nt
 
 
 indices_components = np.arange(21)
@@ -49,11 +50,14 @@ def settlerequations(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel, modelt
     h = dim[1] / nooflayers
     volume = area * dim[1]
 
+
     vs = np.zeros(nooflayers)
     Js = np.zeros(nooflayers+1)
     Js_temp = np.zeros(nooflayers)
+    J_flow = np.zeros(nooflayers+1)
 
     dys = np.zeros(12*nooflayers)   # differential equations only for soluble components, TSS and Temperature
+
 
     eps = 0.01
     v_in = ys_in[Q] / area
@@ -71,12 +75,29 @@ def settlerequations(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel, modelt
     for i in range(nooflayers):
         vs[i] = sedpar[1] * (np.exp(-sedpar[2] * (ystemp[i + 7 * nooflayers] - sedpar[4] * ys_in[TSS])) - np.exp(
             -sedpar[3] * (ystemp[i + 7 * nooflayers] - sedpar[4] * ys_in[TSS])))  # ystemp[i+7*nooflayers] is TSS
-        vs[vs > sedpar[0]] = sedpar[0]
-        vs[vs < 0.0] = 0.0
-
+    vs[vs > sedpar[0]] = sedpar[0]
+    vs[vs < 0.0] = 0.0
+    
+    # 0  1  2  3  4   5   6  7  8   9   10  11  12   13  14 15  16  17  18  19  20
+    # SI SS XI XS XBH XBA XP SO SNO SNH SND XND SALK TSS Q TEMP SD1 SD2 SD3 XD4 XD5
+    # dys = dx
+    # ystemp = xtemp / x
+    # ys_in = u
+    # sedpar[0] = v0_max
+    # sedpar[1] = v0
+    # sedpar[2] = r_h
+    # sedpar[3] = r_p
+    # sedpar[4] = f_ns
+    # sedpar[5] = X_t
     # sludge flux due to sedimentation for each layer (not taking into account X limit)
     for i in range(nooflayers):
         Js_temp[i] = vs[i] * ystemp[i + 7 * nooflayers]
+    
+    # J_flow
+    for i in range(feedlayer-1):
+        J_flow[i] = v_up * ystemp[i+7*nooflayers]
+    for i in range(feedlayer-1, nooflayers + 1):
+        J_flow[i] = v_dn * ystemp[i+7*nooflayers-1]
 
     # sludge flux due to sedimentation of each layer:
     for i in range(nooflayers-1):
@@ -88,90 +109,89 @@ def settlerequations(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel, modelt
             Js[i + 1] = Js_temp[i + 1]
 
     # differential equations:
+    for i in range(feedlayer-1):
+        dys[i] = (-J_flow[i] + J_flow[i+1] + Js[i] - Js[i+1]) / h
+    dys[feedlayer-1] = (v_in*ys_in[TSS] - J_flow[feedlayer-1] - J_flow[feedlayer] + Js[feedlayer-1] - Js[feedlayer]) / h 
+    for i in range(feedlayer, nooflayers):
+        dys[i] = (J_flow[i] - J_flow[i+1] + Js[i] - Js[i+1]) / h
+
     # soluble component S_I:
     for i in range(feedlayer-1):
-        dys[i] = (-v_up * ystemp[i] + v_up * ystemp[i + 1]) / h
-    dys[feedlayer-1] = (v_in * ys_in[SI] - v_up * ystemp[feedlayer-1] - v_dn * ystemp[feedlayer-1]) / h
-    for i in range(feedlayer, nooflayers):
-        dys[i] = (v_dn * ystemp[i - 1] - v_dn * ystemp[i]) / h
-
-    # soluble component S_S:
-    for i in range(feedlayer-1):
-        dys[i + nooflayers] = (-v_up * ystemp[i + nooflayers] + v_up * ystemp[i + 1 + nooflayers]) / h
-    dys[feedlayer-1 + nooflayers] = (v_in * ys_in[SS] - v_up * ystemp[feedlayer-1 + nooflayers] - v_dn * ystemp[feedlayer-1 + nooflayers]) / h
+        dys[i + nooflayers] = (-v_up * ystemp[i + nooflayers] + v_up * ystemp[i + nooflayers + 1]) / h
+    dys[feedlayer-1 + nooflayers] = (v_in * ys_in[SI] - v_up * ystemp[feedlayer-1 + nooflayers] - v_dn * ystemp[feedlayer-1 + nooflayers]) / h
     for i in range(feedlayer, nooflayers):
         dys[i + nooflayers] = (v_dn * ystemp[i - 1 + nooflayers] - v_dn * ystemp[i + nooflayers]) / h
 
-    # soluble component S_O:
+    # soluble component S_S:
     for i in range(feedlayer-1):
         dys[i + 2*nooflayers] = (-v_up * ystemp[i + 2*nooflayers] + v_up * ystemp[i + 1 + 2*nooflayers]) / h
-    dys[feedlayer-1 + 2*nooflayers] = (v_in * ys_in[SO] - v_up * ystemp[feedlayer-1 + 2*nooflayers] - v_dn * ystemp[feedlayer-1 + 2*nooflayers]) / h
+    dys[feedlayer-1 + 2*nooflayers] = (v_in * ys_in[SS] - v_up * ystemp[feedlayer-1 + 2*nooflayers] - v_dn * ystemp[feedlayer-1 + 2*nooflayers]) / h
     for i in range(feedlayer, nooflayers):
         dys[i + 2*nooflayers] = (v_dn * ystemp[i - 1 + 2*nooflayers] - v_dn * ystemp[i + 2*nooflayers]) / h
 
-    # soluble component S_NO:
+    # soluble component S_O:
     for i in range(feedlayer-1):
         dys[i + 3*nooflayers] = (-v_up * ystemp[i + 3*nooflayers] + v_up * ystemp[i + 1 + 3*nooflayers]) / h
-    dys[feedlayer-1 + 3*nooflayers] = (v_in * ys_in[SNO] - v_up * ystemp[feedlayer-1 + 3*nooflayers] - v_dn * ystemp[feedlayer-1 + 3*nooflayers]) / h
+    dys[feedlayer-1 + 3*nooflayers] = (v_in * ys_in[SO] - v_up * ystemp[feedlayer-1 + 3*nooflayers] - v_dn * ystemp[feedlayer-1 + 3*nooflayers]) / h
     for i in range(feedlayer, nooflayers):
         dys[i + 3*nooflayers] = (v_dn * ystemp[i - 1 + 3*nooflayers] - v_dn * ystemp[i + 3*nooflayers]) / h
 
-    # soluble component S_NH:
+    # soluble component S_NO:
     for i in range(feedlayer-1):
         dys[i + 4*nooflayers] = (-v_up * ystemp[i + 4*nooflayers] + v_up * ystemp[i + 1 + 4*nooflayers]) / h
-    dys[feedlayer-1 + 4*nooflayers] = (v_in * ys_in[SNH] - v_up * ystemp[feedlayer-1 + 4*nooflayers] - v_dn * ystemp[feedlayer-1 + 4*nooflayers]) / h
+    dys[feedlayer-1 + 4*nooflayers] = (v_in * ys_in[SNO] - v_up * ystemp[feedlayer-1 + 4*nooflayers] - v_dn * ystemp[feedlayer-1 + 4*nooflayers]) / h
     for i in range(feedlayer, nooflayers):
         dys[i + 4*nooflayers] = (v_dn * ystemp[i - 1 + 4*nooflayers] - v_dn * ystemp[i + 4*nooflayers]) / h
 
-    # soluble component S_ND:
+    # soluble component S_NH:
     for i in range(feedlayer-1):
         dys[i + 5*nooflayers] = (-v_up * ystemp[i + 5*nooflayers] + v_up * ystemp[i + 1 + 5*nooflayers]) / h
-    dys[feedlayer-1 + 5*nooflayers] = (v_in * ys_in[SND] - v_up * ystemp[feedlayer-1 + 5*nooflayers] - v_dn * ystemp[feedlayer-1 + 5*nooflayers]) / h
+    dys[feedlayer-1 + 5*nooflayers] = (v_in * ys_in[SNH] - v_up * ystemp[feedlayer-1 + 5*nooflayers] - v_dn * ystemp[feedlayer-1 + 5*nooflayers]) / h
     for i in range(feedlayer, nooflayers):
         dys[i + 5*nooflayers] = (v_dn * ystemp[i - 1 + 5*nooflayers] - v_dn * ystemp[i + 5*nooflayers]) / h
 
-    # soluble component S_ALK:
+    # soluble component S_ND:
     for i in range(feedlayer-1):
         dys[i + 6*nooflayers] = (-v_up * ystemp[i + 6*nooflayers] + v_up * ystemp[i + 1 + 6*nooflayers]) / h
-    dys[feedlayer-1 + 6*nooflayers] = (v_in * ys_in[SALK] - v_up * ystemp[feedlayer-1 + 6*nooflayers] - v_dn * ystemp[feedlayer-1 + 6*nooflayers]) / h
+    dys[feedlayer-1 + 6*nooflayers] = (v_in * ys_in[SND] - v_up * ystemp[feedlayer-1 + 6*nooflayers] - v_dn * ystemp[feedlayer-1 + 6*nooflayers]) / h
     for i in range(feedlayer, nooflayers):
         dys[i + 6*nooflayers] = (v_dn * ystemp[i - 1 + 6*nooflayers] - v_dn * ystemp[i + 6*nooflayers]) / h
 
-    # particulate component X_TSS:
+    # soluble component S_ALK:
     for i in range(feedlayer-1):
-        dys[i + 7*nooflayers] = ((-v_up * ystemp[i + 7*nooflayers] + v_up * ystemp[i + 1 + 7*nooflayers] - Js[i + 1]) + Js[i]) / h
-    dys[feedlayer-1 + 7*nooflayers] = (v_in * ys_in[TSS] - v_up * ystemp[feedlayer-1 + 7*nooflayers] - v_dn * ystemp[feedlayer-1 + 7*nooflayers] - Js[feedlayer-1 + 1] + Js[feedlayer-1]) / h
+        dys[i + 7*nooflayers] = (-v_up * ystemp[i + 7*nooflayers] + v_up * ystemp[i + 1 + 7*nooflayers]) / h
+    dys[feedlayer-1 + 7*nooflayers] = (v_in * ys_in[SALK] - v_up * ystemp[feedlayer-1 + 7*nooflayers] - v_dn * ystemp[feedlayer-1 + 7*nooflayers]) / h
     for i in range(feedlayer, nooflayers):
-        dys[i + 7*nooflayers] = (v_dn * ystemp[i - 1 + 7*nooflayers] - v_dn * ystemp[i + 7*nooflayers] - Js[i + 1] + Js[i]) / h
-
-    # Temperature:
-    if tempmodel:
-        for i in range(feedlayer-1):
-            dys[i + 8*nooflayers] = (-v_up * ystemp[i + 8*nooflayers] + v_up * ystemp[i + 1 + 8*nooflayers]) / h
-        dys[feedlayer-1 + 8*nooflayers] = (v_in * ys_in[TEMP] - v_up * ystemp[feedlayer-1 + 8*nooflayers] - v_dn * ystemp[feedlayer-1 + 8*nooflayers]) / h
-        for i in range(feedlayer, nooflayers):
-            dys[i + 8*nooflayers] = (v_dn * ystemp[i - 1 + 8*nooflayers] - v_dn * ystemp[i + 8*nooflayers]) / h
+        dys[i + 7*nooflayers] = (v_dn * ystemp[i - 1 + 7*nooflayers] - v_dn * ystemp[i + 7*nooflayers]) / h
 
     # soluble component S_D1:
     for i in range(feedlayer-1):
-        dys[i + 9*nooflayers] = (-v_up * ystemp[i + 9*nooflayers] + v_up * ystemp[i + 1 + 9*nooflayers]) / h
-    dys[feedlayer-1 + 9*nooflayers] = (v_in * ys_in[SD1] - v_up * ystemp[feedlayer-1 + 9*nooflayers] - v_dn * ystemp[feedlayer-1 + 9*nooflayers]) / h
+        dys[i + 8*nooflayers] = (-v_up * ystemp[i + 8*nooflayers] + v_up * ystemp[i + 1 + 8*nooflayers]) / h
+    dys[feedlayer-1 + 8*nooflayers] = (v_in * ys_in[SD1] - v_up * ystemp[feedlayer-1 + 8*nooflayers] - v_dn * ystemp[feedlayer-1 + 8*nooflayers]) / h
     for i in range(feedlayer, nooflayers):
-        dys[i + 9*nooflayers] = (v_dn * ystemp[i - 1 + 9*nooflayers] - v_dn * ystemp[i + 9*nooflayers]) / h
+        dys[i + 8*nooflayers] = (v_dn * ystemp[i - 1 + 8*nooflayers] - v_dn * ystemp[i + 8*nooflayers]) / h
 
     # soluble component S_D2:
     for i in range(feedlayer-1):
-        dys[i + 10*nooflayers] = (-v_up * ystemp[i + 10*nooflayers] + v_up * ystemp[i + 1 + 10*nooflayers]) / h
-    dys[feedlayer-1 + 10*nooflayers] = (v_in * ys_in[SD2] - v_up * ystemp[feedlayer-1 + 10*nooflayers] - v_dn * ystemp[feedlayer-1 + 10*nooflayers]) / h
+        dys[i + 9*nooflayers] = (-v_up * ystemp[i + 9*nooflayers] + v_up * ystemp[i + 1 + 9*nooflayers]) / h
+    dys[feedlayer-1 + 9*nooflayers] = (v_in * ys_in[SD2] - v_up * ystemp[feedlayer-1 + 9*nooflayers] - v_dn * ystemp[feedlayer-1 + 9*nooflayers]) / h
     for i in range(feedlayer, nooflayers):
-        dys[i + 10*nooflayers] = (v_dn * ystemp[i - 1 + 10*nooflayers] - v_dn * ystemp[i + 10*nooflayers]) / h
+        dys[i + 9*nooflayers] = (v_dn * ystemp[i - 1 + 9*nooflayers] - v_dn * ystemp[i + 9*nooflayers]) / h
 
     # soluble component S_D3:
     for i in range(feedlayer-1):
-        dys[i + 11*nooflayers] = (-v_up * ystemp[i + 11*nooflayers] + v_up * ystemp[i + 1 + 11*nooflayers]) / h
-    dys[feedlayer-1 + 11*nooflayers] = (v_in * ys_in[SD3] - v_up * ystemp[feedlayer-1 + 11*nooflayers] - v_dn * ystemp[feedlayer-1 + 11*nooflayers]) / h
+        dys[i + 10*nooflayers] = (-v_up * ystemp[i + 10*nooflayers] + v_up * ystemp[i + 1 + 10*nooflayers]) / h
+    dys[feedlayer-1 + 10*nooflayers] = (v_in * ys_in[SD3] - v_up * ystemp[feedlayer-1 + 10*nooflayers] - v_dn * ystemp[feedlayer-1 + 10*nooflayers]) / h
     for i in range(feedlayer, nooflayers):
-        dys[i + 11*nooflayers] = (v_dn * ystemp[i - 1 + 11*nooflayers] - v_dn * ystemp[i + 11*nooflayers]) / h
+        dys[i + 10*nooflayers] = (v_dn * ystemp[i - 1 + 10*nooflayers] - v_dn * ystemp[i + 10*nooflayers]) / h
+    
+    # Temperature:
+    if tempmodel:
+        for i in range(feedlayer-1):
+            dys[i + 11*nooflayers] = (-v_up * ystemp[i + 11*nooflayers] + v_up * ystemp[i + 1 + 11*nooflayers]) / h
+        dys[feedlayer-1 + 11*nooflayers] = (v_in * ys_in[TEMP] - v_up * ystemp[feedlayer-1 + 11*nooflayers] - v_dn * ystemp[feedlayer-1 + 11*nooflayers]) / h
+        for i in range(feedlayer, nooflayers):
+            dys[i + 11*nooflayers] = (v_dn * ystemp[i - 1 + 11*nooflayers] - v_dn * ystemp[i + 11*nooflayers]) / h
 
     return dys
 
@@ -192,7 +212,7 @@ class Settler:
         ys0 : np.ndarray
             Initial values for the 12 components (without Q and particulates) for each layer, sorted by components
         sedpar : np.ndarray
-            6 parameters needed for settler equations
+            7 parameters needed for settler equations
         asm1par : np.ndarray
             24 parameters needed for ASM1 equations
         tempmodel : bool
@@ -240,6 +260,11 @@ class Settler:
                 ys_eff: Array containing the values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
                 in the effluent (top layer of settler) at the current time step after the integration
         """
+        # 0  1  2  3  4   5   6  7  8   9   10  11  12   13  14 15  16  17  18  19  20
+        # SI SS XI XS XBH XBA XP SO SNO SNH SND XND SALK TSS Q TEMP SD1 SD2 SD3 XD4 XD5
+        # y = ys_out
+        # x = ys_int
+        # u = ys_in
 
         nooflayers = self.layer[1]
         ys_ret = np.zeros(21)
@@ -250,66 +275,67 @@ class Settler:
         odes = odeint(settlerequations, self.ys0, t_eval, tfirst=True, args=(ys_in, self.sedpar, self.dim, self.layer, self.Qr, self.Qw, self.tempmodel, self.modeltype))
         ys_int = odes[1]
 
+        gamma = ys_int[nooflayers-1] / ys_in[TSS]
+        gamma_eff = ys_int[0] / ys_in[TSS]
+        h = self.dim[1] / nooflayers
+
         self.ys0 = ys_int
 
         # underflow
-        ys_ret[SI] = ys_int[nooflayers-1]
-        ys_ret[SS] = ys_int[2*nooflayers-1]
-        ys_ret[SO] = ys_int[3*nooflayers-1]
-        ys_ret[SNO] = ys_int[4*nooflayers-1]
-        ys_ret[SNH] = ys_int[5*nooflayers-1]
-        ys_ret[SND] = ys_int[6*nooflayers-1]
-        ys_ret[SALK] = ys_int[7*nooflayers-1]
-        ys_ret[TSS] = ys_int[8*nooflayers-1]
+        ys_ret[SI] = ys_int[2*nooflayers-1]
+        ys_ret[SS] = ys_int[3*nooflayers-1]
+        ys_ret[XI] = ys_in[XI] * gamma
+        ys_ret[XS] = ys_in[XS] * gamma
+        ys_ret[XBH] = ys_in[XBH] * gamma
+        ys_ret[XBA] = ys_in[XBA] * gamma
+        ys_ret[XP] = ys_in[XP] * gamma
+        ys_ret[SO] = ys_int[4*nooflayers-1]
+        ys_ret[SNO] = ys_int[5*nooflayers-1]
+        ys_ret[SNH] = ys_int[6*nooflayers-1]
+        ys_ret[SND] = ys_int[7*nooflayers-1]
+        ys_ret[XND] = ys_in[XND] * gamma
+        ys_ret[SALK] = ys_int[8*nooflayers-1]
+        ys_ret[TSS] = ys_int[nooflayers-1]
+        ys_ret[Q] = self.Qr
         if self.tempmodel:
-            ys_ret[TEMP] = ys_int[9*nooflayers-1]
+            ys_ret[TEMP] = ys_int[12*nooflayers-1]
         else:
             ys_ret[TEMP] = ys_in[TEMP]
-        ys_ret[SD1] = ys_int[10*nooflayers-1]
-        ys_ret[SD2] = ys_int[11*nooflayers-1]
-        ys_ret[SD3] = ys_int[12*nooflayers-1]
-
-        ys_ret[XI] = ys_ret[TSS] / ys_in[TSS] * ys_in[XI]
-        ys_ret[XS] = ys_ret[TSS] / ys_in[TSS] * ys_in[XS]
-        ys_ret[XBH] = ys_ret[TSS] / ys_in[TSS] * ys_in[XBH]
-        ys_ret[XBA] = ys_ret[TSS] / ys_in[TSS] * ys_in[XBA]
-        ys_ret[XP] = ys_ret[TSS] / ys_in[TSS] * ys_in[XP]
-        ys_ret[XND] = ys_ret[TSS] / ys_in[TSS] * ys_in[XND]
-        ys_ret[XD4] = ys_ret[TSS] / ys_in[TSS] * ys_in[XD4]
-        ys_ret[XD5] = ys_ret[TSS] / ys_in[TSS] * ys_in[XD5]
-
+        ys_ret[SD1] = ys_int[9*nooflayers-1]
+        ys_ret[SD2] = ys_int[10*nooflayers-1]
+        ys_ret[SD3] = ys_int[11*nooflayers-1]
+        ys_ret[XD4] = ys_in[XD4] * gamma
+        ys_ret[XD5] = ys_in[XD5] * gamma
         ys_ret[Q] = self.Qr
 
         ys_was = deepcopy(ys_ret)
         ys_was[Q] = self.Qw
 
         # effluent
-        ys_eff[SI] = ys_int[0]
-        ys_eff[SS] = ys_int[nooflayers]
-        ys_eff[SO] = ys_int[2*nooflayers]
-        ys_eff[SNO] = ys_int[3*nooflayers]
-        ys_eff[SNH] = ys_int[4*nooflayers]
-        ys_eff[SND] = ys_int[5*nooflayers]
-        ys_eff[SALK] = ys_int[6*nooflayers]
-        ys_eff[TSS] = ys_int[7*nooflayers]
+        ys_eff[SI] = ys_int[nooflayers]
+        ys_eff[SS] = ys_int[2*nooflayers]
+        ys_eff[XI] = ys_in[XI] * gamma_eff
+        ys_eff[XS] = ys_in[XS] * gamma_eff
+        ys_eff[XBH] = ys_in[XBH] * gamma_eff
+        ys_eff[XBA] = ys_in[XBA] * gamma_eff
+        ys_eff[XP] = ys_in[XP] * gamma_eff
+        ys_eff[SO] = ys_int[3*nooflayers]
+        ys_eff[SNO] = ys_int[4*nooflayers]
+        ys_eff[SNH] = ys_int[5*nooflayers]
+        ys_eff[SND] = ys_int[6*nooflayers]
+        ys_eff[XND] = ys_in[XND] * gamma_eff
+        ys_eff[SALK] = ys_int[7*nooflayers]
+        ys_eff[TSS] = ys_int[0]
+        ys_eff[Q] = ys_in[Q] - self.Qw - self.Qr  # Qe
         if self.tempmodel:
-            ys_eff[TEMP] = ys_int[8*nooflayers]
+            ys_eff[TEMP] = ys_int[11*nooflayers]
         else:
             ys_eff[TEMP] = ys_in[TEMP]
-        ys_eff[SD1] = ys_int[9*nooflayers]
-        ys_eff[SD2] = ys_int[10*nooflayers]
-        ys_eff[SD3] = ys_int[11*nooflayers]
-
-        ys_eff[XI] = ys_eff[TSS] / ys_in[TSS] * ys_in[XI]
-        ys_eff[XS] = ys_eff[TSS] / ys_in[TSS] * ys_in[XS]
-        ys_eff[XBH] = ys_eff[TSS] / ys_in[TSS] * ys_in[XBH]
-        ys_eff[XBA] = ys_eff[TSS] / ys_in[TSS] * ys_in[XBA]
-        ys_eff[XP] = ys_eff[TSS] / ys_in[TSS] * ys_in[XP]
-        ys_eff[XND] = ys_eff[TSS] / ys_in[TSS] * ys_in[XND]
-        ys_eff[XD4] = ys_eff[TSS] / ys_in[TSS] * ys_in[XD4]
-        ys_eff[XD5] = ys_eff[TSS] / ys_in[TSS] * ys_in[XD5]
-
-        ys_eff[Q] = ys_in[Q] - self.Qw - self.Qr
+        ys_eff[SD1] = ys_int[8*nooflayers]
+        ys_eff[SD2] = ys_int[9*nooflayers]
+        ys_eff[SD3] = ys_int[10*nooflayers]
+        ys_eff[XD4] = ys_in[XD4] * gamma_eff
+        ys_eff[XD5] = ys_in[XD5] * gamma_eff
 
         # additional values to compare:
         # Kjeldahl N concentration:
@@ -321,4 +347,19 @@ class Settler:
         # BOD5 concentration:
         ys_eff[24] = 0.25 * (ys_eff[SS] + ys_eff[XS] + (1-self.asm1par[16]) * (ys_eff[XBH] + ys_eff[XBA]))
 
-        return ys_ret, ys_was, ys_eff
+        # continuous signal of sludge blanket level
+        no_sludge_layer = np.where(ys_int[:nooflayers] < self.sedpar[6])[0]
+        if len(no_sludge_layer) > 0:
+            sludge_level = nooflayers - 1 - max(no_sludge_layer)
+        else:  # if all layers surpass threshold, sludge level is full
+            sludge_level = nooflayers
+        if sludge_level == nooflayers:
+            sludge_height = h*nooflayers
+        elif sludge_level == nooflayers - 1:
+            sludge_height = sludge_level*h + h*(ys_int[0]/ys_int[1])
+        elif sludge_level == 0:
+            sludge_height = h*(ys_int[nooflayers-1] + ys_int[nooflayers-2]) / (self.sedpar[6] - ys_int[nooflayers-2])
+        else:
+            sludge_height = sludge_level*h + h*(ys_int[nooflayers-1-sludge_level] + ys_int[nooflayers-2-sludge_level])/(ys_int[nooflayers-sludge_level] - ys_int[nooflayers-2-sludge_level])
+        
+        return ys_ret, ys_was, ys_eff, sludge_height

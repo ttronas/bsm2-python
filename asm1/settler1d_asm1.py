@@ -28,7 +28,7 @@ def settlerequations(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel):
     Qr : int
         Return sludge flow rate
     Qw : int
-        flow rate of waste sludge
+        Flow rate of waste sludge
     tempmodel : bool
         If true, differential equation for the wastewater temperature is used,
         otherwise influent wastewater temperature is just passed through the settler
