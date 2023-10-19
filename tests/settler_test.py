@@ -15,12 +15,12 @@ from bsm2.primclar_bsm2 import PrimaryClarifier
 from bsm2.settler1d_bsm2 import Settler
 import bsm2.asm1init_bsm2 as asm1init
 import bsm2.settler1dinit_bsm2 as settler1dinit
-from asm1.asm1 import ASM1reactor
+from bsm2.asm1_bsm2 import ASM1reactor
 
 from asm1.plantperformance import PlantPerformance
 
 
-tempmodel = False   # if tempmodel is False influent wastewater temperature is just passed through process reactors and settler
+tempmodel = True   # if tempmodel is False influent wastewater temperature is just passed through process reactors and settler
                     # if tempmodel is True mass balance for the wastewater temperature is used in process reactors and settler
 
 activate = False    # if activate is False dummy states are 0
@@ -37,15 +37,17 @@ timestep = 15/(60*24)
 endtime = 200
 simtime = np.arange(0, endtime, timestep)
 
+y_in_r = np.zeros(21)
 ys_was = np.zeros(21)
 ys_ret = np.zeros(21)
 ys_eff = np.zeros(25)
-Qintr = 0
 
 
 start = time.perf_counter()
 
 for step in simtime:
+    y_in_r = (y_in*y_in[14]+ys_ret*ys_ret[14])/(y_in[14]+ys_ret[14])
+    y_in_r[14] = y_in[14] + ys_ret[14]
 
     ys_ret, ys_was, ys_eff = settler.outputs(timestep, step, y_in)
 
@@ -58,9 +60,14 @@ print('Effluent at t =', endtime, 'd: \n', ys_eff)
 print('Return sludge at t =', endtime, 'd: \n', ys_ret)
 print('Waste sludge at t =', endtime, 'd: \n', ys_was)
 
-yp_eff_matlab = np.array([2.72261910e+01, 5.81761860e+01, 4.81526527e+01, 1.89459814e+02, 2.63844446e+01, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 2.38594660e+01, 5.65160600e+00, 8.39677640e+00, 7.00000000e+00, 1.97997683e+02, 2.05038225e+04, 1.48580800e+01, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 4.29077631e+01, 4.29077631e+01, 3.49399288e+02, 6.79774222e+01])
-ys_ret_matlab = np.array([27.2261906234849, 58.1761856778940, 91.4097458129578, 359.657725794326, 50.0864488670803, 0, 0, 0, 0, 23.8594656340447, 5.65160603095694, 15.9398736130632, 7, 375.865440355774, 20648, 14.8580800598190, 0, 0, 0, 0, 0])
-ys_was_matlab = np.array([27.2261906234849, 58.1761856778940, 91.4097458129578, 359.657725794326, 50.0864488670803, 0, 0, 0, 0, 23.8594656340447, 5.65160603095694, 15.9398736130632, 7, 375.865440355774, 300, 14.8580800598190, 0, 0, 0, 0, 0])
+ys_eff_matlab = np.array([27.2261906234849, 58.1761856778940, 57.6331639834608, 226.761517652130, 31.5791330041318, -1.66421414831116e-192, -1.16601864259075e-191, -8.11672191131637e-49, -5.42862363860910e-48, 23.8594656340447, 5.65160603095694, 10.0499716031479, 7.00000000000000, 236.980360979792, 20348.03612112084, 14.8580800598190, 0, 0, 0, 0, 0])
+ys_ret_matlab = np.array([27.2261906234849, 58.1761856778940, 2457.35553685526, 9668.62883162335, 1346.46706814607, -7.09585517990803e-191, -4.97165550076186e-190, -4.79462592055835e-49, -3.20675803848598e-48, 23.8594656340447, 5.65160603095694, 428.509414671749, 7.00000000000000, 10104.3385774685, 20648, 14.8580800598190, 0, 0, 0, 0, 0])
+ys_was_matlab = np.array([27.2261906234849, 58.1761856778940, 2457.35553685526, 9668.62883162335, 1346.46706814607, -7.09585517990803e-191, -4.97165550076186e-190, -4.79462592055835e-49, -3.20675803848598e-48, 23.8594656340447, 5.65160603095694, 428.509414671749, 7.00000000000000, 10104.3385774685, 300, 14.8580800598190, 0, 0, 0, 0, 0])
 
-# assert np.allclose(yp_eff[:21], yp_eff_matlab, rtol=1e-5, atol=1e-5)
+print('Effluent difference to MatLab solution: \n', ys_eff_matlab - ys_eff[:21])
+print('Return sludge difference to MatLab solution: \n', ys_ret_matlab - ys_ret)
+print('Waste sludge difference to MatLab solution: \n', ys_was_matlab - ys_was)
+
+# assert np.allclose(ys_eff[:21], ys_eff_matlab, rtol=1e-5, atol=1e-5)
 # assert np.allclose(ys_ret, ys_ret_matlab, rtol=1e-5, atol=1e-5)
+# assert np.allclose(ys_was, ys_was_matlab, rtol=1e-5, atol=1e-5)

@@ -251,7 +251,8 @@ class Settler:
         ys_int = odes[1]
 
         self.ys0 = ys_int
-
+        # 0  1  2  3  4   5   6  7  8   9   10  11  12   13  14 15  16  17  18  19  20
+        # SI SS XI XS XBH XBA XP SO SNO SNH SND XND SALK TSS Q TEMP SD1 SD2 SD3 XD4 XD5
         # underflow
         ys_ret[SI] = ys_int[nooflayers-1]
         ys_ret[SS] = ys_int[2*nooflayers-1]

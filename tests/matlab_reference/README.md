@@ -1,0 +1,2 @@
+These files can be inserted into the directory of the BSM2-MATLAB folder.
+The folder can be downloaded [here](https://github.com/wwtmodels/Benchmark-Simulation-Models/releases/download/BSM2_vR2019b/BSM2_R2019b.zip)
