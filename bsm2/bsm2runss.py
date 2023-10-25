@@ -16,12 +16,12 @@ sys.path.append(path_name + '/..')
 import numpy as np
 import csv
 import time
-import primclarinit_bsm2
 from primclar_bsm2 import PrimaryClarifier
+import primclarinit_bsm2 as primclarinit
 from settler1d_bsm2 import Settler
-import asm1init_bsm2 as asm1init
 import settler1dinit_bsm2 as settler1dinit
-from asm1_bsm2 import ASM1reactor
+from asm1.asm1 import ASM1reactor
+import asm1init_bsm2 as asm1init
 
 from asm1.plantperformance import PlantPerformance
 
@@ -33,7 +33,7 @@ activate = False    # if activate is False dummy states are 0
 
 
 # definition of the reactors:
-primclar = PrimaryClarifier(primclarinit_bsm2.VOL_P, primclarinit_bsm2.yinit1, primclarinit_bsm2.PAR_P, asm1init.PAR1, primclarinit_bsm2.XVECTOR_P, tempmodel, activate)
+primclar = PrimaryClarifier(primclarinit.VOL_P, primclarinit.yinit1, primclarinit.PAR_P, asm1init.PAR1, primclarinit.XVECTOR_P, tempmodel, activate)
 reactor1 = ASM1reactor(asm1init.KLa1, asm1init.VOL1, asm1init.yinit1, asm1init.PAR1, asm1init.carb1, asm1init.carbonsourceconc, tempmodel, activate)
 reactor2 = ASM1reactor(asm1init.KLa2, asm1init.VOL2, asm1init.yinit2, asm1init.PAR2, asm1init.carb2, asm1init.carbonsourceconc, tempmodel, activate)
 reactor3 = ASM1reactor(asm1init.KLa3, asm1init.VOL3, asm1init.yinit3, asm1init.PAR3, asm1init.carb3, asm1init.carbonsourceconc, tempmodel, activate)
@@ -84,7 +84,7 @@ for step in simtime:
     ys_in[15:21] = y_out5[15:21]
     ys_in[14] = max(0, ys_in[14])
 
-    ys_out, ys_eff = settler.outputs(timestep, step, ys_in)
+    ys_out, _, ys_eff, sludge_height = settler.outputs(timestep, step, ys_in)
 
 stop = time.perf_counter()
 

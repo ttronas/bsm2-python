@@ -24,29 +24,6 @@ yinit3 = yinit1
 yinit4 = yinit1
 yinit5 = yinit1
 
-S_I1 =  28.0643
-S_S1 =  3.0503
-X_I1 =  1532.3
-X_S1 =  63.0433
-X_BH1 = 2245.1
-X_BA1 = 166.6699
-X_P1 =  964.8992
-S_O1 =  0.0093
-S_NO1 = 3.9350
-S_NH1 = 6.8924
-S_ND1 = 0.9580
-X_ND1 = 3.8453
-S_ALK1 = 5.4213
-TSS1 = 3729.0
-Q1 = 103533
-T1 = 14.8581
-S_D1_1 = 0
-S_D2_1 = 0
-S_D3_1 = 0
-X_D4_1 = 0
-X_D5_1 = 0
-
-yinit1 = np.array([S_I1, S_S1, X_I1, X_S1, X_BH1, X_BA1, X_P1, S_O1, S_NO1, S_NH1, S_ND1, X_ND1, S_ALK1, TSS1, Q1, T1, S_D1_1, S_D2_1, S_D3_1, X_D4_1, X_D5_1])
 
 # parameters for AS system at 15 degC, based on Alex et al (2018) (BSM1)
 mu_H = 4.0

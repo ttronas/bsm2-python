@@ -8,16 +8,9 @@ path_name = os.path.dirname(__file__)
 sys.path.append(path_name + '/..')
 
 import numpy as np
-import csv
 import time
-from bsm2 import primclarinit_bsm2
+from bsm2 import primclarinit_bsm2 as primclarinit
 from bsm2.primclar_bsm2 import PrimaryClarifier
-from bsm2.settler1d_bsm2 import Settler
-import bsm2.asm1init_bsm2 as asm1init
-import bsm2.settler1dinit_bsm2 as settler1dinit
-from asm1.asm1 import ASM1reactor
-
-from asm1.plantperformance import PlantPerformance
 
 
 tempmodel = False   # if tempmodel is False influent wastewater temperature is just passed through process reactors and settler
@@ -28,7 +21,7 @@ activate = False    # if activate is False dummy states are 0
 
 
 # definition of the tested clarifier:
-primclar = PrimaryClarifier(primclarinit_bsm2.VOL_P, primclarinit_bsm2.yinit1, primclarinit_bsm2.PAR_P, asm1init.PAR1, primclarinit_bsm2.XVECTOR_P, tempmodel, activate)
+primclar = PrimaryClarifier(primclarinit.VOL_P, primclarinit.yinit1, primclarinit.PAR_P, asm1init.PAR1, primclarinit.XVECTOR_P, tempmodel, activate)
 
 # CONSTINFLUENT from BSM1:
 y_in = np.array([2.7226191e1, 5.8176186e1, 9.2499001e1, 3.6394347e2, 5.0683288e1, 0, 0, 0, 0, 2.3859466e1, 5.6516060e0, 1.6129816e1, 7.0000000e0, 3.8034432e2, 2.0648361e4, 1.4858080e1, 0, 0, 0, 0, 0])
