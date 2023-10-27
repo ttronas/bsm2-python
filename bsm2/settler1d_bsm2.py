@@ -42,6 +42,9 @@ def settlerequations(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel, modelt
     np.ndarray
         Array containing the differential equations of settling model with certain number of layers
     """
+    if modeltype != 0:
+        # TODO: implement modeltype 1 and 2
+        raise NotImplementedError("Modeltypes 1 and 2 not implemented yet")
 
     area = dim[0]
     feedlayer = layer[0]

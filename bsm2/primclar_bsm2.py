@@ -37,7 +37,7 @@ class PrimaryClarifier:
         self.tempmodel = tempmodel
         self.activate = activate
     
-    def output(self, timestep, step, yp_in):
+    def outputs(self, timestep, step, yp_in):
         # f_corr, f_X, t_m, f_PS = p_par
         # y = yp_out, yp_eff
         # u = yp_int

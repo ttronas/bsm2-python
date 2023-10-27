@@ -9,6 +9,7 @@ sys.path.append(path_name + '/..')
 
 import numpy as np
 import time
+from bsm2 import asm1init_bsm2 as asm1init
 from bsm2 import primclarinit_bsm2 as primclarinit
 from bsm2.primclar_bsm2 import PrimaryClarifier
 
@@ -38,7 +39,7 @@ start = time.perf_counter()
 
 for step in simtime:
 
-    yp_out, yp_eff = primclar.output(timestep, step, y_in)
+    yp_out, yp_eff = primclar.outputs(timestep, step, y_in)
 
 
 stop = time.perf_counter()
