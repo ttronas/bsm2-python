@@ -40,7 +40,7 @@ class Thickener:
             yt_uf[XD5]=yt_in[XD5]*thickener_factor
 
             # overflow
-            yt_of[:] = yt_in[:]
+            yt_of[:21] = yt_in[:]
             yt_of[XI]=yt_in[XI]*thinning_factor
             yt_of[XS]=yt_in[XS]*thinning_factor
             yt_of[XBH]=yt_in[XBH]*thinning_factor
