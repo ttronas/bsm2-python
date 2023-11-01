@@ -1,8 +1,9 @@
-mex primclar_bsm2.c
-mex asm1_bsm2.c
-mex combiner_bsm2.c
-mex hyddelayv3_bsm2.c
-mex settler1dv5_bsm2.c
-mex thickener_bsm2.c
+mex primclar_bsm2.c;
+mex asm1_bsm2.c;
+mex combiner_bsm2.c;
+mex hyddelayv3_bsm2.c;
+mex settler1dv5_bsm2.c;
+mex thickener_bsm2.c;
+mex dewatering_bsm2.c;
 mex carboncombiner_bsm2.c;
 mex flowsplitter_bsm2.c;

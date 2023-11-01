@@ -14,7 +14,7 @@ from bsm2 import thickenerinit_bsm2 as thickenerinit
 from bsm2.thickener_bsm2 import Thickener
 
 
-# definition of the tested clarifier:
+# definition of the tested thickener:
 thickener = Thickener(thickenerinit.THICKENERPAR, asm1init.PAR1)
 
 # CONSTINFLUENT from BSM2:

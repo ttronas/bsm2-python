@@ -331,14 +331,16 @@ class Settler:
 
         Returns
         -------
-        (np.ndarray, np.ndarray, np.ndarray)
-            Tuple containing three arrays:
+        (np.ndarray, np.ndarray, np.ndarray, float)
+            Tuple containing three arrays and a float:
                 ys_ret: Array containing the values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
                 in the underflow (bottom layer of settler) at the current time step after the integration - return sludge
                 ys_was: Array containing the values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
                 in the underflow (bottom layer of settler) at the current time step after the integration - waste sludge
                 ys_eff: Array containing the values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
-                in the effluent (top layer of settler) at the current time step after the integration
+                in the effluent (top layer of settler) and 4 additional parameters (Kjeldahl N, total N, total COD, BOD5
+                concentration) at the current time step after the integration - effluent
+                sludge_height: Float containing the continuous signal of sludge blanket level
         """
 
         nooflayers = self.layer[1]
