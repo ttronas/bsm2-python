@@ -24,28 +24,28 @@ timestep = 15/(60*24)
 endtime = 200
 simtime = np.arange(0, endtime, timestep)
 
-yd_s = np.zeros(21)
-yd_r = np.zeros(21)
+ydw_s = np.zeros(21)
+ydw_r = np.zeros(21)
 
 
 start = time.perf_counter()
 
 for step in simtime:
 
-    yd_s, yd_r = dewatering.outputs(y_in)
+    ydw_s, ydw_r = dewatering.outputs(y_in)
 
 
 stop = time.perf_counter()
 
 print('Steady state simulation completed after: ', stop - start, 'seconds')
-print('Sludge flow at t = 200 d: \n', yd_s)
-print('Reject flow at t = 200 d: \n', yd_r)
+print('Sludge flow at t = 200 d: \n', ydw_s)
+print('Reject flow at t = 200 d: \n', ydw_r)
 
-yd_s_matlab = np.array([30, 69.5000000000000, 67857.1005952170, 268141.574070787, 37334.6586673293, 0, 0, 0, 0, 31.5600000000000, 6.95000000000000, 14035.2870176435, 7, 280000, 13.6396410675000, 15, 0, 0, 0, 0, 0])
-yd_r_matlab = np.array([30, 69.5000000000000, 1.02475774302266, 4.04939426891298, 0.563816906659147, 0, 0, 0, 0, 31.5600000000000, 6.95000000000000, 0.211956728488476, 7, 4.22847668894609, 18432.3603589325, 15, 0, 0, 0, 0, 0])
+ydw_s_matlab = np.array([30, 69.5000000000000, 67857.1005952170, 268141.574070787, 37334.6586673293, 0, 0, 0, 0, 31.5600000000000, 6.95000000000000, 14035.2870176435, 7, 280000, 13.6396410675000, 15, 0, 0, 0, 0, 0])
+ydw_r_matlab = np.array([30, 69.5000000000000, 1.02475774302266, 4.04939426891298, 0.563816906659147, 0, 0, 0, 0, 31.5600000000000, 6.95000000000000, 0.211956728488476, 7, 4.22847668894609, 18432.3603589325, 15, 0, 0, 0, 0, 0])
 
-print('Sludge flow difference to MatLab solution: \n', yd_s_matlab - yd_s)
-print('Reject flow difference to MatLab solution: \n', yd_r_matlab - yd_r)
+print('Sludge flow difference to MatLab solution: \n', ydw_s_matlab - ydw_s)
+print('Reject flow difference to MatLab solution: \n', ydw_r_matlab - ydw_r)
 
-assert np.allclose(yd_s, yd_s_matlab, rtol=1e-5, atol=1e-5)
-assert np.allclose(yd_r, yd_r_matlab, rtol=1e-5, atol=1e-5)
+assert np.allclose(ydw_s, ydw_s_matlab, rtol=1e-5, atol=1e-5)
+assert np.allclose(ydw_r, ydw_r_matlab, rtol=1e-5, atol=1e-5)
