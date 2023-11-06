@@ -7,14 +7,15 @@ import warnings
 indices_components = np.arange(42)
 S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc, X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an, S_hva, S_hbu, S_hpro, S_hac, S_hco3, S_nh3, S_gas_h2, S_gas_ch4, S_gas_co2, Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D = indices_components
 
+
 class ADM1Reactor:
     def __init__(self, yd0, digesterpar, interfacepar, dim):
 
         self.yd0 = yd0
+        self.y_in1 = np.zeros(22)
         self.digesterpar = digesterpar
         self.interfacepar = interfacepar
         self.dim = dim
-
 
     def outputs(self, timestep, step, y_in1, T_op):
         """
@@ -25,10 +26,10 @@ class ADM1Reactor:
             Time distance to integrate over
         step : float
             Current time
-        y_in1 : np.ndarray(22)
-            concentrations of the 21 standard components (13 ASM1 components, TSS, Q, T and 5 dummy states) plus pH in the anaerobic digester
+        y_in1 : np.ndarray(21)
+            concentrations of the 21 standard components (13 ASM1 components, TSS, Q, T and 5 dummy states)
             [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
-             SD1, SD2, SD3, XD4, XD5, pH_adm]
+             SD1, SD2, SD3, XD4, XD5]
         T_op : float
             Operational temperature of digester. At the moment very rudimentary implementation! No heat losses / transfer embedded!
         """
@@ -39,14 +40,33 @@ class ADM1Reactor:
 
         t_eval = np.array([step, step+timestep])    # time interval for odeint
 
-        y_out1 = asm2adm(y_in1, T_op, self.interfacepar)
-        # [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc, X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an, Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D]
-        yd_in = np.zeros(51)
+        self.y_in1[:21] = y_in1[:21]
+
+        y_out1 = asm2adm(self.y_in1, T_op, self.interfacepar)
+        #  0     1     2     3     4     5      6     7     8      9     10    11   12
+        # [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
+        #  13    14    15    16    17    18    19    20     21    22    23   24     25
+        #  X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
+        #  26   27   28      29      30      31      32
+        #  Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D]
+        yd_in = np.zeros(42)
         y_in2 = np.zeros(35)
 
-        yd_in[:S_hva] = y_out1[:26]
-        yd_in[Q_D:] = y_out1[26:]
+        # 0     1     2     3     4     5      6     7     8      9     10    11   12   
+        # S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
+        # 13    14    15    16    17    18    19     20    21    22   23     24    25
+        # X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
+        # 26     27     28      29     30      31     32        33         34         35 
+        # S_hva, S_hbu, S_hpro, S_hac, S_hco3, S_nh3, S_gas_h2, S_gas_ch4, S_gas_co2, Q_D,
+        # 36   37      38      39      40      41
+        # T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D
 
+
+        yd_in[:26] = y_out1[:26]
+        yd_in[35:] = y_out1[26:]
+        # [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc, X_ch, X_pr,
+        #  X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an, S_hva, S_hbu, S_hpro, S_hac,
+        #  S_hco3, S_nh3, S_gas_h2, S_gas_ch4, S_gas_co2, Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D]
         ode = odeint(adm1equations, self.yd0, t_eval, tfirst=True, args=(yd_in, self.digesterpar, T_op, self.dim))
         yd_int = ode[1]
         # [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc, X_ch, X_pr,
@@ -86,20 +106,21 @@ class ADM1Reactor:
         # procT8 = kLa*(yd_int[S_h2] - 16.0*K_H_h2*p_gas_h2)
         # procT9 = kLa*(yd_int[S_ch4] - 64.0*K_H_ch4*p_gas_ch4)
         # procT10 = kLa*((yd_int[S_IC] - yd_int[S_hco3]) - K_H_co2*p_gas_co2)
-        
+
         phi = yd_int[S_cat] + (yd_int[S_IN] - yd_int[S_nh3]) - yd_int[S_hco3] - yd_int[S_hac]/64.0 - yd_int[S_hpro]/112.0 - yd_int[S_hbu]/160.0 - yd_int[S_hva]/208.0 - yd_int[S_an]
-        S_H_ion = -phi*0.5 + 0.5*np.sqrt(phi*phi + 4.0*K_w)
+        S_H_ion = -phi*0.5 + 0.5*np.sqrt(phi ** 2 + 4.0*K_w)
 
         yd_out[33] = -np.log10(S_H_ion)  # pH
+        self.y_in1[21] = yd_out[33]  # pH for ASM2ADM interface
         yd_out[34] = S_H_ion
         yd_out[35] = yd_int[S_hva]
         yd_out[36] = yd_int[S_hbu]
         yd_out[37] = yd_int[S_hpro]
         yd_out[38] = yd_int[S_hac]
         yd_out[39] = yd_int[S_hco3]
-        yd_out[40] = yd_int[S_IC] - yd_int[S_hco3]  # SCO2
+        yd_out[40] = yd_int[S_IC] - yd_int[S_hco3]  # S_CO2
         yd_out[41] = yd_int[S_nh3]
-        yd_out[42] = yd_int[S_IN] - yd_int[S_nh3]  # SNH4+
+        yd_out[42] = yd_int[S_IN] - yd_int[S_nh3]  # S_NH4+
         yd_out[43] = yd_int[S_gas_h2]
         yd_out[44] = yd_int[S_gas_ch4]
         yd_out[45] = yd_int[S_gas_co2]
@@ -108,7 +129,17 @@ class ADM1Reactor:
         yd_out[48] = p_gas_co2
         yd_out[49] = P_gas  # total head space pressure from H2, CH4, CO2 and H2O
         yd_out[50] = q_gas * P_gas/P_atm  # The output gas flow is recalculated to atmospheric pressure (normalization)
-
+        # if any of the yd_out values is nan, then True
+        if np.isnan(yd_out).any():
+            # print(step)
+            pass
+        # yd_out_matlab = np.array([0.0123944540338264, 0.00554315213373901, 0.107407118608287, 0.0123325315421625, 0.0140030377920409, 0.0175839207665506, 0.0893146999168201, 2.50549777288567e-07, 0.0554902093079791, 0.0951488198572130, 0.0944681760448266, 0.130867001078133, 0.107920876567876, 0.0205168227093124, 0.0842203718393935, 0.0436287447203153, 0.312223303455366, 0.931671731353629, 0.338391073383190, 0.335772103995433, 0.101120511564948, 0.677244256936046, 0.284839584657251, 17.2162478731405, 1.16889929774943e-47, 0.00521009910400889, 178.467454963180, 35, 0, 0, 0, 0, 0, 7.26311153039051, 5.45617723984313e-08, 0.0122839772671708, 0.0139527401096076, 0.0175114420688465, 0.0890351560336280, 0.0856799511249895, 0.00946886873222357, 0.00188401070049740, 0.0925841653443292, 1.10324138525859e-05, 1.65349847338113, 0.0135401278075039, 1.76664330523517e-05, 0.661945347420652, 0.346913398467896, 1.06454415739659, 2708.34311966784])
+        # print('Digester output difference to MatLab solution: \n', yd_out_matlab - yd_out)
+        # [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
+        # X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
+        # Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D, pH, S_H_ion, S_hva, S_hbu,
+        # S_hpro, S_hac, S_hco3, S_CO2, S_nh3, S_NH4+, S_gas_h2, S_gas_ch4, S_gas_co2,
+        # p_gas_h2, p_gas_ch4, p_gas_co2, P_gas, q_gas]
         y_in2[:33] = yd_out[:33]
         # [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
         # X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
@@ -120,12 +151,14 @@ class ADM1Reactor:
         return y_out2, yd_out, y_out1
 
 # 0     1     2     3     4     5      6     7     8      9     10    11   12    13    
-# S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc, X_ch, 
+# S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc, X_ch,
 # 14    15    16    17    18    19    20     21    22    23   24     25    26     27
-# X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an, S_hva, S_hbu, 
+# X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an, S_hva, S_hbu,
 # 28      29     30      31     32        33         34         35   36   37      38      39      40      41    
 # S_hpro, S_hac, S_hco3, S_nh3, S_gas_h2, S_gas_ch4, S_gas_co2, Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D
 
+
+@jit(nopython=True)
 def adm1equations(t, yd, yd_in, digesterpar, T_op, dim):
     """Returns an array containing the differential equations based on ASM1
 
@@ -158,8 +191,7 @@ def adm1equations(t, yd, yd_in, digesterpar, T_op, dim):
     dyd = np.zeros(42)
     ydtemp = np.zeros(42)
     inhib = np.zeros(6)
-    
-    
+
     f_sI_xc, f_xI_xc, f_ch_xc, f_pr_xc, f_li_xc, N_xc, N_I, N_aa, C_xc, C_sI, C_ch, C_pr, C_li, C_xI, C_su, C_aa, f_fa_li, C_fa, f_h2_su, f_bu_su, f_pro_su, f_ac_su, N_bac, C_bu, C_pro, C_ac, C_bac, Y_su, f_h2_aa, f_va_aa, f_bu_aa, f_pro_aa, f_ac_aa, C_va, Y_aa, Y_fa, Y_c4, Y_pro, C_ch4, Y_ac, Y_h2, k_dis, k_hyd_ch, k_hyd_pr, k_hyd_li, K_S_IN, k_m_su, K_S_su, pH_UL_aa, pH_LL_aa, k_m_aa, K_S_aa, k_m_fa, K_S_fa, K_Ih2_fa, k_m_c4, K_S_c4, K_Ih2_c4, k_m_pro, K_S_pro, K_Ih2_pro, k_m_ac, K_S_ac, K_I_nh3, pH_UL_ac, pH_LL_ac, k_m_h2, K_S_h2, pH_UL_h2, pH_LL_h2, k_dec_Xsu, k_dec_Xaa, k_dec_Xfa, k_dec_Xc4, k_dec_Xpro, k_dec_Xac, k_dec_Xh2, R, T_base, _, pK_w_base, pK_a_va_base, pK_a_bu_base, pK_a_pro_base, pK_a_ac_base, pK_a_co2_base, pK_a_IN_base, k_A_Bva, k_A_Bbu, k_A_Bpro, k_A_Bac, k_A_Bco2, k_A_BIN, P_atm, kLa, K_H_h2o_base, K_H_co2_base, K_H_ch4_base, K_H_h2_base, k_P = digesterpar
 
     V_liq, V_gas = dim
@@ -182,7 +214,7 @@ def adm1equations(t, yd, yd_in, digesterpar, T_op, dim):
     K_H_ch4 = K_H_ch4_base * np.exp(-14240.0 * factor)  # T adjustment for K_H_ch4
     K_H_co2 = K_H_co2_base * np.exp(-19410.0 * factor)  # T adjustment for K_H_co2
     p_gas_h2o = K_H_h2o_base * np.exp(5290.0 * (1.0/T_base - 1.0/T_op))  # T adjustment for water vapour saturation pressure
-    
+
     phi = ydtemp[S_cat] + (ydtemp[S_IN] - ydtemp[S_nh3]) - ydtemp[S_hco3] - ydtemp[S_hac]/64.0 - ydtemp[S_hpro]/112.0 - ydtemp[S_hbu]/160.0 - ydtemp[S_hva]/208.0 - ydtemp[S_an]
     S_H_ion = -phi*0.5 + 0.5*np.sqrt(phi*phi + 4.0*K_w)  # SH+
     pH_op = -np.log10(S_H_ion)  # pH
@@ -217,7 +249,6 @@ def adm1equations(t, yd, yd_in, digesterpar, T_op, dim):
     inhib[3] = inhib[0] * I_h2_pro
     inhib[4] = I_pH_ac * I_IN_lim * I_nh3
     inhib[5] = I_pH_h2 * I_IN_lim
-
 
     proc1 = k_dis*ydtemp[X_xc]
     proc2 = k_hyd_ch*ydtemp[X_ch]
@@ -316,13 +347,16 @@ def adm1equations(t, yd, yd_in, digesterpar, T_op, dim):
 
     dyd[S_cat] = 1.0/V_liq*(yd_in[S_cat]*(yd_in[S_cat]-yd[S_cat]))
     dyd[S_an] = 1.0/V_liq*(yd_in[S_an]*(yd_in[S_an]-yd[S_an]))
-
-    dyd[S_hva] = -procA4
-    dyd[S_hbu] = -procA5
+    # if np.isnan(dyd).any():
+    #     print('nan before S_hva')
+    dyd[S_hva] = -procA4  # !!
+    if np.isnan(dyd).any():
+        print('nan after S_hva')
+    dyd[S_hbu] = -procA5  # !!
     dyd[S_hpro] = -procA6
     dyd[S_hac] = -procA7
-    dyd[S_hco3] = -procA10
-    dyd[S_nh3] = -procA11
+    dyd[S_hco3] = -procA10  # !!
+    dyd[S_nh3] = -procA11  # !!
 
     dyd[S_gas_h2] = -ydtemp[S_gas_h2]*q_gas/V_gas+procT8*V_liq/V_gas
     dyd[S_gas_ch4] = -ydtemp[S_gas_ch4]*q_gas/V_gas+procT9*V_liq/V_gas
@@ -337,9 +371,12 @@ def adm1equations(t, yd, yd_in, digesterpar, T_op, dim):
     dyd[S_D3_D] = 0
     dyd[X_D4_D] = 0
     dyd[X_D5_D] = 0
-
+    if np.isnan(dyd).any():
+        raise ValueError('nan in dyd')
     return dyd
 
+
+# @jit(nopython=True, cache=True)
 def asm2adm(y_in1, T_op, interfacepar):
     """
     converts ASM1 flows to ADM1 flows
@@ -380,6 +417,9 @@ def asm2adm(y_in1, T_op, interfacepar):
     y_in1_temp = np.zeros(22)
     y_in1_temp2 = np.zeros(22)
 
+    y_in1_temp[:] = y_in1[:]
+    y_in1_temp2[:] = y_in1[:]
+
     pH_adm = y_in1[21]
 
     factor = (1.0/T_base - 1.0/T_op)/(100.0*R)
@@ -395,16 +435,16 @@ def asm2adm(y_in1, T_op, interfacepar):
     alfa_NH = 1.0/14000.0  # convert mgN/l into kmoleN/m3
     alfa_alk = -0.001  # convert moleHCO3/m3 into kmoleHCO3/m3
     alfa_NO = -1.0/14000.0  # convert mgN/l into kmoleN/m3
-    
-    # Let CODdemand be the COD demand of available electron 
+
+    # Let CODdemand be the COD demand of available electron
     # acceptors prior to the anaerobic digester, i.e. oxygen and nitrate
     CODdemand = y_in1[7] + CODequiv*y_in1[8]
 
     # if extreme detail was used then some extra NH4 would be transformed
     # into N bound in biomass and some biomass would be formed when
-    # removing the CODdemand (based on the yield). But on a total COD balance 
+    # removing the CODdemand (based on the yield). But on a total COD balance
     # approach the below is correct (neglecting the N need for biomass growth)
-    # The COD is reduced in a hierarchical approach in the order: 
+    # The COD is reduced in a hierarchical approach in the order:
     # 1) SS; 2) XS; 3) XBH; 4) XBA. It is no real improvement to remove SS and add
     # biomass. The net result is the same.
 
@@ -416,21 +456,21 @@ def asm2adm(y_in1, T_op, interfacepar):
             y_in1_temp[3] = 0.0
             if remainb > y_in1[4]:  # check if COD demand can be fulfilled by XBH
                 remainc = remainb - y_in1[4]
-                y_in1_temp[9] = y_in1_temp[9] + y_in1[4]*fnbac
+                y_in1_temp[9] += y_in1[4]*fnbac
                 y_in1_temp[4] = 0.0
                 if remainc > y_in1[5]:  # check if COD demand can be fulfilled by XBA
                     remaind = remainc - y_in1[5]
-                    y_in1_temp[9] = y_in1_temp[9] + y_in1[5]*fnbac
+                    y_in1_temp[9] += y_in1[5]*fnbac
                     y_in1_temp[5] = 0.0
                     y_in1_temp[7] = remaind
                     # if here we are in trouble, carbon shortage: an error printout should be given
                     # and execution stopped
                 else:  # reduced all COD demand by use of SS, XS, XBH and XBA
                     y_in1_temp[5] = y_in1[5] - remainc
-                    y_in1_temp[9] = y_in1_temp[9] + remainc*fnbac
+                    y_in1_temp[9] += remainc*fnbac
             else:  # reduced all COD demand by use of SS, XS and XBH
                 y_in1_temp[4] = y_in1[4] - remainb
-                y_in1_temp[9] = y_in1_temp[9] + remainb*fnbac
+                y_in1_temp[9] += remainb*fnbac
         else:  # reduced all COD demand by use of SS and XS
             y_in1_temp[3] = y_in1[3] - remaina
     else:  # reduced all COD demand by use of SS
@@ -444,11 +484,11 @@ def asm2adm(y_in1, T_op, interfacepar):
 
     if sorgn >= y_in1_temp[1]:  # not all SND-N in terms of COD fits into amino acids
         y_out1[1] = y_in1_temp[1]  # map all SS COD into Saa
-        y_in1_temp[10] = y_in1_temp[10] - y_in1_temp[1]*fnaa  # excess SND
+        y_in1_temp[10] -= y_in1_temp[1]*fnaa  # excess SND
         y_in1_temp[1] = 0.0  # all SS used
     else:  # all SND-N fits into amino acids
         y_out1[1] = sorgn  # map all SND related COD into Saa
-        y_in1_temp[1] = y_in1_temp[1] - sorgn  # excess SS, which will become sugar in ADM1 i.e. no nitrogen association
+        y_in1_temp[1] -= sorgn  # excess SS, which will become sugar in ADM1 i.e. no nitrogen association
         y_in1_temp[10] = 0.0  # all SND used
 
     # XS becomes part of Xpr (proteins) when transformed into ADM
@@ -483,20 +523,20 @@ def asm2adm(y_in1, T_op, interfacepar):
         xprtemp2 = biomass_bioN/fnaa  # all biomass N used
         remainCOD = biomass - biomass_nobio - xprtemp2
         if (y_in1_temp[11]/fnaa) > remainCOD:  # use part of remaining XND-N to form proteins
-            xprtemp2 = xprtemp2 + remainCOD
-            y_in1_temp[11] = y_in1_temp[11] - remainCOD*fnaa
+            xprtemp2 += remainCOD
+            y_in1_temp[11] -= remainCOD*fnaa
             remainCOD = 0.0
             y_in1_temp[4] = 0.0
             y_in1_temp[5] = 0.0
         else:  # use all remaining XND-N to form proteins
-            xprtemp2 = xprtemp2 + y_in1_temp[11]/fnaa
-            remainCOD = remainCOD - y_in1_temp[11]/fnaa
+            xprtemp2 += y_in1_temp[11]/fnaa
+            remainCOD -= y_in1_temp[11]/fnaa
             y_in1_temp[11] = 0.0
         xlitemp2 = frlibac*remainCOD  # part of the COD not associated with N
         xchtemp2 = (1.0 - frlibac)*remainCOD  # part of the COD not associated with N
     else:
         xprtemp2 = biomass - biomass_nobio  # all biomass COD used
-        y_in1_temp[11] = y_in1_temp[11] + biomass*fnbac - biomass_nobio*fxni - xprtemp2*fnaa  # any remaining N in XND
+        y_in1_temp[11] += biomass*fnbac - biomass_nobio*fxni - xprtemp2*fnaa  # any remaining N in XND
         xlitemp2 = 0.0
         xchtemp2 = 0.0
     y_in1_temp[4] = 0.0
@@ -520,39 +560,40 @@ def asm2adm(y_in1, T_op, interfacepar):
         noninertX = fdegrade_adm*(y_in1_temp[2] + y_in1_temp[6])
         if fxni < fnxc:  # N in XI&XP(ASM) not enough
             xc = noninertX*fxni/fnxc
-            noninertX = noninertX - noninertX*fxni/fnxc
+            noninertX -= noninertX*fxni/fnxc
             if y_in1_temp[11] < (noninertX*fnxc):  # N in XND not enough
-                xc = xc + y_in1_temp[11]/fnxc
-                noninertX = noninertX - y_in1_temp[11]/fnxc
+                xc += y_in1_temp[11]/fnxc
+                noninertX -= y_in1_temp[11]/fnxc
                 y_in1_temp[11] = 0.0
                 if y_in1_temp[10] < (noninertX*fnxc):  # N in SND not enough
-                    xc = xc + y_in1_temp[10]/fnxc
-                    noninertX = noninertX - y_in1_temp[10]/fnxc
+                    xc += y_in1_temp[10]/fnxc
+                    noninertX -= y_in1_temp[10]/fnxc
                     y_in1_temp[10] = 0.0
                     if y_in1_temp[9] < (noninertX*fnxc):  # N in SNH not enough
-                        xc = xc + y_in1_temp[9]/fnxc
-                        noninertX = noninertX - y_in1_temp[9]/fnxc
+                        xc += y_in1_temp[9]/fnxc
+                        noninertX -= y_in1_temp[9]/fnxc
                         y_in1_temp[9] = 0.0
-                        warnings.warn('Nitrogen shortage when converting biodegradable XI&XP')
+                        # warnings.warn('Nitrogen shortage when converting biodegradable XI&XP')
+                        print('Nitrogen shortage when converting biodegradable XI&XP')
                         # Putting remaining XI&XP as lipids (50%) and carbohydrates (50%)
                         xlitemp3 = 0.5*noninertX
                         xchtemp3 = 0.5*noninertX
                         noninertX = 0.0
                     else:  # N in SNH enough for mapping
-                        xc = xc + noninertX
-                        y_in1_temp[9] = y_in1_temp[9] - noninertX*fnxc
+                        xc += noninertX
+                        y_in1_temp[9] -= noninertX*fnxc
                         noninertX = 0.0
                 else:  # N in SND enough for mapping
-                    xc = xc + noninertX
-                    y_in1_temp[10] = y_in1_temp[10] - noninertX*fnxc
+                    xc += noninertX
+                    y_in1_temp[10] -= noninertX*fnxc
                     noninertX = 0.0
             else:  # N in XND enough for mapping
-                xc = xc + noninertX
-                y_in1_temp[11] = y_in1_temp[11] - noninertX*fnxc
+                xc += noninertX
+                y_in1_temp[11] -= noninertX*fnxc
                 noninertX = 0.0
         else:  # N in XI&XP(ASM) enough for mapping
-            xc = xc + noninertX
-            y_in1_temp[11] = y_in1_temp[11] + noninertX*(fxni-fnxc)  # put remaining N as XND
+            xc += noninertX
+            y_in1_temp[11] += noninertX*(fxni-fnxc)  # put remaining N as XND
             noninertX = 0
 
     # Mapping of ASM SI to ADM1 SI
@@ -562,38 +603,39 @@ def asm2adm(y_in1, T_op, interfacepar):
     inertS = 0.0
     if fsni < fsni_adm:  # N in SI(ASM) not enough
         inertS = y_in1_temp[0]*fsni/fsni_adm
-        y_in1_temp[0] = y_in1_temp[0] - y_in1_temp[0]*fsni/fsni_adm
+        y_in1_temp[0] -= y_in1_temp[0]*fsni/fsni_adm
         if y_in1_temp[10] < (y_in1_temp[0]*fsni_adm):  # N in SND not enough
-            inertS = inertS + y_in1_temp[10]/fsni_adm
-            y_in1_temp[0] = y_in1_temp[0] - y_in1_temp[10]/fsni_adm
+            inertS += y_in1_temp[10]/fsni_adm
+            y_in1_temp[0] -= y_in1_temp[10]/fsni_adm
             y_in1_temp[10] = 0.0
             if y_in1_temp[11] < (y_in1_temp[0]*fsni_adm):  # N in XND not enough
-                inertS = inertS + y_in1_temp[11]/fsni_adm
-                y_in1_temp[0] = y_in1_temp[0] - y_in1_temp[11]/fsni_adm
+                inertS += y_in1_temp[11]/fsni_adm
+                y_in1_temp[0] -= y_in1_temp[11]/fsni_adm
                 y_in1_temp[11] = 0.0
                 if y_in1_temp[9] < (y_in1_temp[0]*fsni_adm):  # N in SNH not enough
-                    inertS = inertS + y_in1_temp[9]/fsni_adm
-                    y_in1_temp[0] = y_in1_temp[0] - y_in1_temp[9]/fsni_adm
+                    inertS += y_in1_temp[9]/fsni_adm
+                    y_in1_temp[0] -= y_in1_temp[9]/fsni_adm
                     y_in1_temp[9] = 0.0
-                    warnings.warn('Nitrogen shortage when converting SI')
+                    # warnings.warn('Nitrogen shortage when converting SI')
+                    # print('Nitrogen shortage when converting SI')  # TODO: Uncomment this. for debugging only
                     # Putting remaining SI as monosacharides
-                    y_in1_temp[1] = y_in1_temp[1] + y_in1_temp[0]
+                    y_in1_temp[1] += y_in1_temp[0]
                     y_in1_temp[0] = 0.0
                 else:  # N in SNH enough for mapping
-                    inertS = inertS + y_in1_temp[0]
-                    y_in1_temp[9] = y_in1_temp[9] - y_in1_temp[0]*fsni_adm
+                    inertS += y_in1_temp[0]
+                    y_in1_temp[9] -= y_in1_temp[0]*fsni_adm
                     y_in1_temp[0] = 0.0
             else:  # N in XND enough for mapping
-                inertS = inertS + y_in1_temp[0]
-                y_in1_temp[11] = y_in1_temp[11] - y_in1_temp[0]*fsni_adm
+                inertS += y_in1_temp[0]
+                y_in1_temp[11] -= y_in1_temp[0]*fsni_adm
                 y_in1_temp[0] = 0.0
         else:  # N in SND enough for mapping
-            inertS = inertS + y_in1_temp[0]
-            y_in1_temp[10] = y_in1_temp[10] - y_in1_temp[0]*fsni_adm
+            inertS += y_in1_temp[0]
+            y_in1_temp[10] -= y_in1_temp[0]*fsni_adm
             y_in1_temp[0] = 0.0
     else:  # N in SI(ASM) enough for mapping
-        inertS = inertS + y_in1_temp[0]
-        y_in1_temp[10] = y_in1_temp[10] + y_in1_temp[0]*(fsni-fsni_adm)  # put remaining N as SND
+        inertS += y_in1_temp[0]
+        y_in1_temp[10] += y_in1_temp[0]*(fsni-fsni_adm)  # put remaining N as SND
         y_in1_temp[0] = 0.0
 
     # Define the outputs including charge balance
@@ -632,6 +674,8 @@ def asm2adm(y_in1, T_op, interfacepar):
 
     return y_out1
 
+
+@jit(nopython=True, cache=True)
 def adm2asm(y_in2, T_op, interfacepar):
     """
     converts ADM1 flows to ASM1 flows
@@ -699,7 +743,8 @@ def adm2asm(y_in2, T_op, interfacepar):
     biomass_bioN = (biomass*fnbac - biomass_nobio*fxni)
     remainCOD = 0.0
     if biomass_bioN < 0.0:
-        warnings.warn('Not enough biomass N to map the requested inert part of biomass')
+        # warnings.warn('Not enough biomass N to map the requested inert part of biomass')
+        print('Not enough biomass N to map the requested inert part of biomass')
         # We map as much as we can, and the remains go to XS!
         XPtemp = biomass*fnbac/fxni
         biomass_nobio = XPtemp
@@ -741,7 +786,8 @@ def adm2asm(y_in2, T_op, interfacepar):
                 XStemp2 = XStemp2 + (y_in2_temp[10]*14000.0)/fnxc
                 noninertX = noninertX - (y_in2_temp[10]*14000.0)/fnxc
                 y_in2_temp[10] = 0.0
-                warnings.warn('Nitrogen shortage when converting biodegradable XI')
+                # warnings.warn('Nitrogen shortage when converting biodegradable XI')
+                print('Nitrogen shortage when converting biodegradable XI')
                 # Mapping what we can to XS and putting remaining XI back into XI of ASM
                 inertX = inertX + noninertX
             else:  # N in S_IN enough for mapping
@@ -766,17 +812,17 @@ def adm2asm(y_in2, T_op, interfacepar):
         inertS = y_in2_temp[11]*fsni_adm/fsni
         y_in2_temp[11] = y_in2_temp[11] - y_in2_temp[11]*fsni_adm/fsni
         if (y_in2_temp[10]*14.0) < (y_in2_temp[11]*fsni):  # N in S_IN not enough
-            inertS = inertS + y_in2_temp[10]*14.0/fsni
+            inertS += y_in2_temp[10]*14.0/fsni
             y_in2_temp[11] = y_in2_temp[11] - y_in2_temp[10]*14.0/fsni
             y_in2_temp[10] = 0.0
             raise ValueError('Not enough nitrogen to map the requested inert part of SI')
             # System failure: nowhere to put SI
         else:  # N in S_IN enough for mapping
-            inertS = inertS + y_in2_temp[11]
+            inertS += y_in2_temp[11]
             y_in2_temp[10] = y_in2_temp[10] - y_in2_temp[11]*fsni/14.0
             y_in2_temp[11] = 0.0
     else:  # N in SI(AD) enough for mapping
-        inertS = inertS + y_in2_temp[11]
+        inertS += y_in2_temp[11]
         y_in2_temp[10] = y_in2_temp[10] + y_in2_temp[11]*(fsni_adm - fsni)/14.0  # put remaining N as S_IN
         y_in2_temp[11] = 0.0
 
@@ -818,3 +864,4 @@ def adm2asm(y_in2, T_op, interfacepar):
     y_out2[12] = (y_in2[3]*alfa_va + y_in2[4]*alfa_bu + y_in2[5]*alfa_pro + y_in2[6]*alfa_ac + y_in2[9]*alfa_co2 + y_in2[10]*alfa_IN - y_out2[8]*alfa_NO - y_out2[9]*alfa_NH)/alfa_alk
 
     # Finally there should be a input-output mass balance check here of COD and N
+    return y_out2

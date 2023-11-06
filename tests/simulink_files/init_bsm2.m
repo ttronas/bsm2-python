@@ -2,12 +2,14 @@ primclarinit_bsm2;
 asm1init_bsm1;
 settler1dinit_bsm2;  % no changes from BSM1
 thickenerinit_bsm2;
+adm1init_bsm2;
 hyddelayinit_bsm2;
 reginit_bsm1;
 dewateringinit_bsm2;
 
 load ./Influent_data/constinfluent_bsm1;
 load ./Influent_data/dyninfluent_bsm2;
+load ./Influent_data/constinfluent_adm1_test.mat;
 
 
 % General parameter for all subsystems

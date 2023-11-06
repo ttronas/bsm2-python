@@ -6,14 +6,14 @@ The state values are based on BSM2 openloop results using the constant input fil
 
 import numpy as np
 
-S_su =  0.0124
-S_aa =  0.0055
-S_fa =  0.1074
-S_va =  0.0123
+S_su = 0.0124
+S_aa = 0.0055
+S_fa = 0.1074
+S_va = 0.0123
 S_bu = 0.0140
 S_pro = 0.0176
-S_ac =  0.0893
-S_h2 =  2.5055e-7
+S_ac = 0.0893
+S_h2 = 2.5055e-7
 S_ch4 = 0.0555
 S_IC = 0.0951
 S_IN = 0.0945
@@ -28,14 +28,14 @@ X_fa = 0.3384
 X_c4 = 0.3258
 X_pro = 0.1011
 X_ac = 0.6772
-X_h2 =  0.2848
-X_I =  17.2162
-S_cat =  3.5659e-43
-S_an =  0.0052
+X_h2 = 0.2848
+X_I = 17.2162
+S_cat = 3.5659e-43
+S_an = 0.0052
 S_hva = 0.0123   # is actually Sva-
 S_hbu = 0.0140   # is actually Sbu-
-S_hpro =  0.0175 # is actually Spro-
-S_hac =  0.0890   # is actually Sac-
+S_hpro = 0.0175 # is actually Spro-
+S_hac = 0.0890   # is actually Sac-
 S_hco3 = 0.0857
 S_nh3 = 0.0019
 S_gas_h2 = 1.1032e-5
@@ -52,8 +52,8 @@ X_D5_D = 0
 S_H_ion = 5.4562e-8
 
 # used by all three ADM implementations, adm1_ODE, adm1_DAE1 and adm1_DAE2.
-# DIGESTERINIT = np.array([S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc, X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an, S_hva, S_hbu, S_hpro, S_hac, S_hco3, S_nh3, S_gas_h2, S_gas_ch4, S_gas_co2, Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D])
-DIGESTERINIT = np.ones(42)
+DIGESTERINIT = np.array([S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc, X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an, S_hva, S_hbu, S_hpro, S_hac, S_hco3, S_nh3, S_gas_h2, S_gas_ch4, S_gas_co2, Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D])
+# DIGESTERINIT = np.ones(42)
 
 # used by both DAE ADM implementations, adm1_DAE1 and adm1_DAE2.
 # PHSOLVINIT = np.array([S_H_ion, S_hva, S_hbu, S_hpro, S_hac, S_hco3, S_nh3])

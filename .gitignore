@@ -1,4 +1,5 @@
 *.pyc
 *.mexw64
 *.slxc
+__pycache__
 slprj
