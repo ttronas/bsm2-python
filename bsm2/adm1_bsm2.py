@@ -1,7 +1,8 @@
 import numpy as np
 from scipy.integrate import odeint
 from numba import jit
-import warnings
+import math
+# import warnings
 
 
 indices_components = np.arange(42)
@@ -43,6 +44,7 @@ class ADM1Reactor:
         self.y_in1[:21] = y_in1[:21]
 
         y_out1 = asm2adm(self.y_in1, T_op, self.interfacepar)
+        # y_out1
         #  0     1     2     3     4     5      6     7     8      9     10    11   12
         # [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
         #  13    14    15    16    17    18    19    20     21    22    23   24     25
@@ -52,6 +54,7 @@ class ADM1Reactor:
         yd_in = np.zeros(42)
         y_in2 = np.zeros(35)
 
+        # yd_in
         # 0     1     2     3     4     5      6     7     8      9     10    11   12   
         # S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
         # 13    14    15    16    17    18    19     20    21    22   23     24    25
@@ -60,7 +63,6 @@ class ADM1Reactor:
         # S_hva, S_hbu, S_hpro, S_hac, S_hco3, S_nh3, S_gas_h2, S_gas_ch4, S_gas_co2, Q_D,
         # 36   37      38      39      40      41
         # T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D
-
 
         yd_in[:26] = y_out1[:26]
         yd_in[35:] = y_out1[26:]
@@ -79,11 +81,11 @@ class ADM1Reactor:
         # x : yd_int
 
         factor = (1.0/T_base - 1.0/T_op)/(100.0*R)
-        # K_H_h2 = K_H_h2_base*np.exp(-4180.0*factor)     # T adjustment for K_H_h2
-        # K_H_ch4 = K_H_ch4_base*np.exp(-14240.0*factor)  # T adjustment for K_H_ch4
-        # K_H_co2 = K_H_co2_base*np.exp(-19410.0*factor)  # T adjustment for K_H_co2
-        K_w = 10 ** (-pK_w_base) *np.exp(55900.0*factor) # T adjustment for K_w
-        p_gas_h2o = K_H_h2o_base*np.exp(5290.0*(1.0/T_base - 1.0/T_op))  # T adjustment for water vapour saturation pressure
+        # K_H_h2 = K_H_h2_base*math.exp(-4180.0*factor)      # T adjustment for K_H_h2
+        # K_H_ch4 = K_H_ch4_base*math.exp(-14240.0*factor)   # T adjustment for K_H_ch4
+        # K_H_co2 = K_H_co2_base*math.exp(-19410.0*factor)   # T adjustment for K_H_co2
+        K_w = 10 ** (-pK_w_base) * math.exp(55900.0*factor)  # T adjustment for K_w
+        p_gas_h2o = K_H_h2o_base*math.exp(5290.0*(1.0/T_base - 1.0/T_op))  # T adjustment for water vapour saturation pressure
 
         yd_out[:S_hva] = yd_int[:S_hva]
 
@@ -92,7 +94,7 @@ class ADM1Reactor:
         yd_out[27] = T_op - 273.15  # Temp = 35 degC
 
         yd_out[28] = yd_in[S_D1_D]  # Dummy state 1, soluble
-        yd_out[29] = yd_in[S_D2_D]  # Dummy state 2, soluble  
+        yd_out[29] = yd_in[S_D2_D]  # Dummy state 2, soluble
         yd_out[30] = yd_in[S_D3_D]  # Dummy state 3, soluble
         yd_out[31] = yd_in[X_D4_D]  # Dummy state 1, particulate
         yd_out[32] = yd_in[X_D5_D]  # Dummy state 2, particulate
@@ -129,12 +131,7 @@ class ADM1Reactor:
         yd_out[48] = p_gas_co2
         yd_out[49] = P_gas  # total head space pressure from H2, CH4, CO2 and H2O
         yd_out[50] = q_gas * P_gas/P_atm  # The output gas flow is recalculated to atmospheric pressure (normalization)
-        # if any of the yd_out values is nan, then True
-        if np.isnan(yd_out).any():
-            # print(step)
-            pass
-        # yd_out_matlab = np.array([0.0123944540338264, 0.00554315213373901, 0.107407118608287, 0.0123325315421625, 0.0140030377920409, 0.0175839207665506, 0.0893146999168201, 2.50549777288567e-07, 0.0554902093079791, 0.0951488198572130, 0.0944681760448266, 0.130867001078133, 0.107920876567876, 0.0205168227093124, 0.0842203718393935, 0.0436287447203153, 0.312223303455366, 0.931671731353629, 0.338391073383190, 0.335772103995433, 0.101120511564948, 0.677244256936046, 0.284839584657251, 17.2162478731405, 1.16889929774943e-47, 0.00521009910400889, 178.467454963180, 35, 0, 0, 0, 0, 0, 7.26311153039051, 5.45617723984313e-08, 0.0122839772671708, 0.0139527401096076, 0.0175114420688465, 0.0890351560336280, 0.0856799511249895, 0.00946886873222357, 0.00188401070049740, 0.0925841653443292, 1.10324138525859e-05, 1.65349847338113, 0.0135401278075039, 1.76664330523517e-05, 0.661945347420652, 0.346913398467896, 1.06454415739659, 2708.34311966784])
-        # print('Digester output difference to MatLab solution: \n', yd_out_matlab - yd_out)
+
         # [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
         # X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
         # Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D, pH, S_H_ion, S_hva, S_hbu,
@@ -145,20 +142,15 @@ class ADM1Reactor:
         # X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
         # Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D, pH, T_WW]
         y_in2[33] = yd_out[33]  # pH
-        y_in2[34] = yd_out[27]  # Temperature
+        y_in2[34] = y_in1[15]  # Temperature
         y_out2 = adm2asm(y_in2, T_op, self.interfacepar)
-
+        if step % 10 == 0:
+            pass
+        
         return y_out2, yd_out, y_out1
 
-# 0     1     2     3     4     5      6     7     8      9     10    11   12    13    
-# S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc, X_ch,
-# 14    15    16    17    18    19    20     21    22    23   24     25    26     27
-# X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an, S_hva, S_hbu,
-# 28      29     30      31     32        33         34         35   36   37      38      39      40      41    
-# S_hpro, S_hac, S_hco3, S_nh3, S_gas_h2, S_gas_ch4, S_gas_co2, Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D
 
-
-@jit(nopython=True)
+@jit(nopython=True, cache=True)
 def adm1equations(t, yd, yd_in, digesterpar, T_op, dim):
     """Returns an array containing the differential equations based on ASM1
 
@@ -188,8 +180,8 @@ def adm1equations(t, yd, yd_in, digesterpar, T_op, dim):
     # u = yd_in
     # x = yd
     # dx = dyd
-    dyd = np.zeros(42)
-    ydtemp = np.zeros(42)
+    dyd = np.zeros_like(yd)
+    ydtemp = np.zeros_like(yd)
     inhib = np.zeros(6)
 
     f_sI_xc, f_xI_xc, f_ch_xc, f_pr_xc, f_li_xc, N_xc, N_I, N_aa, C_xc, C_sI, C_ch, C_pr, C_li, C_xI, C_su, C_aa, f_fa_li, C_fa, f_h2_su, f_bu_su, f_pro_su, f_ac_su, N_bac, C_bu, C_pro, C_ac, C_bac, Y_su, f_h2_aa, f_va_aa, f_bu_aa, f_pro_aa, f_ac_aa, C_va, Y_aa, Y_fa, Y_c4, Y_pro, C_ch4, Y_ac, Y_h2, k_dis, k_hyd_ch, k_hyd_pr, k_hyd_li, K_S_IN, k_m_su, K_S_su, pH_UL_aa, pH_LL_aa, k_m_aa, K_S_aa, k_m_fa, K_S_fa, K_Ih2_fa, k_m_c4, K_S_c4, K_Ih2_c4, k_m_pro, K_S_pro, K_Ih2_pro, k_m_ac, K_S_ac, K_I_nh3, pH_UL_ac, pH_LL_ac, k_m_h2, K_S_h2, pH_UL_h2, pH_LL_h2, k_dec_Xsu, k_dec_Xaa, k_dec_Xfa, k_dec_Xc4, k_dec_Xpro, k_dec_Xac, k_dec_Xh2, R, T_base, _, pK_w_base, pK_a_va_base, pK_a_bu_base, pK_a_pro_base, pK_a_ac_base, pK_a_co2_base, pK_a_IN_base, k_A_Bva, k_A_Bbu, k_A_Bpro, k_A_Bac, k_A_Bco2, k_A_BIN, P_atm, kLa, K_H_h2o_base, K_H_co2_base, K_H_ch4_base, K_H_h2_base, k_P = digesterpar
@@ -202,22 +194,22 @@ def adm1equations(t, yd, yd_in, digesterpar, T_op, dim):
     eps = 1.0e-6
 
     factor = (1.0/T_base - 1.0/T_op)/(100.0*R)
-    K_w = 10 ** -pK_w_base * np.exp(55900.0 * factor)  # T adjustment for K_w
+    K_w = 10 ** -pK_w_base * math.exp(55900.0 * factor)  # T adjustment for K_w
     K_a_va = 10 ** -pK_a_va_base
     K_a_bu = 10 ** -pK_a_bu_base
     K_a_pro = 10 ** -pK_a_pro_base
     K_a_ac = 10 ** -pK_a_ac_base
-    K_a_co2 = 10 ** -pK_a_co2_base * np.exp(7646.0 * factor)  # T adjustment for K_a_co2
-    K_a_IN = 10 ** -pK_a_IN_base * np.exp(51965.0 * factor)  # T adjustment for K_a_IN
+    K_a_co2 = 10 ** -pK_a_co2_base * math.exp(7646.0 * factor)  # T adjustment for K_a_co2
+    K_a_IN = 10 ** -pK_a_IN_base * math.exp(51965.0 * factor)  # T adjustment for K_a_IN
 
-    K_H_h2 = K_H_h2_base * np.exp(-4180.0 * factor)  # T adjustment for K_H_h2
-    K_H_ch4 = K_H_ch4_base * np.exp(-14240.0 * factor)  # T adjustment for K_H_ch4
-    K_H_co2 = K_H_co2_base * np.exp(-19410.0 * factor)  # T adjustment for K_H_co2
-    p_gas_h2o = K_H_h2o_base * np.exp(5290.0 * (1.0/T_base - 1.0/T_op))  # T adjustment for water vapour saturation pressure
+    K_H_h2 = K_H_h2_base * math.exp(-4180.0 * factor)  # T adjustment for K_H_h2
+    K_H_ch4 = K_H_ch4_base * math.exp(-14240.0 * factor)  # T adjustment for K_H_ch4
+    K_H_co2 = K_H_co2_base * math.exp(-19410.0 * factor)  # T adjustment for K_H_co2
+    p_gas_h2o = K_H_h2o_base * math.exp(5290.0 * (1.0/T_base - 1.0/T_op))  # T adjustment for water vapour saturation pressure
 
     phi = ydtemp[S_cat] + (ydtemp[S_IN] - ydtemp[S_nh3]) - ydtemp[S_hco3] - ydtemp[S_hac]/64.0 - ydtemp[S_hpro]/112.0 - ydtemp[S_hbu]/160.0 - ydtemp[S_hva]/208.0 - ydtemp[S_an]
     S_H_ion = -phi*0.5 + 0.5*np.sqrt(phi*phi + 4.0*K_w)  # SH+
-    pH_op = -np.log10(S_H_ion)  # pH
+    # pH_op = -np.log10(S_H_ion)  # pH
 
     p_gas_h2 = ydtemp[S_gas_h2]*R*T_op/16.0
     p_gas_ch4 = ydtemp[S_gas_ch4]*R*T_op/64.0
@@ -320,42 +312,42 @@ def adm1equations(t, yd, yd_in, digesterpar, T_op, dim):
     reac23 = Y_h2 * proc12 - proc19
     reac24 = f_xI_xc * proc1
 
-    dyd[S_su] = 1.0/V_liq*(yd_in[S_su]*(yd_in[S_su]-yd[S_su]))+reac1
-    dyd[S_aa] = 1.0/V_liq*(yd_in[S_aa]*(yd_in[S_aa]-yd[S_aa]))+reac2
-    dyd[S_fa] = 1.0/V_liq*(yd_in[S_fa]*(yd_in[S_fa]-yd[S_fa]))+reac3
-    dyd[S_va] = 1.0/V_liq*(yd_in[S_va]*(yd_in[S_va]-yd[S_va]))+reac4
-    dyd[S_bu] = 1.0/V_liq*(yd_in[S_bu]*(yd_in[S_bu]-yd[S_bu]))+reac5
-    dyd[S_pro] = 1.0/V_liq*(yd_in[S_pro]*(yd_in[S_pro]-yd[S_pro]))+reac6
-    dyd[S_ac] = 1.0/V_liq*(yd_in[S_ac]*(yd_in[S_ac]-yd[S_ac]))+reac7
-    dyd[S_h2] = 1.0/V_liq*(yd_in[S_h2]*(yd_in[S_h2]-yd[S_h2]))+reac8
-    dyd[S_ch4] = 1.0/V_liq*(yd_in[S_ch4]*(yd_in[S_ch4]-yd[S_ch4]))+reac9
-    dyd[S_IC] = 1.0/V_liq*(yd_in[S_IC]*(yd_in[S_IC]-yd[S_IC]))+reac10
-    dyd[S_IN] = 1.0/V_liq*(yd_in[S_IN]*(yd_in[S_IN]-yd[S_IN]))+reac11
-    dyd[S_I] = 1.0/V_liq*(yd_in[S_I]*(yd_in[S_I]-yd[S_I]))+reac12
-    dyd[X_xc] = 1.0/V_liq*(yd_in[X_xc]*(yd_in[X_xc]-yd[X_xc]))+reac13
-    dyd[X_ch] = 1.0/V_liq*(yd_in[X_ch]*(yd_in[X_ch]-yd[X_ch]))+reac14
-    dyd[X_pr] = 1.0/V_liq*(yd_in[X_pr]*(yd_in[X_pr]-yd[X_pr]))+reac15
-    dyd[X_li] = 1.0/V_liq*(yd_in[X_li]*(yd_in[X_li]-yd[X_li]))+reac16
-    dyd[X_su] = 1.0/V_liq*(yd_in[X_su]*(yd_in[X_su]-yd[X_su]))+reac17
-    dyd[X_aa] = 1.0/V_liq*(yd_in[X_aa]*(yd_in[X_aa]-yd[X_aa]))+reac18
-    dyd[X_fa] = 1.0/V_liq*(yd_in[X_fa]*(yd_in[X_fa]-yd[X_fa]))+reac19
-    dyd[X_c4] = 1.0/V_liq*(yd_in[X_c4]*(yd_in[X_c4]-yd[X_c4]))+reac20
-    dyd[X_pro] = 1.0/V_liq*(yd_in[X_pro]*(yd_in[X_pro]-yd[X_pro]))+reac21
-    dyd[X_ac] = 1.0/V_liq*(yd_in[X_ac]*(yd_in[X_ac]-yd[X_ac]))+reac22
-    dyd[X_h2] = 1.0/V_liq*(yd_in[X_h2]*(yd_in[X_h2]-yd[X_h2]))+reac23
-    dyd[X_I] = 1.0/V_liq*(yd_in[X_I]*(yd_in[X_I]-yd[X_I]))+reac24
+    dyd[S_su] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[S_su]-yd[S_su]))+reac1
+    dyd[S_aa] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[S_aa]-yd[S_aa]))+reac2
+    dyd[S_fa] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[S_fa]-yd[S_fa]))+reac3
+    dyd[S_va] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[S_va]-yd[S_va]))+reac4
+    dyd[S_bu] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[S_bu]-yd[S_bu]))+reac5
+    dyd[S_pro] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[S_pro]-yd[S_pro]))+reac6
+    dyd[S_ac] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[S_ac]-yd[S_ac]))+reac7
+    dyd[S_h2] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[S_h2]-yd[S_h2]))+reac8
+    dyd[S_ch4] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[S_ch4]-yd[S_ch4]))+reac9
+    dyd[S_IC] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[S_IC]-yd[S_IC]))+reac10
+    dyd[S_IN] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[S_IN]-yd[S_IN]))+reac11
+    dyd[S_I] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[S_I]-yd[S_I]))+reac12
+    dyd[X_xc] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[X_xc]-yd[X_xc]))+reac13
+    dyd[X_ch] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[X_ch]-yd[X_ch]))+reac14
+    dyd[X_pr] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[X_pr]-yd[X_pr]))+reac15
+    dyd[X_li] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[X_li]-yd[X_li]))+reac16
+    dyd[X_su] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[X_su]-yd[X_su]))+reac17
+    dyd[X_aa] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[X_aa]-yd[X_aa]))+reac18
+    dyd[X_fa] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[X_fa]-yd[X_fa]))+reac19
+    dyd[X_c4] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[X_c4]-yd[X_c4]))+reac20
+    dyd[X_pro] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[X_pro]-yd[X_pro]))+reac21
+    dyd[X_ac] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[X_ac]-yd[X_ac]))+reac22
+    dyd[X_h2] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[X_h2]-yd[X_h2]))+reac23
+    dyd[X_I] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[X_I]-yd[X_I]))+reac24
 
-    dyd[S_cat] = 1.0/V_liq*(yd_in[S_cat]*(yd_in[S_cat]-yd[S_cat]))
-    dyd[S_an] = 1.0/V_liq*(yd_in[S_an]*(yd_in[S_an]-yd[S_an]))
-    # if np.isnan(dyd).any():
-    #     print('nan before S_hva')
+    dyd[S_cat] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[S_cat]-yd[S_cat]))
+    dyd[S_an] = 1.0/V_liq*(yd_in[Q_D]*(yd_in[S_an]-yd[S_an]))
+    if np.isnan(dyd).any():
+        print('nan before S_hva')
     dyd[S_hva] = -procA4  # !!
     if np.isnan(dyd).any():
         print('nan after S_hva')
-    dyd[S_hbu] = -procA5  # !!
+    dyd[S_hbu] = -procA5
     dyd[S_hpro] = -procA6
     dyd[S_hac] = -procA7
-    dyd[S_hco3] = -procA10  # !!
+    dyd[S_hco3] = -procA10
     dyd[S_nh3] = -procA11  # !!
 
     dyd[S_gas_h2] = -ydtemp[S_gas_h2]*q_gas/V_gas+procT8*V_liq/V_gas
@@ -376,14 +368,14 @@ def adm1equations(t, yd, yd_in, digesterpar, T_op, dim):
     return dyd
 
 
-# @jit(nopython=True, cache=True)
+@jit(nopython=True, cache=True)
 def asm2adm(y_in1, T_op, interfacepar):
     """
     converts ASM1 flows to ADM1 flows
     New version (no 3) of the ASM1 to ADM1 interface based on discussions
     within the IWA TG BSM community during 2002-2006. Now also including charge balancing and temperature dependency for applicable parameters.
     Model parameters are defined in adm1init_bsm2.m
-    
+
     Parameters
     ----------
     y_in1 : np.ndarray(22)
@@ -423,9 +415,9 @@ def asm2adm(y_in1, T_op, interfacepar):
     pH_adm = y_in1[21]
 
     factor = (1.0/T_base - 1.0/T_op)/(100.0*R)
-    pK_w = pK_w_base - np.log10(np.exp(55900.0*factor))
-    pK_a_co2 = pK_a_co2_base - np.log10(np.exp(7646.0*factor))
-    pK_a_IN = pK_a_IN_base - np.log10(np.exp(51965.0*factor))
+    pK_w = pK_w_base - np.log10(math.exp(55900.0*factor))
+    pK_a_co2 = pK_a_co2_base - np.log10(math.exp(7646.0*factor))
+    pK_a_IN = pK_a_IN_base - np.log10(math.exp(51965.0*factor))
     alfa_va = 1.0/208.0*(-1.0/(1.0 + np.power(10, pK_a_va_base - pH_adm)))
     alfa_bu = 1.0/160.0*(-1.0/(1.0 + np.power(10, pK_a_bu_base - pH_adm)))
     alfa_pro = 1.0/112.0*(-1.0/(1.0 + np.power(10, pK_a_pro_base - pH_adm)))
@@ -683,7 +675,7 @@ def adm2asm(y_in2, T_op, interfacepar):
     within the IWA TG BSM community during 2002-2006. Now also including charge
     balancing and temperature dependency for applicable parameters.
     Model parameters are defined in adm1init_bsm2.m
-    
+
     Parameters
     ----------
     y_in2 : np.ndarray(35)
@@ -720,9 +712,9 @@ def adm2asm(y_in2, T_op, interfacepar):
     pH_adm = y_in2[33]
 
     factor = (1.0/T_base - 1.0/T_op)/(100.0*R)
-    pK_w = pK_w_base - np.log10(np.exp(55900.0*factor))
-    pK_a_co2 = pK_a_co2_base - np.log10(np.exp(7646.0*factor))
-    pK_a_IN = pK_a_IN_base - np.log10(np.exp(51965.0*factor))
+    # pK_w = pK_w_base - np.log10(math.exp(55900.0*factor))
+    pK_a_co2 = pK_a_co2_base - np.log10(math.exp(7646.0*factor))
+    pK_a_IN = pK_a_IN_base - np.log10(math.exp(51965.0*factor))
     alfa_va = 1.0/208.0*(-1.0/(1.0 + np.power(10, pK_a_va_base - pH_adm)))
     alfa_bu = 1.0/160.0*(-1.0/(1.0 + np.power(10, pK_a_bu_base - pH_adm)))
     alfa_pro = 1.0/112.0*(-1.0/(1.0 + np.power(10, pK_a_pro_base - pH_adm)))
@@ -732,7 +724,6 @@ def adm2asm(y_in2, T_op, interfacepar):
     alfa_NH = 1.0/14000.0  # convert mgN/l into kmoleN/m3
     alfa_alk = -0.001  # convert moleHCO3/m3 into kmoleHCO3/m3
     alfa_NO = -1.0/14000.0  # convert mgN/l into kmoleN/m3
-
 
     # Biomass becomes part of XS and XP when transformed into ASM
     # Assume Npart of formed XS to be fnxc and Npart of XP to be fxni
