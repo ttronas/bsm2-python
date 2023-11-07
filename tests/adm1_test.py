@@ -12,7 +12,7 @@ from bsm2 import adm1init_bsm2 as adm1init
 from bsm2.adm1_bsm2 import ADM1Reactor
 
 
-# definition of the tested dewatering:
+# definition of the tested Reactor:
 adm1Reactor = ADM1Reactor(adm1init.DIGESTERINIT, adm1init.DIGESTERPAR, adm1init.INTERFACEPAR, adm1init.DIM_D)
 
 # Constant influent based on digester input from BSM2:
