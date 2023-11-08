@@ -34,7 +34,7 @@ S_cat = 3.5659e-43
 S_an = 0.0052
 S_hva = 0.0123   # is actually Sva-
 S_hbu = 0.0140   # is actually Sbu-
-S_hpro = 0.0175 # is actually Spro-
+S_hpro = 0.0175  # is actually Spro-
 S_hac = 0.0890   # is actually Sac-
 S_hco3 = 0.0857
 S_nh3 = 0.0019
@@ -53,6 +53,7 @@ S_H_ion = 5.4562e-8
 
 # used by all three ADM implementations, adm1_ODE, adm1_DAE1 and adm1_DAE2.
 DIGESTERINIT = np.array([S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc, X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an, S_hva, S_hbu, S_hpro, S_hac, S_hco3, S_nh3, S_gas_h2, S_gas_ch4, S_gas_co2, Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D])
+# The following initial conditions are not used due to convergence duration - it would take around a year to reach steady state.
 # DIGESTERINIT = np.ones(42)
 
 # used by both DAE ADM implementations, adm1_DAE1 and adm1_DAE2.
@@ -67,7 +68,7 @@ f_sI_xc = 0.1
 f_xI_xc = 0.2
 f_ch_xc = 0.2
 f_pr_xc = 0.2
-f_li_xc = 0.3  
+f_li_xc = 0.3
 N_xc = 0.0376/14.0
 N_I = 0.06/14.0
 N_aa = 0.007
@@ -166,22 +167,22 @@ k_P = 5.0e4
 
 DIGESTERPAR = np.array([f_sI_xc, f_xI_xc, f_ch_xc, f_pr_xc, f_li_xc, N_xc, N_I, N_aa, C_xc, C_sI, C_ch, C_pr, C_li, C_xI, C_su, C_aa, f_fa_li, C_fa, f_h2_su, f_bu_su, f_pro_su, f_ac_su, N_bac, C_bu, C_pro, C_ac, C_bac, Y_su, f_h2_aa, f_va_aa, f_bu_aa, f_pro_aa, f_ac_aa, C_va, Y_aa, Y_fa, Y_c4, Y_pro, C_ch4, Y_ac, Y_h2, k_dis, k_hyd_ch, k_hyd_pr, k_hyd_li, K_S_IN, k_m_su, K_S_su, pH_UL_aa, pH_LL_aa, k_m_aa, K_S_aa, k_m_fa, K_S_fa, K_Ih2_fa, k_m_c4, K_S_c4, K_Ih2_c4, k_m_pro, K_S_pro, K_Ih2_pro, k_m_ac, K_S_ac, K_I_nh3, pH_UL_ac, pH_LL_ac, k_m_h2, K_S_h2, pH_UL_h2, pH_LL_h2, k_dec_Xsu, k_dec_Xaa, k_dec_Xfa, k_dec_Xc4, k_dec_Xpro, k_dec_Xac, k_dec_Xh2, R, T_base, T_op, pK_w_base, pK_a_va_base, pK_a_bu_base, pK_a_pro_base, pK_a_ac_base, pK_a_co2_base, pK_a_IN_base, k_A_Bva, k_A_Bbu, k_A_Bpro, k_A_Bac, k_A_Bco2, k_A_BIN, P_atm, kLa, K_H_h2o_base, K_H_co2_base, K_H_ch4_base, K_H_h2_base, k_P])
 
-V_liq = 3400 #m3, size of BSM2 AD
-V_gas = 300  #m3, size of BSM2 AD
+V_liq = 3400  # m3, size of BSM2 AD
+V_gas = 300   # m3, size of BSM2 AD
 
 DIM_D = np.array([V_liq, V_gas])
 
 # parameters for ASM2ADM and ADM2ASM interfaces
 # could be put it their own initialisation file
 CODequiv = 40.0/14.0
-fnaa = N_aa*14.0    # fraction of N in amino acids and Xpr as in ADM1 report
-fnxc = N_xc*14.0    # N content of composite material based on BSM2
-fnbac = N_bac*14.0  # N content of biomass based on BSM1, same in AS and AD
-fxni = N_I*14.0     # N content of inerts XI and XP, same in AS and AD
-fsni = 0.0          # N content of SI, assumed zero in ASM1 and BSM1
-fsni_adm = N_I*14.0 # N content of SI in the AD system
+fnaa = N_aa*14.0     # fraction of N in amino acids and Xpr as in ADM1 report
+fnxc = N_xc*14.0     # N content of composite material based on BSM2
+fnbac = N_bac*14.0   # N content of biomass based on BSM1, same in AS and AD
+fxni = N_I*14.0      # N content of inerts XI and XP, same in AS and AD
+fsni = 0.0           # N content of SI, assumed zero in ASM1 and BSM1
+fsni_adm = N_I*14.0  # N content of SI in the AD system
 # fnbac, fxni and fsni are adjusted to fit the benchmark values of iXB=0.08 and
-# iXP=0.06 in the AS. 	
+# iXP=0.06 in the AS.
 frlixs = 0.7           # lipid fraction of non-nitrogenous XS in BSM2
 frlibac = 0.4          # lipid fraction of non-nitrogenous biomass in BSM2
 frxs_adm = 0.68        # anaerobically degradable fraction of AS biomass in BSM2

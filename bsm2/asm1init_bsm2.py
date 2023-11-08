@@ -87,4 +87,3 @@ carb4 = 0
 carb5 = 0
 # external carbon source concentration = 400000 mg COD / L from BSM1
 carbonsourceconc = 400000
-
