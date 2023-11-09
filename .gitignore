@@ -2,4 +2,5 @@
 *.mexw64
 *.slxc
 __pycache__
+.pytest_cache
 slprj

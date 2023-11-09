@@ -26,6 +26,9 @@ class Combiner():
             ASM1 array with combined values
         """
         out = np.zeros(21)
+        if args[0][14] == 0:
+            args[0][14] = 1e-10
+
         for i in range(len(args)):
             out[0:14] = (out[0:14]*out[14]+args[i][0:14]*args[i][14])/(out[14]+args[i][14])
             out[15:21] = (out[15:21]*out[14]+args[i][15:21]*args[i][14])/(out[14]+args[i][14])
@@ -59,7 +62,10 @@ class Splitter():
         """
         outs = List()
         for i in range(len(splitratio)):
-            actual_splitratio = splitratio[i]/sum(splitratio)
+            if sum(splitratio) != 0:
+                actual_splitratio = splitratio[i]/sum(splitratio)
+            else:
+                actual_splitratio = 0
             out = np.zeros(21)
             out[:] = in1[:]
             out[14] *= actual_splitratio

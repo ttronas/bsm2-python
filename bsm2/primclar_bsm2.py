@@ -6,13 +6,13 @@ from numba import jit
 indices_components = np.arange(21)
 SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = indices_components
 
+
 @jit(nopython=True)
 def primclarequations(t, yp, yp_in, p_par, volume, tempmodel):
     # u = yp_in
     # x = yp
     # dx = dyp
     dyp = np.zeros(21)
-    reac = np.zeros(21)
 
     dyp[0:13] = 1.0 / volume * (yp_in[Q] * (yp_in[0:13] - yp[0:13]))
     dyp[13] = 0.0  # TSS
@@ -22,10 +22,11 @@ def primclarequations(t, yp, yp_in, p_par, volume, tempmodel):
         dyp[15] = 0.0
     else:
         dyp[15] = 1.0 / volume * (yp_in[Q] * (yp_in[15] - yp[15]))
-    
+
     dyp[16:21] = 1.0 / volume * (yp_in[Q] * (yp_in[16:21] - yp[16:21]))
 
     return dyp
+
 
 class PrimaryClarifier:
     def __init__(self, volume, yp0, p_par, asm1par, x_vector, tempmodel, activate):
@@ -36,13 +37,13 @@ class PrimaryClarifier:
         self.x_vector = x_vector
         self.tempmodel = tempmodel
         self.activate = activate
-    
+
     def outputs(self, timestep, step, yp_in):
         # f_corr, f_X, t_m, f_PS = p_par
         # y = yp_out, yp_eff
         # u = yp_int
         # x : yp_in
-        
+
         yp_out = np.zeros(21)
         yp_eff = np.zeros(25)
 

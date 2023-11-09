@@ -6,6 +6,7 @@ adm1init_bsm2;
 hyddelayinit_bsm2;
 reginit_bsm1;
 dewateringinit_bsm2;
+storageinit_bsm2;
 
 load ./Influent_data/constinfluent_bsm1;
 load ./Influent_data/dyninfluent_bsm2;

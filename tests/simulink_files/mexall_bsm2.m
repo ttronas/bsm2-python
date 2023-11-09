@@ -10,3 +10,6 @@ mex carboncombiner_bsm2.c;
 mex flowsplitter_bsm2.c;
 mex pHdelay_bsm2.c;
 mex pHsolv_bsm2.c;
+mex storagedelay_bsm2.c;
+mex storagebypass_bsm2.c;
+mex storage_bsm2.c;

@@ -6,6 +6,7 @@ from numba.experimental import jitclass
 indices_components = np.arange(21)
 SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = indices_components
 
+
 @jitclass(spec=[('t_par', float64[:]), ('asm1par', float64[:])])
 class Thickener:
     def __init__(self, t_par, asm1par):
@@ -41,7 +42,7 @@ class Thickener:
         ----------
         yt_in : np.ndarray
             thickener inlet concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
-        
+
         Returns
         -------
         yt_uf : np.ndarray
@@ -53,7 +54,7 @@ class Thickener:
         # thickener_perc, TSS_removal_perc, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS = t_par
         # y = yt_uf, yt_of
         # u = yt_in
-        
+
         yt_uf = np.zeros(21)
         yt_of = np.zeros(25)
 
@@ -88,7 +89,7 @@ class Thickener:
             yt_of[Q]=yt_in[Q]*(1-Qu_factor)
             yt_of[XD4]=yt_in[XD4]*thinning_factor
             yt_of[XD5]=yt_in[XD5]*thinning_factor
-            
+
             # additional values to compare:
             # Kjeldahl N concentration:
             yt_of[21] = yt_of[SNH] + yt_of[SND] + yt_of[XND] + self.asm1par[17] * (yt_of[XBH] + yt_of[XBA]) + self.asm1par[18] * (yt_of[XP] + yt_of[XI])
@@ -107,7 +108,5 @@ class Thickener:
 
             # overflow
             yt_of[:] = 0
-
-
 
         return yt_uf, yt_of
