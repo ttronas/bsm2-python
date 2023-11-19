@@ -1,4 +1,5 @@
 black==23.3.0
+flake8==6.1.0
 numba==0.58.0
 numpy==1.24.3
 pytest==7.4.3
