@@ -23,6 +23,7 @@ class ADM1Reactor:
         Returns the solved differential equations based on ADM1 model
 
         Parameters
+        ----------
         timestep : float
             Time distance to integrate over
         step : float
@@ -33,6 +34,18 @@ class ADM1Reactor:
              SD1, SD2, SD3, XD4, XD5]
         T_op : float
             Operational temperature of digester. At the moment very rudimentary implementation! No heat losses / transfer embedded!
+        
+        Returns
+        -------
+        y_out2 : np.ndarray(21)
+            concentrations of the 21 standard components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            after the ADM2ASM conversion
+        yd_out : np.ndarray(51)
+            concentrations of the 51 ADM1 components 
+            after the digester
+        y_out1 : np.ndarray(32)
+            concentrations of the 32 ADM1 standard components
+            after the ASM2ADM conversion (before the digester)
         """
 
         yd_out = np.zeros(51)

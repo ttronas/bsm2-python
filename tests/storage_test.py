@@ -9,7 +9,7 @@ sys.path.append(path_name + '/..')
 
 import numpy as np
 import time
-from bsm2 import storageinit_bsm2 as storageinit
+import bsm2.storageinit_bsm2 as storageinit
 from bsm2.storage_bsm2 import Storage
 
 

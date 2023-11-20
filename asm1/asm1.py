@@ -19,6 +19,7 @@ def asm1equations(t, y, y_in, asm1par, kla, volume, tempmodel, activate):
     y_in : np.ndarray
         Reactor inlet concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
     asm1par : np.ndarray
+        [mu_H, K_S, K_OH, K_NO, b_H, mu_A, K_NH, K_OA, b_A, ny_g, k_a, k_h, K_X, ny_h, Y_H, Y_A, f_P, i_XB, i_XP, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS]
         24 parameters needed for ASM1 equations
     kla : int
         Oxygen transfer coefficient in aerated reactors

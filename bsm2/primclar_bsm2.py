@@ -9,7 +9,26 @@ SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, S
 
 @jit(nopython=True)
 def primclarequations(t, yp, yp_in, p_par, volume, tempmodel):
-    # u = yp_in
+    """
+    Returns an array containing the differential equations for the primary clarifier.
+
+    Parameters
+    ----------
+    t : np.ndarray
+        Time interval for integration, needed for the solver
+    yp : np.ndarray
+        Solution of the differential equations, needed for the solver
+    yp_in : np.ndarray
+        Primary clarifier influent concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+    p_par : np.ndarray
+        primary clarifier parameters
+    volume : float
+        volume of the primary clarifier
+    tempmodel : bool
+        If true, mass balance for the wastewater temperature is used in process rates,
+        otherwise influent wastewater temperature is just passed through process reactors
+    """
+    ## u = yp_in
     # x = yp
     # dx = dyp
     dyp = np.zeros(21)
@@ -30,6 +49,29 @@ def primclarequations(t, yp, yp_in, p_par, volume, tempmodel):
 
 class PrimaryClarifier:
     def __init__(self, volume, yp0, p_par, asm1par, x_vector, tempmodel, activate):
+        """
+        Parameters
+        ----------
+        volume : float
+            volume of the primary clarifier
+        yp0 : np.ndarray
+            Initial integration values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        p_par : np.ndarray
+            [f_corr, f_X, t_m, f_PS]
+            f_corr: efficiency correction for primary clarifier
+            f_X: CODpart/CODtot ratio
+            t_m: smoothing time constant for qm calculation
+            f_PS: ratio of primary sludge flow rate to the influent flow
+        asm1par : np.ndarray
+            ASM1 parameters
+        x_vector : np.ndarray
+            primary clarifier state vector
+        tempmodel : bool
+            If true, mass balance for the wastewater temperature is used in process rates,
+            otherwise influent wastewater temperature is just passed through process reactors
+        activate : bool
+            If true, dummy states are activated, otherwise dummy states are not activated
+        """
         self.volume = volume
         self.yp0 = yp0
         self.p_par = p_par
@@ -39,6 +81,26 @@ class PrimaryClarifier:
         self.activate = activate
 
     def outputs(self, timestep, step, yp_in):
+        """
+        Returns the overflow and underflow concentrations from a primary clarifier at the current time step.
+
+        Parameters
+        ----------
+        timestep : float
+            current time step
+        step : float
+            current time
+        yp_in : np.ndarray
+            primary clarifier influent concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+
+        Returns
+        -------
+        yp_out : np.ndarray
+            primary clarifier underflow concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        yp_eff : np.ndarray
+            primary clarifier overflow concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            and 4 additional parameters (Kjeldahl N, total N, total COD, BOD5 concentration) at the current time step
+        """
         # f_corr, f_X, t_m, f_PS = p_par
         # y = yp_out, yp_eff
         # u = yp_int

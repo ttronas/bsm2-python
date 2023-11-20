@@ -14,6 +14,23 @@ SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, S
 
 @jit(nopython=True, cache=True)
 def storageequations(t, yst, yst_in1, tempmodel, activate):
+    """
+    Returns an array containing the differential equations for the storage tank.
+
+    Parameters
+    ----------
+    t : np.ndarray
+        Time interval for integration, needed for the solver
+    yst : np.ndarray
+        Solution of the differential equations, needed for the solver
+    yst_in1 : np.ndarray
+        Storage tank influent concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+    tempmodel : bool
+        If true, mass balance for the wastewater temperature is used in process rates,
+        otherwise influent wastewater temperature is just passed through process reactors
+    activate : bool
+        If true, dummy states are activated, otherwise dummy states are not activated
+    """
     # u = yst_in1
     # x = yst
     # dx = dyst
@@ -37,6 +54,19 @@ def storageequations(t, yst, yst_in1, tempmodel, activate):
 
 class Storage:
     def __init__(self, volume, yst0, tempmodel, activate):
+        """
+        Parameters
+        ----------
+        volume : float
+            volume of the primary clarifier
+        yst0 : np.ndarray
+            Initial integration values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        tempmodel : bool
+            If true, mass balance for the wastewater temperature is used in process rates,
+            otherwise influent wastewater temperature is just passed through process reactors
+        activate : bool
+            If true, dummy states are activated, otherwise dummy states are not activated
+        """
         self.curr_vol = 0
         self.max_vol = volume
         self.tempmodel = tempmodel
@@ -45,7 +75,25 @@ class Storage:
         self.bypasscombiner = Combiner()
 
     def output(self, timestep, step, yst_in, Qstorage):
+        """
+        Returns the solved differential equations for the storage tank.
 
+        Parameters
+        ----------
+        timestep : int or float
+            Size of integration interval in days
+        step : int or float
+            Upper boundary for integration interval in days
+        yst_in : np.ndarray
+            Storage tank influent concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        Qstorage : float
+            Storage tank influent flow rate
+
+        Returns
+        -------
+        yst_out1 : np.ndarray
+            Storage tank effluent concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        """
         yst_in1 = np.zeros(22)
         yst_bp = np.zeros(21)  # bypass
 
