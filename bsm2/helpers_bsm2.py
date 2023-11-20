@@ -62,10 +62,7 @@ class Splitter():
         """
         outs = List()
         for i in range(len(splitratio)):
-            if sum(splitratio) != 0:
-                actual_splitratio = splitratio[i]/sum(splitratio)
-            else:
-                actual_splitratio = 0
+            actual_splitratio = splitratio[i]/sum(splitratio)
             out = np.zeros(21)
             out[:] = in1[:]
             out[14] *= actual_splitratio
