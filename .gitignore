@@ -1,6 +1,9 @@
 *.pyc
 *.mexw64
+*.mexmaci64
 *.slxc
+*.slx.autosave
 __pycache__
 .pytest_cache
 slprj
+*.p
