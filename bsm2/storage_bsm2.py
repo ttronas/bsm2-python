@@ -67,7 +67,7 @@ class Storage:
         activate : bool
             If true, dummy states are activated, otherwise dummy states are not activated
         """
-        self.curr_vol = 0
+        self.curr_vol = yst0[21]
         self.max_vol = volume
         self.tempmodel = tempmodel
         self.activate = activate
@@ -146,4 +146,4 @@ class Storage:
 
         yst_out1 = self.bypasscombiner.output(yst_out, yst_bp)
 
-        return yst_out1
+        return yst_out1, self.curr_vol
