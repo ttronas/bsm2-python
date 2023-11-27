@@ -2,16 +2,10 @@
 
 # control of bypassing options in BSM2
 Qbypass = 60000  # type 2, everything above 60000 m3/d bypassed for primary clarifier
-Qbypasstype = 2
-Qbypassplant = 1  # type 0, all of this is also bypassed the AS system
-Qbypassplanttype = 0
-QbypassAS = 0  # type 0, none of primary effluent bypassed for AS
-QbypassAStype = 0
-Qthickener2AS = 0  # type 0, none of thickener effluent to AS, all to primary
-Qthickener2AStype = 0
-Qstorage2AS = 0  # type 0, non of storage tank effluent to AS, all to primary
-Qstorage2AStype = 0
-Qintrtype = 1  # type 1, specified flow internally recycled, default Qw value in asm1init_bsm2.m
+Qbypassplant = 1  # type 1, all of this is also bypassed the AS system
+QbypassAS = 0  # type 1, none of primary effluent bypassed for AS
+Qthickener2AS = 0  # type 1, none of thickener effluent to AS, all to primary
+Qstorage2AS = 0  # type 1, none of storage tank effluent to AS, all to primary
 
 # Default carbon addition to AS reactors
 carb1 = 0  # external carbon flow rate to reactor 1
