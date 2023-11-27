@@ -178,14 +178,15 @@ def settlerequations(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel, modelt
 
     return dys
 
-@jit(nopython=True)
+
+# @jit(nopython=True)
 def get_outputs(ys_int, ys_in, nooflayers, tempmodel, Qr, Qw, dim, asm1par, sedpar):
     ys_ret = np.zeros(21)
     ys_was = np.zeros(21)
     ys_eff = np.zeros(25)
 
     h = dim[1] / nooflayers
-    
+
     # 0  1  2  3  4   5   6  7  8   9   10  11  12   13  14 15  16  17  18  19  20
     # SI SS XI XS XBH XBA XP SO SNO SNH SND XND SALK TSS Q TEMP SD1 SD2 SD3 XD4 XD5
     # underflow
@@ -205,14 +206,17 @@ def get_outputs(ys_int, ys_in, nooflayers, tempmodel, Qr, Qw, dim, asm1par, sedp
     ys_ret[SD2] = ys_int[11*nooflayers-1]
     ys_ret[SD3] = ys_int[12*nooflayers-1]
 
-    ys_ret[XI] = ys_ret[TSS] / ys_in[TSS] * ys_in[XI]
-    ys_ret[XS] = ys_ret[TSS] / ys_in[TSS] * ys_in[XS]
-    ys_ret[XBH] = ys_ret[TSS] / ys_in[TSS] * ys_in[XBH]
-    ys_ret[XBA] = ys_ret[TSS] / ys_in[TSS] * ys_in[XBA]
-    ys_ret[XP] = ys_ret[TSS] / ys_in[TSS] * ys_in[XP]
-    ys_ret[XND] = ys_ret[TSS] / ys_in[TSS] * ys_in[XND]
-    ys_ret[XD4] = ys_ret[TSS] / ys_in[TSS] * ys_in[XD4]
-    ys_ret[XD5] = ys_ret[TSS] / ys_in[TSS] * ys_in[XD5]
+    if ys_in[TSS] != 0:  # this condition should also consider XI, XS, XBH, XBA, XP, XND, XD4, XD5
+        ys_ret[XI] = ys_ret[TSS] / ys_in[TSS] * ys_in[XI]
+        ys_ret[XS] = ys_ret[TSS] / ys_in[TSS] * ys_in[XS]
+        ys_ret[XBH] = ys_ret[TSS] / ys_in[TSS] * ys_in[XBH]
+        ys_ret[XBA] = ys_ret[TSS] / ys_in[TSS] * ys_in[XBA]
+        ys_ret[XP] = ys_ret[TSS] / ys_in[TSS] * ys_in[XP]
+        ys_ret[XND] = ys_ret[TSS] / ys_in[TSS] * ys_in[XND]
+        ys_ret[XD4] = ys_ret[TSS] / ys_in[TSS] * ys_in[XD4]
+        ys_ret[XD5] = ys_ret[TSS] / ys_in[TSS] * ys_in[XD5]
+    else:
+        ys_ret[XI:XD5+1] = 0.0
 
     ys_ret[Q] = Qr
 
@@ -236,14 +240,17 @@ def get_outputs(ys_int, ys_in, nooflayers, tempmodel, Qr, Qw, dim, asm1par, sedp
     ys_eff[SD2] = ys_int[10*nooflayers]
     ys_eff[SD3] = ys_int[11*nooflayers]
 
-    ys_eff[XI] = ys_eff[TSS] / ys_in[TSS] * ys_in[XI]
-    ys_eff[XS] = ys_eff[TSS] / ys_in[TSS] * ys_in[XS]
-    ys_eff[XBH] = ys_eff[TSS] / ys_in[TSS] * ys_in[XBH]
-    ys_eff[XBA] = ys_eff[TSS] / ys_in[TSS] * ys_in[XBA]
-    ys_eff[XP] = ys_eff[TSS] / ys_in[TSS] * ys_in[XP]
-    ys_eff[XND] = ys_eff[TSS] / ys_in[TSS] * ys_in[XND]
-    ys_eff[XD4] = ys_eff[TSS] / ys_in[TSS] * ys_in[XD4]
-    ys_eff[XD5] = ys_eff[TSS] / ys_in[TSS] * ys_in[XD5]
+    if ys_in[TSS] != 0:  # this condition should also consider XI, XS, XBH, XBA, XP, XND, XD4, XD5
+        ys_eff[XI] = ys_eff[TSS] / ys_in[TSS] * ys_in[XI]
+        ys_eff[XS] = ys_eff[TSS] / ys_in[TSS] * ys_in[XS]
+        ys_eff[XBH] = ys_eff[TSS] / ys_in[TSS] * ys_in[XBH]
+        ys_eff[XBA] = ys_eff[TSS] / ys_in[TSS] * ys_in[XBA]
+        ys_eff[XP] = ys_eff[TSS] / ys_in[TSS] * ys_in[XP]
+        ys_eff[XND] = ys_eff[TSS] / ys_in[TSS] * ys_in[XND]
+        ys_eff[XD4] = ys_eff[TSS] / ys_in[TSS] * ys_in[XD4]
+        ys_eff[XD5] = ys_eff[TSS] / ys_in[TSS] * ys_in[XD5]
+    else:
+        ys_eff[XI:XD5+1] = 0.0
 
     ys_eff[Q] = ys_in[Q] - Qw - Qr
 
@@ -263,7 +270,7 @@ def get_outputs(ys_int, ys_in, nooflayers, tempmodel, Qr, Qw, dim, asm1par, sedp
         sludge_level = nooflayers - 1 - max(no_sludge_layer)
     else:  # if all layers surpass threshold, sludge level is full
         sludge_level = nooflayers
-    
+
     if sludge_level == nooflayers:
         sludge_height = h*nooflayers
     elif sludge_level == nooflayers - 1:

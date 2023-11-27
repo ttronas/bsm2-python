@@ -70,7 +70,7 @@ for step in simtime:
     y_out4 = reactor4.output(timestep, step, y_out3)
     y_out5 = reactor5.output(timestep, step, y_out4)
 
-    ys_in, y_out5_r = splitter.outputs(y_out5, np.array([y_out5[14] - Qintr, Qintr]))
+    ys_in, y_out5_r = splitter.outputs(y_out5, (y_out5[14] - Qintr, Qintr))
 
     ys_out, _, ys_eff, sludge_height = settler.outputs(timestep, step, ys_in)
 
