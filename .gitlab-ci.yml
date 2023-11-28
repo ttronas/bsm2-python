@@ -43,6 +43,7 @@ build_image:
   before_script:
     - docker info
     - docker login $IMAGE_REG -u $REGISTRY_USER -p $REGISTRY_PASS
+    - apt update && apt install make
   script:
     - make build
     - make push
