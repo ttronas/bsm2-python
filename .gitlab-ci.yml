@@ -10,7 +10,7 @@ stages:
 
 run_tests:
   stage: test
-  image: python:3.11-slim-bullseye
+  image: ${IMAGE_REG}/${IMAGE_NAME}:${IMAGE_TAG}
   tags:
     - docker
   rules:
@@ -19,8 +19,6 @@ run_tests:
     - asm3/
     - bsm2/
     - tests/
-  before_script:
-    - apt update && apt install make
   script:
     - make test
 
