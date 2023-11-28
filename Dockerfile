@@ -7,4 +7,4 @@ WORKDIR /src
 RUN apt update && apt install make
 
 COPY . ./src
-RUN make venv
+RUN cd src && make venv
