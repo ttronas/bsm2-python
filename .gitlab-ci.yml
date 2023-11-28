@@ -43,8 +43,7 @@ build_image:
   before_script:
     - docker info
     - docker login $IMAGE_REG -u $REGISTRY_USER -p $REGISTRY_PASS
+    - apk update && apk add make
   script:
-    - docker build . --file Dockerfile --tag $(IMAGE_REG)/$(IMAGE_NAME):$(IMAGE_TAG)
-    - docker push $(IMAGE_REG)/$(IMAGE_NAME):$(IMAGE_TAG)
-
-
+    - make image
+    - make push
