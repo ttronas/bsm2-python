@@ -7,6 +7,8 @@ in: 'numpy', 'csv', 'time', 'scipy.integrate', 'numba'.
 
 The parameters 'tempmodel' and 'activate' can be set to 'True' if you want to activate them.
 """
+
+
 def test_bsm2_nocontrol():
     import sys
     import os
@@ -32,13 +34,11 @@ def test_bsm2_nocontrol():
     from bsm2.helpers_bsm2 import Combiner, Splitter
     import bsm2.reginit_bsm2 as reginit
 
-
     tempmodel = False   # if tempmodel is False influent wastewater temperature is just passed through process reactors and settler
                         # if tempmodel is True mass balance for the wastewater temperature is used in process reactors and settler
 
     activate = False    # if activate is False dummy states are 0
                         # if activate is True dummy states are activated
-
 
     # definition of the objects:
     input_splitter = Splitter(sp_type=2)
@@ -78,11 +78,9 @@ def test_bsm2_nocontrol():
     yt_sp_as = np.zeros(21)
     y_out5_r = np.zeros(21)
 
-
     sludge_height = 0
 
     y_out5_r[14] = asm1init.Qintr
-
 
     start = time.perf_counter()
 
@@ -169,7 +167,6 @@ def test_bsm2_nocontrol():
     print('qstorage2AS flow difference to Matlab: \n', qstorage2AS_matlab[14] - yst_sp_as[14])
     print('qstorage2prim flow difference to Matlab: \n', qstorage2prim_matlab[14] - yst_sp_p[14])
     print('sludge flow difference to Matlab: \n', sludge_matlab[14] - ydw_s[14])
-
 
     # flush output to console
     sys.stdout.flush()

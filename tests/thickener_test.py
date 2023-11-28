@@ -2,6 +2,7 @@
 test thickener_bsm2.py
 """
 
+
 def test_thickener():
     import sys
     import os
@@ -13,7 +14,6 @@ def test_thickener():
     from bsm2 import asm1init_bsm2 as asm1init
     from bsm2 import thickenerinit_bsm2 as thickenerinit
     from bsm2.thickener_bsm2 import Thickener
-
 
     # definition of the tested thickener:
     thickener = Thickener(thickenerinit.THICKENERPAR, asm1init.PAR1)
@@ -28,13 +28,11 @@ def test_thickener():
     yt_uf = np.zeros(21)
     yt_of = np.zeros(25)
 
-
     start = time.perf_counter()
 
     for step in simtime:
 
         yt_uf, yt_of = thickener.outputs(y_in)
-
 
     stop = time.perf_counter()
 

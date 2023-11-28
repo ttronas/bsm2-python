@@ -1,6 +1,8 @@
 """
 test adm1_bsm2.py
 """
+
+
 def test_adm1():
     import sys
     import os
@@ -10,7 +12,6 @@ def test_adm1():
     import time
     from bsm2 import adm1init_bsm2 as adm1init
     from bsm2.adm1_bsm2 import ADM1Reactor
-
 
     # definition of the tested Reactor:
     adm1Reactor = ADM1Reactor(adm1init.DIGESTERINIT, adm1init.DIGESTERPAR, adm1init.INTERFACEPAR, adm1init.DIM_D)
@@ -26,13 +27,11 @@ def test_adm1():
     yd_out = np.zeros(51)
     y_out1 = np.zeros(33)
 
-
     start = time.perf_counter()
 
     for step in simtime:
 
         y_out2, yd_out, y_out1 = adm1Reactor.outputs(timestep, step, y_in, adm1init.T_op)
-
 
     stop = time.perf_counter()
 
@@ -62,9 +61,9 @@ def test_adm1():
     #     round_python = round(yd_out[i], 2)
     #     print(name, ":", round_matlab, round_python)
 
-
     assert np.allclose(y_out1, y_out1_matlab, rtol=1e-5, atol=1e-5)
     assert np.allclose(yd_out, yd_out_matlab, rtol=1e-5, atol=1e-5)
     assert np.allclose(y_out2, y_out2_matlab, rtol=1e-5, atol=1e-5)
+
 
 test_adm1()

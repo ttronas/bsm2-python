@@ -1,6 +1,8 @@
 """
 test helpers_bsm2.py
 """
+
+
 def test_helpers():
     import sys
     import os
@@ -31,15 +33,12 @@ def test_helpers():
     y_split3 = np.zeros(21)
     y_split4 = np.zeros(21)
 
-
     start = time.perf_counter()
-
 
     y_mix = combiner.output(y_in1, y_in2)
 
     y_split1, y_split2 = splitter.outputs(y_in1,(0.6, 0.4))
     y_split3, y_split4 = splitter2.outputs(y_in1, (0, 0), 18000)
-
 
     stop = time.perf_counter()
 
@@ -58,19 +57,17 @@ def test_helpers():
     y_split3_ref = np.array([30, 69.5, 51.2, 202.32, 28.17, 0, 0, 0, 0, 31.56, 6.95, 10.59, 7, 211.2675, 18000, 15, 0, 0, 0, 0, 0])
     y_split4_ref = np.array([30, 69.5, 51.2, 202.32, 28.17, 0, 0, 0, 0, 31.56, 6.95, 10.59, 7, 211.2675, 446, 15, 0, 0, 0, 0, 0])
 
-    print()
-
     print('Mix difference: \n', y_mix_ref - y_mix)
     print('Split flow 1 difference: \n', y_split1_ref - y_split1)
     print('Split flow 2 difference: \n', y_split2_ref - y_split2)
     print('Split flow 3 difference: \n', y_split3_ref - y_split3)
     print('Split flow 4 difference: \n', y_split4_ref - y_split4)
 
-
     assert np.allclose(y_mix, y_mix_ref, rtol=1e-5, atol=1e-5)
     assert np.allclose(y_split1, y_split1_ref, rtol=1e-5, atol=1e-5)
     assert np.allclose(y_split2, y_split2_ref, rtol=1e-5, atol=1e-5)
     assert np.allclose(y_split3, y_split3_ref, rtol=1e-5, atol=1e-5)
     assert np.allclose(y_split4, y_split4_ref, rtol=1e-5, atol=1e-5)
+
 
 test_helpers()

@@ -7,6 +7,8 @@ in: 'numpy', 'csv', 'time', 'scipy.integrate', 'numba'.
 
 The parameters 'tempmodel' and 'activate' can be set to 'True' if you want to activate them.
 """
+
+
 def test_bsm1():
     import sys
     import os
@@ -21,13 +23,11 @@ def test_bsm1():
     import asm1.asm1init as asm1init
     from bsm2.helpers_bsm2 import Combiner, Splitter
 
-
     tempmodel = False   # if tempmodel is False influent wastewater temperature is just passed through process reactors and settler
                         # if tempmodel is True mass balance for the wastewater temperature is used in process reactors and settler
 
     activate = False    # if activate is False dummy states are 0
                         # if activate is True dummy states are activated
-
 
     # definition of the reactors:
     combiner = Combiner()
@@ -59,7 +59,6 @@ def test_bsm1():
     Qintr = asm1init.Qintr
     sludge_height = 0
 
-
     start = time.perf_counter()
 
     for step in simtime:
@@ -85,7 +84,6 @@ def test_bsm1():
     sludge_height_matlab = 0.447178539974702
     print('Effluent difference to MatLab solution: \n', ys_eff_matlab - ys_eff[:21])
     print('Sludge height difference to MatLab solution: \n', sludge_height_matlab - sludge_height)
-
 
     assert np.allclose(ys_eff[:21], ys_eff_matlab, rtol=1e-5, atol=1e-5)
     assert np.allclose(sludge_height, sludge_height_matlab, rtol=1e-5, atol=1e-5)

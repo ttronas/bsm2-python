@@ -2,6 +2,7 @@
 test primclar_bsm2.py
 """
 
+
 def test_primclar():
     import sys
     import os
@@ -14,13 +15,11 @@ def test_primclar():
     from bsm2 import primclarinit_bsm2 as primclarinit
     from bsm2.primclar_bsm2 import PrimaryClarifier
 
-
     tempmodel = False   # if tempmodel is False influent wastewater temperature is just passed through process reactors and settler
                         # if tempmodel is True mass balance for the wastewater temperature is used in process reactors and settler
 
     activate = False    # if activate is False dummy states are 0
                         # if activate is True dummy states are activated
-
 
     # definition of the tested clarifier:
     primclar = PrimaryClarifier(primclarinit.VOL_P, primclarinit.yinit1, primclarinit.PAR_P, asm1init.PAR1, primclarinit.XVECTOR_P, tempmodel, activate)
@@ -35,13 +34,11 @@ def test_primclar():
     yp_out = np.zeros(21)
     yp_eff = np.zeros(25)
 
-
     start = time.perf_counter()
 
     for step in simtime:
 
         yp_out, yp_eff = primclar.outputs(timestep, step, y_in)
-
 
     stop = time.perf_counter()
 

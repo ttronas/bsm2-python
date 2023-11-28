@@ -1,6 +1,8 @@
 """
 test dewatering_bsm2.py
 """
+
+
 def test_dewatering():
     import sys
     import os
@@ -12,7 +14,6 @@ def test_dewatering():
     from bsm2 import asm1init_bsm2 as asm1init
     from bsm2 import dewateringinit_bsm2 as dewateringinit
     from bsm2.dewatering_bsm2 import Dewatering
-
 
     # definition of the tested dewatering:
     dewatering = Dewatering(dewateringinit.DEWATERINGPAR)
@@ -27,13 +28,11 @@ def test_dewatering():
     ydw_s = np.zeros(21)
     ydw_r = np.zeros(21)
 
-
     start = time.perf_counter()
 
     for step in simtime:
 
         ydw_s, ydw_r = dewatering.outputs(y_in)
-
 
     stop = time.perf_counter()
 
@@ -49,5 +48,6 @@ def test_dewatering():
 
     assert np.allclose(ydw_s, ydw_s_matlab, rtol=1e-5, atol=1e-5)
     assert np.allclose(ydw_r, ydw_r_matlab, rtol=1e-5, atol=1e-5)
+
 
 test_dewatering()

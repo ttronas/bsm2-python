@@ -2,6 +2,7 @@
 test storage_bsm2.py
 """
 
+
 def test_storage():
     import sys
     import os
@@ -13,7 +14,6 @@ def test_storage():
     import bsm2.storageinit_bsm2 as storageinit
     from bsm2.storage_bsm2 import Storage
 
-
     tempmodel = False   # if tempmodel is False influent wastewater temperature is just passed through process reactors and settler
                         # if tempmodel is True mass balance for the wastewater temperature is used in process reactors and settler
 
@@ -21,7 +21,6 @@ def test_storage():
                         # if activate is True dummy states are activated
 
     Qstorage = 0        # storage flow rate regulation not used in this test
-
 
     # definition of the tested clarifier:
     storage = Storage(storageinit.VOL_S, storageinit.ystinit, tempmodel, activate)
@@ -36,13 +35,11 @@ def test_storage():
     yst_out = np.zeros(21)
     yst_vol = 0
 
-
     start = time.perf_counter()
 
     for step in simtime:
 
         yst_out, yst_vol = storage.output(timestep, step, yst_in, Qstorage)
-
 
     stop = time.perf_counter()
 
