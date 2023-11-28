@@ -1,6 +1,6 @@
 # Used by `image`, `push` & `deploy` targets, override as required
 IMAGE_REG ?= gitlab.rrze.fau.de:4567
-IMAGE_REPO ?= evt/klaeffizient/bsm2-python
+IMAGE_NAME ?= evt/klaeffizient/bsm2-python
 IMAGE_TAG ?= latest
 
 # Don't change
@@ -23,10 +23,10 @@ lint-fix: venv  ## Lint & format, will try to fix errors and modify code
 
 image:  ## Build container image from Dockerfile 
 	docker build . --file Dockerfile \
-	--tag $(IMAGE_REG)/$(IMAGE_REPO):$(IMAGE_TAG)
+	--tag $(IMAGE_REG)/$(IMAGE_NAME):$(IMAGE_TAG)
 
 push:  ## Push container image to registry 
-	docker push $(IMAGE_REG)/$(IMAGE_REPO):$(IMAGE_TAG)
+	docker push $(IMAGE_REG)/$(IMAGE_NAME):$(IMAGE_TAG)
 
 run: venv  ## Run the main script once
 	. $(SRC_DIR)/.venv/bin/activate \
