@@ -4,8 +4,8 @@ variables:
   IMAGE_TAG: latest
 
 stages:
-  - test
   - build
+  - test
   - deploy
 
 run_tests:
@@ -13,6 +13,12 @@ run_tests:
   image: python:3.11-slim-bullseye
   tags:
     - docker
+  rules:
+  - changes:
+    - asm1/
+    - asm3/
+    - bsm2/
+    - tests/
   before_script:
     - apt update && apt install make
   script:
@@ -31,12 +37,13 @@ build_image:
     - docker
   rules:
   - changes:
-    - src/requirements.txt
+    - requirements.txt
     - Dockerfile
+    - .gitlab-ci.yml
   before_script:
     - docker info
     - docker login $IMAGE_REG -u $REGISTRY_USER -p $REGISTRY_PASS
   script:
-    - docker build . -t $IMAGE_NAME:$IMAGE_TAG
-    - docker push $IMAGE_REG/$IMAGE_NAME:$IMAGE_TAG
+    - make build
+    - make push
 
