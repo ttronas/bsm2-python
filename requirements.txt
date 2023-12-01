@@ -4,3 +4,4 @@ numba==0.58.0
 numpy==1.24.3
 pytest==7.4.3
 scipy==1.9.3
+tqdm==4.66.1

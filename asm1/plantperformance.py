@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class PlantPerformance:
     def aerationenergy(self, kla, vol, sosat, sampleinterval, evaltime):
         """Returns the aeration energy of the plant during the evaluation time
@@ -26,7 +27,6 @@ class PlantPerformance:
         ae = sum(sum(sosat * vol * kla)*sampleinterval)/(1.8*1000 * (evaltime[1]-evaltime[0]))
         return ae
 
-
     def pumpingenergy(self, flows, pumpfactor, sampleinterval, evaltime):
         """Returns the pumping energy of the plant during the evaluation time
 
@@ -49,7 +49,6 @@ class PlantPerformance:
 
         pe = sum(sum(flows * pumpfactor) * sampleinterval) / (evaltime[1] - evaltime[0])
         return pe
-
 
     def mixingenergy(self, kla, vol, sampleinterval, evaltime):
         """Returns the mixing energy of the plant during the evaluation time
@@ -74,7 +73,6 @@ class PlantPerformance:
         kla1, kla2, kla3, kla4, kla5 = kla
         me = 0.005 * (len(kla1[kla1 < 20])*vol[0] + len(kla2[kla2 < 20])*vol[1] + len(kla3[kla3 < 20])*vol[2] + len(kla4[kla4 < 20])*vol[3] + len(kla5[kla5 < 20])*vol[4]) * sampleinterval * 24 / (evaltime[1] - evaltime[0])
         return me[0]
-
 
     def violation(self, array_eff, limit, sampleinterval, evaltime):
         """Returns the time in days and percentage of time in which a certain component is over the limit value during
@@ -104,4 +102,3 @@ class PlantPerformance:
         # percentage of time the component is over the limit value:
         violationvalues[1] = len(array_eff[array_eff > limit]) * sampleinterval / (evaltime[1] - evaltime[0]) * 100
         return violationvalues
-
