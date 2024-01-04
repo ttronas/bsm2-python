@@ -67,7 +67,7 @@ class Storage:
         activate : bool
             If true, dummy states are activated, otherwise dummy states are not activated
         """
-        self.curr_vol = yst0[21]
+        self.curr_vol = yst0[VOL]
         self.max_vol = volume
         self.tempmodel = tempmodel
         self.activate = activate

@@ -15,12 +15,12 @@ run_tests:
     - docker
   rules:
   - changes:
-    - asm1/
-    - asm3/
-    - bsm2/
-    - tests/
+    - asm1/*
+    - asm3/*
+    - bsm2/*
+    - tests/*
   script:
-    - make test
+    - make test_no_venv
 
 build_image:
   stage: build

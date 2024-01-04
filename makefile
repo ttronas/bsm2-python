@@ -36,6 +36,10 @@ test: venv  ## Unit tests for repo
 	. $(SRC_DIR)/.venv/bin/activate \
 	&& pytest -v tests/
 
+test_no_venv:  ## Unit tests for repo without previously installing venv
+	. $(SRC_DIR)/.venv/bin/activate \
+	&& pytest -v tests/
+
 test-report: venv  ## Unit tests for repo (with report output)
 	. $(SRC_DIR)/.venv/bin/activate \
 	&& pytest -v --junitxml=test-results.xml

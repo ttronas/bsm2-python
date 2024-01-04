@@ -59,36 +59,40 @@ class Thickener:
         yt_of = np.zeros(25)
 
         TSSin = self.t_par[2]*yt_in[2] + self.t_par[3]*yt_in[3] + self.t_par[4]*yt_in[4] + self.t_par[5]*yt_in[5] + self.t_par[6]*yt_in[6]
-        thickener_factor = self.t_par[0]*10000/TSSin
-        Qu_factor = self.t_par[1]/(100*thickener_factor)
+        try:
+            thickener_factor = self.t_par[0]*10000/TSSin
+            Qu_factor = self.t_par[1]/(100*thickener_factor)
+        except Exception:
+            thickener_factor = 0
+            Qu_factor = 0
         thinning_factor = (1 - self.t_par[1]/100) / (1-Qu_factor)
 
         if thickener_factor > 1:
             # underflow
             yt_uf[:] = yt_in[:]
-            yt_uf[XI]=yt_in[XI]*thickener_factor
-            yt_uf[XS]=yt_in[XS]*thickener_factor
-            yt_uf[XBH]=yt_in[XBH]*thickener_factor
-            yt_uf[XBA]=yt_in[XBA]*thickener_factor
-            yt_uf[XP]=yt_in[XP]*thickener_factor
-            yt_uf[XND]=yt_in[XND]*thickener_factor
-            yt_uf[TSS]=TSSin*thickener_factor
-            yt_uf[Q]=yt_in[Q]*Qu_factor
-            yt_uf[XD4]=yt_in[XD4]*thickener_factor
-            yt_uf[XD5]=yt_in[XD5]*thickener_factor
+            yt_uf[XI] = yt_in[XI]*thickener_factor
+            yt_uf[XS] = yt_in[XS]*thickener_factor
+            yt_uf[XBH] = yt_in[XBH]*thickener_factor
+            yt_uf[XBA] = yt_in[XBA]*thickener_factor
+            yt_uf[XP] = yt_in[XP]*thickener_factor
+            yt_uf[XND] = yt_in[XND]*thickener_factor
+            yt_uf[TSS] = TSSin*thickener_factor
+            yt_uf[Q] = yt_in[Q]*Qu_factor
+            yt_uf[XD4] = yt_in[XD4]*thickener_factor
+            yt_uf[XD5] = yt_in[XD5]*thickener_factor
 
             # overflow
             yt_of[:21] = yt_in[:]
-            yt_of[XI]=yt_in[XI]*thinning_factor
-            yt_of[XS]=yt_in[XS]*thinning_factor
-            yt_of[XBH]=yt_in[XBH]*thinning_factor
-            yt_of[XBA]=yt_in[XBA]*thinning_factor
-            yt_of[XP]=yt_in[XP]*thinning_factor
-            yt_of[XND]=yt_in[XND]*thinning_factor
-            yt_of[TSS]=TSSin*thinning_factor
-            yt_of[Q]=yt_in[Q]*(1-Qu_factor)
-            yt_of[XD4]=yt_in[XD4]*thinning_factor
-            yt_of[XD5]=yt_in[XD5]*thinning_factor
+            yt_of[XI] = yt_in[XI]*thinning_factor
+            yt_of[XS] = yt_in[XS]*thinning_factor
+            yt_of[XBH] = yt_in[XBH]*thinning_factor
+            yt_of[XBA] = yt_in[XBA]*thinning_factor
+            yt_of[XP] = yt_in[XP]*thinning_factor
+            yt_of[XND] = yt_in[XND]*thinning_factor
+            yt_of[TSS] = TSSin*thinning_factor
+            yt_of[Q] = yt_in[Q]*(1-Qu_factor)
+            yt_of[XD4] = yt_in[XD4]*thinning_factor
+            yt_of[XD5] = yt_in[XD5]*thinning_factor
 
             # additional values to compare:
             # Kjeldahl N concentration:

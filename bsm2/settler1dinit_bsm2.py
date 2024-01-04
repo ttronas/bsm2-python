@@ -28,10 +28,17 @@ DIM = np.array([area, height])
 feedlayer = 5
 nooflayers = 10
 
-settlerinit = np.ones(12*nooflayers)
-settlerinit[8*nooflayers:9*nooflayers] = 15
-settlerinit[9*nooflayers:12*nooflayers] = 0
-
+settlerinit = np.zeros(12*nooflayers)
+settlerinit[0*nooflayers:1*nooflayers] = 28.0643  # SI
+settlerinit[1*nooflayers:2*nooflayers] = 0.6734  # S_S
+settlerinit[2*nooflayers:3*nooflayers] = 1.3748  # S_O
+settlerinit[3*nooflayers:4*nooflayers] = 9.1948  # S_NO
+settlerinit[4*nooflayers:5*nooflayers] = 0.1585  # S_NH
+settlerinit[5*nooflayers:6*nooflayers] = 0.5594  # S_ND
+settlerinit[6*nooflayers:7*nooflayers] = 4.5646  # S_ALK
+settlerinit[7*nooflayers:8*nooflayers] = [14.3255, 20.8756, 34.2948, 81.0276, 423.2035, 423.2035, 423.2035, 423.2035, 3.7106e+03, 7.3483e+03]  # TSS
+settlerinit[8*nooflayers:9*nooflayers] = 14.8581  # T
+settlerinit[9*nooflayers:12*nooflayers] = 0  # soluble dummy states
 
 LAYER = np.array([feedlayer, nooflayers])
 

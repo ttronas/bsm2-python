@@ -34,7 +34,7 @@ class ADM1Reactor:
              SD1, SD2, SD3, XD4, XD5]
         T_op : float
             Operational temperature of digester. At the moment very rudimentary implementation! No heat losses / transfer embedded!
-        
+
         Returns
         -------
         y_out2 : np.ndarray(21)
@@ -159,7 +159,7 @@ class ADM1Reactor:
         y_out2 = adm2asm(y_in2, T_op, self.interfacepar)
         if step % 10 == 0:
             pass
-        
+
         return y_out2, yd_out, y_out1
 
 

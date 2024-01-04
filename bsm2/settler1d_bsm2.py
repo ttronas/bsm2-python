@@ -179,7 +179,7 @@ def settlerequations(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel, modelt
     return dys
 
 
-# @jit(nopython=True)
+@jit(nopython=True)
 def get_outputs(ys_int, ys_in, nooflayers, tempmodel, Qr, Qw, dim, asm1par, sedpar):
     ys_ret = np.zeros(21)
     ys_was = np.zeros(21)
@@ -359,8 +359,5 @@ class Settler:
         self.ys0 = ys_int
 
         ys_ret, ys_was, ys_eff, sludge_height = get_outputs(ys_int, ys_in, nooflayers, self.tempmodel, self.Qr, self.Qw, self.dim, self.asm1par, self.sedpar)
-
-
-
 
         return ys_ret, ys_was, ys_eff, sludge_height
