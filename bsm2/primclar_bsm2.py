@@ -104,12 +104,15 @@ class PrimaryClarifier:
         # f_corr, f_X, t_m, f_PS = p_par
         # y = yp_out, yp_eff
         # u = yp_int
-        # x : yp_in
+        # x = yp_in
 
         yp_out = np.zeros(21)
         yp_eff = np.zeros(25)
 
         t_eval = np.array([step, step+timestep])    # time interval for odeint
+
+        if not self.tempmodel:
+            self.yp0[15] = yp_in[15]
 
         ode = odeint(primclarequations, self.yp0, t_eval, tfirst=True, args=(yp_in, self.p_par, self.volume, self.tempmodel))
 
@@ -127,17 +130,17 @@ class PrimaryClarifier:
 
         ff = (1-self.x_vector*nX/100)
         # ASM1 state outputs effluent
-        yp_eff[0:13] = ff[0:13]*yp_in[0:13]
+        yp_eff[0:13] = ff[0:13] * yp_int[0:13]
         yp_eff[yp_eff < 0.0] = 0.0
         # dummy state outputs effluent
-        yp_eff[16:21] = ff[16:21]*yp_in[16:21]
+        yp_eff[16:21] = ff[16:21]*yp_int[16:21]
         yp_eff[yp_eff < 0.0] = 0.0
 
         # ASM1 state outputs underflow
-        yp_out[0:13] = ((1-ff[0:13])*E + ff[0:13]) * yp_in[0:13]
+        yp_out[0:13] = ((1-ff[0:13])*E + ff[0:13]) * yp_int[0:13]
         yp_out[yp_out < 0.0] = 0.0
         # dummy state outputs underflow
-        yp_out[16:21] = ((1-ff[16:21])*E + ff[16:21]) * yp_in[16:21]
+        yp_out[16:21] = ((1-ff[16:21])*E + ff[16:21]) * yp_int[16:21]
         yp_out[yp_out < 0.0] = 0.0
 
         # TSS outputs effluent
@@ -149,13 +152,8 @@ class PrimaryClarifier:
         yp_out[14] = Qu  # flow rate in underflow
 
         if not self.tempmodel:
-            if step == 0:
-                self.yp0[15] = yp_in[15]
-                yp_eff[15] = yp_in[15]
-                yp_out[15] = yp_in[15]
-            else:
-                yp_eff[15] = yp_int[15]
-                yp_out[15] = yp_int[15]
+            yp_eff[15] = yp_int[15]
+            yp_out[15] = yp_int[15]
         else:
             yp_eff[15] = yp_in[15]
             yp_out[15] = yp_in[15]

@@ -6,5 +6,5 @@ LABEL org.opencontainers.image.source = "https://gitlab.rrze.fau.de/evt/klaeffiz
 WORKDIR /src
 RUN apt update && apt install make
 
-COPY . ./src
+COPY . .
 RUN make venv
