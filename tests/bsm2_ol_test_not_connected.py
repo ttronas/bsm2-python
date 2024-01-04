@@ -1,11 +1,7 @@
-"""Execution file for asm1 model with second clarifier in steady state simulation
+"""Execution file for the BSM2 Open Loop Test Case (not connected)
 
-This script will run the plant (ams1 model + settling model) to steady state.
-
-This script requires that the following packages are installed within the Python environment you are running this script
-in: 'numpy', 'csv', 'time', 'scipy.integrate', 'numba'.
-
-The parameters 'tempmodel' and 'activate' can be set to 'True' if you want to activate them.
+The test case is based on the BSM2 Benchmark Simulation Model No. 2 (BSM2) and does not contain any controllers. But it runs the BSM2 model with dynamic influent data.
+In this specific test case the BSM2 model has (almost) no return flows. It is made for debugging purposes.
 """
 
 
@@ -41,20 +37,6 @@ def test_bsm2_ol():
 
     activate = False    # if activate is False dummy states are 0
                         # if activate is True dummy states are activated
-
-    # Initial values from steady state simulation:
-    # with open(path_name + '/../data/bsm2_values_ss.csv', 'r') as f:
-    #     initdata = list(csv.reader(f, delimiter=","))
-    # primclarinit.yinit1 = np.array(initdata[0]).astype(np.float64)
-    # asm1init.yinit1 = np.array(initdata[1]).astype(np.float64)
-    # asm1init.yinit2 = np.array(initdata[2]).astype(np.float64)
-    # asm1init.yinit3 = np.array(initdata[3]).astype(np.float64)
-    # asm1init.yinit4 = np.array(initdata[4]).astype(np.float64)
-    # asm1init.yinit5 = np.array(initdata[5]).astype(np.float64)
-    # settler1dinit.settlerinit = np.array(initdata[6]).astype(np.float64)
-    # adm1init.DIGESTERINIT = np.array(initdata[7]).astype(np.float64)
-    # storageinit.ystinit[:21] = np.array(initdata[8]).astype(np.float64)[:21]
-    # del initdata
 
     # definition of the objects:
     input_splitter = Splitter(sp_type=2)
