@@ -4,7 +4,7 @@ IMAGE_NAME ?= evt/klaeffizient/bsm2-python
 IMAGE_TAG ?= latest
 
 # Don't change
-SRC_DIR := src
+SRC_DIR := /src
 
 .PHONY: help lint lint-fix image push run deploy undeploy clean test-api .EXPORT_ALL_VARIABLES
 .DEFAULT_GOAL := help
