@@ -36,6 +36,7 @@ build_image:
   rules:
   - changes:
     - requirements.txt
+    - makefile
     - Dockerfile
     - .gitlab-ci.yml
   before_script:
