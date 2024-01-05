@@ -120,8 +120,8 @@ def test_bsm2_ss():
     stop = time.perf_counter()
 
     print('Steady state simulation completed after: ', stop - start, 'seconds')
-    print('Effluent at t = ', simtime, ' d:  \n', y_eff)
-    print('Sludge height at t = ', simtime, ' d:  \n', sludge_height)
+    print('Effluent at t =', endtime, 'd:  \n', y_eff)
+    print('Sludge height at t =', endtime, 'd:  \n', sludge_height)
 
     y_eff_matlab = np.array([30.6576079091768, 0.803552804256930, 3.09124292484164, 0.142713283391346, 8.30442587915406, 0.918856159066539, 1.43595752043470, 0.688300722946280, 26.1866889987896, 1.34139306275546, 0.684317039035914, 0.0104203958259101, 2.89588189824968, 10.4198968251662, 18440.7870053519, 15.0000000000001, 0, 0, 0, 0, 0])
     sludge_height_matlab = 0.447178539974702

@@ -28,21 +28,21 @@ def primclarequations(t, yp, yp_in, p_par, volume, tempmodel):
         If true, mass balance for the wastewater temperature is used in process rates,
         otherwise influent wastewater temperature is just passed through process reactors
     """
-    ## u = yp_in
+    # u = yp_in
     # x = yp
     # dx = dyp
     dyp = np.zeros(21)
 
-    dyp[0:13] = 1.0 / volume * (yp_in[Q] * (yp_in[0:13] - yp[0:13]))
-    dyp[13] = 0.0  # TSS
-    dyp[14] = (yp_in[Q] - yp[Q]) / p_par[2]
+    dyp[0:13] = 1.0 / volume * (yp_in[Q] * (yp_in[0:13] - yp[0:13]))  # ASM1 states are mixing
+    dyp[TSS] = 0.0
+    dyp[Q] = (yp_in[Q] - yp[Q]) / p_par[2]
 
     if not tempmodel:
-        dyp[15] = 0.0
+        dyp[TEMP] = 0.0
     else:
-        dyp[15] = 1.0 / volume * (yp_in[Q] * (yp_in[15] - yp[15]))
+        dyp[TEMP] = 1.0 / volume * (yp_in[Q] * (yp_in[TEMP] - yp[TEMP]))
 
-    dyp[16:21] = 1.0 / volume * (yp_in[Q] * (yp_in[16:21] - yp[16:21]))
+    dyp[16:21] = 1.0 / volume * (yp_in[Q] * (yp_in[16:21] - yp[16:21]))  # dummy states are mixing
 
     return dyp
 
@@ -95,24 +95,24 @@ class PrimaryClarifier:
 
         Returns
         -------
-        yp_out : np.ndarray
-            primary clarifier underflow concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
-        yp_eff : np.ndarray
-            primary clarifier overflow concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        yp_uf : np.ndarray
+            primary clarifier underflow (sludge) concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        yp_of : np.ndarray
+            primary clarifier overflow (effluent) concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
             and 4 additional parameters (Kjeldahl N, total N, total COD, BOD5 concentration) at the current time step
         """
         # f_corr, f_X, t_m, f_PS = p_par
-        # y = yp_out, yp_eff
+        # y = yp_uf, yp_of
         # u = yp_int
-        # x = yp_in
+        # x : yp_in
 
-        yp_out = np.zeros(21)
-        yp_eff = np.zeros(25)
-
-        t_eval = np.array([step, step+timestep])    # time interval for odeint
+        yp_uf = np.zeros(21)
+        yp_of = np.zeros(25)
 
         if not self.tempmodel:
             self.yp0[15] = yp_in[15]
+
+        t_eval = np.array([step, step+timestep])    # time interval for odeint
 
         ode = odeint(primclarequations, self.yp0, t_eval, tfirst=True, args=(yp_in, self.p_par, self.volume, self.tempmodel))
 
@@ -122,7 +122,7 @@ class PrimaryClarifier:
 
         Qu = self.p_par[3] * yp_in[Q]  # underflow from primary clarifier
         E = yp_in[Q] / Qu  # thickening factor
-        tt = self.volume / (yp_in[Q] + 0.001)  # hydraulic retention time
+        tt = self.volume / (yp_int[Q] + 0.001)  # hydraulic retention time
 
         nCOD = self.p_par[0] * (2.88*self.p_par[1]-0.118) * (1.45+6.15*np.log(tt*24*60))  # Total COD removal efficiency in primary clarifier
         nX = nCOD/self.p_par[1]  # Removal efficiency of particulate COD in %, since assumption that soluble COD is not removed
@@ -130,42 +130,42 @@ class PrimaryClarifier:
 
         ff = (1-self.x_vector*nX/100)
         # ASM1 state outputs effluent
-        yp_eff[0:13] = ff[0:13] * yp_int[0:13]
-        yp_eff[yp_eff < 0.0] = 0.0
+        yp_of[0:13] = ff[0:13]*yp_int[0:13]
+        yp_of[yp_of < 0.0] = 0.0
         # dummy state outputs effluent
-        yp_eff[16:21] = ff[16:21]*yp_int[16:21]
-        yp_eff[yp_eff < 0.0] = 0.0
+        yp_of[16:21] = ff[16:21]*yp_int[16:21]
+        yp_of[yp_of < 0.0] = 0.0
 
         # ASM1 state outputs underflow
-        yp_out[0:13] = ((1-ff[0:13])*E + ff[0:13]) * yp_int[0:13]
-        yp_out[yp_out < 0.0] = 0.0
+        yp_uf[0:13] = ((1-ff[0:13])*E + ff[0:13]) * yp_int[0:13]
+        yp_uf[yp_uf < 0.0] = 0.0
         # dummy state outputs underflow
-        yp_out[16:21] = ((1-ff[16:21])*E + ff[16:21]) * yp_int[16:21]
-        yp_out[yp_out < 0.0] = 0.0
+        yp_uf[16:21] = ((1-ff[16:21])*E + ff[16:21]) * yp_int[16:21]
+        yp_uf[yp_uf < 0.0] = 0.0
 
         # TSS outputs effluent
-        yp_eff[13] = self.asm1par[19]*yp_eff[XI] + self.asm1par[20]*yp_eff[XS] + self.asm1par[21]*yp_eff[XBH] + self.asm1par[22]*yp_eff[XBA] + self.asm1par[23]*yp_eff[XP]
-        yp_eff[14] = yp_int[14] - Qu  # flow rate in effluent
+        yp_of[TSS] = self.asm1par[19]*yp_of[XI] + self.asm1par[20]*yp_of[XS] + self.asm1par[21]*yp_of[XBH] + self.asm1par[22]*yp_of[XBA] + self.asm1par[23]*yp_of[XP]
+        yp_of[Q] = yp_in[Q] - Qu  # flow rate in effluent
 
         # TSS outputs underflow
-        yp_out[13] = self.asm1par[19]*yp_out[XI] + self.asm1par[20]*yp_out[XS] + self.asm1par[21]*yp_out[XBH] + self.asm1par[22]*yp_out[XBA] + self.asm1par[23]*yp_out[XP]
-        yp_out[14] = Qu  # flow rate in underflow
+        yp_uf[TSS] = self.asm1par[19]*yp_uf[XI] + self.asm1par[20]*yp_uf[XS] + self.asm1par[21]*yp_uf[XBH] + self.asm1par[22]*yp_uf[XBA] + self.asm1par[23]*yp_uf[XP]
+        yp_uf[Q] = Qu  # flow rate in underflow
 
         if not self.tempmodel:
-            yp_eff[15] = yp_int[15]
-            yp_out[15] = yp_int[15]
+            yp_of[TEMP] = yp_in[TEMP]
+            yp_uf[TEMP] = yp_in[TEMP]
         else:
-            yp_eff[15] = yp_in[15]
-            yp_out[15] = yp_in[15]
+            yp_of[TEMP] = yp_int[TEMP]
+            yp_uf[TEMP] = yp_int[TEMP]
 
         # additional values to compare:
         # Kjeldahl N concentration:
-        yp_eff[21] = yp_eff[SNH] + yp_eff[SND] + yp_eff[XND] + self.asm1par[17] * (yp_eff[XBH] + yp_eff[XBA]) + self.asm1par[18] * (yp_eff[XP] + yp_eff[XI])
+        yp_of[21] = yp_of[SNH] + yp_of[SND] + yp_of[XND] + self.asm1par[17] * (yp_of[XBH] + yp_of[XBA]) + self.asm1par[18] * (yp_of[XP] + yp_of[XI])
         # total N concentration:
-        yp_eff[22] = yp_eff[21] + yp_eff[SNO]
+        yp_of[22] = yp_of[21] + yp_of[SNO]
         # total COD concentration:
-        yp_eff[23] = yp_eff[SS] + yp_eff[SI] + yp_eff[XS] + yp_eff[XI] + yp_eff[XBH] + yp_eff[XBA] + yp_eff[XP]
+        yp_of[23] = yp_of[SS] + yp_of[SI] + yp_of[XS] + yp_of[XI] + yp_of[XBH] + yp_of[XBA] + yp_of[XP]
         # BOD5 concentration:
-        yp_eff[24] = 0.25 * (yp_eff[SS] + yp_eff[XS] + (1-self.asm1par[16]) * (yp_eff[XBH] + yp_eff[XBA]))
+        yp_of[24] = 0.25 * (yp_of[SS] + yp_of[XS] + (1-self.asm1par[16]) * (yp_of[XBH] + yp_of[XBA]))
 
-        return yp_out, yp_eff
+        return yp_uf, yp_of

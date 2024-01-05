@@ -37,8 +37,8 @@ def test_thickener():
     stop = time.perf_counter()
 
     print('Steady state simulation completed after: ', stop - start, 'seconds')
-    print('Underflow at t = 200 d: \n', yt_uf)
-    print('Overflow at t = 200 d: \n', yt_of)
+    print('Underflow at t =', endtime, 'd: \n', yt_uf)
+    print('Overflow at t =', endtime, 'd: \n', yt_of)
 
     yt_uf_matlab = np.array([30, 69.5000000000000, 16964.2751488042, 67035.3935176968, 9333.66466683233, 0, 0, 0, 0, 31.5600000000000, 6.95000000000000, 3508.82175441088, 7, 70000, 54.5585642700000, 15, 0, 0, 0, 0, 0])
     yt_of_matlab = np.array([30, 69.5000000000000, 1.02703771566833, 4.05840372332064, 0.565071336921423, 0, 0, 0, 0, 31.5600000000000, 6.95000000000000, 0.212428308768118, 7, 4.23788458193279, 18391.4414357300, 15, 0, 0, 0, 0, 0])

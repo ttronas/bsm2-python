@@ -18,11 +18,12 @@ tempmodel = False   # if tempmodel is False influent wastewater temperature is j
 activate = False    # if activate is False dummy states are 0
                     # if activate is True dummy states are activated
 
-# definition of the tested clarifier:
-primclar = PrimaryClarifier(primclarinit.VOL_P, primclarinit.yinit1, primclarinit.PAR_P, asm1init.PAR1, primclarinit.XVECTOR_P, tempmodel, activate)
-
 
 def test_primclar():
+    # definition of the tested clarifier:
+    primclar = PrimaryClarifier(primclarinit.VOL_P, primclarinit.yinit1, primclarinit.PAR_P,
+                            asm1init.PAR1, primclarinit.XVECTOR_P, tempmodel, activate)
+
     # CONSTINFLUENT from BSM2:
     y_in = np.array([30, 69.5, 51.2, 202.32, 28.17, 0, 0, 0, 0, 31.56, 6.95, 10.59, 7, 211.2675, 18446, 15, 0, 0, 0, 0, 0])
 
@@ -59,18 +60,22 @@ test_primclar()
 
 
 def test_primclar_dyn():
+    # definition of the tested clarifier:
+    primclar = PrimaryClarifier(primclarinit.VOL_P, primclarinit.yinit1, primclarinit.PAR_P,
+                            asm1init.PAR1, primclarinit.XVECTOR_P, tempmodel, activate)
     # dyninfluent from BSM2:
     with open(path_name + '/../data/dyninfluent_bsm2.csv', 'r') as f:
         data_in = np.array(list(csv.reader(f, delimiter=","))).astype(np.float64)
 
-    # timesteps = np.diff(data_in[:, 0], append=(2*data_in[-1, 0] - data_in[-2, 0]))
-    timestep = 1/24/60  # 15 minutes in days
+    timestep = 15/24/60  # 15 minutes in days
     endtime = 50  # data_in[-1, 0]
     data_time = data_in[:, 0]
     simtime = np.arange(0, endtime, timestep)
     y_in = data_in[:, 1:]
     del data_in
 
+    yp_uf = np.zeros(21)
+    yp_of = np.zeros(25)
     yp_uf_all = np.zeros((len(simtime), 21))
     yp_of_all = np.zeros((len(simtime), 21))
 
@@ -88,7 +93,7 @@ def test_primclar_dyn():
     np.savetxt(path_name + '/../data/test_yp_uf.csv', yp_uf_all, delimiter=',')
     np.savetxt(path_name + '/../data/test_yp_of.csv', yp_of_all, delimiter=',')
 
-    print('Steady state simulation completed after: ', stop - start, 'seconds')
+    print('Dynamic simulation completed after: ', stop - start, 'seconds')
     print('Effluent at t =', endtime, 'd:  \n', yp_of)
     print('Sludge at t =', endtime, 'd:  \n', yp_uf)
 
@@ -99,8 +104,8 @@ def test_primclar_dyn():
     print('Effluent difference to MatLab solution: \n', yp_of_matlab - yp_of[:21])
     print('Sludge difference to MatLab solution: \n', yp_uf_matlab - yp_uf)
 
-    # assert np.allclose(yp_of[:21], yp_of_matlab, rtol=1e-5, atol=1e-5)
-    # assert np.allclose(yp_uf, yp_uf_matlab, rtol=1e-5, atol=1e-5)
+    assert np.allclose(yp_of[:21], yp_of_matlab, rtol=1e-5, atol=1e-5)
+    assert np.allclose(yp_uf, yp_uf_matlab, rtol=1e-5, atol=1e-5)
 
 
 test_primclar_dyn()

@@ -170,7 +170,7 @@ def test_bsm2_ol_not_connected():
     np.savetxt(path_name + '/../data/qstorage2prim.csv', qstorage2prim_all, delimiter=',')
     np.savetxt(path_name + '/../data/sludge.csv', sludge_all, delimiter=',')
 
-    print('Steady state simulation completed after: ', stop - start, 'seconds')
+    print('Dynamic open loop simulation completed after: ', stop - start, 'seconds')
     print('Effluent at t =', endtime, 'd:  \n', y_eff)
     print('Sludge height at t =', endtime, 'd:  \n', sludge_height)
 

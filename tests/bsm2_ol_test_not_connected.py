@@ -67,7 +67,7 @@ def test_bsm2_ol():
         data_in = np.array(list(csv.reader(f, delimiter=","))).astype(np.float64)
 
     # timesteps = np.diff(data_in[:, 0], append=(2*data_in[-1, 0] - data_in[-2, 0]))
-    timestep = 15/24/60  # 15 minutes in days
+    timestep = 1/24/60  # 15 minutes in days
     endtime = 50  # data_in[-1, 0]
     data_time = data_in[:, 0]
     simtime = np.arange(0, endtime, timestep)
@@ -174,7 +174,7 @@ def test_bsm2_ol():
     np.savetxt(path_name + '/../data/qstorage2prim.csv', qstorage2prim_all, delimiter=',')
     np.savetxt(path_name + '/../data/sludge.csv', sludge_all, delimiter=',')
 
-    print('Steady state simulation completed after: ', stop - start, 'seconds')
+    print('Dynamic open loop simulation completed after: ', stop - start, 'seconds')
     print('Effluent at t =', endtime, 'd:  \n', y_eff)
     print('Sludge height at t =', endtime, 'd:  \n', sludge_height)
 
