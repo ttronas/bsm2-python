@@ -10,12 +10,11 @@ SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, S
 class Dewatering:
     def __init__(self, dw_par):
         """
-        calculates the water and sludge stream concentrations   
-        from an 'ideal' dewatering unit based on a fixed percentage of solids in
-        the dewatered sludge. A defined amount of total solids are removed from
-        the influent sludge stream and goes into the stream of dewatered sludge
-        and the remaining will leave with the reject water phase. 
-        Soluble concentrations are not affected.
+        Calculates the water and sludge stream concentrations from an 'ideal'
+        dewatering unit based on a fixed percentage of solids in the dewatered sludge.
+        A defined amount of total solids are removed from the influent sludge stream
+        and goes into the stream of dewatered sludge and the remaining will leave with
+        the reject water phase. Soluble concentrations are not affected.
         Temperature is also handled ideally, i.e. T(out)=T(in).
 
         Parameters
@@ -40,7 +39,7 @@ class Dewatering:
         ----------
         ydw_in : np.ndarray
             dewatering inlet concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
-        
+
         Returns
         -------
         ydw_s : np.ndarray
@@ -51,11 +50,14 @@ class Dewatering:
         # dewater_perc, TSS_removal_perc, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS = dw_par
         # y = ydw_s, ydw_r
         # u = ydw_in
-        
+
         ydw_s = np.zeros(21)
         ydw_r = np.zeros(21)
 
-        TSSin = self.dw_par[2]*ydw_in[2] + self.dw_par[3]*ydw_in[3] + self.dw_par[4]*ydw_in[4] + self.dw_par[5]*ydw_in[5] + self.dw_par[6]*ydw_in[6]
+        TSSin = self.dw_par[2]*ydw_in[XI] + self.dw_par[3]*ydw_in[XS] + \
+            self.dw_par[4]*ydw_in[XBH] + self.dw_par[5]*ydw_in[XBA] + \
+            self.dw_par[6]*ydw_in[XP]
+
         dewater_factor = self.dw_par[0]*10000/TSSin
         Qu_factor = self.dw_par[1]/(100*dewater_factor)
         reject_factor = (1 - self.dw_par[1]/100) / (1-Qu_factor)
@@ -63,39 +65,37 @@ class Dewatering:
         if dewater_factor > 1:
             # sludge
             ydw_s[:] = ydw_in[:]
-            ydw_s[XI]=ydw_in[XI]*dewater_factor
-            ydw_s[XS]=ydw_in[XS]*dewater_factor
-            ydw_s[XBH]=ydw_in[XBH]*dewater_factor
-            ydw_s[XBA]=ydw_in[XBA]*dewater_factor
-            ydw_s[XP]=ydw_in[XP]*dewater_factor
-            ydw_s[XND]=ydw_in[XND]*dewater_factor
-            ydw_s[TSS]=TSSin*dewater_factor
-            ydw_s[Q]=ydw_in[Q]*Qu_factor
-            ydw_s[XD4]=ydw_in[XD4]*dewater_factor
-            ydw_s[XD5]=ydw_in[XD5]*dewater_factor
+            ydw_s[XI] = ydw_in[XI]*dewater_factor
+            ydw_s[XS] = ydw_in[XS]*dewater_factor
+            ydw_s[XBH] = ydw_in[XBH]*dewater_factor
+            ydw_s[XBA] = ydw_in[XBA]*dewater_factor
+            ydw_s[XP] = ydw_in[XP]*dewater_factor
+            ydw_s[XND] = ydw_in[XND]*dewater_factor
+            ydw_s[TSS] = TSSin*dewater_factor
+            ydw_s[Q] = ydw_in[Q]*Qu_factor
+            ydw_s[XD4] = ydw_in[XD4]*dewater_factor
+            ydw_s[XD5] = ydw_in[XD5]*dewater_factor
 
             # reject
             ydw_r[:] = ydw_in[:]
-            ydw_r[XI]=ydw_in[XI]*reject_factor
-            ydw_r[XS]=ydw_in[XS]*reject_factor
-            ydw_r[XBH]=ydw_in[XBH]*reject_factor
-            ydw_r[XBA]=ydw_in[XBA]*reject_factor
-            ydw_r[XP]=ydw_in[XP]*reject_factor
-            ydw_r[XND]=ydw_in[XND]*reject_factor
-            ydw_r[TSS]=TSSin*reject_factor
-            ydw_r[Q]=ydw_in[Q]*(1-Qu_factor)
-            ydw_r[XD4]=ydw_in[XD4]*reject_factor
-            ydw_r[XD5]=ydw_in[XD5]*reject_factor
-            
+            ydw_r[XI] = ydw_in[XI]*reject_factor
+            ydw_r[XS] = ydw_in[XS]*reject_factor
+            ydw_r[XBH] = ydw_in[XBH]*reject_factor
+            ydw_r[XBA] = ydw_in[XBA]*reject_factor
+            ydw_r[XP] = ydw_in[XP]*reject_factor
+            ydw_r[XND] = ydw_in[XND]*reject_factor
+            ydw_r[TSS] = TSSin*reject_factor
+            ydw_r[Q] = ydw_in[Q]*(1-Qu_factor)
+            ydw_r[XD4] = ydw_in[XD4]*reject_factor
+            ydw_r[XD5] = ydw_in[XD5]*reject_factor
+
         else:
             # the influent is too high on solids to thicken further
             # all the influent leaves with the sludge flow
             ydw_s[:] = ydw_in[:]
-            ydw_s[13] = TSSin
+            ydw_s[TSS] = TSSin
 
             # reject flow is zero
             ydw_r[:] = 0
-
-
 
         return ydw_s, ydw_r

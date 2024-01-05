@@ -1,20 +1,20 @@
 """
 test dewatering_bsm2.py
 """
+import sys
+import os
+path_name = os.path.dirname(__file__)
+sys.path.append(path_name + '/..')
+
+import numpy as np
+import csv, time
+from tqdm import tqdm
+from bsm2 import asm1init_bsm2 as asm1init
+from bsm2 import dewateringinit_bsm2 as dewateringinit
+from bsm2.dewatering_bsm2 import Dewatering
 
 
 def test_dewatering():
-    import sys
-    import os
-    path_name = os.path.dirname(__file__)
-    sys.path.append(path_name + '/..')
-
-    import numpy as np
-    import time
-    from bsm2 import asm1init_bsm2 as asm1init
-    from bsm2 import dewateringinit_bsm2 as dewateringinit
-    from bsm2.dewatering_bsm2 import Dewatering
-
     # definition of the tested dewatering:
     dewatering = Dewatering(dewateringinit.DEWATERINGPAR)
 
@@ -51,3 +51,54 @@ def test_dewatering():
 
 
 test_dewatering()
+
+
+def test_dewatering_dyn():
+    # definition of the tested dewatering:
+    dewatering = Dewatering(dewateringinit.DEWATERINGPAR)
+    # dyninfluent from BSM2:
+    with open(path_name + '/../data/dyninfluent_bsm2.csv', 'r') as f:
+        data_in = np.array(list(csv.reader(f, delimiter=","))).astype(np.float64)
+
+    timestep = 15/24/60  # 15 minutes in days
+    endtime = 50  # data_in[-1, 0]
+    data_time = data_in[:, 0]
+    simtime = np.arange(0, endtime, timestep)
+    y_in = data_in[:, 1:]
+    del data_in
+
+    ydw_s = np.zeros(21)
+    ydw_r = np.zeros(21)
+    ydw_s_all = np.zeros((len(simtime), 21))
+    ydw_r_all = np.zeros((len(simtime), 21))
+
+    start = time.perf_counter()
+
+    for i, step in enumerate(tqdm(simtime)):
+        # get influent data that is smaller than and closest to current time step
+        y_in_timestep = y_in[np.where(data_time <= step)[0][-1], :]
+        ydw_s, ydw_r = dewatering.outputs(y_in_timestep)
+        ydw_s_all[i, :] = ydw_s
+        ydw_r_all[i, :] = ydw_r
+
+    stop = time.perf_counter()
+
+    # np.savetxt(path_name + '/../data/test_ydw_s_all.csv', ydw_s_all, delimiter=',')
+    # np.savetxt(path_name + '/../data/test_ydw_r_all.csv', ydw_r_all, delimiter=',')
+
+    print('Dynamic simulation completed after: ', stop - start, 'seconds')
+    print('Sludge flow at t =', endtime, 'd: \n', ydw_s)
+    print('Reject flow at t =', endtime, 'd: \n', ydw_r)
+
+    # Values from 50 days dynamic simulation in Matlab (dewatering_test_dyn.slx):
+    ydw_s_matlab = np.array([33.5386583268000, 42.6657147645379, 69658.3011171199, 266353.691824116, 37321.3403920977, 0, 0, 0, 0, 13.0991673987171, 4.42838614018597, 8361.46349627682, 7, 280000, 28.1883392218788, 11.4404477663154, 0, 0, 0, 0, 0])
+    ydw_r_matlab = np.array([33.5386583268000, 42.6657147645379, 1.90746272008929, 7.29359931788214, 1.02197533273164, 0, 0, 0, 0, 13.0991673987171, 4.42838614018597, 0.228963090525556, 7, 7.66727802802730, 21008.2670194321, 11.4404477663154, 0, 0, 0, 0, 0])
+
+    print('Sludge flow difference to MatLab solution: \n', ydw_s_matlab - ydw_s)
+    print('Reject flow difference to MatLab solution: \n', ydw_r_matlab - ydw_r)
+
+    assert np.allclose(ydw_s, ydw_s_matlab, rtol=1e-5, atol=1e-5)
+    assert np.allclose(ydw_r, ydw_r_matlab, rtol=1e-5, atol=1e-5)
+
+
+test_dewatering_dyn()

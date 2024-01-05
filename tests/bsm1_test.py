@@ -137,8 +137,8 @@ def test_bsm1_ol():
 
     stop = time.perf_counter()
 
-    np.savetxt(path_name + '/../data/test_ys_eff_all.csv', ys_eff_all, delimiter=',')
-    np.savetxt(path_name + '/../data/test_sludge_height_all.csv', sludge_height_all, delimiter=',')
+    # np.savetxt(path_name + '/../data/test_ys_eff_all.csv', ys_eff_all, delimiter=',')
+    # np.savetxt(path_name + '/../data/test_sludge_height_all.csv', sludge_height_all, delimiter=',')
 
     print('Dynamic open loop simulation completed after: ', stop - start, 'seconds')
     print('Effluent at t =', endtime, 'd:  \n', ys_eff)

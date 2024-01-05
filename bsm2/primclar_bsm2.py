@@ -19,7 +19,8 @@ def primclarequations(t, yp, yp_in, p_par, volume, tempmodel):
     yp : np.ndarray
         Solution of the differential equations, needed for the solver
     yp_in : np.ndarray
-        Primary clarifier influent concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        Primary clarifier influent concentrations of the 21 components
+        (13 ASM1 components, TSS, Q, T and 5 dummy states)
     p_par : np.ndarray
         primary clarifier parameters
     volume : float
@@ -50,6 +51,10 @@ def primclarequations(t, yp, yp_in, p_par, volume, tempmodel):
 class PrimaryClarifier:
     def __init__(self, volume, yp0, p_par, asm1par, x_vector, tempmodel, activate):
         """
+        This is an implementation of the Otterpohl/Freund primary clarifier model.
+        The implementation is to a large extent based on an implementation of the
+        Otterpohl/Freund model by Dr. Jens Alex, IFAK, Magdeburg.
+
         Parameters
         ----------
         volume : float
@@ -67,7 +72,7 @@ class PrimaryClarifier:
         x_vector : np.ndarray
             primary clarifier state vector
         tempmodel : bool
-            If true, mass balance for the wastewater temperature is used in process rates,
+            If true, first-order equation based on the heat content of the influent, the reactor and outflow is solved,
             otherwise influent wastewater temperature is just passed through process reactors
         activate : bool
             If true, dummy states are activated, otherwise dummy states are not activated
@@ -82,7 +87,8 @@ class PrimaryClarifier:
 
     def outputs(self, timestep, step, yp_in):
         """
-        Returns the overflow and underflow concentrations from a primary clarifier at the current time step.
+        Returns the overflow and underflow concentrations from a
+        primary clarifier at the current time step.
 
         Parameters
         ----------
@@ -91,15 +97,19 @@ class PrimaryClarifier:
         step : float
             current time
         yp_in : np.ndarray
-            primary clarifier influent concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            primary clarifier influent concentrations of the 21 components
+            (13 ASM1 components, TSS, Q, T and 5 dummy states)
 
         Returns
         -------
         yp_uf : np.ndarray
-            primary clarifier underflow (sludge) concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            primary clarifier underflow (sludge) concentrations of the 21 components
+            (13 ASM1 components, TSS, Q, T and 5 dummy states)
         yp_of : np.ndarray
-            primary clarifier overflow (effluent) concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
-            and 4 additional parameters (Kjeldahl N, total N, total COD, BOD5 concentration) at the current time step
+            primary clarifier overflow (effluent) concentrations of the 21 components
+            (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            and 4 additional parameters
+            (Kjeldahl N, total N, total COD, BOD5 concentration) at the current time step
         """
         # f_corr, f_X, t_m, f_PS = p_par
         # y = yp_uf, yp_of
@@ -114,7 +124,8 @@ class PrimaryClarifier:
 
         t_eval = np.array([step, step+timestep])    # time interval for odeint
 
-        ode = odeint(primclarequations, self.yp0, t_eval, tfirst=True, args=(yp_in, self.p_par, self.volume, self.tempmodel))
+        ode = odeint(primclarequations, self.yp0, t_eval, tfirst=True,
+                     args=(yp_in, self.p_par, self.volume, self.tempmodel))
 
         yp_int = ode[1]
 
@@ -124,8 +135,10 @@ class PrimaryClarifier:
         E = yp_in[Q] / Qu  # thickening factor
         tt = self.volume / (yp_int[Q] + 0.001)  # hydraulic retention time
 
-        nCOD = self.p_par[0] * (2.88*self.p_par[1]-0.118) * (1.45+6.15*np.log(tt*24*60))  # Total COD removal efficiency in primary clarifier
-        nX = nCOD/self.p_par[1]  # Removal efficiency of particulate COD in %, since assumption that soluble COD is not removed
+        # Total COD removal efficiency in primary clarifier nCOD
+        nCOD = self.p_par[0] * (2.88*self.p_par[1]-0.118) * (1.45+6.15*np.log(tt*24*60))
+        # nX is removal efficiency of particulate COD in %, since assumption that soluble COD is not removed
+        nX = nCOD/self.p_par[1]
         nX = max(0, min(100, nX))  # nX is between 0 and 100
 
         ff = (1-self.x_vector*nX/100)
@@ -143,12 +156,18 @@ class PrimaryClarifier:
         yp_uf[16:21] = ((1-ff[16:21])*E + ff[16:21]) * yp_int[16:21]
         yp_uf[yp_uf < 0.0] = 0.0
 
-        # TSS outputs effluent
-        yp_of[TSS] = self.asm1par[19]*yp_of[XI] + self.asm1par[20]*yp_of[XS] + self.asm1par[21]*yp_of[XBH] + self.asm1par[22]*yp_of[XBA] + self.asm1par[23]*yp_of[XP]
-        yp_of[Q] = yp_in[Q] - Qu  # flow rate in effluent
+        # TSS output effluent
+        yp_of[TSS] = self.asm1par[19]*yp_of[XI] + self.asm1par[20]*yp_of[XS] + \
+            self.asm1par[21]*yp_of[XBH] + self.asm1par[22]*yp_of[XBA] +\
+            self.asm1par[23]*yp_of[XP]
 
-        # TSS outputs underflow
-        yp_uf[TSS] = self.asm1par[19]*yp_uf[XI] + self.asm1par[20]*yp_uf[XS] + self.asm1par[21]*yp_uf[XBH] + self.asm1par[22]*yp_uf[XBA] + self.asm1par[23]*yp_uf[XP]
+        # TSS output underflow
+        yp_uf[TSS] = self.asm1par[19]*yp_uf[XI] + self.asm1par[20]*yp_uf[XS] + \
+            self.asm1par[21]*yp_uf[XBH] + self.asm1par[22]*yp_uf[XBA] + \
+            self.asm1par[23]*yp_uf[XP]
+
+        # Flow rates
+        yp_of[Q] = yp_in[Q] - Qu  # flow rate in effluent
         yp_uf[Q] = Qu  # flow rate in underflow
 
         if not self.tempmodel:
