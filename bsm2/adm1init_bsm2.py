@@ -1,37 +1,37 @@
 """
 This file initiates parameter values and sets initial conditions for the model implementation of adm1_bsm2.py.
 Note that some of the parameter values deviate from the values given in the ADM1-STR (Batstone et al., 2002).
-The state values are based on BSM2 openloop results using the constant input file.
+The state values are based on BSM2 technical report.
 """
 
 import numpy as np
 
-S_su = 0.0124
-S_aa = 0.0055
-S_fa = 0.1074
-S_va = 0.0123
-S_bu = 0.0140
-S_pro = 0.0176
-S_ac = 0.0893
-S_h2 = 2.5055e-7
-S_ch4 = 0.0555
-S_IC = 0.0951
-S_IN = 0.0945
-S_I = 0.1309
-X_xc = 0.1079
-X_ch = 0.0205
-X_pr = 0.0842
-X_li = 0.0436
-X_su = 0.3122
-X_aa = 0.9317
-X_fa = 0.3384
-X_c4 = 0.3258
-X_pro = 0.1011
-X_ac = 0.6772
-X_h2 = 0.2848
-X_I = 17.2162
-S_cat = 3.5659e-43
-S_an = 0.0052
+S_su = 0.0124  # monosacharides (kg COD/m3)
+S_aa = 0.0055  # amino acids (kg COD/m3)
+S_fa = 0.1074  # long chain fatty acids (LCFA) (kg COD/m3)
+S_va = 0.0123  # total valerate (kg COD/m3)
+S_bu = 0.0140  # total butyrate (kg COD/m3)
+S_pro = 0.0176  # total propionate (kg COD/m3)
+S_ac = 0.0893  # total acetate (kg COD/m3)
+S_h2 = 2.5055e-7  # hydrogen gas (kg COD/m3)
+S_ch4 = 0.0555  # methane gas (kg COD/m3)
+S_IC = 0.0951  # inorganic carbon (kmole C/m3)
+S_IN = 0.0945  # inorganic nitrogen (kmole N/m3)
+S_I = 0.1309  # soluble inerts (kg COD/m3)
+X_xc = 0.1079  # composites (kg COD/m3)
+X_ch = 0.0205  # carbohydrates (kg COD/m3)
+X_pr = 0.0842  # proteins (kg COD/m3)
+X_li = 0.0436  # lipids (kg COD/m3)
+X_su = 0.3122  # sugar degraders (kg COD/m3)
+X_aa = 0.9317  # amino acid degraders (kg COD/m3)
+X_fa = 0.3384  # LCFA degraders (kg COD/m3)
+X_c4 = 0.3258  # valerate and butyrate degraders (kg COD/m3)
+X_pro = 0.1011  # propionate degraders (kg COD/m3)
+X_ac = 0.6772  # acetate degraders (kg COD/m3)
+X_h2 = 0.2848  # hydrogen degraders (kg COD/m3)
+X_I = 17.2162  # particulate inerts (kg COD/m3)
+S_cat = 3.5659e-43  # cations (metallic ions, strong base) (kmole/m3)
+S_an = 0.0052  # anions (metallic ions, strong acid) (kmole/m3)
 S_hva = 0.0123   # is actually Sva-
 S_hbu = 0.0140   # is actually Sbu-
 S_hpro = 0.0175  # is actually Spro-
@@ -41,8 +41,8 @@ S_nh3 = 0.0019
 S_gas_h2 = 1.1032e-5
 S_gas_ch4 = 1.6535
 S_gas_co2 = 0.0135
-Q_D = 178.4674
-T_D = 35
+Q_D = 178.4674  # influent flow rate (m3/d)
+T_D = 35  # temperature (°C)
 S_D1_D = 0
 S_D2_D = 0
 S_D3_D = 0

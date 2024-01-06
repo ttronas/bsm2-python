@@ -1,3 +1,21 @@
+"""
+ The implementation is to a large extent based on an implementation of the
+ Otterpohl/Freund model by Dr Jens Alex, IFAK, Magdeburg.
+ In addition to ASM1 states, the clarifier will also pass on `TSS`, `Q`, `TEMP` and 5 dummy
+ states to effluent and underflow.
+ If `tempmodel` == True, T(out) is a first-order equation based on the
+ heat content of the influent, the reactor and outflow.
+
+Copyright (2006):
+ Ulf Jeppsson
+ Dept. Industrial Electrical Engineering and Automation (IEA), Lund University, Sweden
+ https://www.lth.se/iea/
+
+Copyright (2024):
+ Jonas Miederer
+ Chair of Energy Process Engineering (EVT), FAU Erlangen-Nuremberg, Germany
+ https://www.evt.tf.fau.de/
+"""
 import numpy as np
 from scipy.integrate import odeint
 from numba import jit
@@ -179,7 +197,8 @@ class PrimaryClarifier:
 
         # additional values to compare:
         # Kjeldahl N concentration:
-        yp_of[21] = yp_of[SNH] + yp_of[SND] + yp_of[XND] + self.asm1par[17] * (yp_of[XBH] + yp_of[XBA]) + self.asm1par[18] * (yp_of[XP] + yp_of[XI])
+        yp_of[21] = yp_of[SNH] + yp_of[SND] + yp_of[XND] + self.asm1par[17] * (yp_of[XBH] + yp_of[XBA]) + \
+            self.asm1par[18] * (yp_of[XP] + yp_of[XI])
         # total N concentration:
         yp_of[22] = yp_of[21] + yp_of[SNO]
         # total COD concentration:

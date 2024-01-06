@@ -1,5 +1,26 @@
+"""
+This is a implementation defining a n-layer settler model.  
+can simulate n, 1 or 0 layers for the solubles by using `modeltype` = 0, 1 or 2 (currently only 0 implemented)
+Darko Vrecko, March 2005
+
+Correction to the functionality of `tempmodel`
+Krist V. Gernaey, 02 May 2005
+
+Activation of dummy states via parameter `activate` = 1 (otherwise 0)
+
+Sludge blanket level output added august 2011
+
+Copyright (2006):
+ Ulf Jeppsson
+ Dept. Industrial Electrical Engineering and Automation (IEA), Lund University, Sweden
+ https://www.lth.se/iea/
+
+Copyright (2024):
+ Jonas Miederer
+ Chair of Energy Process Engineering (EVT), FAU Erlangen-Nuremberg, Germany
+ https://www.evt.tf.fau.de/
+"""
 import numpy as np
-from copy import deepcopy
 from scipy.integrate import odeint
 from numba import jit
 
@@ -10,7 +31,8 @@ SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, S
 
 @jit(nopython=True)
 def settlerequations(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel, modeltype):
-    """Returns an array containing the differential equations of a non-reactive sedimentation tank with variable number of layers (default model is 10 layers), which is compatible with ASM1 model
+    """Returns an array containing the differential equations of a non-reactive sedimentation tank
+    with variable number of layers (default model is 10 layers), which is compatible with ASM1 model
 
     Parameters
     ----------
@@ -50,7 +72,7 @@ def settlerequations(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel, modelt
     feedlayer = layer[0]
     nooflayers = layer[1]
     h = dim[1] / nooflayers
-    volume = area * dim[1]
+    # volume = area * dim[1]
 
     vs = np.zeros(nooflayers)
     Js = np.zeros(nooflayers+1)
@@ -60,7 +82,7 @@ def settlerequations(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel, modelt
 
     eps = 0.01
     v_in = ys_in[Q] / area
-    Q_f = ys_in[Q]
+    # Q_f = ys_in[Q]
     Q_u = Qr + Qw
     Q_e = ys_in[Q] - Q_u
     v_up = Q_e / area
@@ -101,78 +123,92 @@ def settlerequations(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel, modelt
     # soluble component S_S:
     for i in range(feedlayer-1):
         dys[i + nooflayers] = (-v_up * ystemp[i + nooflayers] + v_up * ystemp[i + 1 + nooflayers]) / h
-    dys[feedlayer-1 + nooflayers] = (v_in * ys_in[SS] - v_up * ystemp[feedlayer-1 + nooflayers] - v_dn * ystemp[feedlayer-1 + nooflayers]) / h
+    dys[feedlayer-1 + nooflayers] = (v_in * ys_in[SS] - v_up * ystemp[feedlayer-1 + nooflayers] -
+                                     v_dn * ystemp[feedlayer-1 + nooflayers]) / h
     for i in range(feedlayer, nooflayers):
         dys[i + nooflayers] = (v_dn * ystemp[i - 1 + nooflayers] - v_dn * ystemp[i + nooflayers]) / h
 
     # soluble component S_O:
     for i in range(feedlayer-1):
         dys[i + 2*nooflayers] = (-v_up * ystemp[i + 2*nooflayers] + v_up * ystemp[i + 1 + 2*nooflayers]) / h
-    dys[feedlayer-1 + 2*nooflayers] = (v_in * ys_in[SO] - v_up * ystemp[feedlayer-1 + 2*nooflayers] - v_dn * ystemp[feedlayer-1 + 2*nooflayers]) / h
+    dys[feedlayer-1 + 2*nooflayers] = (v_in * ys_in[SO] - v_up * ystemp[feedlayer-1 + 2*nooflayers] -
+                                       v_dn * ystemp[feedlayer-1 + 2*nooflayers]) / h
     for i in range(feedlayer, nooflayers):
         dys[i + 2*nooflayers] = (v_dn * ystemp[i - 1 + 2*nooflayers] - v_dn * ystemp[i + 2*nooflayers]) / h
 
     # soluble component S_NO:
     for i in range(feedlayer-1):
         dys[i + 3*nooflayers] = (-v_up * ystemp[i + 3*nooflayers] + v_up * ystemp[i + 1 + 3*nooflayers]) / h
-    dys[feedlayer-1 + 3*nooflayers] = (v_in * ys_in[SNO] - v_up * ystemp[feedlayer-1 + 3*nooflayers] - v_dn * ystemp[feedlayer-1 + 3*nooflayers]) / h
+    dys[feedlayer-1 + 3*nooflayers] = (v_in * ys_in[SNO] - v_up * ystemp[feedlayer-1 + 3*nooflayers] -
+                                       v_dn * ystemp[feedlayer-1 + 3*nooflayers]) / h
     for i in range(feedlayer, nooflayers):
         dys[i + 3*nooflayers] = (v_dn * ystemp[i - 1 + 3*nooflayers] - v_dn * ystemp[i + 3*nooflayers]) / h
 
     # soluble component S_NH:
     for i in range(feedlayer-1):
         dys[i + 4*nooflayers] = (-v_up * ystemp[i + 4*nooflayers] + v_up * ystemp[i + 1 + 4*nooflayers]) / h
-    dys[feedlayer-1 + 4*nooflayers] = (v_in * ys_in[SNH] - v_up * ystemp[feedlayer-1 + 4*nooflayers] - v_dn * ystemp[feedlayer-1 + 4*nooflayers]) / h
+    dys[feedlayer-1 + 4*nooflayers] = (v_in * ys_in[SNH] - v_up * ystemp[feedlayer-1 + 4*nooflayers] -
+                                       v_dn * ystemp[feedlayer-1 + 4*nooflayers]) / h
     for i in range(feedlayer, nooflayers):
         dys[i + 4*nooflayers] = (v_dn * ystemp[i - 1 + 4*nooflayers] - v_dn * ystemp[i + 4*nooflayers]) / h
 
     # soluble component S_ND:
     for i in range(feedlayer-1):
         dys[i + 5*nooflayers] = (-v_up * ystemp[i + 5*nooflayers] + v_up * ystemp[i + 1 + 5*nooflayers]) / h
-    dys[feedlayer-1 + 5*nooflayers] = (v_in * ys_in[SND] - v_up * ystemp[feedlayer-1 + 5*nooflayers] - v_dn * ystemp[feedlayer-1 + 5*nooflayers]) / h
+    dys[feedlayer-1 + 5*nooflayers] = (v_in * ys_in[SND] - v_up * ystemp[feedlayer-1 + 5*nooflayers] -
+                                       v_dn * ystemp[feedlayer-1 + 5*nooflayers]) / h
     for i in range(feedlayer, nooflayers):
         dys[i + 5*nooflayers] = (v_dn * ystemp[i - 1 + 5*nooflayers] - v_dn * ystemp[i + 5*nooflayers]) / h
 
     # soluble component S_ALK:
     for i in range(feedlayer-1):
         dys[i + 6*nooflayers] = (-v_up * ystemp[i + 6*nooflayers] + v_up * ystemp[i + 1 + 6*nooflayers]) / h
-    dys[feedlayer-1 + 6*nooflayers] = (v_in * ys_in[SALK] - v_up * ystemp[feedlayer-1 + 6*nooflayers] - v_dn * ystemp[feedlayer-1 + 6*nooflayers]) / h
+    dys[feedlayer-1 + 6*nooflayers] = (v_in * ys_in[SALK] - v_up * ystemp[feedlayer-1 + 6*nooflayers] -
+                                       v_dn * ystemp[feedlayer-1 + 6*nooflayers]) / h
     for i in range(feedlayer, nooflayers):
         dys[i + 6*nooflayers] = (v_dn * ystemp[i - 1 + 6*nooflayers] - v_dn * ystemp[i + 6*nooflayers]) / h
 
     # particulate component X_TSS:
     for i in range(feedlayer-1):
-        dys[i + 7*nooflayers] = ((-v_up * ystemp[i + 7*nooflayers] + v_up * ystemp[i + 1 + 7*nooflayers] - Js[i + 1]) + Js[i]) / h
-    dys[feedlayer-1 + 7*nooflayers] = (v_in * ys_in[TSS] - v_up * ystemp[feedlayer-1 + 7*nooflayers] - v_dn * ystemp[feedlayer-1 + 7*nooflayers] - Js[feedlayer-1 + 1] + Js[feedlayer-1]) / h
+        dys[i + 7*nooflayers] = ((-v_up * ystemp[i + 7*nooflayers] + v_up * ystemp[i + 1 + 7*nooflayers]
+                                  - Js[i + 1]) + Js[i]) / h
+    dys[feedlayer-1 + 7*nooflayers] = (v_in * ys_in[TSS] - v_up * ystemp[feedlayer-1 + 7*nooflayers] -
+                                       v_dn * ystemp[feedlayer-1 + 7*nooflayers] -
+                                       Js[feedlayer-1 + 1] + Js[feedlayer-1]) / h
     for i in range(feedlayer, nooflayers):
-        dys[i + 7*nooflayers] = (v_dn * ystemp[i - 1 + 7*nooflayers] - v_dn * ystemp[i + 7*nooflayers] - Js[i + 1] + Js[i]) / h
+        dys[i + 7*nooflayers] = (v_dn * ystemp[i - 1 + 7*nooflayers] - v_dn * ystemp[i + 7*nooflayers]
+                                 - Js[i + 1] + Js[i]) / h
 
     # Temperature:
     if tempmodel:
         for i in range(feedlayer-1):
             dys[i + 8*nooflayers] = (-v_up * ystemp[i + 8*nooflayers] + v_up * ystemp[i + 1 + 8*nooflayers]) / h
-        dys[feedlayer-1 + 8*nooflayers] = (v_in * ys_in[TEMP] - v_up * ystemp[feedlayer-1 + 8*nooflayers] - v_dn * ystemp[feedlayer-1 + 8*nooflayers]) / h
+        dys[feedlayer-1 + 8*nooflayers] = (v_in * ys_in[TEMP] - v_up * ystemp[feedlayer-1 + 8*nooflayers] -
+                                           v_dn * ystemp[feedlayer-1 + 8*nooflayers]) / h
         for i in range(feedlayer, nooflayers):
             dys[i + 8*nooflayers] = (v_dn * ystemp[i - 1 + 8*nooflayers] - v_dn * ystemp[i + 8*nooflayers]) / h
 
     # soluble component S_D1:
     for i in range(feedlayer-1):
         dys[i + 9*nooflayers] = (-v_up * ystemp[i + 9*nooflayers] + v_up * ystemp[i + 1 + 9*nooflayers]) / h
-    dys[feedlayer-1 + 9*nooflayers] = (v_in * ys_in[SD1] - v_up * ystemp[feedlayer-1 + 9*nooflayers] - v_dn * ystemp[feedlayer-1 + 9*nooflayers]) / h
+    dys[feedlayer-1 + 9*nooflayers] = (v_in * ys_in[SD1] - v_up * ystemp[feedlayer-1 + 9*nooflayers] -
+                                       v_dn * ystemp[feedlayer-1 + 9*nooflayers]) / h
     for i in range(feedlayer, nooflayers):
         dys[i + 9*nooflayers] = (v_dn * ystemp[i - 1 + 9*nooflayers] - v_dn * ystemp[i + 9*nooflayers]) / h
 
     # soluble component S_D2:
     for i in range(feedlayer-1):
         dys[i + 10*nooflayers] = (-v_up * ystemp[i + 10*nooflayers] + v_up * ystemp[i + 1 + 10*nooflayers]) / h
-    dys[feedlayer-1 + 10*nooflayers] = (v_in * ys_in[SD2] - v_up * ystemp[feedlayer-1 + 10*nooflayers] - v_dn * ystemp[feedlayer-1 + 10*nooflayers]) / h
+    dys[feedlayer-1 + 10*nooflayers] = (v_in * ys_in[SD2] - v_up * ystemp[feedlayer-1 + 10*nooflayers] -
+                                        v_dn * ystemp[feedlayer-1 + 10*nooflayers]) / h
     for i in range(feedlayer, nooflayers):
         dys[i + 10*nooflayers] = (v_dn * ystemp[i - 1 + 10*nooflayers] - v_dn * ystemp[i + 10*nooflayers]) / h
 
     # soluble component S_D3:
     for i in range(feedlayer-1):
         dys[i + 11*nooflayers] = (-v_up * ystemp[i + 11*nooflayers] + v_up * ystemp[i + 1 + 11*nooflayers]) / h
-    dys[feedlayer-1 + 11*nooflayers] = (v_in * ys_in[SD3] - v_up * ystemp[feedlayer-1 + 11*nooflayers] - v_dn * ystemp[feedlayer-1 + 11*nooflayers]) / h
+    dys[feedlayer-1 + 11*nooflayers] = (v_in * ys_in[SD3] - v_up * ystemp[feedlayer-1 + 11*nooflayers] -
+                                        v_dn * ystemp[feedlayer-1 + 11*nooflayers]) / h
     for i in range(feedlayer, nooflayers):
         dys[i + 11*nooflayers] = (v_dn * ystemp[i - 1 + 11*nooflayers] - v_dn * ystemp[i + 11*nooflayers]) / h
 
@@ -256,7 +292,8 @@ def get_outputs(ys_int, ys_in, nooflayers, tempmodel, Qr, Qw, dim, asm1par, sedp
 
     # additional values to compare:
     # Kjeldahl N concentration:
-    ys_eff[21] = ys_eff[SNH] + ys_eff[SND] + ys_eff[XND] + asm1par[17] * (ys_eff[XBH] + ys_eff[XBA]) + asm1par[18] * (ys_eff[XP] + ys_eff[XI])
+    ys_eff[21] = ys_eff[SNH] + ys_eff[SND] + ys_eff[XND] + asm1par[17] * (ys_eff[XBH] + ys_eff[XBA]) + \
+        asm1par[18] * (ys_eff[XP] + ys_eff[XI])
     # total N concentration:
     ys_eff[22] = ys_eff[21] + ys_eff[SNO]
     # total COD concentration:
@@ -278,7 +315,9 @@ def get_outputs(ys_int, ys_in, nooflayers, tempmodel, Qr, Qw, dim, asm1par, sedp
     elif sludge_level == 0:
         sludge_height = h*(ys_int[8*nooflayers-1] + ys_int[8*nooflayers-2]) / (sedpar[6] - ys_int[8*nooflayers-2])
     else:
-        sludge_height = sludge_level*h + h*(ys_int[8*nooflayers-1-sludge_level] + ys_int[8*nooflayers-2-sludge_level])/(ys_int[8*nooflayers-sludge_level] - ys_int[8*nooflayers-2-sludge_level])
+        sludge_height = sludge_level*h + h*(ys_int[8*nooflayers-1-sludge_level] +
+                                            ys_int[8*nooflayers-2-sludge_level]) / \
+            (ys_int[8*nooflayers-sludge_level] - ys_int[8*nooflayers-2-sludge_level])
 
     return ys_ret, ys_was, ys_eff, sludge_height
 
@@ -340,24 +379,32 @@ class Settler:
         -------
         (np.ndarray, np.ndarray, np.ndarray, float)
             Tuple containing three arrays and a float:
-                ys_ret: Array containing the values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
-                in the underflow (bottom layer of settler) at the current time step after the integration - return sludge
-                ys_was: Array containing the values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
-                in the underflow (bottom layer of settler) at the current time step after the integration - waste sludge
-                ys_eff: Array containing the values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
-                in the effluent (top layer of settler) and 4 additional parameters (Kjeldahl N, total N, total COD, BOD5
-                concentration) at the current time step after the integration - effluent
+                ys_ret: Array containing the values of the 21 components
+                (13 ASM1 components, TSS, Q, T and 5 dummy states)
+                in the underflow (bottom layer of settler) at the current time step
+                after the integration - return sludge
+                ys_was: Array containing the values of the 21 components
+                (13 ASM1 components, TSS, Q, T and 5 dummy states)
+                in the underflow (bottom layer of settler) at the current time step
+                after the integration - waste sludge
+                ys_eff: Array containing the values of the 21 components
+                (13 ASM1 components, TSS, Q, T and 5 dummy states)
+                in the effluent (top layer of settler) and 4 additional parameters
+                (Kjeldahl N, total N, total COD, BOD5 concentration)
+                at the current time step after the integration - effluent
                 sludge_height: Float containing the continuous signal of sludge blanket level
         """
 
         nooflayers = self.layer[1]
-        ys_TSS = np.zeros(nooflayers)
+        # ys_TSS = np.zeros(nooflayers)
         t_eval = np.array([step, step + timestep])
 
-        odes = odeint(settlerequations, self.ys0, t_eval, tfirst=True, args=(ys_in, self.sedpar, self.dim, self.layer, self.Qr, self.Qw, self.tempmodel, self.modeltype))
+        odes = odeint(settlerequations, self.ys0, t_eval, tfirst=True,
+                      args=(ys_in, self.sedpar, self.dim, self.layer, self.Qr, self.Qw, self.tempmodel, self.modeltype))
         ys_int = odes[1]
         self.ys0 = ys_int
 
-        ys_ret, ys_was, ys_eff, sludge_height = get_outputs(ys_int, ys_in, nooflayers, self.tempmodel, self.Qr, self.Qw, self.dim, self.asm1par, self.sedpar)
+        ys_ret, ys_was, ys_eff, sludge_height = get_outputs(ys_int, ys_in, nooflayers, self.tempmodel, self.Qr,
+                                                            self.Qw, self.dim, self.asm1par, self.sedpar)
 
         return ys_ret, ys_was, ys_eff, sludge_height

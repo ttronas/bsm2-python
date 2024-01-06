@@ -68,7 +68,8 @@ class Splitter():
         in : np.ndarray[21]
             ASM1 array to be split
         splitratio : Tuple(float)
-            split ratio for each component. Ideally sums up to 1 (except if sp_type=2, then no split ratio is needed and flow is split into two flows)
+            split ratio for each component. Ideally sums up to 1
+            (except if sp_type=2, then no split ratio is needed and flow is split into two flows)
         Qthreshold : float
             threshold value for type 2 splitter
 
@@ -85,7 +86,8 @@ class Splitter():
                 out[14] = 0
                 outs.append(out)
         else:  # if flow, split flow ratios are calculated
-            if self.sp_type == 2:  # if type 2, everything above Qthreshold is split in the second flow. splitratios are overwritten!
+            # if type 2, everything above Qthreshold is split in the second flow. splitratios are overwritten!
+            if self.sp_type == 2:
                 if len(splitratio) != 2:
                     raise ValueError("Split ratio must be of length 2 for type 2 splitter")
                 if splitratio[0] != 0 or splitratio[1] != 0:

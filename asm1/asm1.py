@@ -1,3 +1,25 @@
+"""
+ASM1:
+ IAWQ AS Model No 1 with temperature
+ dependencies of the kinetic parameters. In addition to the ASM1 states, TSS
+ and dummy states are included. Temperature dependency for
+ oxygen saturation concentration and KLa has also been added in accordance
+ with BSM2 documentation.
+Carboncombiner:
+ Calculates the concentration and flow rate when adding an external
+ carbon source flow rate to the general flow.
+
+Copyright (2006) ASM1 and Carboncombiner:
+ Ulf Jeppsson
+ Dept. Industrial Electrical Engineering and Automation (IEA), Lund University, Sweden
+ https://www.lth.se/iea/
+
+Copyright (2024):
+ Maike Böhm, Jonas Miederer
+ Chair of Energy Process Engineering (EVT), FAU Erlangen-Nuremberg, Germany
+ https://www.evt.tf.fau.de/
+"""
+
 import numpy as np
 from scipy.integrate import odeint
 from numba import jit

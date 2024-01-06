@@ -1,3 +1,21 @@
+"""
+This calculates the overflow and underflow concentrations
+from an 'ideal' thickener unit based on a fixed percentage of sludge in
+the underflow flow. A defined amount of total solids are removed from
+the water stream and goes into the sludge stream and the remaining will
+leave with the water phase. Soluble concentrations are not affected.
+Temperature is also handled ideally, i.e. T(out)=T(in).
+
+Copyright (2006):
+ Ulf Jeppsson
+ Dept. Industrial Electrical Engineering and Automation (IEA), Lund University, Sweden
+ https://www.lth.se/iea/
+
+Copyright (2024):
+ Jonas Miederer
+ Chair of Energy Process Engineering (EVT), FAU Erlangen-Nuremberg, Germany
+ https://www.evt.tf.fau.de/
+"""
 import numpy as np
 from numba import float64
 from numba.experimental import jitclass
@@ -11,7 +29,7 @@ SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, S
 class Thickener:
     def __init__(self, t_par, asm1par):
         """
-        calculates the overflow and underflow concentrations   
+        Calculates the overflow and underflow concentrations
         from an 'ideal' thickener unit based on a fixed percentage of sludge in
         the underflow flow. A defined amount of total solids are removed from
         the water stream and goes into the sludge stream and the remaining will
@@ -20,7 +38,7 @@ class Thickener:
 
         Parameters
         ----------
-        t_par : np.ndarray
+        t_par : np.ndarray(7)
             [thickener_perc, TSS_removal_perc, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS]
             thickener_perc: percentage of sludge in the underflow flow
             TSS_removal_perc: percentage of total solids removed from the water phase
@@ -58,7 +76,8 @@ class Thickener:
         yt_uf = np.zeros(21)
         yt_of = np.zeros(25)
 
-        TSSin = self.t_par[2]*yt_in[2] + self.t_par[3]*yt_in[3] + self.t_par[4]*yt_in[4] + self.t_par[5]*yt_in[5] + self.t_par[6]*yt_in[6]
+        TSSin = self.t_par[2]*yt_in[2] + self.t_par[3]*yt_in[3] + self.t_par[4]*yt_in[4] + \
+            self.t_par[5]*yt_in[5] + self.t_par[6]*yt_in[6]
         try:
             thickener_factor = self.t_par[0]*10000/TSSin
             Qu_factor = self.t_par[1]/(100*thickener_factor)
@@ -96,7 +115,8 @@ class Thickener:
 
             # additional values to compare:
             # Kjeldahl N concentration:
-            yt_of[21] = yt_of[SNH] + yt_of[SND] + yt_of[XND] + self.asm1par[17] * (yt_of[XBH] + yt_of[XBA]) + self.asm1par[18] * (yt_of[XP] + yt_of[XI])
+            yt_of[21] = yt_of[SNH] + yt_of[SND] + yt_of[XND] + self.asm1par[17] * (yt_of[XBH] + yt_of[XBA]) + \
+                self.asm1par[18] * (yt_of[XP] + yt_of[XI])
             # total N concentration:
             yt_of[22] = yt_of[21] + yt_of[SNO]
             # total COD concentration:

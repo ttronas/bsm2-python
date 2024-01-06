@@ -1,18 +1,18 @@
 """
 test adm1_bsm2.py
 """
+import sys
+import os
+path_name = os.path.dirname(__file__)
+sys.path.append(path_name + '/..')
+import numpy as np
+import time, csv
+from tqdm import tqdm
+from bsm2 import adm1init_bsm2 as adm1init
+from bsm2.adm1_bsm2 import ADM1Reactor
 
 
 def test_adm1():
-    import sys
-    import os
-    path_name = os.path.dirname(__file__)
-    sys.path.append(path_name + '/..')
-    import numpy as np
-    import time
-    from bsm2 import adm1init_bsm2 as adm1init
-    from bsm2.adm1_bsm2 import ADM1Reactor
-
     # definition of the tested Reactor:
     adm1Reactor = ADM1Reactor(adm1init.DIGESTERINIT, adm1init.DIGESTERPAR, adm1init.INTERFACEPAR, adm1init.DIM_D)
 
@@ -48,21 +48,69 @@ def test_adm1():
     print('Digester output difference to MatLab solution: \n', yd_out_matlab - yd_out)
     print('ADM2ASM output difference to MatLab solution: \n', y_out2_matlab - y_out2)
 
-    # indices_names = ["S_su", "S_aa", "S_fa", "S_va", "S_bu", "S_pro", "S_ac", "S_h2", "S_ch4", "S_IC", "S_IN", "S_I", "X_xc", "X_ch", "X_pr", "X_li", "X_su", "X_aa", "X_fa", "X_c4", "X_pro", "X_ac", "X_h2", "X_I", "S_cat", "S_an", "Q_D", "T_D", "S_D1_D", "S_D2_D", "S_D3_D", "X_D4_D", "X_D5_D", "pH", "S_H_ion", "S_hva", "S_hbu", "S_hpro", "S_hac", "S_hco3", "S_CO2", "S_nh3", "S_NH4+", "S_gas_h2", "S_gas_ch4", "S_gas_co2", "p_gas_h2", "p_gas_ch4", "p_gas_co2", "P_gas", "q_gas"]
-    # print("Deviation of Digester in percent: ")
-    # for i, name in enumerate(indices_names):
-    #     difference = (yd_out_matlab[i] - yd_out[i])/(yd_out_matlab[i] + 1e-20) * 100
-    #     rounded_difference = round(difference, 2)
-    #     print(name, ":", rounded_difference, "%")
-
-    # for i, name in enumerate(indices_names):
-    #     round_matlab = round(yd_out_matlab[i], 2)
-    #     round_python = round(yd_out[i], 2)
-    #     print(name, ":", round_matlab, round_python)
-
     assert np.allclose(y_out1, y_out1_matlab, rtol=1e-5, atol=1e-5)
     assert np.allclose(yd_out, yd_out_matlab, rtol=1e-3, atol=1e-3)
     assert np.allclose(y_out2, y_out2_matlab, rtol=1e0, atol=1e0)
 
 
 test_adm1()
+
+
+def test_adm1_dyn():
+    # definition of the tested Reactor:
+    adm1Reactor = ADM1Reactor(adm1init.DIGESTERINIT, adm1init.DIGESTERPAR, adm1init.INTERFACEPAR, adm1init.DIM_D)
+
+    # dynsludge from BSM2 open loop (digesterinpreinterface):
+    with open(path_name + '/../data/dynsludge_bsm2.csv', 'r') as f:
+        data_in = np.array(list(csv.reader(f, delimiter=","))).astype(np.float64)
+
+    timestep = 15/24/60  # 15 minutes in days
+    endtime = 50  # data_in[-1, 0]
+    data_time = data_in[:, 0]
+    simtime = np.arange(0, endtime, timestep)
+    y_in = data_in[:, 1:]
+    del data_in
+
+    y_out2 = np.zeros(21)
+    yd_out = np.zeros(51)
+    y_out1 = np.zeros(33)
+    y_out2_all = np.zeros((len(simtime), 21))
+    yd_out_all = np.zeros((len(simtime), 51))
+    y_out1_all = np.zeros((len(simtime), 33))
+
+    start = time.perf_counter()
+
+    for i, step in enumerate(tqdm(simtime)):
+        # get influent data that is smaller than and closest to current time step
+        y_in_timestep = y_in[np.where(data_time <= step)[0][-1], :]
+        y_out2, yd_out, y_out1 = adm1Reactor.outputs(timestep, step, y_in_timestep, adm1init.T_op)
+        y_out2_all[i] = y_out2
+        yd_out_all[i] = yd_out
+        y_out1_all[i] = y_out1
+
+    stop = time.perf_counter()
+
+    # np.savetxt(path_name + '/../data/test_y_out2_all.csv', y_out2_all, delimiter=',')
+    # np.savetxt(path_name + '/../data/test_yd_out_all.csv', yd_out_all, delimiter=',')
+    # np.savetxt(path_name + '/../data/test_y_out1_all.csv', y_out1_all, delimiter=',')
+
+    print('Dynamic simulation completed after: ', stop - start, 'seconds')
+    print('ADM2ASM output at t =', endtime, 'd: \n', y_out2)
+    print('Digester output at t =', endtime, 'd: \n', yd_out)
+    print('ASM2ADM output at t =', endtime, 'd: \n', y_out1)
+
+    # Values from 50 days dynamic simulation in Matlab (adm1_test_dyn.slx):
+    y_out2_matlab = np.array([122.169323380570, 373.819450900786, 15930.3791334305, 2822.74629212716, 0, 0, 665.913555821979, 0, 0, 1581.71826254710, 0.732389244776215, 110.886490448848, 107.708499534225, 14564.2792360348, 190.028282672942, 11.4654536074904, 4.97422833876973e-34, 0, 0, 0, 0])  # digesteroutpostinterface
+    yd_out_matlab = np.array([0.0158644223707781, 0.00747335964057362, 0.138824881686416, 0.0176573708846501, 0.0198384849638407, 0.0249402261818895, 0.149220705172638, 3.26680461508383e-07, 0.0577837065506474, 0.103470184862751, 0.103918103489806, 0.122169323380570, 0.114066916584948, 0.0250245607222834, 0.126588647170418, 0.0519627909858718, 0.303447749802400, 1.05545615546113, 0.317773301465617, 0.376186696159895, 0.109378471573500, 0.713690358370099, 0.295084199652976, 15.9303791334305, 1.73935058975725e-44, 0.00527377296718055, 190.028282672942, 35, 4.97422833876973e-34, 0, 0, 0, 0, 7.28818980923129, 5.15003512121235e-08, 0.0175917951195153, 0.0197712730703650, 0.0248431163672957, 0.148779350145835, 0.0936962837777589, 0.00977390108499217, 0.00219305732331866, 0.101725046166488, 1.37500807578888e-05, 1.66550298144290, 0.0139535611488069, 2.20182894169380e-05, 0.666751114336974, 0.357506028575264, 1.07994690627664, 3568.56388540252])  # digesterout
+    y_out1_matlab = np.array([0, 0.0394668990016461, 0, 0, 0, 0, 0, 0, 0, 0.00825744707032862, 0.00177734136409946, 0.0332152509553435, 0, 4.22325080273907, 18.4073469364402, 8.91874892350877, 0, 0, 0, 0, 0, 0, 0, 17.0175264624461, 0, 0.00573744057971372, 190.028282672942, 35, 4.97422833876973e-34, 0, 0, 0, 0])  # digesterin
+
+    print('ASM2ADM output difference to MatLab solution: \n', y_out1_matlab - y_out1)
+    print('Digester output difference to MatLab solution: \n', yd_out_matlab - yd_out)
+    print('ADM2ASM output difference to MatLab solution: \n', y_out2_matlab - y_out2)
+
+    assert np.allclose(y_out1, y_out1_matlab, rtol=1e-5, atol=1e-5)
+    assert np.allclose(yd_out, yd_out_matlab, rtol=1e-3, atol=1e-3)
+    assert np.allclose(y_out2, y_out2_matlab, rtol=1e-2, atol=1e-2)
+
+
+test_adm1_dyn()

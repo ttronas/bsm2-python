@@ -1,3 +1,22 @@
+"""
+ Calculates the water and sludge stream concentrations
+ from an 'ideal' dewatering unit based on a fixed percentage of solids in
+ the dewatered sludge. A defined amount of total solids are removed from
+ the influent sludge stream and goes into the stream of dewatered sludge
+ and the remaining will leave with the reject water phase.
+ Soluble concentrations are not affected.
+ Temperature is also handled ideally, i.e. T(out)=T(in).
+
+Copyright (2006):
+ Ulf Jeppsson
+ Dept. Industrial Electrical Engineering and Automation (IEA), Lund University, Sweden
+ https://www.lth.se/iea/
+
+Copyright (2024):
+ Jonas Miederer
+ Chair of Energy Process Engineering (EVT), FAU Erlangen-Nuremberg, Germany
+ https://www.evt.tf.fau.de/
+"""
 import numpy as np
 from numba import float64
 from numba.experimental import jitclass

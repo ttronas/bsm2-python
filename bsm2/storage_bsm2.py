@@ -1,3 +1,24 @@
+"""
+This implements a simple storage tank of variable volume with complete mix. No biological reactions.
+Dummy states are included. `tempmodel` defines how temperature changes in the input affect the liquid temperature.
+It also defines rules for a potential necessary bypass of the storage tank.
+`activate` used to activate dummy states.
+See documentation by Dr Marie-Noelle Pons.
+
+If liquid volume > 90% of total volume then automatically bypass flow.
+If liquid volume < 10% of total volume then automatically input flow.
+Storage output and automatic bypass streams are joined in a Combiner afterwards.
+
+Copyright (2006):
+ Ulf Jeppsson
+ Dept. Industrial Electrical Engineering and Automation (IEA), Lund University, Sweden
+ https://www.lth.se/iea/
+
+Copyright (2024):
+ Jonas Miederer
+ Chair of Energy Process Engineering (EVT), FAU Erlangen-Nuremberg, Germany
+ https://www.evt.tf.fau.de/
+"""
 import numpy as np
 from scipy.integrate import odeint
 from numba import jit
@@ -9,7 +30,8 @@ from bsm2.helpers_bsm2 import Combiner
 
 
 indices_components = np.arange(22)
-SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5, VOL = indices_components
+SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, \
+    TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5, VOL = indices_components
 
 
 @jit(nopython=True, cache=True)

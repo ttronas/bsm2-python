@@ -11,6 +11,7 @@ storageinit_bsm2;
 load ./Influent_data/constinfluent_bsm1;
 load ./Influent_data/dyninfluent_bsm2;
 load ./Influent_data/constinfluent_adm1_test.mat;
+load ./Influent_data/dynsludge_bsm2.mat;
 
 
 % General parameter for all subsystems
