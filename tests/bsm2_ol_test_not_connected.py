@@ -114,7 +114,7 @@ def test_bsm2_ol():
         y_plant_bp, y_in_as_c = bypass_plant.outputs(y_in_bp, (1 - reginit.Qbypassplant, reginit.Qbypassplant))
         # yp_in = combiner_primclar_pre.output(yp_in_c, yst_sp_p, yt_sp_p)
         yp_uf, yp_of = primclar.outputs(timestep, step, yp_in_c)
-        y_c_as_bp = combiner_primclar_post.output(yp_of[:21], y_in_as_c)
+        y_c_as_bp = combiner_primclar_post.output(yp_of, y_in_as_c)
         y_bp_as, y_as_bp_c_eff = bypass_reactor.outputs(y_c_as_bp, (1 - reginit.QbypassAS, reginit.QbypassAS))
 
         # y_in1 = combiner_reactor.output(ys_r, y_bp_as, yst_sp_as, yt_sp_as, y_out5_r)
@@ -128,10 +128,10 @@ def test_bsm2_ol():
 
         ys_r, ys_was, ys_of, sludge_height = settler.outputs(timestep, step, ys_in)
 
-        y_eff = combiner_effluent.output(y_plant_bp, y_as_bp_c_eff, ys_of[:21])
+        y_eff = combiner_effluent.output(y_plant_bp, y_as_bp_c_eff, ys_of)
 
         yt_uf, yt_of = thickener.outputs(ys_was)
-        yt_sp_p, yt_sp_as = splitter_thickener.outputs(yt_of[:21], (1 - reginit.Qthickener2AS, reginit.Qthickener2AS))
+        yt_sp_p, yt_sp_as = splitter_thickener.outputs(yt_of, (1 - reginit.Qthickener2AS, reginit.Qthickener2AS))
 
         yd_in = combiner_adm1.output(yt_uf, yp_uf)
         y_out2, _, _ = adm1_reactor.outputs(timestep, step, yd_in, reginit.T_op)
@@ -207,7 +207,7 @@ def test_bsm2_ol():
     qstorage2prim_matlab = np.array([124.536027125454, 366.691614670528, 331.999860061585, 59.8912247579954, 0, 0, 14.1456017021493, 0, 0, 1584.54475210733, 0.719786207647379, 2.35005049635899, 107.821564593880, 304.527514891297, 175.790457491095, 11.4654659265751, 0, 0, 0, 0, 0])
     sludge_matlab = np.array([124.536027125454, 366.691614670528, 305259.644109421, 55067.4146414149, 0, 0, 13006.2745824975, 0, 0, 1584.54475210733, 0.719786207647379, 2160.77072449561, 107.821564593880, 280000, 9.36828045323928, 11.4654659265751, 0, 0, 0, 0, 0])
 
-    print('Effluent difference to MatLab solution: \n', y_eff_matlab - y_eff[:21])
+    print('Effluent difference to MatLab solution: \n', y_eff_matlab - y_eff)
     # print('Sludge height difference to MatLab solution: \n', sludge_height_matlab - sludge_height)
     print('qpass difference to MatLab solution: \n', qpass_matlab - y_in_bp)
     print('to_primary difference to MatLab solution: \n', to_primary_matlab - yp_in_c)
@@ -238,7 +238,7 @@ def test_bsm2_ol():
     print('qstorage2prim flow difference to Matlab: \n', qstorage2prim_matlab[14] - yst_sp_p[14])
     print('sludge flow difference to Matlab: \n', sludge_matlab[14] - ydw_s[14])
 
-    assert np.allclose(y_eff[:21], y_eff_matlab, rtol=3e-1, atol=1e0)
+    assert np.allclose(y_eff, y_eff_matlab, rtol=3e-1, atol=1e0)
     # assert np.allclose(sludge_height, sludge_height_matlab, rtol=1e-2, atol=1e-2)
     assert np.allclose(y_in_bp, qpass_matlab, rtol=1e-3, atol=1e-3)
     assert np.allclose(yp_in_c, to_primary_matlab, rtol=1e-3, atol=1e-3)

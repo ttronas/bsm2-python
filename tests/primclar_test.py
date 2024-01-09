@@ -32,7 +32,7 @@ def test_primclar():
     simtime = np.arange(0, endtime, timestep)
 
     yp_uf = np.zeros(21)
-    yp_of = np.zeros(25)
+    yp_of = np.zeros(21)
 
     start = time.perf_counter()
 
@@ -49,10 +49,10 @@ def test_primclar():
     yp_of_matlab = np.array([30, 69.5000000000000, 26.0206415019475, 102.822191185039, 14.3164349826144, 0, 0, 0, 0, 31.5600000000000, 6.95000000000000, 5.38200377940671, 7, 107.369450752201, 18316.8780000000, 15, 0, 0, 0, 0, 0])
     yp_uf_matlab = np.array([30, 69.5000000000000, 3623.07185550945, 14316.7948790366, 1993.39715175198, 0, 0, 0, 0, 31.5600000000000, 6.95000000000000, 749.381463864162, 7, 14949.9479147235, 129.122000000000, 15, 0, 0, 0, 0, 0])
 
-    print('Effluent difference to MatLab solution: \n', yp_of_matlab - yp_of[:21])
+    print('Effluent difference to MatLab solution: \n', yp_of_matlab - yp_of)
     print('Sludge difference to MatLab solution: \n', yp_uf_matlab - yp_uf)
 
-    assert np.allclose(yp_of[:21], yp_of_matlab, rtol=1e-5, atol=1e-5)
+    assert np.allclose(yp_of, yp_of_matlab, rtol=1e-5, atol=1e-5)
     assert np.allclose(yp_uf, yp_uf_matlab, rtol=1e-5, atol=1e-5)
 
 
@@ -75,7 +75,7 @@ def test_primclar_dyn():
     del data_in
 
     yp_uf = np.zeros(21)
-    yp_of = np.zeros(25)
+    yp_of = np.zeros(21)
     yp_uf_all = np.zeros((len(simtime), 21))
     yp_of_all = np.zeros((len(simtime), 21))
 
@@ -86,7 +86,7 @@ def test_primclar_dyn():
         y_in_timestep = y_in[np.where(data_time <= step)[0][-1], :]
         yp_uf, yp_of = primclar.outputs(timestep, step, y_in_timestep)
         yp_uf_all[i] = yp_uf
-        yp_of_all[i] = yp_of[:21]
+        yp_of_all[i] = yp_of
 
     stop = time.perf_counter()
 
@@ -101,10 +101,10 @@ def test_primclar_dyn():
     yp_uf_matlab = np.array([33.4154125970948, 49.8211097011199, 6860.88076663431, 26407.1948377440, 3856.64505042994, 1.99000000000000e-321, 1.99000000000000e-321, 3.00000000000000e-323, 3.00000000000000e-323, 14.7088952119447, 5.13430535495627, 1041.33852549727, 7.00000000000000, 27843.5404911062, 147.255187510577, 11.4404477663154, 0, 0, 0, 0, 0])
     yp_of_matlab = np.array([33.4154125970948, 49.8211097011199, 54.5638774436205, 210.013698206756, 30.6715005015946, 1.50000000000000e-323, 1.50000000000000e-323, 3.00000000000000e-323, 3.00000000000000e-323, 14.7088952119447, 5.13430535495627, 8.28165794089829, 7.00000000000000, 221.436807113978, 20889.2001711433, 11.4404477663154, 0, 0, 0, 0, 0])
 
-    print('Effluent difference to MatLab solution: \n', yp_of_matlab - yp_of[:21])
+    print('Effluent difference to MatLab solution: \n', yp_of_matlab - yp_of)
     print('Sludge difference to MatLab solution: \n', yp_uf_matlab - yp_uf)
 
-    assert np.allclose(yp_of[:21], yp_of_matlab, rtol=1e-2)
+    assert np.allclose(yp_of, yp_of_matlab, rtol=1e-2)
     assert np.allclose(yp_uf, yp_uf_matlab, rtol=1e-2)
 
 

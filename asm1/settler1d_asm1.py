@@ -176,7 +176,8 @@ def settlerequations(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel):
 def get_outputs(ys_int, ys_in, nooflayers, tempmodel, Qr, Qw, asm1par):
     """
     Returns the values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
-    in the effluent (top layer of settler) and underflow (bottom layer of settler) at the current time step after the integration
+    in the effluent (top layer of settler) and underflow (bottom layer of settler)
+    at the current time step after the integration
 
     Parameters
     ----------
@@ -195,7 +196,7 @@ def get_outputs(ys_int, ys_in, nooflayers, tempmodel, Qr, Qw, asm1par):
         flow rate of waste sludge
     asm1par : np.ndarray
         24 parameters needed for ASM1 equations
-    
+
     Returns
     -------
     (np.ndarray, np.ndarray)
@@ -274,6 +275,7 @@ def get_outputs(ys_int, ys_in, nooflayers, tempmodel, Qr, Qw, asm1par):
     ys_eff[24] = 0.25 * (ys_eff[SS] + ys_eff[XS] + (1-asm1par[16]) * (ys_eff[XBH] + ys_eff[XBA]))
 
     return ys_out, ys_eff
+
 
 class Settler:
     def __init__(self, dim, layer, Qr, Qw, ys0, sedpar, asm1par, tempmodel):

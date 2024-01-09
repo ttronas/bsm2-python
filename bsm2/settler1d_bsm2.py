@@ -219,7 +219,7 @@ def settlerequations(t, ys, ys_in, sedpar, dim, layer, Qr, Qw, tempmodel, modelt
 def get_outputs(ys_int, ys_in, nooflayers, tempmodel, Qr, Qw, dim, asm1par, sedpar):
     ys_ret = np.zeros(21)
     ys_was = np.zeros(21)
-    ys_eff = np.zeros(25)
+    ys_eff = np.zeros(21)
 
     h = dim[1] / nooflayers
 
@@ -289,17 +289,6 @@ def get_outputs(ys_int, ys_in, nooflayers, tempmodel, Qr, Qw, dim, asm1par, sedp
         ys_eff[XI:XD5+1] = 0.0
 
     ys_eff[Q] = ys_in[Q] - Qw - Qr
-
-    # additional values to compare:
-    # Kjeldahl N concentration:
-    ys_eff[21] = ys_eff[SNH] + ys_eff[SND] + ys_eff[XND] + asm1par[17] * (ys_eff[XBH] + ys_eff[XBA]) + \
-        asm1par[18] * (ys_eff[XP] + ys_eff[XI])
-    # total N concentration:
-    ys_eff[22] = ys_eff[21] + ys_eff[SNO]
-    # total COD concentration:
-    ys_eff[23] = ys_eff[SS] + ys_eff[SI] + ys_eff[XS] + ys_eff[XI] + ys_eff[XBH] + ys_eff[XBA] + ys_eff[XP]
-    # BOD5 concentration:
-    ys_eff[24] = 0.25 * (ys_eff[SS] + ys_eff[XS] + (1-asm1par[16]) * (ys_eff[XBH] + ys_eff[XBA]))
 
     # continuous signal of sludge blanket level
     no_sludge_layer = np.where(ys_int[7*nooflayers:8*nooflayers] < sedpar[6])[0]

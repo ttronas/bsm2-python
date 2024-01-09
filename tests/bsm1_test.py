@@ -55,7 +55,7 @@ def test_bsm1():
     y_out5_r = np.zeros(21)
     ys_in = np.zeros(21)
     ys_out = np.zeros(21)
-    ys_eff = np.zeros(25)
+    ys_eff = np.zeros(21)
     Qintr = asm1init.Qintr
     sludge_height = 0
 
@@ -82,10 +82,10 @@ def test_bsm1():
 
     ys_eff_matlab = np.array([30.0000000000000, 0.889492799653682, 4.39182747787874, 0.188440413683379, 9.78152406404732, 0.572507856962265, 1.72830016782928, 0.490943515687561, 10.4152201204309, 1.73333146817512, 0.688280004678034, 0.0134804685779854, 4.12557938198182, 12.4969499853007, 18061, 15, 0, 0, 0, 0, 0])
     sludge_height_matlab = 0.447178539974702
-    print('Effluent difference to MatLab solution: \n', ys_eff_matlab - ys_eff[:21])
+    print('Effluent difference to MatLab solution: \n', ys_eff_matlab - ys_eff)
     print('Sludge height difference to MatLab solution: \n', sludge_height_matlab - sludge_height)
 
-    assert np.allclose(ys_eff[:21], ys_eff_matlab, rtol=1e-5, atol=1e-5)
+    assert np.allclose(ys_eff, ys_eff_matlab, rtol=1e-5, atol=1e-5)
     assert np.allclose(sludge_height, sludge_height_matlab, rtol=1e-5, atol=1e-5)
 
 
@@ -107,7 +107,7 @@ def test_bsm1_ol():
     y_out5_r = np.zeros(21)
     ys_in = np.zeros(21)
     ys_out = np.zeros(21)
-    ys_eff = np.zeros(25)
+    ys_eff = np.zeros(21)
     Qintr = asm1init.Qintr
     sludge_height = 0
 
@@ -132,7 +132,7 @@ def test_bsm1_ol():
 
         ys_out, _, ys_eff, sludge_height = settler.outputs(timestep, step, ys_in)
 
-        ys_eff_all[i] = ys_eff[:21]
+        ys_eff_all[i] = ys_eff
         sludge_height_all[i] = sludge_height
 
     stop = time.perf_counter()
@@ -148,11 +148,11 @@ def test_bsm1_ol():
     ys_eff_matlab = np.array([29.9041779036345, 2.86336250854119, 10.4985364014802, 1.77550626455255, 24.7216745020295, 0.0113748400676772, 2.29517384745407, 0.244476849395549, 0.00553950757372690, 26.6011848861327, 0.994115660400043, 0.106244650636689, 7.41009979441910, 29.4766993916880, 20650.7908684698, 11.4415311578628, 0, 0, 0, 0, 0])
     sludge_height_matlab = 2.83301562022632  # refers to settler[166] in MatLab
 
-    print('Effluent difference to MatLab solution: \n', ys_eff_matlab - ys_eff[:21])
+    print('Effluent difference to MatLab solution: \n', ys_eff_matlab - ys_eff)
     print('Sludge height difference to MatLab solution: \n', sludge_height_matlab - sludge_height)
 
     # high tolerances to speed up testing. If timestep is refined (e.g. up to 1 minute), smaller tolerances are achieved.
-    assert np.allclose(ys_eff[:21], ys_eff_matlab, rtol=1e-1, atol=7e-1)
+    assert np.allclose(ys_eff, ys_eff_matlab, rtol=1e-1, atol=7e-1)
     assert np.allclose(sludge_height, sludge_height_matlab, rtol=1e-1)
 
 

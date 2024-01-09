@@ -213,5 +213,3 @@ class KLaactuator:
             kla = yout_kla[int(transferfunction/control)]
 
         return kla
-
-

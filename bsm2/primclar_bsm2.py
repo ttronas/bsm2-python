@@ -126,8 +126,6 @@ class PrimaryClarifier:
         yp_of : np.ndarray
             primary clarifier overflow (effluent) concentrations of the 21 components
             (13 ASM1 components, TSS, Q, T and 5 dummy states)
-            and 4 additional parameters
-            (Kjeldahl N, total N, total COD, BOD5 concentration) at the current time step
         """
         # f_corr, f_X, t_m, f_PS = p_par
         # y = yp_uf, yp_of
@@ -135,7 +133,7 @@ class PrimaryClarifier:
         # x : yp_in
 
         yp_uf = np.zeros(21)
-        yp_of = np.zeros(25)
+        yp_of = np.zeros(21)
 
         if not self.tempmodel:
             self.yp0[15] = yp_in[15]
@@ -194,16 +192,5 @@ class PrimaryClarifier:
         else:
             yp_of[TEMP] = yp_int[TEMP]
             yp_uf[TEMP] = yp_int[TEMP]
-
-        # additional values to compare:
-        # Kjeldahl N concentration:
-        yp_of[21] = yp_of[SNH] + yp_of[SND] + yp_of[XND] + self.asm1par[17] * (yp_of[XBH] + yp_of[XBA]) + \
-            self.asm1par[18] * (yp_of[XP] + yp_of[XI])
-        # total N concentration:
-        yp_of[22] = yp_of[21] + yp_of[SNO]
-        # total COD concentration:
-        yp_of[23] = yp_of[SS] + yp_of[SI] + yp_of[XS] + yp_of[XI] + yp_of[XBH] + yp_of[XBA] + yp_of[XP]
-        # BOD5 concentration:
-        yp_of[24] = 0.25 * (yp_of[SS] + yp_of[XS] + (1-self.asm1par[16]) * (yp_of[XBH] + yp_of[XBA]))
 
         return yp_uf, yp_of

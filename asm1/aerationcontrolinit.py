@@ -77,5 +77,3 @@ kla_calc = 0
 # values for KLa actuator 5:
 T90_KLa5 = 4        # response time 4 minutes
 T_KLa5 = T90_KLa5 / (60*24) / 3.89
-
-

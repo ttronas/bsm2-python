@@ -3,8 +3,7 @@ Execution file for bsm2 model with primary clarifier,
 5 asm1-reactors and a second clarifier, sludge thickener,
 adm1-fermenter and sludge storage in steady state simulation
 
-This script will run the plant to steady state. The results are saved as csv file and
-are necessary for further dynamic simulations.
+This script will run the plant in an open loop simulation (no control) with dynamic input data.
 
 This script requires that the packages from requirements.txt are installed
 within the Python environment you are running this script.
@@ -67,14 +66,18 @@ dewatering = Dewatering(dewateringinit.DEWATERINGPAR)
 storage = Storage(storageinit.VOL_S, storageinit.ystinit, tempmodel, activate)
 splitter_storage = Splitter()
 
-plantperformance = PlantPerformance()
+# dyninfluent from BSM2:
+with open(path_name + '/../data/dyninfluent_bsm2.csv', 'r') as f:
+    data_in = np.array(list(csv.reader(f, delimiter=","))).astype(np.float64)
 
-# CONSTINFLUENT from BSM2:
-y_in = np.array([30, 69.5, 51.2, 202.32, 28.17, 0, 0, 0, 0, 31.56, 6.95, 10.59, 7, 211.2675, 18446, 15, 0, 0, 0, 0, 0])
-
-timestep = 15/(60*24)
-endtime = 200
+# timesteps = np.diff(data_in[:, 0], append=(2*data_in[-1, 0] - data_in[-2, 0]))
+timestep = 15/24/60  # 15 minutes in days
+endtime = 50  # data_in[-1, 0]
+data_time = data_in[:, 0]
 simtime = np.arange(0, endtime, timestep)
+
+y_in = data_in[:, 1:]
+del data_in
 
 yst_sp_p = np.zeros(21)
 yt_sp_p = np.zeros(21)
@@ -83,15 +86,35 @@ yst_sp_as = np.zeros(21)
 yt_sp_as = np.zeros(21)
 y_out5_r = np.zeros(21)
 
+y_in_all = np.zeros((len(simtime), 21))
+y_eff_all = np.zeros((len(simtime), 21))
+y_in_bp_all = np.zeros((len(simtime), 21))
+to_primary_all = np.zeros((len(simtime), 21))
+prim_in_all = np.zeros((len(simtime), 21))
+qpass_plant_all = np.zeros((len(simtime), 21))
+qpassplant_to_as_all = np.zeros((len(simtime), 21))
+qpassAS_all = np.zeros((len(simtime), 21))
+to_as_all = np.zeros((len(simtime), 21))
+feed_settler_all = np.zeros((len(simtime), 21))
+qthick2AS_all = np.zeros((len(simtime), 21))
+qthick2prim_all = np.zeros((len(simtime), 21))
+qstorage2AS_all = np.zeros((len(simtime), 21))
+qstorage2prim_all = np.zeros((len(simtime), 21))
+sludge_all = np.zeros((len(simtime), 21))
+
 sludge_height = 0
 
 y_out5_r[14] = asm1init.Qintr
 
 start = time.perf_counter()
 
-for step in simtime:
+for i, step in enumerate(tqdm(simtime)):
 
-    yp_in_c, y_in_bp = input_splitter.outputs(y_in, (0, 0), reginit.Qbypass)
+    # timestep = timesteps[i]
+    # get influent data that is smaller than and closest to current time step
+    y_in_timestep = y_in[np.where(data_time <= step)[0][-1], :]
+
+    yp_in_c, y_in_bp = input_splitter.outputs(y_in_timestep, (0, 0), reginit.Qbypass)
     y_plant_bp, y_in_as_c = bypass_plant.outputs(y_in_bp, (1 - reginit.Qbypassplant, reginit.Qbypassplant))
     yp_in = combiner_primclar_pre.output(yp_in_c, yst_sp_p, yt_sp_p)
     yp_uf, yp_of = primclar.outputs(timestep, step, yp_in)
@@ -120,82 +143,20 @@ for step in simtime:
 
     yst_sp_p, yst_sp_as = splitter_storage.outputs(yst_out, (1 - reginit.Qstorage2AS, reginit.Qstorage2AS))
 
+    y_in_all[i] = y_in_timestep
+    y_eff_all[i] = y_eff
+    y_in_bp_all[i] = y_in_bp
+    to_primary_all[i] = yp_in_c
+    prim_in_all[i] = yp_in
+    qpass_plant_all[i] = y_plant_bp
+    qpassplant_to_as_all[i] = y_in_as_c
+    qpassAS_all[i] = y_as_bp_c_eff
+    to_as_all[i] = y_bp_as
+    feed_settler_all[i] = ys_in
+    qthick2AS_all[i] = yt_sp_as
+    qthick2prim_all[i] = yt_sp_p
+    qstorage2AS_all[i] = yst_sp_as
+    qstorage2prim_all[i] = yst_sp_p
+    sludge_all[i] = ydw_s
+
 stop = time.perf_counter()
-
-print('Steady state simulation completed after: ', stop - start, 'seconds')
-print('Effluent at t =', simtime, ' d:  \n', y_eff)
-print('Sludge height at t = ', simtime, ' d:  \n', sludge_height)
-
-
-with open(path_name + '/../data/bsm2_values_ss.csv', 'w', newline='') as csvfile:
-    writer = csv.writer(csvfile, delimiter=',')
-    writer.writerow(primclar.yp0)
-    writer.writerow(reactor1.y0)
-    writer.writerow(reactor2.y0)
-    writer.writerow(reactor3.y0)
-    writer.writerow(reactor4.y0)
-    writer.writerow(reactor5.y0)
-    writer.writerow(settler.ys0)
-    writer.writerow(adm1_reactor.yd0)
-    writer.writerow(storage.yst0)
-
-# plant performance:
-evaltime = np.array([0, 2*timestep])
-# aerationenergy:
-kla = np.zeros((5, 2))
-kla[0] = np.array([reactor1.kla, reactor1.kla])
-kla[1] = np.array([reactor2.kla, reactor2.kla])
-kla[2] = np.array([reactor3.kla, reactor3.kla])
-kla[3] = np.array([reactor4.kla, reactor4.kla])
-kla[4] = np.array([reactor5.kla, reactor5.kla])
-vol = np.array([[reactor1.volume], [reactor2.volume], [reactor3.volume], [reactor4.volume], [reactor5.volume]])
-sosat = np.array([[asm1init.SOSAT1], [asm1init.SOSAT2], [asm1init.SOSAT3], [asm1init.SOSAT4], [asm1init.SOSAT5]])
-
-ae = plantperformance.aerationenergy(kla, vol, sosat, timestep, evaltime)
-
-# pumping energy:
-pumpfactor = np.array([[0.004], [0.008], [0.05]])
-flows = np.zeros((3, 2))
-flows[0] = np.array([asm1init.Qintr, asm1init.Qintr])
-flows[1] = np.array([asm1init.Qr, asm1init.Qr])
-flows[2] = np.array([asm1init.Qw, asm1init.Qw])
-
-pe = plantperformance.pumpingenergy(flows, pumpfactor, timestep, evaltime)
-
-# mixing energy:
-me = plantperformance.mixingenergy(kla, vol, timestep, evaltime)
-
-# SNH limit violations:
-SNH_eff = np.array(ys_of[7], ys_of[7])
-SNH_limit = 4
-SNH_violationvalues = plantperformance.violation(SNH_eff, SNH_limit, timestep, evaltime)
-
-# TSS limit violations:
-TSS_eff = np.array(ys_of[13], ys_of[13])
-TSS_limit = 30
-TSS_violationvalues = plantperformance.violation(TSS_eff, TSS_limit, timestep, evaltime)
-
-# totalN limit violations:
-totalN_eff = np.array(ys_of[22], ys_of[22])
-totalN_limit = 18
-totalN_violationvalues = plantperformance.violation(totalN_eff, totalN_limit, timestep, evaltime)
-
-# COD limit violations:
-COD_eff = np.array(ys_of[23], ys_of[23])
-COD_limit = 100
-COD_violationvalues = plantperformance.violation(COD_eff, COD_limit, timestep, evaltime)
-
-# BOD5 limit violations:
-BOD5_eff = np.array(ys_of[24], ys_of[24])
-BOD5_limit = 10
-BOD5_violationvalues = plantperformance.violation(BOD5_eff, BOD5_limit, timestep, evaltime)
-
-data = [[ae], [pe], [me], SNH_violationvalues, TSS_violationvalues, totalN_violationvalues, COD_violationvalues, BOD5_violationvalues]
-names = ['aeration energy [kWh/d]', 'pumping energy [kWh/d]', 'mixing energy [kWh/d]', 'SNH: days of violation / percentage of time', 'TSS: days of violation / percentage of time', 'totalN: days of violation / percentage of time', 'COD: days of violation / percentage of time', 'BOD5: days of violation / percentage of time']
-
-with open(path_name + '/../data/evaluation_ss.csv', 'w', newline='') as csvfile:
-    writer = csv.writer(csvfile, delimiter=',')
-    for name, datarow in zip(names, data):
-        output_row = [name]
-        output_row.extend(datarow)
-        writer.writerow(output_row)

@@ -21,14 +21,14 @@ Copyright (2006) ADM2ASM:
  University, Sweden; Damien Batstone, Univ of Queensland,
  Australia, Ingmar Nopens, Univ of Ghent, Belgium,
  Marie-Noelle Pons, Nancy, France, Peter Vanrolleghem,
- Univ. Laval, Canada, Jens Alex, IFAK, Germany and 
+ Univ. Laval, Canada, Jens Alex, IFAK, Germany and
  Eveline Volcke, Univ of Ghent, Belgium.
 Copyright (2006) ASM2ADM:
  John Copp, Primodal Inc., Canada; Ulf Jeppsson, Lund
  University, Sweden; Damien Batstone, Univ of Queensland,
  Australia, Ingmar Nopens, Univ of Ghent, Belgium,
  Marie-Noelle Pons, Nancy, France, Peter Vanrolleghem,
- Univ. Laval, Canada, Jens Alex, IFAK, Germany and 
+ Univ. Laval, Canada, Jens Alex, IFAK, Germany and
  Eveline Volcke, Univ of Ghent, Belgium.
 
 Copyright (2024):

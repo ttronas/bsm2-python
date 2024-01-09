@@ -26,7 +26,7 @@ def test_thickener():
     simtime = np.arange(0, endtime, timestep)
 
     yt_uf = np.zeros(21)
-    yt_of = np.zeros(25)
+    yt_of = np.zeros(21)
 
     start = time.perf_counter()
 
@@ -44,10 +44,10 @@ def test_thickener():
     yt_of_matlab = np.array([30, 69.5000000000000, 1.02703771566833, 4.05840372332064, 0.565071336921423, 0, 0, 0, 0, 31.5600000000000, 6.95000000000000, 0.212428308768118, 7, 4.23788458193279, 18391.4414357300, 15, 0, 0, 0, 0, 0])
 
     print('Underflow difference to MatLab solution: \n', yt_uf_matlab - yt_uf)
-    print('Overflow difference to MatLab solution: \n', yt_of_matlab - yt_of[:21])
+    print('Overflow difference to MatLab solution: \n', yt_of_matlab - yt_of)
 
     assert np.allclose(yt_uf, yt_uf_matlab, rtol=1e-5, atol=1e-5)
-    assert np.allclose(yt_of[:21], yt_of_matlab, rtol=1e-5, atol=1e-5)
+    assert np.allclose(yt_of, yt_of_matlab, rtol=1e-5, atol=1e-5)
 
 
 test_thickener()
@@ -69,7 +69,7 @@ def test_thickener_dyn():
     del data_in
 
     yt_uf = np.zeros(21)
-    yt_of = np.zeros(25)
+    yt_of = np.zeros(21)
     yt_uf_all = np.zeros((len(simtime), 21))
     yt_of_all = np.zeros((len(simtime), 21))
 
@@ -80,7 +80,7 @@ def test_thickener_dyn():
         y_in_timestep = y_in[np.where(data_time <= step)[0][-1], :]
         yt_uf, yt_of = thickener.outputs(y_in_timestep)
         yt_uf_all[i] = yt_uf
-        yt_of_all[i] = yt_of[:21]
+        yt_of_all[i] = yt_of
 
     stop = time.perf_counter()
 
@@ -96,10 +96,10 @@ def test_thickener_dyn():
     yt_of_matlab = np.array([33.5386583268000, 42.6657147645379, 1.91517190169622, 7.32307705347169, 1.02610573766949, 0, 0, 0, 0, 13.0991673987171, 4.42838614018597, 0.229888465384815, 7, 7.69826601962806, 20923.7020017664, 11.4404477663154, 0, 0, 0, 0, 0])
 
     print('Underflow difference to MatLab solution: \n', yt_uf_matlab - yt_uf)
-    print('Overflow difference to MatLab solution: \n', yt_of_matlab - yt_of[:21])
+    print('Overflow difference to MatLab solution: \n', yt_of_matlab - yt_of)
 
     assert np.allclose(yt_uf, yt_uf_matlab, rtol=1e-5, atol=1e-5)
-    assert np.allclose(yt_of[:21], yt_of_matlab, rtol=1e-5, atol=1e-5)
+    assert np.allclose(yt_of, yt_of_matlab, rtol=1e-5, atol=1e-5)
 
 
 test_thickener_dyn()
