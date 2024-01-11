@@ -1,10 +1,10 @@
 primclarinit_bsm2;
-asm1init_bsm1;
+asm1init_bsm2;
 settler1dinit_bsm2;  % no changes from BSM1
 thickenerinit_bsm2;
 adm1init_bsm2;
 hyddelayinit_bsm2;
-reginit_bsm1;
+reginit_bsm2;
 dewateringinit_bsm2;
 storageinit_bsm2;
 

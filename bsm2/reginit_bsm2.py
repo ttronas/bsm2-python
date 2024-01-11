@@ -7,20 +7,21 @@ QbypassAS = 0  # type 1, none of primary effluent bypassed for AS
 Qthickener2AS = 0  # type 1, none of thickener effluent to AS, all to primary
 Qstorage2AS = 0  # type 1, none of storage tank effluent to AS, all to primary
 
-# Default carbon addition to AS reactors
-carb1 = 0  # external carbon flow rate to reactor 1
-carb2 = 0  # external carbon flow rate to reactor 2
-carb3 = 0  # external carbon flow rate to reactor 3
-carb4 = 0  # external carbon flow rate to reactor 4
-carb5 = 0  # external carbon flow rate to reactor 5
-CARBONSOURCECONC = 400000  # external carbon source concentration = 400000 mg COD/l
-
-# Default KLa values for AS reactors
+# Default KLa (oxygen transfer coefficient) values for AS reactors:
 KLa1 = 0
 KLa2 = 0
-KLa3 = 240
-KLa4 = 240
-KLa5 = 84
+KLa3 = 120
+KLa4 = 120
+KLa5 = 60
+
+# external carbon flow rates for reactor 1 to 5:
+carb1 = 2
+carb2 = 0
+carb3 = 0
+carb4 = 0
+carb5 = 0
+# external carbon source concentration = 400000 mg COD / L from BSM1
+carbonsourceconc = 400000
 
 # Default output pumping from storage tank
 Qstorage = 0

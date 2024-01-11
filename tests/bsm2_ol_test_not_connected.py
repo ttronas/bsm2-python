@@ -18,7 +18,7 @@ def test_bsm2_ol():
     from bsm2.primclar_bsm2 import PrimaryClarifier
     from bsm2 import primclarinit_bsm2 as primclarinit
     from asm1.asm1 import ASM1reactor
-    import asm1.asm1init as asm1init
+    import bsm2.asm1init_bsm2 as asm1init
     from bsm2.settler1d_bsm2 import Settler
     import bsm2.settler1dinit_bsm2 as settler1dinit
     from bsm2.thickener_bsm2 import Thickener
@@ -46,11 +46,11 @@ def test_bsm2_ol():
     combiner_primclar_post = Combiner()
     bypass_reactor = Splitter()
     combiner_reactor = Combiner()
-    reactor1 = ASM1reactor(reginit.KLa1, asm1init.VOL1, asm1init.yinit1, asm1init.PAR1, asm1init.carb1, asm1init.carbonsourceconc, tempmodel, activate)
-    reactor2 = ASM1reactor(reginit.KLa2, asm1init.VOL2, asm1init.yinit2, asm1init.PAR2, asm1init.carb2, asm1init.carbonsourceconc, tempmodel, activate)
-    reactor3 = ASM1reactor(reginit.KLa3, asm1init.VOL3, asm1init.yinit3, asm1init.PAR3, asm1init.carb3, asm1init.carbonsourceconc, tempmodel, activate)
-    reactor4 = ASM1reactor(reginit.KLa4, asm1init.VOL4, asm1init.yinit4, asm1init.PAR4, asm1init.carb4, asm1init.carbonsourceconc, tempmodel, activate)
-    reactor5 = ASM1reactor(reginit.KLa5, asm1init.VOL5, asm1init.yinit5, asm1init.PAR5, asm1init.carb5, asm1init.carbonsourceconc, tempmodel, activate)
+    reactor1 = ASM1reactor(reginit.KLa1, asm1init.VOL1, asm1init.yinit1, asm1init.PAR1, reginit.carb1, reginit.carbonsourceconc, tempmodel, activate)
+    reactor2 = ASM1reactor(reginit.KLa2, asm1init.VOL2, asm1init.yinit2, asm1init.PAR2, reginit.carb2, reginit.carbonsourceconc, tempmodel, activate)
+    reactor3 = ASM1reactor(reginit.KLa3, asm1init.VOL3, asm1init.yinit3, asm1init.PAR3, reginit.carb3, reginit.carbonsourceconc, tempmodel, activate)
+    reactor4 = ASM1reactor(reginit.KLa4, asm1init.VOL4, asm1init.yinit4, asm1init.PAR4, reginit.carb4, reginit.carbonsourceconc, tempmodel, activate)
+    reactor5 = ASM1reactor(reginit.KLa5, asm1init.VOL5, asm1init.yinit5, asm1init.PAR5, reginit.carb5, reginit.carbonsourceconc, tempmodel, activate)
     splitter_reactor = Splitter()
     settler = Settler(settler1dinit.DIM, settler1dinit.LAYER, asm1init.Qr, asm1init.Qw, settler1dinit.settlerinit, settler1dinit.SETTLERPAR, asm1init.PAR1, tempmodel, settler1dinit.MODELTYPE)
     combiner_effluent = Combiner()
@@ -190,22 +190,21 @@ def test_bsm2_ol():
     print('sludge at t =', endtime, 'd:  \n', ydw_s)
     print('Sludge height at t = ', endtime, ' d:  \n', sludge_height)
 
-
     # Values from 50 days dynamic simulation in Matlab (bsm2_ol_test_not_connected.slx):
-    y_eff_matlab = np.array([29.3874555415727, 1.52897362389913, 4.65581499640368, 0.379002962910597, 11.4884519506262, 0.283338588859770, 1.34614311406866, 1.11634446598105, 2.63708083635177, 11.8463975982329, 0.939298481689982, 0.0243302727885532, 6.14735014255456, 13.6145637096517, 20435.4639808569, 11.4654728282066, 0, 0, 0, 0, 0])
+    y_eff_matlab = np.array([29.5701627218864, 0.781629350879610, 5.57546631598799, 0.163302722142466, 10.1069363037130, 0.500556770399133, 3.09936913792749, 1.52879314324714, 4.83810091761127, 0.338518769678028, 0.595511827878188, 0.0117647165859621, 5.06135413492737, 14.5842234376276, 20522.4640073652, 11.4654727516866, 0, 0, 0, 0, 0])
     qpass_matlab = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     to_primary_matlab = np.array([33.5386583267995, 42.6657147645442, 95.2453383187624, 364.191303597616, 51.0302955304413, 0, 0, 0, 0, 13.0991673987175, 4.42838614018600, 11.4328142772815, 7, 382.850203085115, 21036.4553586537, 11.4404477663155, 0, 0, 0, 0, 0])
     prim_in_matlab = np.array([33.5386583267995, 42.6657147645442, 95.2453383187624, 364.191303597616, 51.0302955304413, 0, 0, 0, 0, 13.0991673987175, 4.42838614018600, 11.4328142772815, 7, 382.850203085115, 21036.4553586537, 11.4404477663155, 0, 0, 0, 0, 0])
     qpass_plant_matlab = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     qpassplant_to_as_matlab = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     qpassAS_matlab = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-    to_as_matlab = np.array([33.3999934781535, 50.7398987839784, 55.0881654774035, 212.200089226992, 31.1396578308966, 0, 0, 0, 0, 14.9171022587047, 5.22582665599624, 8.56978432465493, 7.00000000003392, 223.820934401469, 20820.4878888560, 11.4654641214523, 0, 0, 0, 0, 0])
-    feed_settler_matlab = np.array([30.7054605246313, 1.56982211945007, 1109.77832779000, 90.3406331074735, 2738.43247734499, 67.5376976074138, 320.871953729068, 1.03196994567784, 2.60407313539255, 11.4512587480900, 0.965954669534312, 5.79945927207412, 6.18795484614749, 3245.22081718421, 39266.4639808569, 11.4654728282066, 0, 0, 0, 0, 0])
+    to_as_matlab = np.array([33.3999938840992, 50.7398990084671, 55.0881666485864, 212.200094347947, 31.1396587686024, 0, 0, 0, 0, 14.9171024017455, 5.22582672264216, 8.56978468353797, 7.00000000004085, 223.820939823852, 20820.5157433254, 11.4654539800124, 0, 0, 0, 0, 0])
+    feed_settler_matlab = np.array([30.3230848045964, 0.820871226128821, 1435.89157594168, 42.0565724485342, 2602.91496255036, 128.912132037394, 798.203734658395, 1.36456389292010, 4.84141570783631, 0.312341746399907, 0.624999061419290, 3.02985552808076, 5.11635328079754, 3755.98423322727, 41470.4640073652, 11.4654727516866, 0, 0, 0, 0, 0])
     qthick2AS_matlab = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-    qthick2prim_matlab = np.array([29.1207505541861, 1.47185187294242, 54.1059368588912, 4.40445129293437, 133.509054016778, 3.29272099737119, 15.6437346391749, 1.15310231492479, 2.74445441600068, 11.7880711869949, 0.880839932559978, 0.282745814486594, 6.10524740994449, 158.216923353862, 346.612072953946, 11.4654728282066, 0, 0, 0, 0, 0])
+    qthick2prim_matlab = np.array([29.5814803943307, 0.759269461443454, 67.8484559475846, 1.98724858540202, 122.992407038873, 6.09132977600505, 37.7165601049305, 1.77104032261893, 4.89012902473365, 0.327128044801209, 0.574684669579540, 0.143166115582033, 5.03291520254189, 177.477001089596, 266.848384305499, 11.4654727516866, 0, 0, 0, 0, 0])
     qstorage2AS_matlab = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-    qstorage2prim_matlab = np.array([124.536027125454, 366.691614670528, 331.999860061585, 59.8912247579954, 0, 0, 14.1456017021493, 0, 0, 1584.54475210733, 0.719786207647379, 2.35005049635899, 107.821564593880, 304.527514891297, 175.790457491095, 11.4654659265751, 0, 0, 0, 0, 0])
-    sludge_matlab = np.array([124.536027125454, 366.691614670528, 305259.644109421, 55067.4146414149, 0, 0, 13006.2745824975, 0, 0, 1584.54475210733, 0.719786207647379, 2160.77072449561, 107.821564593880, 280000, 9.36828045323928, 11.4654659265751, 0, 0, 0, 0, 0])
+    qstorage2prim_matlab = np.array([121.367403560618, 337.626368580548, 335.415883993523, 55.5869404558766, 0, 0, 13.1268902432479, 0, 0, 1426.49495461122, 0.727090749562776, 2.17377750726011, 96.5290819385813, 303.097286019486, 170.859869471431, 11.4654574387844, 0, 0, 0, 0, 0])
+    sludge_matlab = np.array([121.367403560618, 337.626368580548, 309855.785089903, 51350.9821616972, 0, 0, 12126.5660817336, 0, 0, 1426.49495461122, 0.727090749562776, 2008.12653265955, 96.5290819385813, 280000, 9.06275347712598, 11.4654574387844, 0, 0, 0, 0, 0])
 
     print('Effluent difference to MatLab solution: \n', y_eff_matlab - y_eff)
     # print('Sludge height difference to MatLab solution: \n', sludge_height_matlab - sludge_height)
