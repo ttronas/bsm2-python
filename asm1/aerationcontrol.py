@@ -1,10 +1,12 @@
 import numpy as np
 from scipy.integrate import odeint
 from scipy import signal
+from numba import jit, float64, int64
+
 
 
 class Oxygensensor:
-    def __init__(self, min_SO, max_SO, T_SO, std_SO):
+    def __init__(self, min_SO: float64, max_SO: float64, T_SO: float64, std_SO: float64):
         """
         Parameters:
         ----------
@@ -25,7 +27,8 @@ class Oxygensensor:
         self.T_SO = T_SO
         self.std_SO = std_SO
 
-    def measureSO(self, SO, step, controlnumber, noise_SO, transferfunction, control):
+
+    def measureSO(self, SO: np.ndarray, step: float64, controlnumber: int64, noise_SO: float64, transferfunction: float64, control: float64) -> float64:
         """Returns the measured oxygen concentration in a reactor compartment
 
         Parameters
@@ -72,8 +75,19 @@ class Oxygensensor:
         return SO_meas
 
 
+
+
+@jit(nopython=True, cache=True)
+def function_ac(t, y, SOref, SO_meas, KSO, TiSO):
+    return (SOref - SO_meas) * KSO / TiSO
+
+@jit(nopython=True, cache=True)
+def function_aw(t, y, kla_lim, kla_calc, TtSO):
+    return (kla_lim - kla_calc) / TtSO
+
+
 class PIaeration:
-    def __init__(self, KLa_min, KLa_max, KSO, TiSO, TtSO, SOref, KLaoffset, SOintstate, SOawstate, kla_lim, kla_calc):
+    def __init__(self, KLa_min: float64, KLa_max: float64, KSO: float64, TiSO: float64, TtSO: float64, SOref: float64, KLaoffset: float64, SOintstate: float64, SOawstate: float64, kla_lim: float64, kla_calc: float64):
         """
         Parameters:
         ----------
@@ -113,7 +127,7 @@ class PIaeration:
         self.kla_lim = kla_lim
         self.kla_calc = kla_calc
 
-    def output(self, SO_meas, step, timestep):
+    def output(self, SO_meas: float64, step: float64, timestep: float64) -> float64:
         """Returns the KLa value determined by the PI control to adjust the oxygen concentration to the set point in
         the reactor compartment
 
@@ -135,27 +149,19 @@ class PIaeration:
 
         error_SO = (self.SOref - SO_meas) * self.KSO
 
-        def function_ac(t, y):
-            y = (self.SOref - SO_meas) * self.KSO / self.TiSO
-            return y
-
         t_ac = np.array([step, step+timestep])
-        ode_ac = odeint(function_ac, self.SOintstate, t_ac, tfirst=True)
+        ode_ac = odeint(function_ac, self.SOintstate, t_ac, args=(self.SOref, SO_meas, self.KSO, self.TiSO), tfirst=True)
 
-        integral_ac = float(ode_ac[1])
+        integral_ac = ode_ac[1]
         self.SOintstate = integral_ac
 
-        def function_aw(t, y):
-            y = (self.kla_lim - self.kla_calc) / self.TtSO
-            return y
-
-        ode_aw = odeint(function_aw, self.SOawstate, t_ac, tfirst=True)
-        antiwindup = float(ode_aw[1])
+        ode_aw = odeint(function_aw, self.SOawstate, t_ac, args=(self.kla_lim, self.kla_calc, self.TtSO), tfirst=True)
+        antiwindup = ode_aw[1]
 
         self.SOawstate = antiwindup
         self.kla_calc = error_SO + integral_ac + self.KLaoffset + antiwindup
 
-        kla = float(self.kla_calc)
+        kla = self.kla_calc
         if kla < self.KLa_min:
             kla = self.KLa_min
         if kla > self.KLa_max:
@@ -166,7 +172,7 @@ class PIaeration:
 
 
 class KLaactuator:
-    def __init__(self, T_KLa):
+    def __init__(self, T_KLa: float64):
         """
         Parameters
         ----------
@@ -176,7 +182,8 @@ class KLaactuator:
 
         self.T_KLa = T_KLa
 
-    def real_actuator(self, kla, step, controlnumber, transferfunction, control):
+ 
+    def real_actuator(self, kla: np.ndarray, step: float64, controlnumber: int64, transferfunction: float64, control: float64) -> float64:
         """Returns the delayed KLa value for the reactor compartment
 
         Parameters

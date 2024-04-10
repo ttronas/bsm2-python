@@ -1,92 +1,31 @@
-"""
-ADM1:
- IAWQ AD Model No 1.
- In addition to the ADM1, temperature dependency and dummy states are added.
- Some details are adjusted for BSM2 (pH inhibition, gas flow output etc).
-ADM2ASM:
- Version (no 3) of the ADM1 to ASM1 interface based on discussions
- within the IWA TG BSM community during 2002-2006. Now also including charge
- balancing and temperature dependency for applicable parameters.
-ASM2ADM:
- Version (no 3) of the ASM1 to ADM1 interface based on discussions
- within the IWA TG BSM community during 2002-2006. Now also including charge
- balancing and temperature dependency for applicable parameters.
-
-Copyright (2006):
- Ulf Jeppsson
- Dept. Industrial Electrical Engineering and Automation (IEA), Lund University, Sweden
- https://www.lth.se/iea/
-Copyright (2006) ADM2ASM:
- John Copp, Primodal Inc., Canada; Ulf Jeppsson, Lund
- University, Sweden; Damien Batstone, Univ of Queensland,
- Australia, Ingmar Nopens, Univ of Ghent, Belgium,
- Marie-Noelle Pons, Nancy, France, Peter Vanrolleghem,
- Univ. Laval, Canada, Jens Alex, IFAK, Germany and
- Eveline Volcke, Univ of Ghent, Belgium.
-Copyright (2006) ASM2ADM:
- John Copp, Primodal Inc., Canada; Ulf Jeppsson, Lund
- University, Sweden; Damien Batstone, Univ of Queensland,
- Australia, Ingmar Nopens, Univ of Ghent, Belgium,
- Marie-Noelle Pons, Nancy, France, Peter Vanrolleghem,
- Univ. Laval, Canada, Jens Alex, IFAK, Germany and
- Eveline Volcke, Univ of Ghent, Belgium.
-
-Copyright (2024):
- Jonas Miederer
- Chair of Energy Process Engineering (EVT), FAU Erlangen-Nuremberg, Germany
- https://www.evt.tf.fau.de/
-"""
 import numpy as np
 from scipy.integrate import odeint
 from numba import jit
 import math
+import numpy as np
+# import warnings
 
 
 indices_components = np.arange(42)
-S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc, \
-    X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an, \
-    S_hva, S_hbu, S_hpro, S_hac, S_hco3, S_nh3, S_gas_h2, S_gas_ch4, S_gas_co2, \
-    Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D = indices_components
+S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc, X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an, S_hva, S_hbu, S_hpro, S_hac, S_hco3, S_nh3, S_gas_h2, S_gas_ch4, S_gas_co2, Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D = indices_components
 
 
 class ADM1Reactor:
-    def __init__(self, yd0, digesterpar, interfacepar, dim):
-        """
-        Creates an ADM1Reactor object.
-        It uses the ADM1 model to simulate the anaerobic digestion process.
-        It consists of an ASM2ADM and ADM2ASM conversion and the ADM1 model itself.
-        See documentation for more information on the parameters.
+    """
+    Class for ADM1 reactor
+    parameters:
+    yd0: np.ndarray
+        initial values for ADM1 differential equations. initial concentrations of 42 components (26 ADM1 components, 9 other gas-related components, Q, T and 5 dummy states )
+    digesterpar: np.ndarray
+        digester parameters
+    interfacepar: np.ndarray
+        interface parameters
+    dim: np.ndarray
+        reactor dimensions
+    """
 
-        Parameters
-        ----------
-        yd0 : np.ndarray(51)
-            initial values for the ADM1 differential equations
-        digesterpar : np.ndarray(100)
-            Digester parameters
-            [f_sI_xc, f_xI_xc, f_ch_xc, f_pr_xc, f_li_xc, N_xc, N_I, N_aa, C_xc,
-             C_sI, C_ch, C_pr, C_li, C_xI, C_su, C_aa, f_fa_li, C_fa, f_h2_su,
-             f_bu_su, f_pro_su, f_ac_su, N_bac, C_bu, C_pro, C_ac, C_bac, Y_su,
-             f_h2_aa, f_va_aa, f_bu_aa, f_pro_aa, f_ac_aa, C_va, Y_aa, Y_fa,
-             Y_c4, Y_pro, C_ch4, Y_ac, Y_h2, k_dis, k_hyd_ch, k_hyd_pr, k_hyd_li,
-             K_S_IN, k_m_su, K_S_su, pH_UL_aa, pH_LL_aa, k_m_aa, K_S_aa, k_m_fa,
-             K_S_fa, K_Ih2_fa, k_m_c4, K_S_c4, K_Ih2_c4, k_m_pro, K_S_pro,
-             K_Ih2_pro, k_m_ac, K_S_ac, K_I_nh3, pH_UL_ac, pH_LL_ac, k_m_h2,
-             K_S_h2, pH_UL_h2, pH_LL_h2, k_dec_Xsu, k_dec_Xaa, k_dec_Xfa,
-             k_dec_Xc4, k_dec_Xpro, k_dec_Xac, k_dec_Xh2, R, T_base, T_op,
-             pK_w_base, pK_a_va_base, pK_a_bu_base, pK_a_pro_base, pK_a_ac_base,
-             pK_a_co2_base, pK_a_IN_base, k_A_Bva, k_A_Bbu, k_A_Bpro, k_A_Bac,
-             k_A_Bco2, k_A_BIN, P_atm, kLa, K_H_h2o_base, K_H_co2_base,
-             K_H_ch4_base, K_H_h2_base, k_P]
-        interfacepar : np.ndarray(23)
-            ASM2ADM and ADM2ASM conversion parameters
-            [CODequiv, fnaa, fnxc, fnbac, fxni, fsni, fsni_adm, frlixs, frlibac,
-            frxs_adm, fdegrade_adm, frxs_as, fdegrade_as, R, T_base, T_op,
-            pK_w_base, pK_a_va_base, pK_a_bu_base, pK_a_pro_base, pK_a_ac_base,
-            pK_a_co2_base, pK_a_IN_base]
-        dim : np.ndarray(2)
-            dimensions of the digester
-            [V_liq, V_gas]
-        """
+    def __init__(self, yd0, digesterpar, interfacepar, dim):
+
         self.yd0 = yd0
         self.y_in1 = np.zeros(22)
         self.digesterpar = digesterpar
@@ -98,57 +37,46 @@ class ADM1Reactor:
         Returns the solved differential equations based on ADM1 model
 
         Parameters
-        ----------
         timestep : float
             Time distance to integrate over
         step : float
             Current time
         y_in1 : np.ndarray(21)
-            concentrations of the 21 standard components
-            (13 ASM1 components, TSS, Q, T and 5 dummy states)
-            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND,
-             XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5]
+            concentrations of the 21 standard components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+             SD1, SD2, SD3, XD4, XD5]
         T_op : float
-            Operational temperature of digester. At the moment very rudimentary implementation!
-            No heat losses / transfer embedded!
-
+            Operational temperature of digester. At the moment very rudimentary implementation! No heat losses / transfer embedded!
         Returns
         -------
-        y_out2 : np.ndarray(21)
-            concentrations of the 21 standard components
-            (13 ASM1 components, TSS, Q, T and 5 dummy states)
-            after the ADM2ASM conversion
+        y_out2 : np.ndarray(35)
+            concentrations of the 35 components (26 ADM1 components, 9 other gas-related components)
+            [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
+             X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
+             Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D]
         yd_out : np.ndarray(51)
-            concentrations of 51 ADM1 components and
-            gas phase parameters after the digester
+            concentrations of the 51 components (35 ADM1 components, 9 other gas-related components, Q, T and 5 dummy states)
             [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
              X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
              Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D, pH, S_H_ion, S_hva, S_hbu,
              S_hpro, S_hac, S_hco3, S_CO2, S_nh3, S_NH4+, S_gas_h2, S_gas_ch4, S_gas_co2,
              p_gas_h2, p_gas_ch4, p_gas_co2, P_gas, q_gas]
-        y_out1 : np.ndarray(32)
-            concentrations of the 32 ADM1 standard components
-            after the ASM2ADM conversion (before the digester)
-            [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
-             X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
-             Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D]
-        """
+        y_out1 : np.ndarray(33)
+            concentrations of the 33 components (21 ASM1 components, 9 other gas-related components, Q, T and 2 dummy states)
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+                SD1, SD2, SD3, XD4, XD5, pH, T_WW]
 
+        """
+        self.T_op = T_op
         yd_out = np.zeros(51)
 
-        R = self.digesterpar[77]
-        T_base = self.digesterpar[78]
-        pK_w_base = self.digesterpar[80]
-        P_atm = self.digesterpar[93]
-        K_H_h2o_base = self.digesterpar[95]
-        k_P = self.digesterpar[99]
+        f_sI_xc, f_xI_xc, f_ch_xc, f_pr_xc, f_li_xc, N_xc, N_I, N_aa, C_xc, C_sI, C_ch, C_pr, C_li, C_xI, C_su, C_aa, f_fa_li, C_fa, f_h2_su, f_bu_su, f_pro_su, f_ac_su, N_bac, C_bu, C_pro, C_ac, C_bac, Y_su, f_h2_aa, f_va_aa, f_bu_aa, f_pro_aa, f_ac_aa, C_va, Y_aa, Y_fa, Y_c4, Y_pro, C_ch4, Y_ac, Y_h2, k_dis, k_hyd_ch, k_hyd_pr, k_hyd_li, K_S_IN, k_m_su, K_S_su, pH_UL_aa, pH_LL_aa, k_m_aa, K_S_aa, k_m_fa, K_S_fa, K_Ih2_fa, k_m_c4, K_S_c4, K_Ih2_c4, k_m_pro, K_S_pro, K_Ih2_pro, k_m_ac, K_S_ac, K_I_nh3, pH_UL_ac, pH_LL_ac, k_m_h2, K_S_h2, pH_UL_h2, pH_LL_h2, k_dec_Xsu, k_dec_Xaa, k_dec_Xfa, k_dec_Xc4, k_dec_Xpro, k_dec_Xac, k_dec_Xh2, R, T_base, _, pK_w_base, pK_a_va_base, pK_a_bu_base, pK_a_pro_base, pK_a_ac_base, pK_a_co2_base, pK_a_IN_base, k_A_Bva, k_A_Bbu, k_A_Bpro, k_A_Bac, k_A_Bco2, k_A_BIN, P_atm, kLa, K_H_h2o_base, K_H_co2_base, K_H_ch4_base, K_H_h2_base, k_P = self.digesterpar
 
-        t_eval = np.array([step, step+timestep])  # time interval for odeint
+        t_eval = np.array([step, step+timestep])    # time interval for odeint
 
         self.y_in1[:21] = y_in1[:21]
 
         y_out1 = asm2adm(self.y_in1, T_op, self.interfacepar)
-
         # y_out1
         #  0     1     2     3     4     5      6     7     8      9     10    11   12
         # [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
@@ -160,32 +88,37 @@ class ADM1Reactor:
         y_in2 = np.zeros(35)
 
         # yd_in
-        # 0     1     2     3     4     5      6     7     8      9     10    11   12
+        # 0     1     2     3     4     5      6     7     8      9     10    11   12   
         # S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
         # 13    14    15    16    17    18    19     20    21    22   23     24    25
         # X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
-        # 26     27     28      29     30      31     32        33         34         35
+        # 26     27     28      29     30      31     32        33         34         35 
         # S_hva, S_hbu, S_hpro, S_hac, S_hco3, S_nh3, S_gas_h2, S_gas_ch4, S_gas_co2, Q_D,
         # 36   37      38      39      40      41
         # T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D
 
         yd_in[:26] = y_out1[:26]
         yd_in[35:] = y_out1[26:]
-        ode = odeint(adm1equations, self.yd0, t_eval, tfirst=True, args=(yd_in, self.digesterpar, T_op, self.dim))
+        # [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc, X_ch, X_pr,
+        #  X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an, S_hva, S_hbu, S_hpro, S_hac,
+        #  S_hco3, S_nh3, S_gas_h2, S_gas_ch4, S_gas_co2, Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D]
+        ode = odeint(adm1equations, self.yd0, t_eval, tfirst=True, args=(yd_in, self.digesterpar, T_op, self.dim), rtol=1e-6, atol=1e-6)
         yd_int = ode[1]
+        # [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc, X_ch, X_pr,
+        #  X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an, S_hva, S_hbu, S_hpro, S_hac,
+        #  S_hco3, S_nh3, S_gas_h2, S_gas_ch4, S_gas_co2, Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D]
         self.yd0[:] = yd_int[:]  # initial integration values for next integration
 
         # y = yd_out
         # u = yd_in
-        # x = yd_int
+        # x : yd_int
 
         factor = (1.0/T_base - 1.0/T_op)/(100.0*R)
-        # K_H_h2 = K_H_h2_base*math.exp(-4180.0*factor)      # Temperature adjustment for K_H_h2
-        # K_H_ch4 = K_H_ch4_base*math.exp(-14240.0*factor)   # Temperature adjustment for K_H_ch4
-        # K_H_co2 = K_H_co2_base*math.exp(-19410.0*factor)   # Temperature adjustment for K_H_co2
-        K_w = 10 ** (-pK_w_base) * math.exp(55900.0*factor)  # Temperature adjustment for K_w
-        # Temperature adjustment for water vapour saturation pressure
-        p_gas_h2o = K_H_h2o_base*math.exp(5290.0*(1.0/T_base - 1.0/T_op))
+        # K_H_h2 = K_H_h2_base*math.exp(-4180.0*factor)      # T adjustment for K_H_h2
+        # K_H_ch4 = K_H_ch4_base*math.exp(-14240.0*factor)   # T adjustment for K_H_ch4
+        # K_H_co2 = K_H_co2_base*math.exp(-19410.0*factor)   # T adjustment for K_H_co2
+        K_w = 10 ** (-pK_w_base) * math.exp(55900.0*factor)  # T adjustment for K_w
+        p_gas_h2o = K_H_h2o_base*math.exp(5290.0*(1.0/T_base - 1.0/T_op))  # T adjustment for water vapour saturation pressure
 
         yd_out[:S_hva] = yd_int[:S_hva]
 
@@ -209,9 +142,7 @@ class ADM1Reactor:
         # procT9 = kLa*(yd_int[S_ch4] - 64.0*K_H_ch4*p_gas_ch4)
         # procT10 = kLa*((yd_int[S_IC] - yd_int[S_hco3]) - K_H_co2*p_gas_co2)
 
-        phi = yd_int[S_cat] + (yd_int[S_IN] - yd_int[S_nh3]) - yd_int[S_hco3] - \
-            yd_int[S_hac]/64.0 - yd_int[S_hpro]/112.0 - yd_int[S_hbu]/160.0 - \
-            yd_int[S_hva]/208.0 - yd_int[S_an]
+        phi = yd_int[S_cat] + (yd_int[S_IN] - yd_int[S_nh3]) - yd_int[S_hco3] - yd_int[S_hac]/64.0 - yd_int[S_hpro]/112.0 - yd_int[S_hbu]/160.0 - yd_int[S_hva]/208.0 - yd_int[S_an]
         S_H_ion = -phi*0.5 + 0.5*np.sqrt(phi ** 2 + 4.0*K_w)
 
         yd_out[33] = -np.log10(S_H_ion)  # pH
@@ -224,7 +155,7 @@ class ADM1Reactor:
         yd_out[39] = yd_int[S_hco3]
         yd_out[40] = yd_int[S_IC] - yd_int[S_hco3]  # S_CO2
         yd_out[41] = yd_int[S_nh3]
-        yd_out[42] = yd_int[S_IN] - yd_int[S_nh3]  # S_NH4+
+        yd_out[42] = yd_int[S_IN] - yd_int[S_nh3]  # S_NH4+ 
         yd_out[43] = yd_int[S_gas_h2]
         yd_out[44] = yd_int[S_gas_ch4]
         yd_out[45] = yd_int[S_gas_co2]
@@ -234,25 +165,25 @@ class ADM1Reactor:
         yd_out[49] = P_gas  # total head space pressure from H2, CH4, CO2 and H2O
         yd_out[50] = q_gas * P_gas/P_atm  # The output gas flow is recalculated to atmospheric pressure (normalization)
 
-        # yd_out
         # [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
         # X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
         # Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D, pH, S_H_ion, S_hva, S_hbu,
         # S_hpro, S_hac, S_hco3, S_CO2, S_nh3, S_NH4+, S_gas_h2, S_gas_ch4, S_gas_co2,
         # p_gas_h2, p_gas_ch4, p_gas_co2, P_gas, q_gas]
-
         y_in2[:33] = yd_out[:33]
-
-        # y_in2
         # [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
         # X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
         # Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D, pH, T_WW]
-
         y_in2[33] = yd_out[33]  # pH
-        y_in2[34] = y_in1[15]  # Temperature
+        y_in2[34] = self.y_in1[15] 
+        self.temperature = yd_out[27] # Temperature
         y_out2 = adm2asm(y_in2, T_op, self.interfacepar)
-
+        if step % 10 == 0:
+            pass
+        self.yd_out = yd_out
+        
         return y_out2, yd_out, y_out1
+
 
 
 @jit(nopython=True, cache=True)
@@ -266,8 +197,7 @@ def adm1equations(t, yd, yd_in, digesterpar, T_op, dim):
     yd : np.ndarray
         Solution of the differential equations, needed for the solver
     yd_in : np.ndarray
-        Reactor inlet concentrations of 42 components
-        (26 ADM1 components, 9 other gas-related components, Q, T and 5 dummy states)
+        Reactor inlet concentrations of 42 components (26 ADM1 components, 9 other gas-related components, Q, T and 5 dummy states)
         [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc, X_ch, X_pr,
          X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an, S_hva, S_hbu, S_hpro, S_hac,
          S_hco3, S_nh3, S_gas_h2, S_gas_ch4, S_gas_co2, Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D]
@@ -290,15 +220,7 @@ def adm1equations(t, yd, yd_in, digesterpar, T_op, dim):
     ydtemp = np.zeros_like(yd)
     inhib = np.zeros(6)
 
-    f_sI_xc, f_xI_xc, f_ch_xc, f_pr_xc, f_li_xc, N_xc, N_I, N_aa, C_xc, C_sI, C_ch, C_pr, C_li, C_xI, C_su, C_aa, \
-        f_fa_li, C_fa, f_h2_su, f_bu_su, f_pro_su, f_ac_su, N_bac, C_bu, C_pro, C_ac, C_bac, Y_su, f_h2_aa, f_va_aa, \
-        f_bu_aa, f_pro_aa, f_ac_aa, C_va, Y_aa, Y_fa, Y_c4, Y_pro, C_ch4, Y_ac, Y_h2, k_dis, k_hyd_ch, k_hyd_pr, \
-        k_hyd_li, K_S_IN, k_m_su, K_S_su, pH_UL_aa, pH_LL_aa, k_m_aa, K_S_aa, k_m_fa, K_S_fa, K_Ih2_fa, k_m_c4, \
-        K_S_c4, K_Ih2_c4, k_m_pro, K_S_pro, K_Ih2_pro, k_m_ac, K_S_ac, K_I_nh3, pH_UL_ac, pH_LL_ac, k_m_h2, \
-        K_S_h2, pH_UL_h2, pH_LL_h2, k_dec_Xsu, k_dec_Xaa, k_dec_Xfa, k_dec_Xc4, k_dec_Xpro, k_dec_Xac, k_dec_Xh2, R, \
-        T_base, _, pK_w_base, pK_a_va_base, pK_a_bu_base, pK_a_pro_base, pK_a_ac_base, pK_a_co2_base, pK_a_IN_base, \
-        k_A_Bva, k_A_Bbu, k_A_Bpro, k_A_Bac, k_A_Bco2, k_A_BIN, P_atm, kLa, K_H_h2o_base, K_H_co2_base, K_H_ch4_base, \
-        K_H_h2_base, k_P = digesterpar
+    f_sI_xc, f_xI_xc, f_ch_xc, f_pr_xc, f_li_xc, N_xc, N_I, N_aa, C_xc, C_sI, C_ch, C_pr, C_li, C_xI, C_su, C_aa, f_fa_li, C_fa, f_h2_su, f_bu_su, f_pro_su, f_ac_su, N_bac, C_bu, C_pro, C_ac, C_bac, Y_su, f_h2_aa, f_va_aa, f_bu_aa, f_pro_aa, f_ac_aa, C_va, Y_aa, Y_fa, Y_c4, Y_pro, C_ch4, Y_ac, Y_h2, k_dis, k_hyd_ch, k_hyd_pr, k_hyd_li, K_S_IN, k_m_su, K_S_su, pH_UL_aa, pH_LL_aa, k_m_aa, K_S_aa, k_m_fa, K_S_fa, K_Ih2_fa, k_m_c4, K_S_c4, K_Ih2_c4, k_m_pro, K_S_pro, K_Ih2_pro, k_m_ac, K_S_ac, K_I_nh3, pH_UL_ac, pH_LL_ac, k_m_h2, K_S_h2, pH_UL_h2, pH_LL_h2, k_dec_Xsu, k_dec_Xaa, k_dec_Xfa, k_dec_Xc4, k_dec_Xpro, k_dec_Xac, k_dec_Xh2, R, T_base, _, pK_w_base, pK_a_va_base, pK_a_bu_base, pK_a_pro_base, pK_a_ac_base, pK_a_co2_base, pK_a_IN_base, k_A_Bva, k_A_Bbu, k_A_Bpro, k_A_Bac, k_A_Bco2, k_A_BIN, P_atm, kLa, K_H_h2o_base, K_H_co2_base, K_H_ch4_base, K_H_h2_base, k_P = digesterpar
 
     V_liq, V_gas = dim
 
@@ -313,17 +235,15 @@ def adm1equations(t, yd, yd_in, digesterpar, T_op, dim):
     K_a_bu = 10 ** -pK_a_bu_base
     K_a_pro = 10 ** -pK_a_pro_base
     K_a_ac = 10 ** -pK_a_ac_base
-    K_a_co2 = 10 ** -pK_a_co2_base * math.exp(7646.0 * factor)  # Temperature adjustment for K_a_co2
-    K_a_IN = 10 ** -pK_a_IN_base * math.exp(51965.0 * factor)  # Temperature adjustment for K_a_IN
+    K_a_co2 = 10 ** -pK_a_co2_base * math.exp(7646.0 * factor)  # T adjustment for K_a_co2
+    K_a_IN = 10 ** -pK_a_IN_base * math.exp(51965.0 * factor)  # T adjustment for K_a_IN
 
-    K_H_h2 = K_H_h2_base * math.exp(-4180.0 * factor)  # Temperature adjustment for K_H_h2
-    K_H_ch4 = K_H_ch4_base * math.exp(-14240.0 * factor)  # Temperature adjustment for K_H_ch4
-    K_H_co2 = K_H_co2_base * math.exp(-19410.0 * factor)  # Temperature adjustment for K_H_co2
-    # Temperature adjustment for water vapour saturation pressure
-    p_gas_h2o = K_H_h2o_base * math.exp(5290.0 * (1.0/T_base - 1.0/T_op))
+    K_H_h2 = K_H_h2_base * math.exp(-4180.0 * factor)  # T adjustment for K_H_h2
+    K_H_ch4 = K_H_ch4_base * math.exp(-14240.0 * factor)  # T adjustment for K_H_ch4
+    K_H_co2 = K_H_co2_base * math.exp(-19410.0 * factor)  # T adjustment for K_H_co2
+    p_gas_h2o = K_H_h2o_base * math.exp(5290.0 * (1.0/T_base - 1.0/T_op))  # T adjustment for water vapour saturation pressure
 
-    phi = ydtemp[S_cat] + (ydtemp[S_IN] - ydtemp[S_nh3]) - ydtemp[S_hco3] - ydtemp[S_hac]/64.0 - \
-        ydtemp[S_hpro]/112.0 - ydtemp[S_hbu]/160.0 - ydtemp[S_hva]/208.0 - ydtemp[S_an]
+    phi = ydtemp[S_cat] + (ydtemp[S_IN] - ydtemp[S_nh3]) - ydtemp[S_hco3] - ydtemp[S_hac]/64.0 - ydtemp[S_hpro]/112.0 - ydtemp[S_hbu]/160.0 - ydtemp[S_hva]/208.0 - ydtemp[S_an]
     S_H_ion = -phi*0.5 + 0.5*np.sqrt(phi*phi + 4.0*K_w)  # SH+
     # pH_op = -np.log10(S_H_ion)  # pH
 
@@ -394,8 +314,7 @@ def adm1equations(t, yd, yd_in, digesterpar, T_op, dim):
     stoich3 = -C_pr + C_aa
     stoich4 = -C_li + (1.0 - f_fa_li) * C_su + f_fa_li * C_fa
     stoich5 = -C_su + (1.0 - Y_su) * (f_bu_su * C_bu + f_pro_su * C_pro + f_ac_su * C_ac) + Y_su * C_bac
-    stoich6 = -C_aa + (1.0 - Y_aa) * (f_va_aa * C_va + f_bu_aa * C_bu +
-                                      f_pro_aa * C_pro + f_ac_aa * C_ac) + Y_aa * C_bac
+    stoich6 = -C_aa + (1.0 - Y_aa) * (f_va_aa * C_va + f_bu_aa * C_bu + f_pro_aa * C_pro + f_ac_aa * C_ac) + Y_aa * C_bac
     stoich7 = -C_fa + (1.0 - Y_fa) * 0.7 * C_ac + Y_fa * C_bac
     stoich8 = -C_va + (1.0 - Y_c4) * 0.54 * C_pro + (1.0 - Y_c4) * 0.31 * C_ac + Y_c4 * C_bac
     stoich9 = -C_bu + (1.0 - Y_c4) * 0.8 * C_ac + Y_c4 * C_bac
@@ -410,19 +329,11 @@ def adm1equations(t, yd, yd_in, digesterpar, T_op, dim):
     reac4 = (1.0 - Y_aa) * f_va_aa * proc6 - proc8
     reac5 = (1.0 - Y_su) * f_bu_su * proc5 + (1.0 - Y_aa) * f_bu_aa * proc6 - proc9
     reac6 = (1.0 - Y_su) * f_pro_su * proc5 + (1.0 - Y_aa) * f_pro_aa * proc6 + (1.0 - Y_c4) * 0.54 * proc8 - proc10
-    reac7 = (1.0 - Y_su) * f_ac_su * proc5 + (1.0 - Y_aa) * f_ac_aa * proc6 + (1.0 - Y_fa) * 0.7 * proc7 + \
-        (1.0 - Y_c4) * 0.31 * proc8 + (1.0 - Y_c4) * 0.8 * proc9 + (1.0 - Y_pro) * 0.57 * proc10 - proc11
-    reac8 = (1.0 - Y_su) * f_h2_su * proc5 + (1.0 - Y_aa) * f_h2_aa * proc6 + (1.0 - Y_fa) * 0.3 * proc7 + \
-        (1.0 - Y_c4) * 0.15 * proc8 + (1.0 - Y_c4) * 0.2 * proc9 + (1.0 - Y_pro) * 0.43 * proc10 - proc12 - procT8
+    reac7 = (1.0 - Y_su) * f_ac_su * proc5 + (1.0 - Y_aa) * f_ac_aa * proc6 + (1.0 - Y_fa) * 0.7 * proc7 + (1.0 - Y_c4) * 0.31 * proc8 + (1.0 - Y_c4) * 0.8 * proc9 + (1.0 - Y_pro) * 0.57 * proc10 - proc11
+    reac8 = (1.0 - Y_su) * f_h2_su * proc5 + (1.0 - Y_aa) * f_h2_aa * proc6 + (1.0 - Y_fa) * 0.3 * proc7 + (1.0 - Y_c4) * 0.15 * proc8 + (1.0 - Y_c4) * 0.2 * proc9 + (1.0 - Y_pro) * 0.43 * proc10 - proc12 - procT8
     reac9 = (1.0 - Y_ac) * proc11 + (1.0 - Y_h2) * proc12 - procT9
-    reac10 = -stoich1 * proc1 - stoich2 * proc2 - stoich3 * proc3 - stoich4 * proc4 - stoich5 * proc5 - \
-        stoich6 * proc6 - stoich7 * proc7 - stoich8 * proc8 - stoich9 * proc9 - stoich10 * proc10 - \
-        stoich11 * proc11 - stoich12 * proc12 - stoich13 * proc13 - stoich13 * proc14 - stoich13 * proc15 - \
-        stoich13 * proc16 - stoich13 * proc17 - stoich13 * proc18 - stoich13 * proc19 - procT10
-    reac11 = (N_xc - f_xI_xc * N_I - f_sI_xc * N_I - f_pr_xc * N_aa) * proc1 - Y_su * N_bac * proc5 + \
-        (N_aa - Y_aa * N_bac) * proc6 - Y_fa * N_bac * proc7 - Y_c4 * N_bac * proc8 - Y_c4 * N_bac * proc9 - \
-        Y_pro * N_bac * proc10 - Y_ac * N_bac * proc11 - Y_h2 * N_bac * proc12 + (N_bac - N_xc) * \
-        (proc13 + proc14 + proc15 + proc16 + proc17 + proc18 + proc19)
+    reac10 = -stoich1 * proc1 - stoich2 * proc2 - stoich3 * proc3 - stoich4 * proc4 - stoich5 * proc5 - stoich6 * proc6 - stoich7 * proc7 - stoich8 * proc8 - stoich9 * proc9 - stoich10 * proc10 - stoich11 * proc11 - stoich12 * proc12 - stoich13 * proc13 - stoich13 * proc14 - stoich13 * proc15 - stoich13 * proc16 - stoich13 * proc17 - stoich13 * proc18 - stoich13 * proc19 - procT10
+    reac11 = (N_xc - f_xI_xc * N_I - f_sI_xc * N_I - f_pr_xc * N_aa) * proc1 - Y_su * N_bac * proc5 + (N_aa - Y_aa * N_bac) * proc6 - Y_fa * N_bac * proc7 - Y_c4 * N_bac * proc8 - Y_c4 * N_bac * proc9 - Y_pro * N_bac * proc10 - Y_ac * N_bac * proc11 - Y_h2 * N_bac * proc12 + (N_bac - N_xc) * (proc13 + proc14 + proc15 + proc16 + proc17 + proc18 + proc19)
     reac12 = f_sI_xc * proc1
     reac13 = -proc1 + proc13 + proc14 + proc15 + proc16 + proc17 + proc18 + proc19
     reac14 = f_ch_xc * proc1 - proc2
@@ -498,14 +409,13 @@ def asm2adm(y_in1, T_op, interfacepar):
     """
     converts ASM1 flows to ADM1 flows
     New version (no 3) of the ASM1 to ADM1 interface based on discussions
-    within the IWA TG BSM community during 2002-2006.
-    Now also including charge balancing and temperature dependency for applicable parameters.
+    within the IWA TG BSM community during 2002-2006. Now also including charge balancing and temperature dependency for applicable parameters.
+    Model parameters are defined in adm1init_bsm2.m
 
     Parameters
     ----------
     y_in1 : np.ndarray(22)
-        concentrations of the 21 standard components (13 ASM1 components, TSS, Q, T and 5 dummy states)
-        plus pH in the anaerobic digester
+        concentrations of the 21 standard components (13 ASM1 components, TSS, Q, T and 5 dummy states) plus pH in the anaerobic digester
         [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
          SD1, SD2, SD3, XD4, XD5, pH_adm]
     T_op : float
@@ -513,7 +423,7 @@ def asm2adm(y_in1, T_op, interfacepar):
         Temperature in K
         If temperature control of AD is used then the operational temperature
         of the ADM1 should also be an input rather than a defined parameter.
-        Temperature in the ADM1 and the ASM1 to ADM1 and the ADM1 to ASM1
+        Temperature in the ADM1 and the ASM1 to ADM1 and the ADM1 to ASM1 
         interfaces should be identical at every time instant.
     interfacepar : np.ndarray(23)
         23 parameters needed for ASM1 to ADM1 interface
@@ -527,9 +437,7 @@ def asm2adm(y_in1, T_op, interfacepar):
          Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D]
 
     """
-    CODequiv, fnaa, fnxc, fnbac, fxni, fsni, fsni_adm, frlixs, frlibac, frxs_adm, \
-        fdegrade_adm, frxs_as, fdegrade_as, R, T_base, _, pK_w_base, pK_a_va_base, \
-        pK_a_bu_base, pK_a_pro_base, pK_a_ac_base, pK_a_co2_base, pK_a_IN_base = interfacepar
+    CODequiv, fnaa, fnxc, fnbac, fxni, fsni, fsni_adm, frlixs, frlibac, frxs_adm, fdegrade_adm, frxs_as, fdegrade_as, R, T_base, _, pK_w_base, pK_a_va_base, pK_a_bu_base, pK_a_pro_base, pK_a_ac_base, pK_a_co2_base, pK_a_IN_base = interfacepar
 
     # y = y_out1
     # u = y_in1
@@ -694,7 +602,7 @@ def asm2adm(y_in1, T_op, interfacepar):
                         noninertX -= y_in1_temp[9]/fnxc
                         y_in1_temp[9] = 0.0
                         # warnings.warn('Nitrogen shortage when converting biodegradable XI&XP')
-                        print('Nitrogen shortage when converting biodegradable XI & XP')
+                        print('Nitrogen shortage when converting biodegradable XI&XP')
                         # Putting remaining XI&XP as lipids (50%) and carbohydrates (50%)
                         xlitemp3 = 0.5*noninertX
                         xchtemp3 = 0.5*noninertX
@@ -778,13 +686,10 @@ def asm2adm(y_in1, T_op, interfacepar):
     y_out1[32] = y_in1[20]  # dummy state
 
     # charge balance, output S_IC
-    y_out1[9] = ((y_in1_temp2[8]*alfa_NO + y_in1_temp2[9]*alfa_NH + y_in1_temp2[12]*alfa_alk) -
-                 (y_out1[3]*alfa_va + y_out1[4]*alfa_bu + y_out1[5]*alfa_pro + y_out1[6]*alfa_ac +
-                  y_out1[10]*alfa_IN))/alfa_co2
+    y_out1[9] = ((y_in1_temp2[8]*alfa_NO + y_in1_temp2[9]*alfa_NH + y_in1_temp2[12]*alfa_alk) - (y_out1[3]*alfa_va + y_out1[4]*alfa_bu + y_out1[5]*alfa_pro + y_out1[6]*alfa_ac + y_out1[10]*alfa_IN))/alfa_co2
 
     # calculate anions and cations based on full charge balance including H+ and OH-
-    ScatminusSan = y_out1[3]*alfa_va + y_out1[4]*alfa_bu + y_out1[5]*alfa_pro + y_out1[6]*alfa_ac + \
-        y_out1[10]*alfa_IN + y_out1[9]*alfa_co2 + pow(10, (-pK_w + pH_adm)) - pow(10, -pH_adm)
+    ScatminusSan = y_out1[3]*alfa_va + y_out1[4]*alfa_bu + y_out1[5]*alfa_pro + y_out1[6]*alfa_ac + y_out1[10]*alfa_IN + y_out1[9]*alfa_co2 + pow(10, (-pK_w + pH_adm)) - pow(10, -pH_adm)
 
     if ScatminusSan > 0:
         y_out1[24] = ScatminusSan
@@ -819,7 +724,7 @@ def adm2asm(y_in2, T_op, interfacepar):
         TODO: Check if T_op is working properly (especially with changing temperature)
         If temperature control of AD is used then the operational temperature
         of the ADM1 should also be an input rather than a defined parameter.
-        Temperature in the ADM1 and the ASM1 to ADM1 and the ADM1 to ASM1
+        Temperature in the ADM1 and the ASM1 to ADM1 and the ADM1 to ASM1 
         interfaces should be identical at every time instant.
     interfacepar : np.ndarray(23)
         23 parameters needed for ADM1 to ASM1 interface
@@ -831,9 +736,7 @@ def adm2asm(y_in2, T_op, interfacepar):
         [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, T_WW,
          SD1, SD2, SD3, XD4, XD5]
     """
-    CODequiv, fnaa, fnxc, fnbac, fxni, fsni, fsni_adm, frlixs, frlibac, frxs_adm, \
-        fdegrade_adm, frxs_as, fdegrade_as, R, T_base, _, pK_w_base, pK_a_va_base, \
-        pK_a_bu_base, pK_a_pro_base, pK_a_ac_base, pK_a_co2_base, pK_a_IN_base = interfacepar
+    CODequiv, fnaa, fnxc, fnbac, fxni, fsni, fsni_adm, frlixs, frlibac, frxs_adm, fdegrade_adm, frxs_as, fdegrade_as, R, T_base, _, pK_w_base, pK_a_va_base, pK_a_bu_base, pK_a_pro_base, pK_a_ac_base, pK_a_co2_base, pK_a_IN_base = interfacepar
 
     # y = y_out2
     # u = y_in2
@@ -862,8 +765,7 @@ def adm2asm(y_in2, T_op, interfacepar):
     # Assume Npart of formed XS to be fnxc and Npart of XP to be fxni
     # Remaining N goes into the ammonia pool (also used as source if necessary)
 
-    biomass = 1000.0*(y_in2_temp[16] + y_in2_temp[17] + y_in2_temp[18] +
-                      y_in2_temp[19] + y_in2_temp[20] + y_in2_temp[21] + y_in2_temp[22])
+    biomass = 1000.0*(y_in2_temp[16] + y_in2_temp[17] + y_in2_temp[18] + y_in2_temp[19] + y_in2_temp[20] + y_in2_temp[21] + y_in2_temp[22])
     biomass_nobio = biomass*(1.0 - frxs_as)   # part which is mapped to XP
     biomass_bioN = (biomass*fnbac - biomass_nobio*fxni)
     remainCOD = 0.0
@@ -887,10 +789,8 @@ def adm2asm(y_in2, T_op, interfacepar):
     else:
         XStemp = biomass - biomass_nobio  # all biomass COD used
 
-    # any remaining N in S_IN
-    y_in2_temp[10] = y_in2_temp[10] + biomass*fnbac/14000.0 - XPtemp*fxni/14000.0 - XStemp*fnxc/14000.0
-    # Xs = sum all X except Xi, + biomass as handled above
-    y_out2[3] = (y_in2_temp[12] + y_in2_temp[13] + y_in2_temp[14] + y_in2_temp[15])*1000.0 + XStemp
+    y_in2_temp[10] = y_in2_temp[10] + biomass*fnbac/14000.0 - XPtemp*fxni/14000.0 - XStemp*fnxc/14000.0  # any remaining N in S_IN
+    y_out2[3] = (y_in2_temp[12] + y_in2_temp[13] + y_in2_temp[14] + y_in2_temp[15])*1000.0 + XStemp  # Xs = sum all X except Xi, + biomass as handled above
     y_out2[6] = XPtemp  # inert part of biomass
 
     # mapping of inert XI in AD into XI and possibly XS in AS
@@ -974,8 +874,7 @@ def adm2asm(y_in2, T_op, interfacepar):
 
     # sh2 and sch4 assumed to be stripped upon reentry to ASM side
 
-    y_out2[1] = (y_in2_temp[0] + y_in2_temp[1] + y_in2_temp[2] + y_in2_temp[3] + y_in2_temp[4]
-                 + y_in2_temp[5] + y_in2_temp[6])*1000.0  # Ss = sum all S except Sh2, Sch4, Si, Sic, Sin
+    y_out2[1] = (y_in2_temp[0] + y_in2_temp[1] + y_in2_temp[2] + y_in2_temp[3] + y_in2_temp[4] + y_in2_temp[5] + y_in2_temp[6])*1000.0  # Ss = sum all S except Sh2, Sch4, Si, Sic, Sin
 
     y_out2[9] = y_in2_temp[10]*14000.0  # Snh = S_IN including adjustments above
 
@@ -989,8 +888,7 @@ def adm2asm(y_in2, T_op, interfacepar):
     y_out2[20] = y_in2_temp[32]  # dummy state
 
     # charge balance, output S_alk (molHCO3/m3)
-    y_out2[12] = (y_in2[3]*alfa_va + y_in2[4]*alfa_bu + y_in2[5]*alfa_pro + y_in2[6]*alfa_ac +
-                  y_in2[9]*alfa_co2 + y_in2[10]*alfa_IN - y_out2[8]*alfa_NO - y_out2[9]*alfa_NH)/alfa_alk
+    y_out2[12] = (y_in2[3]*alfa_va + y_in2[4]*alfa_bu + y_in2[5]*alfa_pro + y_in2[6]*alfa_ac + y_in2[9]*alfa_co2 + y_in2[10]*alfa_IN - y_out2[8]*alfa_NO - y_out2[9]*alfa_NH)/alfa_alk
 
     # Finally there should be a input-output mass balance check here of COD and N
     return y_out2
