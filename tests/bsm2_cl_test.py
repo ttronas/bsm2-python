@@ -92,6 +92,7 @@ def test_bsm2_cl():
     storage = Storage(storageinit.VOL_S, storageinit.ystinit, tempmodel, activate)
     splitter_storage = Splitter()
 
+
     SO3_sensor = aerationcontrol.Oxygensensor(aerationcontrolinit.min_SO3, aerationcontrolinit.max_SO3, aerationcontrolinit.T_SO3, aerationcontrolinit.std_SO3)
     aerationcontrol3 = aerationcontrol.PIaeration(aerationcontrolinit.KLa3_min, aerationcontrolinit.KLa3_max, aerationcontrolinit.KSO3, aerationcontrolinit.TiSO3, aerationcontrolinit.TtSO3, aerationcontrolinit.SO3ref, aerationcontrolinit.KLa3offset, aerationvalues3[1], aerationvalues3[2], aerationvalues3[3], aerationvalues3[4])
     kla3_actuator = aerationcontrol.KLaactuator(aerationcontrolinit.T_KLa3)
@@ -169,7 +170,6 @@ def test_bsm2_cl():
     kla5_a = aerationvalues5[0]
 
     sludge_height = 0
-
     y_out5_r[14] = asm1init.Qintr
     y_out5 = yinit5
 
@@ -181,15 +181,16 @@ def test_bsm2_cl():
 
         yp_in_c, y_in_bp = input_splitter.outputs(y_in_timestep, (0, 0), reginit.Qbypass)
         y_plant_bp, y_in_as_c = bypass_plant.outputs(y_in_bp, (1 - reginit.Qbypassplant, reginit.Qbypassplant))
-        yp_uf, yp_of = primclar.outputs(timestep, step, yp_in_c)
-        y_c_as_bp = combiner_primclar_post.output(yp_of, y_in_as_c)
+        yp_in = combiner_primclar_pre.output(yp_in_c, yst_sp_p, yt_sp_p)
+        yp_uf, yp_of = primclar.outputs(timestep, step, yp_in)
+        y_c_as_bp = combiner_primclar_post.output(yp_of[:21], y_in_as_c)
         y_bp_as, y_as_bp_c_eff = bypass_reactor.outputs(y_c_as_bp, (1 - reginit.QbypassAS, reginit.QbypassAS))
 
         control_start_time = step
         control_end_time = step + timestep
         control_time = np.arange(control_start_time, control_end_time, control_timestep)
         for i,step_CONTROL in enumerate(control_time):
-            y_in1 = combiner_reactor.output(ys_r, y_bp_as, y_out5_r)
+            y_in1 = combiner_reactor.output(ys_r, y_bp_as, yst_sp_as, yt_sp_as, y_out5_r)
             reactor3.kla = kla3_a
             reactor4.kla = kla4_a
             reactor5.kla = kla5_a
@@ -217,8 +218,6 @@ def test_bsm2_cl():
             kla5[int(transferfunction / control)] = kla5_value if np.isscalar(kla5_value) else kla5_value[0]
             kla5_a = kla5_actuator.real_actuator(kla5, step_CONTROL, controlnumber, transferfunction, control)
 
-
-
             # for next step:
             SO3[0:int(transferfunction / control)] = SO3[1:(int(transferfunction / control) + 1)]
             kla3[0:int(transferfunction / control)] = kla3[1:(int(transferfunction / control) + 1)]
@@ -228,7 +227,6 @@ def test_bsm2_cl():
 
             SO5[0:int(transferfunction / control)] = SO5[1:(int(transferfunction / control) + 1)]
             kla5[0:int(transferfunction / control)] = kla5[1:(int(transferfunction / control) + 1)]
-
 
             number_noise += integration
             controlnumber = controlnumber + 1
