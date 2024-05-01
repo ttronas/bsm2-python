@@ -14,7 +14,7 @@ class PlantPerformance:
         """
         Creates a PlantPerformance object.
         """
-
+    # TODO: Make the function also callable from within the simulation loop (i.e. only for one timestep). Currently, it is only callable after the simulation.
     def aerationenergy(self, kla, vol, sosat, sampleinterval, evaltime):
         """Returns the aeration energy of the plant during the evaluation time
 
@@ -39,7 +39,8 @@ class PlantPerformance:
 
         ae = sum(sum(sosat * vol * kla)*sampleinterval)/(1.8*1000 * (evaltime[1]-evaltime[0]))
         return ae
-
+    
+    # TODO: Make the function also callable from within the simulation loop (i.e. only for one timestep). Currently, it is only callable after the simulation.
     def pumpingenergy(self, flows, pumpfactor, sampleinterval, evaltime):
         """Returns the pumping energy of the plant during the evaluation time
 
@@ -62,7 +63,8 @@ class PlantPerformance:
 
         pe = sum(sum(flows * pumpfactor) * sampleinterval) / (evaltime[1] - evaltime[0])
         return pe
-
+    
+    # TODO: Make the function also callable from within the simulation loop (i.e. only for one timestep). Currently, it is only callable after the simulation.
     def mixingenergy(self, kla, vol, sampleinterval, evaltime):
         """Returns the mixing energy of the plant during the evaluation time
 
@@ -88,7 +90,8 @@ class PlantPerformance:
                       len(kla3[kla3 < 20])*vol[2] + len(kla4[kla4 < 20])*vol[3] +
                       len(kla5[kla5 < 20])*vol[4]) * sampleinterval * 24 / (evaltime[1] - evaltime[0])
         return me[0]
-
+    
+    # TODO: Make the function also callable from within the simulation loop (i.e. only for one timestep). Currently, it is only callable after the simulation.
     def violation(self, arr_eff, limit, sampleinterval, evaltime):
         """Returns the time in days and percentage of time in which a certain component is over the limit value during
         the evaluation time
@@ -118,7 +121,7 @@ class PlantPerformance:
         violationvalues[1] = len(arr_eff[arr_eff > limit]) * sampleinterval / (evaltime[1] - evaltime[0]) * 100
         return violationvalues
 
-    def advanced_quantities(self, arr_eff, components=['kjeldahlN', 'totalN', 'COD', 'BOD5'], asm1par=asm1init.PAR1):
+    def advanced_quantities(self, arr_eff, components=('kjeldahlN', 'totalN', 'COD', 'BOD5'), asm1par=asm1init.PAR1):
         """
         Takes an ASM1 array (single timestep or multiple timesteps) and returns
         advanced quantities of the effluent.
@@ -132,8 +135,8 @@ class PlantPerformance:
         ----------
         arr_eff : np.ndarray((21, n))
             Array in ASM1 format
-        components : List[str] (optional)
-            List of components to be calculated. Defaults to ['kjeldahlN', 'totalN', 'COD', 'BOD5']
+        components : Tuple[str] (optional)
+            Tuple of components to be calculated. Defaults to ('kjeldahlN', 'totalN', 'COD', 'BOD5')
         """
         if np.ndim(arr_eff) == 1:
             adv_eff = np.zeros((len(components), 1))
