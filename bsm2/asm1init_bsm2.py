@@ -181,3 +181,19 @@ SOSAT2 = SOSAT1
 SOSAT3 = SOSAT1
 SOSAT4 = SOSAT1
 SOSAT5 = SOSAT1
+
+# Default KLa (oxygen transfer coefficient) values for AS reactors:
+KLa1 = 0
+KLa2 = 0
+KLa3 = 240
+KLa4 = 240
+KLa5 = 84
+
+# external carbon flow rates for reactor 1 to 5:
+carb1 = 0
+carb2 = 0
+carb3 = 0
+carb4 = 0
+carb5 = 0
+# external carbon source concentration = 400000 mg COD / L from BSM1
+carbonsourceconc = 400000
