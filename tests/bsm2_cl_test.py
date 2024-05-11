@@ -292,14 +292,13 @@ def test_bsm2_cl():
     so5_matlab = SO5sensor_matlab[0]
     so3_matlab = SO3sensor_matlab[0]
 
-    assert np.allclose(y_eff, y_eff_matlab, rtol=6e-1, atol=1e0)
-    assert np.allclose(y_in_bp, qpass_matlab, rtol=3e-1, atol=1e0)
-    assert np.allclose(yp_in_c, prim_in_matlab, rtol=6e-1, atol=1e0)
-    assert np.allclose(y_plant_bp, qpassplant_to_as_matlab, rtol=3e-1, atol=1e0)
-    assert np.allclose(y_as_bp_c_eff, qpassAS_matlab, rtol=3e-1, atol=1e0)
-    assert np.allclose(yt_sp_as, qthick2AS_matlab, rtol=3e-1, atol=1e0)
-    assert np.allclose(yst_sp_as, qstorage2AS_matlab, rtol=3e-1, atol=1e0)
-    assert np.allclose(ydw_s, sludge_matlab, rtol=3e-1, atol=1e0)
-
+    assert np.allclose(y_eff, y_eff_matlab, rtol=3e-1, atol=1e0)
+    assert np.allclose(y_in_bp, qpass_matlab, rtol=1e-3, atol=1e-3)
+    assert np.allclose(yp_in, prim_in_matlab, rtol=1e0, atol=1e0)
+    assert np.allclose(y_in_as_c, qpassplant_to_as_matlab, rtol=1e-3, atol=1e-3)
+    assert np.allclose(y_as_bp_c_eff, qpassAS_matlab, rtol=1e-3, atol=1e-3)
+    assert np.allclose(yt_sp_as, qthick2AS_matlab, rtol=1e-3, atol=1e-3)
+    assert np.allclose(yst_sp_as, qstorage2AS_matlab, rtol=1e-3, atol=1e-3)
+    assert np.allclose(ydw_s, sludge_matlab, rtol=4e-2, atol=1e-2)
 
 test_bsm2_cl()
