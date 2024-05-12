@@ -205,7 +205,7 @@ class ASM1reactor:
         self.tempmodel = tempmodel
         self.activate = activate
 
-    def output(self, timestep, step, y_in):
+    def output(self, timestep: int | float, step: int | float, y_in: np.ndarray):
         """Returns the solved differential equations based on ASM1 model
 
         Parameters
@@ -213,7 +213,7 @@ class ASM1reactor:
         timestep : int or float
             Size of integration interval in days
         step : int or float
-            Bottom boundary for integration interval in days
+            Start time for integration interval in days
         y_in : np.ndarray
             Reactor inlet concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
 

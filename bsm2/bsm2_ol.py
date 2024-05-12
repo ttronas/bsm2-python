@@ -20,8 +20,8 @@ import time
 import csv
 from bsm2.primclar_bsm2 import PrimaryClarifier
 from bsm2 import primclarinit_bsm2 as primclarinit
-from asm1.asm1 import ASM1reactor
-import asm1.asm1init as asm1init
+from bsm2.asm1_bsm2 import ASM1reactor
+import bsm2.asm1init_bsm2 as asm1init
 from bsm2.settler1d_bsm2 import Settler
 import bsm2.settler1dinit_bsm2 as settler1dinit
 from bsm2.thickener_bsm2 import Thickener
@@ -34,7 +34,7 @@ from bsm2.storage_bsm2 import Storage
 import bsm2.storageinit_bsm2 as storageinit
 from bsm2.helpers_bsm2 import Combiner, Splitter
 import bsm2.reginit_bsm2 as reginit
-from asm1.plantperformance import PlantPerformance
+from bsm2.plantperformance import PlantPerformance
 
 tempmodel = False   # if tempmodel is False influent wastewater temperature is just passed through process reactors and settler
                     # if tempmodel is True mass balance for the wastewater temperature is used in process reactors and settler

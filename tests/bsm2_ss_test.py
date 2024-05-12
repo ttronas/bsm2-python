@@ -21,7 +21,7 @@ def test_bsm2_ss():
     import time
     from bsm2.primclar_bsm2 import PrimaryClarifier
     from bsm2 import primclarinit_bsm2 as primclarinit
-    from asm1.asm1 import ASM1reactor
+    from bsm2.asm1_bsm2 import ASM1reactor
     import bsm2.asm1init_bsm2 as asm1init
     from bsm2.settler1d_bsm2 import Settler
     import bsm2.settler1dinit_bsm2 as settler1dinit

@@ -5,7 +5,7 @@ In this specific test case the BSM2 model has (almost) no return flows. It is ma
 """
 
 
-def test_bsm2_ol():
+def test_bsm2_ol_not_connected():
     import sys
     import os
     import numpy as np
@@ -17,7 +17,7 @@ def test_bsm2_ol():
 
     from bsm2.primclar_bsm2 import PrimaryClarifier
     from bsm2 import primclarinit_bsm2 as primclarinit
-    from asm1.asm1 import ASM1reactor
+    from bsm2.asm1_bsm2 import ASM1reactor
     import bsm2.asm1init_bsm2 as asm1init
     from bsm2.settler1d_bsm2 import Settler
     import bsm2.settler1dinit_bsm2 as settler1dinit
@@ -254,4 +254,4 @@ def test_bsm2_ol():
     assert np.allclose(ydw_s, sludge_matlab, rtol=4e-2, atol=1e-2)
 
 
-test_bsm2_ol()
+test_bsm2_ol_not_connected()

@@ -3,7 +3,7 @@ The test case is based on the BSM2 Benchmark Simulation Model No. 2 (BSM2) and d
 """
 
 
-def test_bsm2_ol_not_connected():
+def test_bsm2_ol():
     import sys
     import os
     import numpy as np
@@ -15,7 +15,7 @@ def test_bsm2_ol_not_connected():
 
     from bsm2.primclar_bsm2 import PrimaryClarifier
     from bsm2 import primclarinit_bsm2 as primclarinit
-    from asm1.asm1 import ASM1reactor
+    from bsm2.asm1_bsm2 import ASM1reactor
     import bsm2.asm1init_bsm2 as asm1init
     from bsm2.settler1d_bsm2 import Settler
     import bsm2.settler1dinit_bsm2 as settler1dinit
@@ -250,4 +250,4 @@ def test_bsm2_ol_not_connected():
     assert np.allclose(ydw_s, sludge_matlab, rtol=4e-2, atol=1e-2)
 
 
-test_bsm2_ol_not_connected()
+test_bsm2_ol()

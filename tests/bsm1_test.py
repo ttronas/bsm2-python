@@ -10,8 +10,8 @@ path_name = os.path.dirname(__file__)
 sys.path.append(path_name + '/..')
 from bsm2.settler1d_bsm2 import Settler
 import bsm2.settler1dinit_bsm2 as settler1dinit
-from asm1.asm1 import ASM1reactor
-import asm1.asm1init as asm1init
+from bsm2.asm1_bsm2 import ASM1reactor
+import bsm2.asm1init_bsm1 as asm1init
 from bsm2.helpers_bsm2 import Combiner, Splitter
 
 tempmodel = False   # if False influent wastewater temperature is just passed through process reactors and settler
