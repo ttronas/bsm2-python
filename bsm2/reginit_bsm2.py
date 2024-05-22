@@ -30,21 +30,6 @@ Qstorage = 0
 Qw_high = 450
 Qw_low = 300
 
-# initiates parameters for all controllers in use
-# this file works together with sensorinit_bsm2.m
-# continuous PI O2-controller
-KSO4 = 25  # Amplification, 500 in BSM1 book
-TiSO4 = 0.002  # I-part time constant (d = 2.88 min)), integral time constant, 0.001 in BSM1 book
-TtSO4 = 0.001  # Antiwindup time constant (d), tracking time constant, 0.0002 in BSM1 book
-SO4intstate = 0  # initial value of I-part
-SO4awstate = 0  # initial value of antiwindup I-part
-SO4ref = 2  # setpoint for controller, mg (-COD)/l
-KLa4offset = 120  # reasonable offset value for control around SO4ref
-# = controller output if the rest is turned off, (1/d)
-useantiwindupSO4 = 1  # 0=no antiwindup, 1=use antiwindup for oxygen control
-KLa3gain = 1.0  # gain for control signal to reactor 3
-KLa5gain = 0.5  # gain for control signal to reactor 5
-
 # to be used for a Qintr controller of BSM1 type, should then be
 # sensorinit_bsm2 since it is an rudimentary 'actuator model' similar to QwT
 # QintrT = T*10

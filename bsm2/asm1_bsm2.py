@@ -173,7 +173,7 @@ def carbonaddition(y_in, carb, csourceconc):
 
 
 class ASM1reactor:
-    def __init__(self,  kla, volume, y0, asm1par, carb, csourceconc, tempmodel, activate):
+    def __init__(self, kla: float, volume: float, y0: np.ndarray, asm1par: np.ndarray, carb: float, csourceconc: float, tempmodel: bool, activate: bool):
         """
         Parameters
         ----------

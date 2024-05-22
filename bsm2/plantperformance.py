@@ -161,3 +161,37 @@ class PlantPerformance:
                 raise ValueError(f'Component \'{component}\' not supported')
 
         return adv_eff
+
+    def air_flow(self, kla, temp, vol, h):
+        """
+        Calculates the air flow rate in each reactor compartment
+
+        Parameters
+        ----------
+        kla : float or np.ndarray
+            KLa values of each reactor compartment, in 1/d
+        temp : float or np.ndarray
+            Temperature in each reactor compartment, in °C
+        vol : float or np.ndarray
+            Volume of each reactor compartment, in m³
+        h : float
+            Height of each reactor compartment, in m
+
+        Returns
+        -------
+        np.ndarray
+            Air flow rate in each reactor compartment in m³/d
+        """
+        f_s_st = 1  # salinity aeration factor
+        kla_20 = kla * 1.024 ** (20 - temp)
+        beta_st = 1 # salinity saturation factor
+        C_s_20 = 9.09  # mg/l from DIN EN ISO 5814
+        alpha = 0.75  # 
+        ssote = 6.5  # %/m from DWA-M 229-1
+        sotr = (vol * f_s_st * kla_20 * beta_st * C_s_20) / 1000 / alpha
+        #       m³           * 1/d              * gO2/m³  / g/kg = kgO2/d
+        oxygen_conc = 0.3  # kg/m³ in air
+        air_flow = (100 * sotr) / (h * oxygen_conc * ssote)
+        #            %  * kgO2/d/ (m * kg/m³       * %/m   = m³/d
+        return air_flow
+    

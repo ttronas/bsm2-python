@@ -8,6 +8,10 @@ reginit_bsm2;
 dewateringinit_bsm2;
 storageinit_bsm2;
 
+load ./Influent_data/sensornoise_bsm2.mat;
+create_noisematrix;
+sensorinit_bsm2;
+
 load ./Influent_data/constinfluent_bsm1;
 load ./Influent_data/dyninfluent_bsm2;
 load ./Influent_data/constinfluent_adm1_test.mat;
