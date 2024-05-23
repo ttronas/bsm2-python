@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.integrate import odeint
 from scipy import signal
+from numba import jit
 
 
 
@@ -75,6 +76,14 @@ class Oxygensensor:
         return SO_meas
 
 
+@jit(nopython=True, cache=True)
+def function_ac(t, y, SOref, SO_meas, KSO, TiSO):
+    return (SOref - SO_meas) * KSO / TiSO
+
+@jit(nopython=True, cache=True)
+def function_aw(t, y, kla_lim, kla_calc, TtSO):
+    return (kla_lim - kla_calc) / TtSO
+
 class PIaeration:
     def __init__(self, KLa_min: float, KLa_max: float, KSO: float, TiSO: float, TtSO: float, SOref: float, KLaoffset: float, SOintstate: float, SOawstate: float, kla_lim: float, kla_calc: float, use_antiwindup: bool = True):
         """
@@ -141,13 +150,16 @@ class PIaeration:
 
         error_SO = (self.SOref - SO_meas) * self.KSO
 
-        integral_ac = self.SOintstate + ((self.SOref - SO_meas) * self.KSO / self.TiSO) * timestep
+        t_ac = np.array([step, step+timestep])
+        ode_ac = odeint(function_ac, self.SOintstate, t_ac, args=(self.SOref, SO_meas, self.KSO, self.TiSO), tfirst=True)
+
+        integral_ac = ode_ac[1]
         self.SOintstate = integral_ac
 
 
         if self.use_antiwindup:
-            antiwindup = self.SOawstate + ((self.kla_lim - self.kla_calc) / self.TtSO) * timestep
-            self.SOawstate = antiwindup
+            ode_aw = odeint(function_aw, self.SOawstate, t_ac, args=(self.kla_lim, self.kla_calc, self.TtSO), tfirst=True)
+            antiwindup = ode_aw[1]
         else:
             antiwindup = 0
 

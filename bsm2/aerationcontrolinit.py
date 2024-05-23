@@ -25,13 +25,6 @@ Qstorage_max = 1500
 # time delay for artificial Qw actuator (acts as first-order filter)
 QwT = 1/60/24 * 10
 
-# initial values for sensor 3:
-T90_SO3 = 1     # response time 1 min
-min_SO3 = 0
-max_SO3 = 10
-T_SO3 = T90_SO3 / (60*24) / 3.89
-std_SO3 = 0.025
-
 KLa3gain = 1.0  # gain for control signal to reactor 3
 
 # values for KLa actuator 3:
@@ -63,13 +56,6 @@ useantiwindupSO4 = True  # False=no antiwindup, True=use antiwindup for oxygen c
 # values for KLa actuator 4:
 T90_KLa4 = 4        # response time 4 minutes
 T_KLa4 = T90_KLa4 / (60*24) / 3.89
-
-# initial values for sensor 5:
-T90_SO5 = 1     # response time 1 min
-min_SO5 = 0
-max_SO5 = 10
-T_SO5 = T90_SO5 / (60*24) / 3.89
-std_SO5 = 0.025
 
 KLa5gain = 0.5  # gain for control signal to reactor 5
 
