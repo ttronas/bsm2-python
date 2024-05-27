@@ -1,17 +1,19 @@
 """
 test dewatering_bsm2.py
 """
-import sys
+
+import csv
+import logging
 import os
-path_name = os.path.dirname(__file__)
-sys.path.append(path_name + '/..')
+import time
 
 import numpy as np
-import csv, time
 from tqdm import tqdm
-from bsm2 import asm1init_bsm2 as asm1init
-from bsm2 import dewateringinit_bsm2 as dewateringinit
-from bsm2.dewatering_bsm2 import Dewatering
+
+from bsm2_python.bsm2 import dewateringinit_bsm2 as dewateringinit
+from bsm2_python.bsm2.dewatering_bsm2 import Dewatering
+
+path_name = os.path.dirname(__file__)
 
 
 def test_dewatering():
@@ -19,9 +21,11 @@ def test_dewatering():
     dewatering = Dewatering(dewateringinit.DEWATERINGPAR)
 
     # CONSTINFLUENT from BSM2:
-    y_in = np.array([30, 69.5, 51.2, 202.32, 28.17, 0, 0, 0, 0, 31.56, 6.95, 10.59, 7, 211.2675, 18446, 15, 0, 0, 0, 0, 0])
+    y_in = np.array(
+        [30, 69.5, 51.2, 202.32, 28.17, 0, 0, 0, 0, 31.56, 6.95, 10.59, 7, 211.2675, 18446, 15, 0, 0, 0, 0, 0]
+    )
 
-    timestep = 15/(60*24)
+    timestep = 15 / (60 * 24)
     endtime = 200
     simtime = np.arange(0, endtime, timestep)
 
@@ -30,21 +34,68 @@ def test_dewatering():
 
     start = time.perf_counter()
 
-    for step in simtime:
-
+    for _ in simtime:
         ydw_s, ydw_r = dewatering.outputs(y_in)
 
     stop = time.perf_counter()
 
-    print('Steady state simulation completed after: ', stop - start, 'seconds')
-    print('Sludge flow at t =', endtime, 'd: \n', ydw_s)
-    print('Reject flow at t =', endtime, 'd: \n', ydw_r)
+    logging.info('Steady state simulation completed after: %s seconds', stop - start)
+    logging.info('Sludge flow at t = %s d: \n%s', endtime, ydw_s)
+    logging.info('Reject flow at t = %s d: \n%s', endtime, ydw_r)
 
-    ydw_s_matlab = np.array([30, 69.5000000000000, 67857.1005952170, 268141.574070787, 37334.6586673293, 0, 0, 0, 0, 31.5600000000000, 6.95000000000000, 14035.2870176435, 7, 280000, 13.6396410675000, 15, 0, 0, 0, 0, 0])
-    ydw_r_matlab = np.array([30, 69.5000000000000, 1.02475774302266, 4.04939426891298, 0.563816906659147, 0, 0, 0, 0, 31.5600000000000, 6.95000000000000, 0.211956728488476, 7, 4.22847668894609, 18432.3603589325, 15, 0, 0, 0, 0, 0])
+    ydw_s_matlab = np.array(
+        [
+            30,
+            69.5000000000000,
+            67857.1005952170,
+            268141.574070787,
+            37334.6586673293,
+            0,
+            0,
+            0,
+            0,
+            31.5600000000000,
+            6.95000000000000,
+            14035.2870176435,
+            7,
+            280000,
+            13.6396410675000,
+            15,
+            0,
+            0,
+            0,
+            0,
+            0,
+        ]
+    )
+    ydw_r_matlab = np.array(
+        [
+            30,
+            69.5000000000000,
+            1.02475774302266,
+            4.04939426891298,
+            0.563816906659147,
+            0,
+            0,
+            0,
+            0,
+            31.5600000000000,
+            6.95000000000000,
+            0.211956728488476,
+            7,
+            4.22847668894609,
+            18432.3603589325,
+            15,
+            0,
+            0,
+            0,
+            0,
+            0,
+        ]
+    )
 
-    print('Sludge flow difference to MatLab solution: \n', ydw_s_matlab - ydw_s)
-    print('Reject flow difference to MatLab solution: \n', ydw_r_matlab - ydw_r)
+    logging.info('Sludge flow difference to MatLab solution: \n%s', ydw_s_matlab - ydw_s)
+    logging.info('Reject flow difference to MatLab solution: \n%s', ydw_r_matlab - ydw_r)
 
     assert np.allclose(ydw_s, ydw_s_matlab, rtol=1e-5, atol=1e-5)
     assert np.allclose(ydw_r, ydw_r_matlab, rtol=1e-5, atol=1e-5)
@@ -57,10 +108,10 @@ def test_dewatering_dyn():
     # definition of the tested dewatering:
     dewatering = Dewatering(dewateringinit.DEWATERINGPAR)
     # dyninfluent from BSM2:
-    with open(path_name + '/../data/dyninfluent_bsm2.csv', 'r') as f:
-        data_in = np.array(list(csv.reader(f, delimiter=","))).astype(np.float64)
+    with open(path_name + '/../src/bsm2_python/data/dyninfluent_bsm2.csv', encoding='utf-8-sig') as f:
+        data_in = np.array(list(csv.reader(f, delimiter=','))).astype(np.float64)
 
-    timestep = 15/24/60  # 15 minutes in days
+    timestep = 15 / 24 / 60  # 15 minutes in days
     endtime = 50  # data_in[-1, 0]
     data_time = data_in[:, 0]
     simtime = np.arange(0, endtime, timestep)
@@ -86,16 +137,64 @@ def test_dewatering_dyn():
     # np.savetxt(path_name + '/../data/test_ydw_s_all.csv', ydw_s_all, delimiter=',')
     # np.savetxt(path_name + '/../data/test_ydw_r_all.csv', ydw_r_all, delimiter=',')
 
-    print('Dynamic simulation completed after: ', stop - start, 'seconds')
-    print('Sludge flow at t =', endtime, 'd: \n', ydw_s)
-    print('Reject flow at t =', endtime, 'd: \n', ydw_r)
+    logging.info('Dynamic simulation completed after: %s seconds', stop - start)
+    logging.info('Sludge flow at t = %s d: \n%s', endtime, ydw_s)
+    logging.info('Reject flow at t = %s d: \n%s', endtime, ydw_r)
 
     # Values from 50 days dynamic simulation in Matlab (dewatering_test_dyn.slx):
-    ydw_s_matlab = np.array([33.5386583268000, 42.6657147645379, 69658.3011171199, 266353.691824116, 37321.3403920977, 0, 0, 0, 0, 13.0991673987171, 4.42838614018597, 8361.46349627682, 7, 280000, 28.1883392218788, 11.4404477663154, 0, 0, 0, 0, 0])
-    ydw_r_matlab = np.array([33.5386583268000, 42.6657147645379, 1.90746272008929, 7.29359931788214, 1.02197533273164, 0, 0, 0, 0, 13.0991673987171, 4.42838614018597, 0.228963090525556, 7, 7.66727802802730, 21008.2670194321, 11.4404477663154, 0, 0, 0, 0, 0])
+    ydw_s_matlab = np.array(
+        [
+            33.5386583268000,
+            42.6657147645379,
+            69658.3011171199,
+            266353.691824116,
+            37321.3403920977,
+            0,
+            0,
+            0,
+            0,
+            13.0991673987171,
+            4.42838614018597,
+            8361.46349627682,
+            7,
+            280000,
+            28.1883392218788,
+            11.4404477663154,
+            0,
+            0,
+            0,
+            0,
+            0,
+        ]
+    )
+    ydw_r_matlab = np.array(
+        [
+            33.5386583268000,
+            42.6657147645379,
+            1.90746272008929,
+            7.29359931788214,
+            1.02197533273164,
+            0,
+            0,
+            0,
+            0,
+            13.0991673987171,
+            4.42838614018597,
+            0.228963090525556,
+            7,
+            7.66727802802730,
+            21008.2670194321,
+            11.4404477663154,
+            0,
+            0,
+            0,
+            0,
+            0,
+        ]
+    )
 
-    print('Sludge flow difference to MatLab solution: \n', ydw_s_matlab - ydw_s)
-    print('Reject flow difference to MatLab solution: \n', ydw_r_matlab - ydw_r)
+    logging.info('Sludge flow difference to MatLab solution: \n%s', ydw_s_matlab - ydw_s)
+    logging.info('Reject flow difference to MatLab solution: \n%s', ydw_r_matlab - ydw_r)
 
     assert np.allclose(ydw_s, ydw_s_matlab, rtol=1e-5, atol=1e-5)
     assert np.allclose(ydw_r, ydw_r_matlab, rtol=1e-5, atol=1e-5)

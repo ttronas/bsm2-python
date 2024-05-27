@@ -1,8 +1,0 @@
-black==23.12.1
-flake8==6.1.0
-numba==0.58.1
-numpy==1.26.3
-pandas==2.1.4
-pytest==7.4.4
-scipy==1.11.4
-tqdm==4.66.1
