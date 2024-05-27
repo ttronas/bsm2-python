@@ -3,55 +3,65 @@
 A Python implementation of the Benchmark Simulation Model 2 (BSM2) plant layout according to the [IWA](http://iwa-mia.org/) standard.
 A description of BSM2 can be found [here](https://iwaponline.com/ebooks/book-pdf/650794/wio9781780401171.pdf).
 
+## To-Do:
+- [ ] Lukas: Get your fingers on hatch and find out how to use it inside IDEs :D
+- [ ] Lukas: put init files in separate folder
+- [ ] Lukas: Write parent class for all BSM2 objects (e.g. methods `stabilize` or `simulate`)
+- [ ] Jonas: Implement containerised tests as part of the CI/CD pipeline
+- [ ] Lukas: Import different plant setups - including BSM2OLEM (BSM2 open loop with energy management)
+- [ ] Lukas: Write simple controller (focusing on kla and gas management control based on electricity prices)
+- [ ] (Nick:) Write docs!
+
 ## Installation
-To run the project, all dependencies from `requirements.txt` must be installed. You can do so by running `pip install -r requirements.txt` in your command line.
-There is also a fully functional Docker image available in the [GitLab Container Registry](gitlab.rrze.fau.de:4567/evt/klaeffizient/bsm2-python).
-You can simply execute any `*runss*.py` file to see some standard results on a steady state (ss) dataset.
-For dynamic results, make sure to run a ss file first to equilibrate the reactors. If not, standard values are used for the initial state.
+To run the project, build it yourself via `hatch build`.
+See the [Contribution Guide](CONTRIBUTING.md) for more details on how to install `hatch`.
+Then you can install it to arbitrary environments via `pip install dist/bsm2_python<version-hash>.whl`
+You could then do:
+```python
+import numpy as np
+from tqdm import tqdm
+from bsm2_python import BSM2OL
+for idx, _ in enumerate(tqdm(bsm2_ol.simtime)):
+    klas = np.concatenate((np.zeros((2,)), np.random.choice([0, 60, 120], 3)))
+    bsm2_ol.step(idx, klas)
+
+print(bsm2_ol.y_eff_all)
+```
+This will print out the results of the BSM2 Open Loop model for a random aeration control strategy over 609 days of simulation.
+
+There is also a fully functional Docker image available in the [GitLab Container Registry](gitlab.rrze.fau.de:4567/evt/klaeffizient/bsm2-python). (**Not at the moment**)
 
 ## Project structure
 The project is structured as follows:
-- `asm1`:
-    - basically a copy of Maike Böhm's ASM1 implementation, see [here](https://gitlab.rrze.fau.de/evt/klaeffizient/asm-python)
-- `asm3`:
-    - basically a copy of Maike Böhm's ASM3 implementation, see [here](https://gitlab.rrze.fau.de/evt/klaeffizient/asm-python)
-- `bsm2`:
-    - alternative implementation of the ASM1 settler model
-    - additional modules to implement the BSM2 layout
-    - initialization files of all utilities with BSM2 parameters
-- `data`:
-    - standard initialization values for the BSM2 layout
-    - dynamic data for the BSM2 layout
-    - standard folder for saving results
-- `tests`:
-    - unit tests for the BSM2 components in both steady state and dynamic mode
-    - Simulink reference files for validation purposes
 
-## File Descriptions inside `bsm2`, `init` and `data` folder
-- `adm1_bsm2.py`:
-File containing equations of Anaerobic Digestion Model No. 1. With the class `ADM1reactor`, a reactor unit can be created as an object in which the equations are solved with the method `output`.
-- `adm1init.py`:
-- `asm1.py`, `asm3.py`:
-Files containing equations of Activated Sludge Model No. 1 and 3. With the class `ASMxreactor`, a reactor unit can be created as an object in which the equations are solved with the method `output`.
-- `settler1d_asm1.py`, `settler1d_asm3.py`:
-Files containing equations of a n-layer one dimensional settler model. With the class `Settler`, the settler can be created as an object in which the equations are solved with the method `outputs`. For a simulation based on ASM1, number of layers can be chosen flexibly.
-- `aerationcontrol.py`:
-Files containing equations of PI controller of aeration, which maintains oxygen at a certain setpoint in reactor unit. With the class `PIaeration`, the PI controller can be created as an object which determines the KLa value for adjusting the oxygen with the method `output`. For a non-ideal system, two extra objects to delay the signals can be added with the classes `Oxygensensor` and `KLaactuator`. In case of `Oxygensensor`, the method `measureSO` gives the measured oxygen value in the reactor unit. For `KLaactuator`, the method `real_actuator` returns the delayed KLa value.
-- `average_asm1.py`, `average_asm3.py`:
-Files containing the function averages which returns average values of the components during a certain evaluation time.
-- `plantperformance.py`:
-File containing equations to determine energy consumption (pumping, aeration and mixing energy) and effluent quality during the evaluation time. With the class `PlantPerformance`, the plant performance can be created as an object to assess these quality relevant parameters. In case of effluent quality, the method `violation` returns the time in days and percentage of time in which a certain component is over the limit.
-- `adm1init_bsm2.py`, `asm1init_bsm2.py`, `asm3init.py`, `settler1dinit_asm1.py`, `settler1dinit_asm3.py`, `aerationcontrolinit.py`, `dewateringinit_bsm2.py`, `primclarinit_bsm2.py`, `settler1dinit_bsm2.py`, `storageinit_bsm2.py`, `thickenerinit_bsm2.py`:
-Files containing values for all parameters and states to run the simulation in BSM2 layout.
-- `bsm2runss.py`, `asm1runss.py`, `asm1run.py`, `asm3runss.py`, `asm3run.py`:
-When running these files, the BSM2 / BSM1 plant without any control strategy (Openloop) can be simulated in steady state (ss) or as dynamic system.
-- `asm1runss_ac.py`, `asm1run_ac.py`:
-When running these files, the BSM1 plant with aeration control in reactor unit 5 can be simulated in steady state (ss) or as dynamic system.
+bsm2-python
+├───docs
+│   └────Documentation of the project
+├───notebooks
+|   └────Jupyter notebooks as explanatory examples
+├───src
+│   └────bsm2_python
+│        |   └─Root folder of the project code
+│        ├───bsm2
+│        │   └─All modules for the BSM2 plant layouts
+│        └───data
+│           └─Standard datasets for influent data
+│             and sensor noise
+└───tests
+    |  └─Unit tests for the BSM2 components in both
+    │    steady state and dynamic mode
+    └───simulink_files
+         └─Reference files for validation purposes
 
 ## Usage
-In case of ASM1, you can choose between three different configurations of the plant: without any control, with aeration control in tank 5 (ac) and with aeration control in tank 3, 4 and 5 (ps). The chosen BSM1 plant must be brought into a steady-state condition with the steady state file (ss). The results are saved as csv file and serve as the initial state for any dynamic simulation. When nothing is changed, every dynamic simulation can be started from this point. Three input files for different weather conditions from BSM1 can be used for the dynamic simulation. The results of the simulation are saved as csv files.
+At the moment, you can choose between four different configurations of the plant:
+1. BSM2 without any control (dynamic or static influent data - you choose)
+2. BSM2 with aeration control in tanks 3-5
+3. and a custom plant setup with completely free configurable setup. with aeration control in tank 3, 4 and 5
+
+The results are saved inside the objects and can be accessed via calling the attribute names. For the plant effluent, just call `bsm2.y_eff_all`.
 With `tempmodel` and `activate`, differential equations for temperature and additional components can be added.
-If you want to create your own plant layout, use the `bsm2_xx.py` files as template. Put your own parameters and values in extra `init` files.
+If you want to create your own plant layout, use the `bsm2_xx.py` files as template. Put your own parameters and values in separate `init` files.
 
 ## Support
 Your help is highly appreciated! Please read through the [CONTRIBUTING.md](CONTRIBUTING.md) file for details on our code of conduct, and the process for submitting pull requests to us.
@@ -59,17 +69,24 @@ If you find any issues inside the repo, don't hesitate to raise an Issue.
 
 
 ## Roadmap
-In the future, this repo will aim to contain a complete description of BSM2.
-The following steps are still required:
-- [ ] Implement sensors and actuators
-- [ ] Improve plant performance module
+In the future, this repo will be extended by the following features:
+- [ ] Faster computation through Rust-based backend
+- [ ] Support of more experimental tools, e.g. photovoltaics, methanation or electrolysis
 
 
 ## Authors and acknowledgment
 Thanks to Maike Böhm for first implementing the ASM in Python in her Masters Thesis.
+Thanks as well to Lukas Meier for implementing the Gas management side of the BSM2 plant.
+
+
+The development of this package was done in the context of the [KLÄFFIZIENT] project. The project is funded by the German Federal Ministry for Economic Affairs and Climate Action ([BMWK]) and is part of the 7th Energy Research Program of the Federal Government.
 
 ## License
 This project is licensed under [BSD 3 Clause](LICENSE.txt).
 
 ## Project status
 As I am maintaining this repo in my free time, don't expect rapid development. However, if any Issues are popping up, I will try to fix them in time.
+
+
+[KLÄFFIZIENT]: https://www.evt.tf.fau.de/forschung/schwerpunktekarl/ag-energiesysteme/bmwi-projekt-klaeffizient/
+[BMWK]: http://bmwk.de/

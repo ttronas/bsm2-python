@@ -13,12 +13,12 @@ readme = "README.md"
 requires-python = ">=3.10"# only license identifier from https://spdx.org/licenses/ are allowed
 license = { text = "BSD-3-Clause"}
 # keywords for easier look-up on PyPI
-keywords = ["keyword_1", "keyword_2"] # ToDo: Modify according to your needs!
+keywords = ["system dynamics", "wastewater treatment plant", "simulation"]
 authors = [
     { name = "Jonas Miederer", email = "jonas.miederer@fau.de" },
 ]
 # options under https://pypi.org/classifiers/
-classifiers = [ # ToDo: Modify according to your needs!
+classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.10",
@@ -26,11 +26,11 @@ classifiers = [ # ToDo: Modify according to your needs!
     "Programming Language :: Python :: Implementation :: CPython",
 ]
 # direct dependencies of this package, installed when users `pip install bsm2-python` later.
-dependencies = [ # ToDo: Modify according to your needs!
-    "typer",
-    # "numpy",
-    # "matplotlib",
-    # "seaborn",
+dependencies = [
+    "numba",
+    "numpy",
+    "scipy",
+    "tqdm",
 ]
 dynamic = ["version"]
 
