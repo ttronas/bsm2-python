@@ -29,6 +29,7 @@ build_image:
     - docker login $IMAGE_REG -u $REGISTRY_USER -p $REGISTRY_PASS
   script:
     - devcontainer build --workspace-folder . --push true --image-name ${IMAGE_REG}/${IMAGE_NAME}:${IMAGE_TAG}
+
 run_checks:
   stage: test
   image: ${IMAGE_REG}/${IMAGE_NAME}:${IMAGE_TAG}
@@ -36,6 +37,11 @@ run_checks:
     - docker
   rules:
     - changes:
+      - makefile
+      - Dockerfile
+      - .gitlab-ci.yml
+      - pyproject.toml
+      - .devcontainer/devcontainer.json
       - src/*
       - tests/*
       - pyproject.toml
@@ -49,6 +55,11 @@ run_tests:
     - docker
   rules:
     - changes:
+      - makefile
+      - Dockerfile
+      - .gitlab-ci.yml
+      - pyproject.toml
+      - .devcontainer/devcontainer.json
       - src/*
       - tests/*
       - pyproject.toml
