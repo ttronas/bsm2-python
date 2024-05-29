@@ -14,3 +14,7 @@ RUN pipx install hatch
 WORKDIR ${PATH_TO_REPO}
 RUN pipx install pre-commit
 RUN hatch run pre-commit install
+RUN hatch run python -V
+RUN hatch run test:python -V
+RUN hatch run docs:python -V
+RUN hatch run lint:python -V

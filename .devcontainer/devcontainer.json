@@ -3,7 +3,6 @@
 		"dockerfile": "../Dockerfile"
 	},
 	"remoteUser": "root",
-	"postCreateCommand": "hatch run python -V && hatch run test:python -V && hatch run docs:python -V && hatch run lint:python -V",
 	"customizations": {
 		"vscode": {
 			"extensions": [
