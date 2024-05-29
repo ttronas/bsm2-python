@@ -4,13 +4,13 @@ A Python implementation of the Benchmark Simulation Model 2 (BSM2) plant layout 
 A description of BSM2 can be found [here](https://iwaponline.com/ebooks/book-pdf/650794/wio9781780401171.pdf).
 
 ## To-Do:
-- [ ] Lukas: Get your fingers on hatch and find out how to use it inside IDEs :D
+- [ ] Lukas: Get your fingers on hatch and find out how to use it inside IDEs (perhaps share your experience inside [CONTRIBUTING.md](CONTRIBUTING.md)):D
 - [ ] Lukas: put init files in separate folder
 - [ ] Lukas: Write parent class for all BSM2 objects (e.g. methods `stabilize` or `simulate`)
 - [ ] Jonas: Implement containerised tests as part of the CI/CD pipeline
 - [ ] Lukas: Import different plant setups - including BSM2OLEM (BSM2 open loop with energy management)
 - [ ] Lukas: Write simple controller (focusing on kla and gas management control based on electricity prices)
-- [ ] (Nick:) Write docs!
+- [ ] Nick: Write docs!
 
 ## Installation
 To run the project, build it yourself via `hatch build`.
@@ -21,6 +21,9 @@ You could then do:
 import numpy as np
 from tqdm import tqdm
 from bsm2_python import BSM2OL
+
+bsm2_ol = BSM2OL()
+
 for idx, _ in enumerate(tqdm(bsm2_ol.simtime)):
     klas = np.concatenate((np.zeros((2,)), np.random.choice([0, 60, 120], 3)))
     bsm2_ol.step(idx, klas)
@@ -33,7 +36,7 @@ There is also a fully functional Docker image available in the [GitLab Container
 
 ## Project structure
 The project is structured as follows:
-
+```
 bsm2-python
 ├───docs
 │   └────Documentation of the project
@@ -52,15 +55,15 @@ bsm2-python
     │    steady state and dynamic mode
     └───simulink_files
          └─Reference files for validation purposes
-
+```
 ## Usage
 At the moment, you can choose between four different configurations of the plant:
-1. BSM2 without any control (dynamic or static influent data - you choose)
-2. BSM2 with aeration control in tanks 3-5
+1. BSM2OL: BSM2 without any control (dynamic or static influent data - you choose)
+2. BSM2CL: BSM2 with aeration control in tanks 3-5
 3. and a custom plant setup with completely free configurable setup. with aeration control in tank 3, 4 and 5
 
 The results are saved inside the objects and can be accessed via calling the attribute names. For the plant effluent, just call `bsm2.y_eff_all`.
-With `tempmodel` and `activate`, differential equations for temperature and additional components can be added.
+With `tempmodel` and `activate`, differential equations for temperature dependency and additional components can be added.
 If you want to create your own plant layout, use the `bsm2_xx.py` files as template. Put your own parameters and values in separate `init` files.
 
 ## Support
@@ -85,7 +88,7 @@ The development of this package was done in the context of the [KLÄFFIZIENT] pr
 This project is licensed under [BSD 3 Clause](LICENSE.txt).
 
 ## Project status
-As I am maintaining this repo in my free time, don't expect rapid development. However, if any Issues are popping up, I will try to fix them in time.
+As we are maintaining this repo in our free time, don't expect rapid development. However, if any Issues are popping up, we will try to fix them in time.
 
 
 [KLÄFFIZIENT]: https://www.evt.tf.fau.de/forschung/schwerpunktekarl/ag-energiesysteme/bmwi-projekt-klaeffizient/
