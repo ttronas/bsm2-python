@@ -2,6 +2,8 @@
 	"build": {
 		"dockerfile": "../Dockerfile"
 	},
+	"remoteUser": "root",
+	"postCreateCommand": "hatch run python -V && hatch run test:python -V && hatch run docs:python -V && hatch run lint:python -V",
 	"customizations": {
 		"vscode": {
 			"extensions": [
@@ -13,8 +15,8 @@
 				"streetsidesoftware.code-spell-checker",
 				"streetsidesoftware.code-spell-checker-german"
 			],
-			"settings": {"cSpell.language": "en,de,en-GB"}
-
+			"settings": {"cSpell.language": "en,de,en-GB",
+			"python.defaultInterpreterPath": "/root/.local/share/hatch/env/virtual/bsm2-python/9EdBZCY_/test/bin/python"}
 		}
 	}
 }
