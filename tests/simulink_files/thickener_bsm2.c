@@ -1,11 +1,11 @@
 /*
- * thickener_bsm2.c calculates the overflow and underflow concentrations   
+ * thickener_bsm2.c calculates the overflow and underflow concentrations
  * from an 'ideal' thickener unit based on a fixed percentage of sludge in
  * the underflow flow. A defined amount of total solids are removed from
  * the water stream and goes into the sludge stream and the remaining will
  * leave with the water phase. Soluble concentrations are not affected.
  * Temperature is also handled ideally, i.e. T(out)=T(in).
- *  
+ *
  * Copyright: Ulf Jeppsson, IEA, Lund University, Lund, Sweden
  */
 
@@ -64,9 +64,9 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
   X_BH2TSS = mxGetPr(PAR)[4];
   X_BA2TSS = mxGetPr(PAR)[5];
   X_P2TSS = mxGetPr(PAR)[6];
-  
+
   TSSin = X_I2TSS*u[2]+X_S2TSS*u[3]+X_BH2TSS*u[4]+X_BA2TSS*u[5]+X_P2TSS*u[6];
-  thickener_factor = thickener_perc*10000.0/TSSin; 
+  thickener_factor = thickener_perc*10000.0/TSSin;
   Qu_factor = TSS_removal_perc/(100.0*thickener_factor);
   thinning_factor = (1.0-TSS_removal_perc/100.0)/(1.0-Qu_factor);
 
@@ -87,16 +87,16 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
     y[12]=u[12];
     y[13]=TSSin*thickener_factor;
     y[14]=u[14]*Qu_factor;
-    
+
     y[15]=u[15]; /* Temp */
-    
+
     /* Dummy states */
     y[16]=u[16];
     y[17]=u[17];
     y[18]=u[18];
     y[19]=u[19]*thickener_factor;
     y[20]=u[20]*thickener_factor;
-        
+
    /* overflow */
     y[21]=u[0];
     y[22]=u[1];
@@ -113,9 +113,9 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
     y[33]=u[12];
     y[34]=TSSin*thinning_factor;
     y[35]=u[14]*(1.0-Qu_factor);
-    
+
     y[36]=u[15]; /* Temp */
-    
+
     /* Dummy states */
     y[37]=u[16];
     y[38]=u[17];
@@ -123,7 +123,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
     y[40]=u[19]*thinning_factor;
     y[41]=u[20]*thinning_factor;
     }
-  else 
+  else
   /* the influent is too high on solids to thicken further */
   /* all the influent leaves with the underflow */
   {
@@ -148,7 +148,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
     y[18]=u[18];
     y[19]=u[19];
     y[20]=u[20];
-    
+
     y[21]=0.0;
     y[22]=0.0;
     y[23]=0.0;
@@ -201,4 +201,3 @@ static void mdlTerminate(SimStruct *S)
 #else
 #include "cg_sfun.h"       /* Code generation registration function */
 #endif
-

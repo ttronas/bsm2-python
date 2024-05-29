@@ -1,5 +1,5 @@
 /*
- * storage_bsm2.c is a C-file S-function for a simple storage tank 
+ * storage_bsm2.c is a C-file S-function for a simple storage tank
  * of variable volume V with complete mix. No biological reactions.
  * Dummy states are included. TEMPMODEL defines how temperature changes
  * in the input affects the liquid temperature. ACTIVATE used to
@@ -10,7 +10,7 @@
  * System is initiated with 50% liquid volume in tank.
  * Input(22) is the calculated output flow rate for next integration step.
  * Output(22) is current liquid volume to be used for control purposes.
- * 
+ *
  * Copyright: Ulf Jeppsson, IEA, Lund University, Lund, Sweden
  *
  */
@@ -74,18 +74,18 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
 
   tempmodel = mxGetPr(TEMPMODEL)[0];
   activate = mxGetPr(ACTIVATE)[0];
-  
+
   for (i = 0; i < 14; i++) {
       y[i] = x[i];
       }
 
   y[14] = u[21];        /* output flow rate was calculated in storagebypass_bsm2.c */
-  
-  if (tempmodel < 0.5)   /* Temp */ 
-     y[15] = u[15];                                  
-  else 
-     y[15] = x[15]; 
-         
+
+  if (tempmodel < 0.5)   /* Temp */
+     y[15] = u[15];
+  else
+     y[15] = x[15];
+
  /* dummy states, only give outputs if ACTIVATE = 1 */
   if (activate > 0.5) {
       y[16] = x[16];
@@ -101,7 +101,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
       y[19] = 0.0;
       y[20] = 0.0;
   }
- 
+
   y[21] = x[21];     /* current liquid volume in storage tank, needed for control */
 }
 
@@ -124,7 +124,7 @@ double tempmodel, activate;
 vol = mxGetPr(V)[0];
 tempmodel = mxGetPr(TEMPMODEL)[0];
 activate = mxGetPr(ACTIVATE)[0];
-    
+
 dx[0] = u[14]/x[21]*(u[0]-x[0]);
 dx[1] = u[14]/x[21]*(u[1]-x[1]);
 dx[2] = u[14]/x[21]*(u[2]-x[2]);
@@ -142,11 +142,11 @@ dx[13] = u[14]/x[21]*(u[13]-x[13]);
 
 dx[14] = 0.0;           /* Flow */
 
-if (tempmodel < 0.5)    /* Temp */    
-   dx[15] = 0.0;                                  
-else 
-   dx[15] = u[14]/x[21]*(u[15]-x[15]);  
-  
+if (tempmodel < 0.5)    /* Temp */
+   dx[15] = 0.0;
+else
+   dx[15] = u[14]/x[21]*(u[15]-x[15]);
+
 /* dummy states */
 if (activate > 0.5) {
    dx[16] = u[14]/x[21]*(u[16]-x[16]);
@@ -179,5 +179,3 @@ static void mdlTerminate(SimStruct *S)
 #else
 #include "cg_sfun.h"       /* Code generation registration function */
 #endif
-
-

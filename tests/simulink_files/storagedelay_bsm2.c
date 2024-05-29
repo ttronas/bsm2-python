@@ -1,12 +1,12 @@
 /*
  * storagedelay_bsm2 is a C-file S-function for a second-order filter for storage tank volume.
- * A first-order filter is not enough when the tank is getting empty.  
- * It is simply needed to enhance simulation speed for steady state 
+ * A first-order filter is not enough when the tank is getting empty.
+ * It is simply needed to enhance simulation speed for steady state
  * calculations as the storage tank volume is used in a feedback loop to the
- * storage tank bypass system. For steady state calculations we do not want a 
+ * storage tank bypass system. For steady state calculations we do not want a
  * hybrid system, which would be the result if using a memory function,
  * first-order hold function etc.
- *  
+ *
  * Copyright: Ulf Jeppsson, IEA, Lund University, Lund, Sweden
  */
 
@@ -81,12 +81,12 @@ double timeconst;
 timeconst = mxGetPr(T)[0];
 
 if (timeconst > 0.000001) {
-  dx[0] = (u[0]-x[0])/timeconst; 
-  dx[1] = (x[0]-x[1])/timeconst; 
+  dx[0] = (u[0]-x[0])/timeconst;
+  dx[1] = (x[0]-x[1])/timeconst;
   }
 else {
-  dx[0] = 0.0;  
-  dx[1] = 0.0;  
+  dx[0] = 0.0;
+  dx[1] = 0.0;
 
   x[0] = u[0];
   x[1] = u[0];
@@ -106,4 +106,3 @@ static void mdlTerminate(SimStruct *S)
 #else
 #include "cg_sfun.h"       /* Code generation registration function */
 #endif
-

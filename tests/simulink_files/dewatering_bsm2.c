@@ -1,12 +1,12 @@
 /*
- * dewatering_bsm2.c calculates the water and sludge stream concentrations   
+ * dewatering_bsm2.c calculates the water and sludge stream concentrations
  * from an 'ideal' dewatering unit based on a fixed percentage of solids in
  * the dewatered sludge. A defined amount of total solids are removed from
  * the influent sludge stream and goes into the stream of dewatered sludge
- * and the remaining will leave with the reject water phase. 
+ * and the remaining will leave with the reject water phase.
  * Soluble concentrations are not affected.
  * Temperature is also handled ideally, i.e. T(out)=T(in).
- *  
+ *
  * Copyright: Ulf Jeppsson, IEA, Lund University, Lund, Sweden
  */
 
@@ -65,12 +65,12 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
   X_BH2TSS = mxGetPr(PAR)[4];
   X_BA2TSS = mxGetPr(PAR)[5];
   X_P2TSS = mxGetPr(PAR)[6];
-  
+
   TSSin = X_I2TSS*u[2]+X_S2TSS*u[3]+X_BH2TSS*u[4]+X_BA2TSS*u[5]+X_P2TSS*u[6];
-  dewater_factor = dewater_perc*10000.0/TSSin; 
+  dewater_factor = dewater_perc*10000.0/TSSin;
   Qu_factor = TSS_removal_perc/(100.0*dewater_factor);
   reject_factor = (1.0-TSS_removal_perc/100.0)/(1.0-Qu_factor);
-  
+
   if (dewater_factor > 1) {
     /* sludge */
     y[0]=u[0];
@@ -90,14 +90,14 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
     y[14]=u[14]*Qu_factor;
 
     y[15]=u[15]; /* Temp */
-    
+
     /* Dummy states */
     y[16]=u[16];
     y[17]=u[17];
     y[18]=u[18];
     y[19]=u[19]*dewater_factor;
     y[20]=u[20]*dewater_factor;
-    
+
    /* reject */
     y[21]=u[0];
     y[22]=u[1];
@@ -114,17 +114,17 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
     y[33]=u[12];
     y[34]=TSSin*reject_factor;
     y[35]=u[14]*(1.0-Qu_factor);
-    
+
     y[36]=u[15]; /* Temp */
-    
+
     /* Dummy states */
     y[37]=u[16];
     y[38]=u[17];
     y[39]=u[18];
     y[40]=u[19]*reject_factor;
-    y[41]=u[20]*reject_factor;  
+    y[41]=u[20]*reject_factor;
     }
-  else 
+  else
   /* the influent is too high on solids to thicken further */
   /* all the influent leaves with the dewatered flow */
   {
@@ -149,7 +149,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
     y[18]=u[18];
     y[19]=u[19];
     y[20]=u[20];
-    
+
     y[21]=0.0;
     y[22]=0.0;
     y[23]=0.0;
@@ -202,4 +202,3 @@ static void mdlTerminate(SimStruct *S)
 #else
 #include "cg_sfun.h"       /* Code generation registration function */
 #endif
-

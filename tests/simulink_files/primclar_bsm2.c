@@ -1,12 +1,12 @@
 /*
  * This function, primclar_bsm2.c, is a C-file S-function implementation of the Otterpohl/Freund
  * primary clarifier model. The implementation is to a large extent based on an
- * implementation of the Otterpohl/Freund model by Dr Jens Alex, IFAK, Magdeburg. 
+ * implementation of the Otterpohl/Freund model by Dr Jens Alex, IFAK, Magdeburg.
  * In addition to ASM1 states, the clarifier will also pass on TSS, Q, temp and 5 dummy
  * states to effluent and underflow.
  * If TEMPMODEL=0 then T(out)=T(in), if TEMPMODEL=1 then T(out) is a first-order
  * equation based on the heat content of the influent, the reactor and outflow.
- *  
+ *
  * Copyright: Ulf Jeppsson, IEA, Lund University, Lund, Sweden
  */
 
@@ -86,9 +86,9 @@ static void mdlOutputs(double *y, const double *x, const double *u, SimStruct *S
   rho = mxGetPr(PAR_P)[0];   /* Settler efficiency correction */
   K = mxGetPr(PAR_P)[1];     /* Average CODpart/CODtot ratio */
   f_PS = mxGetPr(PAR_P)[3];  /* Ratio of primary sludge flow rate to the influent flow */
-	
+
   tempmodel = mxGetPr(TEMPMODEL)[0];
-  
+
   Qu = f_PS*u[14];         /* underflow from PC */
   E = u[14]/Qu;	           /* thickening factor, u[14] is the influent flow rate */
   tt = vol/(x[14]+0.001);  /* hydraulic retention time within primary clarifier */
@@ -97,10 +97,10 @@ static void mdlOutputs(double *y, const double *x, const double *u, SimStruct *S
 
   nX = nCOD/K;		/* nX = nCOD*nfak; Removal efficiency for particulate COD in %, since assumption that soluble COD is not removed*/
 
-  if (nX > 100.0) { 
+  if (nX > 100.0) {
      nX = 100.0;
   }
-  
+
   if (nX < 0.0) {
      nX = 0.0;
   }
@@ -114,7 +114,7 @@ static void mdlOutputs(double *y, const double *x, const double *u, SimStruct *S
       if (y[i+21] < 0.0)
 	     y[i+21] = 0.0;
   }
-  
+
   for (i = 16; i < 21; i++) {		    /* Calculation of dummy state outputs */
       ff = (1.0-pptr[i]*nX/100.0);
       y[i] = ff*x[i];	                /* effluent */
@@ -124,41 +124,41 @@ static void mdlOutputs(double *y, const double *x, const double *u, SimStruct *S
       if (y[i+21] < 0.0)
 	     y[i+21] = 0.0;
   }
-  
+
   y[13] = X_I2TSS*y[2]+X_S2TSS*y[3]+X_BH2TSS*y[4]+X_BA2TSS*y[5]+X_P2TSS*y[6];     /* TSS effluent */
   y[14] = u[14]-Qu;                     /* flow rate effluent */
-  
-  if (tempmodel < 0.5)      /* Temperature effluent */                      
-     y[15] = u[15];                                  
-  else 
-     y[15] = x[15];         
-    
+
+  if (tempmodel < 0.5)      /* Temperature effluent */
+     y[15] = u[15];
+  else
+     y[15] = x[15];
+
   y[34] = X_I2TSS*y[23]+X_S2TSS*y[24]+X_BH2TSS*y[25]+X_BA2TSS*y[26]+X_P2TSS*y[27];     /* TSS primary sludge */
   y[35] = Qu;              /* primary sludge flow rate */
-  
-  if (tempmodel < 0.5)      /* Temperature primary sludge */                      
-     y[36] = u[15];                                  
-  else 
-     y[36] = x[15];         
-  
+
+  if (tempmodel < 0.5)      /* Temperature primary sludge */
+     y[36] = u[15];
+  else
+     y[36] = x[15];
+
   for (i = 0; i < 13; i++) {			/* ASM1 states */
-      y[i+42] = x[i];	                        
+      y[i+42] = x[i];
       if (y[i+42] < 0.0)
 	     y[i+42] = 0.0;
-  }    
-  
+  }
+
   y[55] = X_I2TSS*x[2]+X_S2TSS*x[3]+X_BH2TSS*x[4]+X_BA2TSS*x[5]+X_P2TSS*x[6]; /* TSS */
-  
+
   y[56] = u[14];            /* Flow */
-    
-  if (tempmodel < 0.5)      /* Temp */                      
-     y[57] = u[15];                                  
-  else 
+
+  if (tempmodel < 0.5)      /* Temp */
+     y[57] = u[15];
+  else
      y[57] = x[15];
-  
-  for (i = 16; i < 21; i++)      
+
+  for (i = 16; i < 21; i++)
       y[i+42] = x[i];
-      if (y[i+42] < 0) {	/* Dummy states */		
+      if (y[i+42] < 0) {	/* Dummy states */
          y[i+42] = 0;
   }
 }
@@ -180,29 +180,29 @@ static void mdlDerivatives(double *dx, const double *x, const double *u, SimStru
   int i;
   double t_m, vol;
   double tempmodel;
-  
+
   t_m = mxGetPr(PAR_P)[2];
-  
+
   vol = mxGetPr(VOL)[0];
   tempmodel = mxGetPr(TEMPMODEL)[0];
-  
+
   for (i = 0; i < 13; i++) {                /* ASM1 states */
       dx[i] = 1.0/vol*(u[14]*(u[i]-x[i]));  /* mixing */
   }
-  
+
   dx[13] = 0.0;                      /* TSS */
-  
+
   dx[14] = (u[14]-x[14])/t_m;        /* Flow */
-  
-  if (tempmodel < 0.5)               /* Temp */    
-     dx[15] = 0.0;                                  
-  else 
-     dx[15] = 1.0/vol*(u[14]*(u[15]-x[15]));  
-  
+
+  if (tempmodel < 0.5)               /* Temp */
+     dx[15] = 0.0;
+  else
+     dx[15] = 1.0/vol*(u[14]*(u[15]-x[15]));
+
   for (i = 16; i < 21; i++) {               /* Dummy states */
       dx[i] = 1.0/vol*(u[14]*(u[i]-x[i]));  /* mixing */
   }
-    
+
 }
 
 
@@ -219,6 +219,3 @@ static void mdlTerminate(SimStruct *S)
 #else
 #include "cg_sfun.h"        /* Code generation registration function */
 #endif
-
-
-

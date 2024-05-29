@@ -1,5 +1,5 @@
 /*
- * settler1dv5_bsm2 is a C-file S-function for defining a 10 layer settler model.  
+ * settler1dv5_bsm2 is a C-file S-function for defining a 10 layer settler model.
  * can simulate 10, 1 or 0 layers for the solubles by using MODELTYPE = 0, 1 or 2
  * Darko Vrecko, March 2005
  *
@@ -104,9 +104,9 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
      y[13]=x[9];
      y[14]=u[21];  /* Q_r */
 
-     if (tempmodel < 0.5)                 /* Temp */    
-        y[15]=u[15];                                  
-     else 
+     if (tempmodel < 0.5)                 /* Temp */
+        y[15]=u[15];
+     else
         y[15]=x[119];
 
      /* Dummy states */
@@ -134,10 +134,10 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
      y[35]=x[0];
      y[36]=u[14]-u[21]-u[22];  /* Q_e */
 
-     if (tempmodel < 0.5)      /* Temp */    
-        y[37]=u[15];                                  
-     else 
-        y[37]=x[110]; 
+     if (tempmodel < 0.5)      /* Temp */
+        y[37]=u[15];
+     else
+        y[37]=x[110];
 
      /* dummy states */
      y[38]=x[80];
@@ -161,7 +161,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
      y[53]=gamma;
      y[54]=gamma_eff;
 
-     for (i = 10; i < 110; i++) 
+     for (i = 10; i < 110; i++)
         y[i+45] = x[i];
   }
 
@@ -183,9 +183,9 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
      y[13]=x[9];
      y[14]=u[21];  /* Q_r */
 
-     if (tempmodel < 0.5)                 /* Temp */    
-        y[15]=u[15];                                  
-     else 
+     if (tempmodel < 0.5)                 /* Temp */
+        y[15]=u[15];
+     else
         y[15]=x[110];
 
      /* Dummy states */
@@ -213,9 +213,9 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
      y[35]=x[0];
      y[36]=u[14]-u[21]-u[22];  /* Q_e */
 
-     if (tempmodel < 0.5)      /* Temp */    
-        y[37]=u[15];                                  
-     else 
+     if (tempmodel < 0.5)      /* Temp */
+        y[37]=u[15];
+     else
         y[37]=x[110];
 
      /* dummy states */
@@ -280,9 +280,9 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
      y[13]=x[9];
      y[14]=u[21];  /* Q_r */
 
-     if (tempmodel < 0.5)                 /* Temp */    
-        y[15]=u[15];                                  
-     else 
+     if (tempmodel < 0.5)                 /* Temp */
+        y[15]=u[15];
+     else
         y[15]=x[110];
 
      /* Dummy states */
@@ -310,9 +310,9 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
      y[35]=x[0];
      y[36]=u[14]-u[21]-u[22];  /* Q_e */
 
-     if (tempmodel < 0.5)      /* Temp */    
-        y[37]=u[15];                                  
-     else 
+     if (tempmodel < 0.5)      /* Temp */
+        y[37]=u[15];
+     else
         y[37]=x[110];
 
      /* dummy states */
@@ -359,19 +359,19 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
         y[i+45] = u[18];
 }
 
-     if (tempmodel < 0.5) {                 /* Temp */    
+     if (tempmodel < 0.5) {                 /* Temp */
         for (i = 110; i < 120; i++)
 	       y[i+45] = u[15];
      }
-     else if ((tempmodel > 0.5) && (modeltype < 0.5)) { 
+     else if ((tempmodel > 0.5) && (modeltype < 0.5)) {
         for (i = 110; i < 120; i++)
            y[i+45] = x[i];
      }
-     else { 
+     else {
         for (i = 110; i < 120; i++)
            y[i+45] = x[110];
      }
-  
+
   /* get a reasonable and simple estimate of the sludge blanket level as a CONTINUOUS signal */
   /* The principle assumes settler always fills up from the bottom */
   if (x[9] < sb_limit)
@@ -394,7 +394,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
       i = 8;
   else if (x[0] < sb_limit)
       i = 9;
-  else 
+  else
       i = 10;
   if (i == 10)
       y[165] = height;   /* the settler is completely full (layer 1 > sb_limit) */
@@ -402,7 +402,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
       y[165] = i*h + h*(x[0]/x[1]);  /* sludge blanket within top layer (1) */
   else if (i == 0)
       y[165] = h*(x[9] + x[8])/(sb_limit - x[8]);  /* sludge blanket within bottom layer (10) */
-  else 
+  else
       y[165] = i*h + h*(x[9-i] + x[8-i])/(x[10-i] - x[8-i]);  /* sludge blanket within layers 2-9 */
 }
 
@@ -455,7 +455,7 @@ v_dn = Q_u/area;
 
 for (i = 0; i < 10; i++) {
    vs[i] = v0*(exp(-r_h*(x[i]-f_ns*u[13]))-exp(-r_p*(x[i]-f_ns*u[13])));
-   if (vs[i] > v0_max)     
+   if (vs[i] > v0_max)
       vs[i] = v0_max;
    else if (vs[i] < 0)
       vs[i] = 0;
@@ -466,7 +466,7 @@ for (i = 0; i < 10; i++) {
 }
 
 for (i = 0; i < 11; i++) {
-   if (i < (feedlayer-eps))     
+   if (i < (feedlayer-eps))
       Jflow[i] = v_up*x[i];
    else
       Jflow[i] = v_dn*x[i-1];
@@ -477,7 +477,7 @@ Js[10] = 0;
 for (i = 0; i < 9; i++) {
    if ((i < (feedlayer-1-eps)) && (x[i+1] <= X_t))
       Js[i+1] = Jstemp[i];
-   else if (Jstemp[i] < Jstemp[i+1])     
+   else if (Jstemp[i] < Jstemp[i+1])
       Js[i+1] = Jstemp[i];
    else
       Js[i+1] = Jstemp[i+1];
@@ -505,11 +505,11 @@ if (modeltype < 0.5) {
 }
 else if ((modeltype > 0.5) && (modeltype < 1.5)) {
    dx[10] = (Q_f*(u[0]-x[10]))/volume;
-   for (i = 11; i < 20; i++) 
+   for (i = 11; i < 20; i++)
       dx[i] = 0;
 }
 else if (modeltype > 1.5) {
-   for (i = 10; i < 20; i++) 
+   for (i = 10; i < 20; i++)
       dx[i] = 0;
 }
 
@@ -527,11 +527,11 @@ if (modeltype < 0.5) {
 }
 else if ((modeltype > 0.5) && (modeltype < 1.5)) {
    dx[20] = (Q_f*(u[1]-x[20]))/volume;
-   for (i = 21; i < 30; i++) 
+   for (i = 21; i < 30; i++)
       dx[i] = 0;
 }
 else if (modeltype > 1.5) {
-   for (i = 20; i < 30; i++) 
+   for (i = 20; i < 30; i++)
       dx[i] = 0;
 }
 
@@ -548,11 +548,11 @@ if (modeltype < 0.5) {
 }
 else if ((modeltype > 0.5) && (modeltype < 1.5)) {
    dx[30] = (Q_f*(u[7]-x[30]))/volume;
-   for (i = 31; i < 40; i++) 
+   for (i = 31; i < 40; i++)
       dx[i] = 0;
 }
 else if (modeltype > 1.5) {
-   for (i = 30; i < 40; i++) 
+   for (i = 30; i < 40; i++)
       dx[i] = 0;
 }
 
@@ -569,11 +569,11 @@ if (modeltype < 0.5) {
 }
 else if ((modeltype > 0.5) && (modeltype < 1.5)) {
    dx[40] = (Q_f*(u[8]-x[40]))/volume;
-   for (i = 41; i < 50; i++) 
+   for (i = 41; i < 50; i++)
       dx[i] = 0;
 }
 else if (modeltype > 1.5) {
-   for (i = 40; i < 50; i++) 
+   for (i = 40; i < 50; i++)
       dx[i] = 0;
 }
 
@@ -590,11 +590,11 @@ if (modeltype < 0.5) {
 }
 else if ((modeltype > 0.5) && (modeltype < 1.5)) {
    dx[50] = (Q_f*(u[9]-x[50]))/volume;
-   for (i = 51; i < 60; i++) 
+   for (i = 51; i < 60; i++)
       dx[i] = 0;
 }
 else if (modeltype > 1.5) {
-   for (i = 50; i < 60; i++) 
+   for (i = 50; i < 60; i++)
       dx[i] = 0;
 }
 
@@ -611,11 +611,11 @@ if (modeltype < 0.5) {
 }
 else if ((modeltype > 0.5) && (modeltype < 1.5)) {
    dx[60] = (Q_f*(u[10]-x[60]))/volume;
-   for (i = 61; i < 70; i++) 
+   for (i = 61; i < 70; i++)
       dx[i] = 0;
 }
 else if (modeltype > 1.5) {
-   for (i = 60; i < 70; i++) 
+   for (i = 60; i < 70; i++)
       dx[i] = 0;
 }
 
@@ -632,11 +632,11 @@ if (modeltype < 0.5) {
 }
 else if ((modeltype > 0.5) && (modeltype < 1.5)) {
    dx[70] = (Q_f*(u[12]-x[70]))/volume;
-   for (i = 71; i < 80; i++) 
+   for (i = 71; i < 80; i++)
       dx[i] = 0;
 }
 else if (modeltype > 1.5) {
-   for (i = 70; i < 80; i++) 
+   for (i = 70; i < 80; i++)
       dx[i] = 0;
 }
 
@@ -654,16 +654,16 @@ if (modeltype < 0.5) {
 }
 else if ((modeltype > 0.5) && (modeltype < 1.5)) {
    dx[80] = (Q_f*(u[16]-x[80]))/volume;
-   for (i = 81; i < 90; i++) 
+   for (i = 81; i < 90; i++)
       dx[i] = 0;
 }
 else if (modeltype > 1.5) {
-   for (i = 80; i < 90; i++) 
+   for (i = 80; i < 90; i++)
       dx[i] = 0;
 }
 }
 else if (activate < 0.5) {
-   for (i = 80; i < 90; i++) 
+   for (i = 80; i < 90; i++)
       dx[i] = 0;
 }
 
@@ -681,16 +681,16 @@ if (modeltype < 0.5) {
 }
 else if ((modeltype > 0.5) && (modeltype < 1.5)) {
    dx[90] = (Q_f*(u[17]-x[90]))/volume;
-   for (i = 91; i < 100; i++) 
+   for (i = 91; i < 100; i++)
       dx[i] = 0;
 }
 else if (modeltype > 1.5) {
-   for (i = 90; i < 100; i++) 
+   for (i = 90; i < 100; i++)
       dx[i] = 0;
 }
 }
 else if (activate < 0.5) {
-   for (i = 90; i < 100; i++) 
+   for (i = 90; i < 100; i++)
       dx[i] = 0;
 }
 
@@ -708,25 +708,25 @@ if (modeltype < 0.5) {
 }
 else if ((modeltype > 0.5) && (modeltype < 1.5)) {
    dx[100] = (Q_f*(u[18]-x[100]))/volume;
-   for (i = 101; i < 110; i++) 
+   for (i = 101; i < 110; i++)
       dx[i] = 0;
 }
 else if (modeltype > 1.5) {
-   for (i = 100; i < 110; i++) 
+   for (i = 100; i < 110; i++)
       dx[i] = 0;
 }
 }
 else if (activate < 0.5) {
-   for (i = 100; i < 110; i++) 
+   for (i = 100; i < 110; i++)
       dx[i] = 0;
 }
 
 /* Temp */
-if (tempmodel < 0.5) {         
-   for (i = 110; i < 120; i++) 
+if (tempmodel < 0.5) {
+   for (i = 110; i < 120; i++)
       dx[i] = 0;
 }
-else if ((tempmodel > 0.5) && (modeltype < 0.5)) {    
+else if ((tempmodel > 0.5) && (modeltype < 0.5)) {
    for (i = 110; i < 120; i++) {
       if (i < (feedlayer-1+110-eps))
          dx[i] = (-v_up*x[i]+v_up*x[i+1])/h;
@@ -738,7 +738,7 @@ else if ((tempmodel > 0.5) && (modeltype < 0.5)) {
    }
 else {
 dx[110] = (Q_f*(u[15]-x[110]))/volume;
-   for (i = 111; i < 120; i++) 
+   for (i = 111; i < 120; i++)
       dx[i] = 0;
 }
 
@@ -757,4 +757,3 @@ static void mdlTerminate(SimStruct *S)
 #else
 #include "cg_sfun.h"       /* Code generation registration function */
 #endif
-

@@ -1,5 +1,5 @@
 % This initialisation file will set parameters and initial values for
-% the primary clarifier. 
+% the primary clarifier.
 % The state values are based on BSM2 openloop results using the constant
 % input file.
 %
@@ -17,7 +17,7 @@ f_X = 0.85;
 % Smoothing time constant for qm calculation
 t_m = 0.125;
 
-% Ratio of primary sludge flow rate to the influent flow 
+% Ratio of primary sludge flow rate to the influent flow
 f_PS = 0.007;
 
 % Initial values

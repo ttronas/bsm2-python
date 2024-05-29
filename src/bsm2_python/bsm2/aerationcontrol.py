@@ -4,7 +4,7 @@ from scipy import signal
 from scipy.integrate import odeint
 
 
-class Oxygensensor:
+class OxygenSensor:
     def __init__(self, min_so: float, max_so: float, t_so: float, std_so: float):
         """
         Parameters:
@@ -86,7 +86,7 @@ def function_aw(t, y, kla_lim, kla_calc, ttso):
     return (kla_lim - kla_calc) / ttso
 
 
-class PIaeration:
+class PIAeration:
     def __init__(
         self,
         kla_min: float,
@@ -173,14 +173,14 @@ class PIaeration:
             function_ac, self.sointstate, t_ac, args=(self.soref, so_meas, self.kso, self.tiso), tfirst=True
         )
 
-        integral_ac = ode_ac[1]
+        integral_ac = ode_ac[1][0]
         self.sointstate = integral_ac
 
         if self.use_antiwindup:
             ode_aw = odeint(
                 function_aw, self.soawstate, t_ac, args=(self.kla_lim, self.kla_calc, self.ttso), tfirst=True
             )
-            antiwindup = ode_aw[1]
+            antiwindup = ode_aw[1][0]
         else:
             antiwindup = 0
 
@@ -194,7 +194,7 @@ class PIaeration:
         return kla
 
 
-class KLaactuator:
+class KLaActuator:
     def __init__(self, t_kla: float):
         """
         Parameters

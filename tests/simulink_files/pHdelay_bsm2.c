@@ -1,11 +1,11 @@
 /*
- * pHdelay_bsm2 is a C-file S-function for a first order filter for pH.  
- * It is simply needed to enhance simulation speed for steady state 
+ * pHdelay_bsm2 is a C-file S-function for a first order filter for pH.
+ * It is simply needed to enhance simulation speed for steady state
  * calculations as the pH of the AD is used in a feedback loop to the
- * ASM2ADM interface. For steady state calculations we do not want a 
+ * ASM2ADM interface. For steady state calculations we do not want a
  * hybrid system, which woul dbe the result if using a memory function,
  * first-order hold function etc.
- *  
+ *
  * Copyright: Ulf Jeppsson, IEA, Lund University, Lund, Sweden
  */
 
@@ -78,11 +78,11 @@ double timeconst;
 
 timeconst = mxGetPr(T)[0];
 if (timeconst > 0.000001) {
-  dx[0] = (u[0]-x[0])/timeconst; 
+  dx[0] = (u[0]-x[0])/timeconst;
   }
 
 else {
-  dx[0] = 0;  
+  dx[0] = 0;
   x[0] = u[0];
 }
 }
@@ -100,4 +100,3 @@ static void mdlTerminate(SimStruct *S)
 #else
 #include "cg_sfun.h"       /* Code generation registration function */
 #endif
-

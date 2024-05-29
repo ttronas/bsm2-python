@@ -4,11 +4,11 @@
  * balancing and temperature dependency for applicable parameters.
  * Model parameters are defined in adm1init_bsm2.m
  * u is the input in ASM1 terminology + extra dummy states, 21 variables
- * plus one extra input = dynamic pH from the ADM1 system (needed for 
+ * plus one extra input = dynamic pH from the ADM1 system (needed for
  * accurate charge balancing - also used the ADM1 to ASM1 interface).
  * If temperature control of AD is used then the operational temperature
  * of the ADM1 should also be an input rather than a defined parameter.
- * Temperature in the ADM1 and the ASM1 to ADM1 and the ADM1 to ASM1 
+ * Temperature in the ADM1 and the ASM1 to ADM1 and the ADM1 to ASM1
  * interfaces should be identical at every time instant.
  * Input vector:
  * u[0] : Si = soluble inert organic material (g COD/m3)
@@ -66,7 +66,7 @@
  *            University, Sweden; Damien Batstone, Univ of Queensland,
  *            Australia, Ingmar Nopens, Univ of Ghent, Belgium,
  *            Marie-Noelle Pons, Nancy, France, Peter Vanrolleghem,
- *            Univ. Laval, Canada, Jens Alex, IFAK, Germany and 
+ *            Univ. Laval, Canada, Jens Alex, IFAK, Germany and
  *            Eveline Volcke, Univ of Ghent, Belgium.
  */
 
@@ -124,7 +124,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
 	double 	sorgn, xorgn, xprtemp, xprtemp2, xlitemp, xlitemp2, xlitemp3, xchtemp, xchtemp2, xchtemp3;
     double  biomass, biomass_nobio, biomass_bioN, remainCOD, inertX, xc, noninertX, inertS, utemp[22], utemp2[22];
 	int	i;
-    
+
     /* parameters defined in adm1init_bsm2.m, INTERFACEPAR */
     CODequiv = mxGetPr(PAR)[0];
     fnaa = mxGetPr(PAR)[1];
@@ -139,7 +139,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
     fdegrade_adm = mxGetPr(PAR)[10];
     frxs_as = mxGetPr(PAR)[11];       /* not used in ASM2ADM */
     fdegrade_as = mxGetPr(PAR)[12];   /* not used in ASM2ADM */
-    R = mxGetPr(PAR)[13]; 
+    R = mxGetPr(PAR)[13];
     T_base = mxGetPr(PAR)[14];
     T_op = mxGetPr(PAR)[15];          /* should be an input variable if dynamic temperature control is used */
     pK_w_base = mxGetPr(PAR)[16];
@@ -148,7 +148,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
     pK_a_pro_base = mxGetPr(PAR)[19];
     pK_a_ac_base = mxGetPr(PAR)[20];
     pK_a_co2_base = mxGetPr(PAR)[21];
-    pK_a_IN_base = mxGetPr(PAR)[22];  
+    pK_a_IN_base = mxGetPr(PAR)[22];
 
     pH_adm = u[21];
 
@@ -170,12 +170,12 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
      	utemp[i] = u[i];
         utemp2[i] = u[i];
     }
-	
+
 	for (i = 0; i < 32; i++)
-		y[i] = 0.0; 
+		y[i] = 0.0;
 
     /*================================================================================================*/
-    /* Let CODdemand be the COD demand of available electron 
+    /* Let CODdemand be the COD demand of available electron
     * acceptors prior to the anaerobic digester, i.e. oxygen and nitrate */
     CODdemand = u[7] + CODequiv*u[8];
     utemp[7] = 0;
@@ -183,12 +183,12 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
 
     /* if extreme detail was used then some extra NH4 would be transformed
     * into N bound in biomass and some biomass would be formed when
-    * removing the CODdemand (based on the yield). But on a total COD balance 
+    * removing the CODdemand (based on the yield). But on a total COD balance
 	* approach the below is correct (neglecting the N need for biomass growth)
-    * The COD is reduced in a hierarchical approach in the order: 
+    * The COD is reduced in a hierarchical approach in the order:
     * 1) SS; 2) XS; 3) XBH; 4) XBA. It is no real improvement to remove SS and add
     * biomass. The net result is the same.*/
-	
+
 	if (CODdemand > u[1]) {	/* check if COD demand can be fulfilled by SS*/
   		remaina = CODdemand - u[1];
   		utemp[1] = 0.0;
@@ -218,7 +218,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
             }
 		}
   		else {		/* reduced all COD demand by use of SS and XS */
-    		utemp[3] = u[3] - remaina; 
+    		utemp[3] = u[3] - remaina;
 		}
 	}
 	else {		/* reduced all COD demand by use of SS */
@@ -229,7 +229,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
 	/* SS becomes part of amino acids when transformed into ADM
     * and any remaining SS is mapped to monosacharides (no N contents)
     * Enough SND must be available for mapping to amino acids */
-    
+
 	sorgn = u[10]/fnaa;     /* Saa COD equivalent to SND */
 
 	if (sorgn >= utemp[1]) {	/* not all SND-N in terms of COD fits into amino acids */
@@ -247,7 +247,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
 	/* XS becomes part of Xpr (proteins) when transformed into ADM
     * and any remaining XS is mapped to Xch and Xli (no N contents)
     * Enough XND must be available for mapping to Xpr */
-    
+
 	xorgn = u[11]/fnaa;     /* Xpr COD equivalent to XND */
 
 	if (xorgn >= utemp[3]) {        /* not all XND-N in terms of COD fits into Xpr */
@@ -269,7 +269,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
     /* Biomass becomes part of Xpr and XI when transformed into ADM
 	* and any remaining XBH and XBA is mapped to Xch and Xli (no N contents)
 	* Remaining XND-N can be used as nitrogen source to form Xpr */
-    
+
     biomass = utemp[4] + utemp[5];
     biomass_nobio = biomass*(1.0 - frxs_adm);   /* part which is mapped to XI */
     biomass_bioN = (biomass*fnbac - biomass_nobio*fxni);
@@ -305,7 +305,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
     /*================================================================================================*/
     /* direct mapping of XI and XP to ADM1 XI (if fdegrade_ad = 0)
 	* assumption: same N content in both ASM1 and ADM1 particulate inerts */
-    
+
     inertX = (1-fdegrade_adm)*(utemp[2] + utemp[6]);
 
     /* special case: IF part of XI and XP in the ASM can be degraded in the AD
@@ -329,13 +329,13 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
                 if (utemp[10] < (noninertX*fnxc)) {   /* N in SND not enough */
                     xc = xc + utemp[10]/fnxc;
                     noninertX = noninertX - utemp[10]/fnxc;
-                    utemp[10] = 0.0; 
+                    utemp[10] = 0.0;
                     if (utemp[9] < (noninertX*fnxc)) {   /* N in SNH not enough */
                         xc = xc + utemp[9]/fnxc;
                         noninertX = noninertX - utemp[9]/fnxc;
                         utemp[9] = 0.0;
-                        /* Should be a WARNING printout: Nitrogen shortage when converting biodegradable XI&XP 
-                        * Putting remaining XI&XP as lipids (50%) and carbohydrates (50%) */ 
+                        /* Should be a WARNING printout: Nitrogen shortage when converting biodegradable XI&XP
+                        * Putting remaining XI&XP as lipids (50%) and carbohydrates (50%) */
                         xlitemp3 = 0.5*noninertX;
                         xchtemp3 = 0.5*noninertX;
                         noninertX = 0.0;
@@ -369,7 +369,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
     /* Mapping of ASM SI to ADM1 SI
 	* N content may be different, take first from SI-N, then SND-N, then XND-N,
 	* then SNH. Similar principle could be used for other states. */
-    
+
     inertS = 0.0;
     if (fsni < fsni_adm) {   /* N in SI(ASM) not enough */
         inertS = utemp[0]*fsni/fsni_adm;
@@ -381,12 +381,12 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
             if (utemp[11] < (utemp[0]*fsni_adm)) {   /* N in XND not enough */
                 inertS = inertS + utemp[11]/fsni_adm;
                 utemp[0] = utemp[0] - utemp[11]/fsni_adm;
-                utemp[11] = 0.0; 
+                utemp[11] = 0.0;
                 if (utemp[9] < (utemp[0]*fsni_adm)) {   /* N in SNH not enough */
                     inertS = inertS + utemp[9]/fsni_adm;
                     utemp[0] = utemp[0] - utemp[9]/fsni_adm;
                     utemp[9] = 0.0;
-                    /* Here there shpuld be a warning printout: Nitrogen shortage when converting SI 
+                    /* Here there shpuld be a warning printout: Nitrogen shortage when converting SI
                     * Putting remaining SI as monosacharides */
                     utemp[1] = utemp[1] + utemp[0];
                     utemp[0] = 0.0;
@@ -394,7 +394,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
                 else  {   /* N in SNH enough for mapping */
                     inertS = inertS + utemp[0];
                     utemp[9] = utemp[9] - utemp[0]*fsni_adm;
-                    utemp[0] = 0.0; 
+                    utemp[0] = 0.0;
                     }
                 }
             else  {   /* N in XND enough for mapping */
@@ -417,7 +417,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
 
     /*================================================================================================*/
     /* Define the outputs including charge balance */
-    
+
     y[0] = utemp[1]/1000.0;
     y[1] = y[1]/1000.0;
     y[10] = (utemp[9] + utemp[10] + utemp[11])/14000.0;
@@ -440,7 +440,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
 
     /* calculate anions and cations based on full charge balance including H+ and OH- */
     ScatminusSan = y[3]*alfa_va + y[4]*alfa_bu + y[5]*alfa_pro + y[6]*alfa_ac + y[10]*alfa_IN + y[9]*alfa_co2 + pow(10, (-pK_w + pH_adm)) - pow(10, -pH_adm);
-    
+
     if (ScatminusSan > 0)  {
         y[24] = ScatminusSan;
         y[25] = 0.0;
@@ -451,7 +451,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
         }
 
     /* Finally there should be a input-output mass balance check here of COD and N */
-    
+
 }
 
 /*
@@ -482,4 +482,3 @@ static void mdlTerminate(SimStruct *S)
 #else
 #include "cg_sfun.h"       /* Code generation registration function */
 #endif
-

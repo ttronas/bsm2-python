@@ -1,5 +1,5 @@
 /*
- * combiner_bsm2.c calculates the output concentrations when adding two flow  
+ * combiner_bsm2.c calculates the output concentrations when adding two flow
  * streams together. Output temperature always based on 'heat content' of the
  * influent flows, i.e. parameter TEMPMODEL is not used. If all input flow rates are
  * less or equal to zero then all outputs are zero.
@@ -49,7 +49,7 @@ static void mdlInitializeConditions(double *x0, SimStruct *S)
 
 static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
 {
-    
+
   if ((u[14] > 0) || (u[35] > 0)) {
     y[0]=(u[0]*u[14] + u[21]*u[35])/(u[14]+u[35]);
     y[1]=(u[1]*u[14] + u[22]*u[35])/(u[14]+u[35]);
@@ -65,11 +65,11 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
     y[11]=(u[11]*u[14] + u[32]*u[35])/(u[14]+u[35]);
     y[12]=(u[12]*u[14] + u[33]*u[35])/(u[14]+u[35]);
     y[13]=(u[13]*u[14] + u[34]*u[35])/(u[14]+u[35]);
-    
+
     y[14]=u[14]+u[35];                               /* Flow rate */
-    
+
     y[15]=(u[15]*u[14] + u[36]*u[35])/(u[14]+u[35]);    /* Temp */
-         
+
     /* Dummy states */
     y[16]=(u[16]*u[14] + u[37]*u[35])/(u[14]+u[35]);
     y[17]=(u[17]*u[14] + u[38]*u[35])/(u[14]+u[35]);
@@ -132,4 +132,3 @@ static void mdlTerminate(SimStruct *S)
 #else
 #include "cg_sfun.h"       /* Code generation registration function */
 #endif
-

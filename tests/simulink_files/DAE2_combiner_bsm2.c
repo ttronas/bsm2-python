@@ -1,5 +1,5 @@
 /*
- * The DAE2_combiner_bsm2.c is a C-file S-function level 2 for a speed-enhanced IAWQ AD Model No 1. 
+ * The DAE2_combiner_bsm2.c is a C-file S-function level 2 for a speed-enhanced IAWQ AD Model No 1.
  * In this model the traditional states of the ADM1 and ion states + Sh2
  * from the last iteration of the pHsolver and Sh2solver are combined to create the overall output
  * at time t for all variables rather than using values for the ion states and h2
@@ -10,7 +10,7 @@
  * Dr Ulf Jeppsson
  * Dept. Industrial Electrical Engineering and Automation (IEA)
  * Lund University, Sweden
- * http://www.iea.lth.se/ 
+ * http://www.iea.lth.se/
  */
 
 #define S_FUNCTION_NAME  DAE2_combiner_bsm2
@@ -22,15 +22,15 @@
 /* Input Parameters */
 
 /*
- * mdlInitializeSizes:  
+ * mdlInitializeSizes:
  *    The sizes information is used by Simulink to determine the S-function
  *    block's characteristics (number of inputs, outputs, states, etc.).
  */
 static void mdlInitializeSizes(SimStruct *S)
 {
-    
+
     ssSetNumSFcnParams(S, 0);  /* Number of expected parameters */
-    if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) { 
+    if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) {
         return;  /* Return if number of expected != number of actual parameters */
     }
 
@@ -39,7 +39,7 @@ static void mdlInitializeSizes(SimStruct *S)
 
     if (!ssSetNumInputPorts(S, 1)) return;
     ssSetInputPortWidth(S, 0, 59); /*(S, port index, port width) */
-    
+
     ssSetInputPortDirectFeedThrough(S, 0, 1);
 
     if (!ssSetNumOutputPorts(S, 1)) return;
@@ -56,8 +56,8 @@ static void mdlInitializeSizes(SimStruct *S)
 }
 
 
-/*  
- * mdlInitializeSampleTimes: 
+/*
+ * mdlInitializeSampleTimes:
  *    This function is used to specify the sample time(s) for your
  *    S-function. You must register the same number of sample times as
  *    specified in ssSetNumSampleTimes.
@@ -65,13 +65,13 @@ static void mdlInitializeSizes(SimStruct *S)
 static void mdlInitializeSampleTimes(SimStruct *S)
 {
     ssSetSampleTime(S, 0, CONTINUOUS_SAMPLE_TIME);
-    ssSetOffsetTime(S, 0, 0.0); 
+    ssSetOffsetTime(S, 0, 0.0);
 }
 
 
 #undef MDL_INITIALIZE_CONDITIONS   /* Change to #undef to remove function */
 #if defined(MDL_INITIALIZE_CONDITIONS)
-  /* 
+  /*
    * mdlInitializeConditions:
    *    In this function, you should initialize the continuous and discrete
    *    states for your S-function block.  The initial states are placed
@@ -83,14 +83,14 @@ static void mdlInitializeSampleTimes(SimStruct *S)
    *    restarts execution to reset the states.
    */
   static void mdlInitializeConditions(SimStruct *S)
-  {      
+  {
   }
 #endif /* MDL_INITIALIZE_CONDITIONS */
 
 
 #undef MDL_START  /* Change to #undef to remove function */
-#if defined(MDL_START) 
-  /* 
+#if defined(MDL_START)
+  /*
    * mdlStart:
    *    This function is called once at start of model execution. If you
    *    have states that should be initialized once, this is the place
@@ -102,7 +102,7 @@ static void mdlInitializeSampleTimes(SimStruct *S)
 #endif /*  MDL_START */
 
 
-/* 
+/*
  * mdlOutputs:
  *    In this function, you compute the outputs of your S-function
  *    block. Generally outputs are placed in the output vector, ssGetY(S).
@@ -111,17 +111,17 @@ static void mdlOutputs(SimStruct *S, int_T tid)
 {
   real_T *y = ssGetOutputPortRealSignal(S,0);
   InputRealPtrsType u = ssGetInputPortRealSignalPtrs(S,0);
-  
+
   int_T i;
 
   for (i = 0; i < 33; i++) {
       y[i] = *u[i];
   }
-  
+
   y[7] = *u[58];   /* Sh2 */
-   
+
   y[33] = -log10(*u[51]);    /* pH */
-  y[34] = *u[51];            /* SH+ */  
+  y[34] = *u[51];            /* SH+ */
   y[35] = *u[52];  /* Sva- */
   y[36] = *u[53];  /* Sbu- */
   y[37] = *u[54];  /* Spro- */
@@ -143,7 +143,7 @@ static void mdlOutputs(SimStruct *S, int_T tid)
 
 #undef MDL_UPDATE  /* Change to #undef to remove function */
 #if defined(MDL_UPDATE)
-  /* 
+  /*
    * mdlUpdate:
    *    This function is called once for every major integration time step.
    *    Discrete states are typically updated here, but this function is useful
@@ -152,24 +152,24 @@ static void mdlOutputs(SimStruct *S, int_T tid)
    */
   static void mdlUpdate(SimStruct *S, int_T tid)
   {
-  }    
+  }
 #endif /* MDL_UPDATE */
 
 
 #undef MDL_DERIVATIVES  /* Change to #undef to remove function */
 #if defined(MDL_DERIVATIVES)
-  /* 
+  /*
    * mdlDerivatives:
    *    In this function, you compute the S-function block's derivatives.
    *    The derivatives are placed in the derivative vector, ssGetdX(S).
    */
   static void mdlDerivatives(SimStruct *S)
-  { 
+  {
   }
 #endif /* MDL_DERIVATIVES */
 
 
-/* 
+/*
  * mdlTerminate:
  *    In this function, you should perform any actions that are necessary
  *    at the termination of a simulation.  For example, if memory was

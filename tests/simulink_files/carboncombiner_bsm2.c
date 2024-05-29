@@ -1,7 +1,7 @@
 /*
- * carboncombiner_bsm2.c calculates the concentration (Ss) and flow rate when adding an external  
+ * carboncombiner_bsm2.c calculates the concentration (Ss) and flow rate when adding an external
  * carbon source flow rate (with a constant concentration) to the general vector.
- *  
+ *
  * Copyright: Ulf Jeppsson, IEA, Lund University, Lund, Sweden
  */
 
@@ -52,9 +52,9 @@ static void mdlInitializeConditions(double *x0, SimStruct *S)
 static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
 {
   double csourceconc;
-  
+
   csourceconc = mxGetPr(CARBONSOURCECONC)[0];
-    
+
   if ((u[0] > 0) || (u[15] > 0)) {
     y[0]=(u[1]*u[15])/(u[0]+u[15]);
     y[1]=(u[2]*u[15] + csourceconc*u[0])/(u[0]+u[15]);

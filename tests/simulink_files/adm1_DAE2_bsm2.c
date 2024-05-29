@@ -1,5 +1,5 @@
 /*
- * The adm1_DAE2.c is a C-file S-function level 2 for a fully speed-enhanced IAWQ AD Model No 1. 
+ * The adm1_DAE2.c is a C-file S-function level 2 for a fully speed-enhanced IAWQ AD Model No 1.
  * In this the model derivatives of ion states anf hydrogen gas are set to zero.
  * Instead they are calculated using algebraic equations and a pH solver
  * using the Newton-Raphson method nd an equivalent H2-solver). This way the main stiffness is removed.
@@ -10,7 +10,7 @@
  * Dr Christian Rosen, Dr Darko Vrecko and Dr Ulf Jeppsson
  * Dept. Industrial Electrical Engineering and Automation (IEA)
  * Lund University, Sweden
- * http://www.iea.lth.se/ 
+ * http://www.iea.lth.se/
 */
 
 
@@ -27,14 +27,14 @@
 
 
 /*
- * mdlInitializeSizes:  
+ * mdlInitializeSizes:
  *    The sizes information is used by Simulink to determine the S-function
  *    block's characteristics (number of inputs, outputs, states, etc.).
  */
 static void mdlInitializeSizes(SimStruct *S)
-{ 
+{
     ssSetNumSFcnParams(S, 3);  /* Number of expected parameters */
-    if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) { 
+    if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) {
         return;  /* Return if number of expected != number of actual parameters */
     }
 
@@ -43,7 +43,7 @@ static void mdlInitializeSizes(SimStruct *S)
 
     if (!ssSetNumInputPorts(S, 1)) return;
     ssSetInputPortWidth(S, 0, 41); /*(S, port index, port width) */
-    
+
     ssSetInputPortDirectFeedThrough(S, 0, 1);
 
     if (!ssSetNumOutputPorts(S, 1)) return;
@@ -60,8 +60,8 @@ static void mdlInitializeSizes(SimStruct *S)
 }
 
 
-/*  
- * mdlInitializeSampleTimes: 
+/*
+ * mdlInitializeSampleTimes:
  *    This function is used to specify the sample time(s) for your
  *    S-function. You must register the same number of sample times as
  *    specified in ssSetNumSampleTimes.
@@ -75,7 +75,7 @@ static void mdlInitializeSampleTimes(SimStruct *S)
 
 #define MDL_INITIALIZE_CONDITIONS   /* Change to #undef to remove function */
 #if defined(MDL_INITIALIZE_CONDITIONS)
-  /* 
+  /*
    * mdlInitializeConditions:
    *    In this function, you should initialize the continuous and discrete
    *    states for your S-function block.  The initial states are placed
@@ -88,10 +88,10 @@ static void mdlInitializeSampleTimes(SimStruct *S)
    */
   static void mdlInitializeConditions(SimStruct *S)
   {
-      
+
   real_T *x0 = ssGetContStates(S);
   int_T i;
-  
+
   for (i = 0; i < 42; i++) {
       x0[i] = mxGetPr(XINIT(S))[i];
   }
@@ -100,8 +100,8 @@ static void mdlInitializeSampleTimes(SimStruct *S)
 
 
 #undef MDL_START  /* Change to #undef to remove function */
-#if defined(MDL_START) 
-  /* 
+#if defined(MDL_START)
+  /*
    * mdlStart:
    *    This function is called once at start of model execution. If you
    *    have states that should be initialized once, this is the place
@@ -113,7 +113,7 @@ static void mdlInitializeSampleTimes(SimStruct *S)
 #endif /*  MDL_START */
 
 
-/* 
+/*
  * mdlOutputs:
  *    In this function, you compute the outputs of your S-function
  *    block. Generally outputs are placed in the output vector, ssGetY(S).
@@ -123,7 +123,7 @@ static void mdlOutputs(SimStruct *S, int_T tid)
   real_T *x = ssGetContStates(S);
   real_T *y = ssGetOutputPortRealSignal(S,0);
   InputRealPtrsType u = ssGetInputPortRealSignalPtrs(S,0);
-  
+
   real_T R, T_op, T_base, P_atm, p_gas_h2o, P_gas, k_P, q_gas, V_liq, procT8, procT9, procT10, p_gas_h2, p_gas_ch4, p_gas_co2, kLa, K_H_h2o_base, K_H_h2, K_H_h2_base, K_H_ch4, K_H_ch4_base, K_H_co2, K_H_co2_base, K_w, pK_w_base, factor;
   int_T i;
 
@@ -139,49 +139,49 @@ static void mdlOutputs(SimStruct *S, int_T tid)
   K_H_h2o_base = mxGetPr(PAR(S))[95];
   pK_w_base = mxGetPr(PAR(S))[80];
   k_P = mxGetPr(PAR(S))[99];
-  
+
   factor = (1.0/T_base - 1.0/T_op)/(100.0*R);
   K_H_h2 = K_H_h2_base*exp(-4180.0*factor);     /* T adjustment for K_H_h2 */
   K_H_ch4 = K_H_ch4_base*exp(-14240.0*factor);  /* T adjustment for K_H_ch4 */
   K_H_co2 = K_H_co2_base*exp(-19410.0*factor);  /* T adjustment for K_H_co2 */
   K_w = pow(10,-pK_w_base)*exp(55900.0*factor); /* T adjustment for K_w */
   p_gas_h2o = K_H_h2o_base*exp(5290.0*(1.0/T_base - 1.0/T_op));  /* T adjustement for water vapour saturation pressure */
-  
+
   for (i = 0; i < 7; i++) {
       y[i] = x[i];
   }
-  
+
   y[7] = *u[40];   /* Sh2 */
-  
+
   for (i = 0; i < 18; i++) {
       y[i+8] = x[i+8];
   }
-  
+
   y[26] = *u[26];   /* flow */
-  
+
   y[27] = T_op - 273.15;      /* Temp = 35 degC */
-  
+
   y[28] = *u[28];   /* Dummy state 1, soluble */
-  y[29] = *u[29];   /* Dummy state 2, soluble */   
+  y[29] = *u[29];   /* Dummy state 2, soluble */
   y[30] = *u[30];   /* Dummy state 3, soluble */
   y[31] = *u[31];   /* Dummy state 1, particulate */
   y[32] = *u[32];   /* Dummy state 2, particulate */
-  
+
   p_gas_h2 = x[32]*R*T_op/16.0;
   p_gas_ch4 = x[33]*R*T_op/64.0;
   p_gas_co2 = x[34]*R*T_op;
   P_gas = p_gas_h2 + p_gas_ch4 + p_gas_co2 + p_gas_h2o;
-  
+
   q_gas = k_P*(P_gas - P_atm);
   if (q_gas < 0)
     q_gas = 0.0;
-  
+
   procT8 = kLa*(*u[40]-16.0*K_H_h2*p_gas_h2);
   procT9 = kLa*(x[8]-64.0*K_H_ch4*p_gas_ch4);
   procT10 = kLa*((x[9]-*u[38])-K_H_co2*p_gas_co2);
-  
+
   y[33] = -log10(*u[33]);    /* pH */
-  y[34] = *u[33];            /* SH+ */  
+  y[34] = *u[33];            /* SH+ */
   y[35] = *u[34];  /* Sva- */
   y[36] = *u[35];  /* Sbu- */
   y[37] = *u[36];  /* Spro- */
@@ -204,7 +204,7 @@ static void mdlOutputs(SimStruct *S, int_T tid)
 
 #undef MDL_UPDATE  /* Change to #undef to remove function */
 #if defined(MDL_UPDATE)
-  /* 
+  /*
    * mdlUpdate:
    *    This function is called once for every major integration time step.
    *    Discrete states are typically updated here, but this function is useful
@@ -213,23 +213,23 @@ static void mdlOutputs(SimStruct *S, int_T tid)
    */
   static void mdlUpdate(SimStruct *S, int_T tid)
   {
-  }    
+  }
 #endif /* MDL_UPDATE */
 
 
 #define MDL_DERIVATIVES  /* Change to #undef to remove function */
 #if defined(MDL_DERIVATIVES)
-  /* 
+  /*
    * mdlDerivatives:
    *    In this function, you compute the S-function block's derivatives.
    *    The derivatives are placed in the derivative vector, ssGetdX(S).
    */
   static void mdlDerivatives(SimStruct *S)
-  {  
+  {
    real_T *dx   = ssGetdX(S);
    real_T *x = ssGetContStates(S);
    InputRealPtrsType u = ssGetInputPortRealSignalPtrs(S,0);
-       
+
    real_T f_sI_xc, f_xI_xc, f_ch_xc, f_pr_xc, f_li_xc, N_xc, N_I, N_aa, C_xc, C_sI, C_ch;
    real_T C_pr, C_li, C_xI, C_su, C_aa, f_fa_li, C_fa, f_h2_su, f_bu_su, f_pro_su, f_ac_su;
    real_T N_bac, C_bu, C_pro, C_ac, C_bac, Y_su, f_h2_aa, f_va_aa, f_bu_aa, f_pro_aa, f_ac_aa;
@@ -256,7 +256,7 @@ static void mdlOutputs(SimStruct *S, int_T tid)
    int_T i;
 
    eps = 0.000001;
-   
+
    f_sI_xc = mxGetPr(PAR(S))[0];
    f_xI_xc = mxGetPr(PAR(S))[1];
    f_ch_xc = mxGetPr(PAR(S))[2];
@@ -347,14 +347,14 @@ static void mdlOutputs(SimStruct *S, int_T tid)
 
    V_liq = mxGetPr(V(S))[0];
    V_gas = mxGetPr(V(S))[1];
-   
+
    for (i = 0; i < 42; i++) {
        if (x[i] < 0)
            xtemp[i] = 0;
        else
            xtemp[i] = x[i];
    }
-   
+
    factor = (1.0/T_base - 1.0/T_op)/(100.0*R);
    K_H_h2 = K_H_h2_base*exp(-4180.0*factor);     /* T adjustment for K_H_h2 */
    K_H_ch4 = K_H_ch4_base*exp(-14240.0*factor);  /* T adjustment for K_H_ch4 */
@@ -365,10 +365,10 @@ static void mdlOutputs(SimStruct *S, int_T tid)
    p_gas_co2 = x[34]*R*T_op;
    p_gas_h2o = K_H_h2o_base*exp(5290.0*(1.0/T_base - 1.0/T_op));  /* T adjustement for water vapour saturation pressure */
    P_gas = p_gas_h2 + p_gas_ch4 + p_gas_co2 + p_gas_h2o;
-   
+
    S_H_ion = *u[33];
    pH_op = -log10(*u[33]);   /* pH */
-   
+
 /* STRs function
 if (pH_op < pH_UL_aa)
    I_pH_aa = exp(-3.0*(pH_op-pH_UL_aa)*(pH_op-pH_UL_aa)/((pH_UL_aa-pH_LL_aa)*(pH_UL_aa-pH_LL_aa)));
@@ -383,7 +383,7 @@ if (pH_op < pH_UL_h2)
 else
    I_pH_h2 = 1.0;
 */
-   
+
 /* Hill function on pH inhibition
 pHLim_aa = (pH_UL_aa + pH_LL_aa)/2.0;
 pHLim_ac = (pH_UL_ac + pH_LL_ac)/2.0;
@@ -413,20 +413,20 @@ I_pH_h2 = 0.5*(1+tanh(a_h2*(pH_op/pHLim_h2 - 1.0)));
    I_pH_aa = pow(pHLim_aa,n_aa)/(pow(S_H_ion,n_aa)+pow(pHLim_aa ,n_aa));
    I_pH_ac = pow(pHLim_ac,n_ac)/(pow(S_H_ion,n_ac)+pow(pHLim_ac ,n_ac));
    I_pH_h2 = pow(pHLim_h2,n_h2)/(pow(S_H_ion,n_h2)+pow(pHLim_h2 ,n_h2));
-  
+
    I_IN_lim = 1.0/(1.0+K_S_IN/xtemp[10]);
    I_h2_fa = 1.0/(1.0+*u[40]/K_Ih2_fa);
    I_h2_c4 = 1.0/(1.0+*u[40]/K_Ih2_c4);
    I_h2_pro = 1.0/(1.0+*u[40]/K_Ih2_pro);
    I_nh3 = 1.0/(1.0+*u[39]/K_I_nh3);
-   
+
    inhib[0] = I_pH_aa*I_IN_lim;
    inhib[1] = inhib[0]*I_h2_fa;
    inhib[2] = inhib[0]*I_h2_c4;
    inhib[3] = inhib[0]*I_h2_pro;
    inhib[4] = I_pH_ac*I_IN_lim*I_nh3;
    inhib[5] = I_pH_h2*I_IN_lim;
-   
+
    proc1 = k_dis*xtemp[12];
    proc2 = k_hyd_ch*xtemp[13];
    proc3 = k_hyd_pr*xtemp[14];
@@ -446,11 +446,11 @@ I_pH_h2 = 0.5*(1+tanh(a_h2*(pH_op/pHLim_h2 - 1.0)));
    proc17 = k_dec_Xpro*xtemp[20];
    proc18 = k_dec_Xac*xtemp[21];
    proc19 = k_dec_Xh2*xtemp[22];
-   
+
    procT8 = kLa*(*u[40]-16.0*K_H_h2*p_gas_h2);
    procT9 = kLa*(xtemp[8]-64.0*K_H_ch4*p_gas_ch4);
    procT10 = kLa*((xtemp[9]-*u[38])-K_H_co2*p_gas_co2);
-   
+
    stoich1 = -C_xc+f_sI_xc*C_sI+f_ch_xc*C_ch+f_pr_xc*C_pr+f_li_xc*C_li+f_xI_xc*C_xI;
    stoich2 = -C_ch+C_su;
    stoich3 = -C_pr+C_aa;
@@ -464,7 +464,7 @@ I_pH_h2 = 0.5*(1+tanh(a_h2*(pH_op/pHLim_h2 - 1.0)));
    stoich11 = -C_ac+(1.0-Y_ac)*C_ch4+Y_ac*C_bac;
    stoich12 = (1.0-Y_h2)*C_ch4+Y_h2*C_bac;
    stoich13 = -C_bac+C_xc;
-   
+
    reac1 = proc2+(1.0-f_fa_li)*proc4-proc5;
    reac2 = proc3-proc6;
    reac3 = f_fa_li*proc4-proc7;
@@ -489,11 +489,11 @@ I_pH_h2 = 0.5*(1+tanh(a_h2*(pH_op/pHLim_h2 - 1.0)));
    reac22 = Y_ac*proc11-proc18;
    reac23 = Y_h2*proc12-proc19;
    reac24 = f_xI_xc*proc1;
-  
+
    q_gas = k_P*(P_gas-P_atm);
    if (q_gas < 0)
        q_gas = 0.0;
-   
+
    dx[0] = 1.0/V_liq*(*u[26]*(*u[0]-x[0]))+reac1;
    dx[1] = 1.0/V_liq*(*u[26]*(*u[1]-x[1]))+reac2;
    dx[2] = 1.0/V_liq*(*u[26]*(*u[2]-x[2]))+reac3;
@@ -518,10 +518,10 @@ I_pH_h2 = 0.5*(1+tanh(a_h2*(pH_op/pHLim_h2 - 1.0)));
    dx[21] = 1.0/V_liq*(*u[26]*(*u[21]-x[21]))+reac22;
    dx[22] = 1.0/V_liq*(*u[26]*(*u[22]-x[22]))+reac23;
    dx[23] = 1.0/V_liq*(*u[26]*(*u[23]-x[23]))+reac24;
-   
+
    dx[24] = 1.0/V_liq*(*u[26]*(*u[24]-x[24])); /* Scat+ */
    dx[25] = 1.0/V_liq*(*u[26]*(*u[25]-x[25])); /* San- */
-   
+
    /* calculated in pHsolv.c */
    dx[26] = 0;  /* Sva- */
    dx[27] = 0;  /* Sbu- */
@@ -529,15 +529,15 @@ I_pH_h2 = 0.5*(1+tanh(a_h2*(pH_op/pHLim_h2 - 1.0)));
    dx[29] = 0;  /* Sac- */
    dx[30] = 0;  /* SHCO3- */
    dx[31] = 0;  /* SNH3 */
-   
+
    dx[32] = -xtemp[32]*q_gas/V_gas + procT8*V_liq/V_gas;
    dx[33] = -xtemp[33]*q_gas/V_gas + procT9*V_liq/V_gas;
    dx[34] = -xtemp[34]*q_gas/V_gas + procT10*V_liq/V_gas;
-   
+
    dx[35] = 0; /* Flow */
-   
+
    dx[36] = 0; /* Temp */
-   
+
    /* Dummy states*/
    dx[37] = 0;
    dx[38] = 0;
@@ -548,7 +548,7 @@ I_pH_h2 = 0.5*(1+tanh(a_h2*(pH_op/pHLim_h2 - 1.0)));
 #endif /* MDL_DERIVATIVES */
 
 
-/* 
+/*
  * mdlTerminate:
  *    In this function, you should perform any actions that are necessary
  *    at the termination of a simulation.  For example, if memory was

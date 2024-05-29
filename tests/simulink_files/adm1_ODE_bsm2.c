@@ -1,5 +1,5 @@
 /*
- * adm1_ODE_bsm2.c is a C-file S-function for IAWQ AD Model No 1. 
+ * adm1_ODE_bsm2.c is a C-file S-function for IAWQ AD Model No 1.
  * In addition to the ADM1, temperature dependency and dummy states are added.
  * Some details are adjusted for BSM2 (pH inhibition, gas flow output etc).
  *
@@ -7,7 +7,7 @@
  * Dr Christian Rosen, Dr Darko Vrecko and Dr Ulf Jeppsson
  * Dept. Industrial Electrical Engineering and Automation (IEA)
  * Lund University, Sweden
- * http://www.iea.lth.se/ 
+ * http://www.iea.lth.se/
  */
 
 #define S_FUNCTION_NAME adm1_ODE_bsm2
@@ -89,21 +89,21 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
   K_H_co2 = K_H_co2_base*exp(-19410.0*factor);  /* T adjustment for K_H_co2 */
   K_w = pow(10,-pK_w_base)*exp(55900.0*factor); /* T adjustment for K_w */
   p_gas_h2o = K_H_h2o_base*exp(5290.0*(1.0/T_base - 1.0/T_op));  /* T adjustement for water vapour saturation pressure */
-      
+
   for (i = 0; i < 26; i++) {
       y[i] = x[i];
   }
-   
+
   y[26] = u[26];   /* flow */
-  
+
   y[27] = T_op - 273.15;      /* Temp = 35 degC */
-  
+
   y[28] = u[28];   /* Dummy state 1, soluble */
-  y[29] = u[29];   /* Dummy state 2, soluble */   
+  y[29] = u[29];   /* Dummy state 2, soluble */
   y[30] = u[30];   /* Dummy state 3, soluble */
   y[31] = u[31];   /* Dummy state 1, particulate */
   y[32] = u[32];   /* Dummy state 2, particulate */
-  
+
   p_gas_h2 = x[32]*R*T_op/16.0;
   p_gas_ch4 = x[33]*R*T_op/64.0;
   p_gas_co2 = x[34]*R*T_op;
@@ -115,10 +115,10 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
   procT8 = kLa*(x[7] - 16.0*K_H_h2*p_gas_h2);
   procT9 = kLa*(x[8] - 64.0*K_H_ch4*p_gas_ch4);
   procT10 = kLa*((x[9] - x[30]) - K_H_co2*p_gas_co2);
-  
+
   phi = x[24]+(x[10]-x[31])-x[30]-x[29]/64.0-x[28]/112.0-x[27]/160.0-x[26]/208.0-x[25];
   S_H_ion = -phi*0.5+0.5*sqrt(phi*phi+4.0*K_w);
-  
+
   y[33] = -log10(S_H_ion);     /* pH */
   y[34] = S_H_ion;             /* SH+ */
   y[35] = x[26];               /* Sva- */
@@ -306,7 +306,7 @@ K_H_h2 = K_H_h2_base*exp(-4180.0*factor);     /* T adjustment for K_H_h2 */
 K_H_ch4 = K_H_ch4_base*exp(-14240.0*factor);  /* T adjustment for K_H_ch4 */
 K_H_co2 = K_H_co2_base*exp(-19410.0*factor);  /* T adjustment for K_H_co2 */
 p_gas_h2o = K_H_h2o_base*exp(5290.0*(1.0/T_base - 1.0/T_op));  /* T adjustement for water vapour saturation pressure */
-   
+
 phi = xtemp[24]+(xtemp[10]-xtemp[31])-xtemp[30]-xtemp[29]/64.0-xtemp[28]/112.0-xtemp[27]/160.0-xtemp[26]/208.0-xtemp[25];
 S_H_ion = -phi*0.5+0.5*sqrt(phi*phi+4.0*K_w); /* SH+ */
 pH_op = -log10(S_H_ion); /* pH */
@@ -330,7 +330,7 @@ if (pH_op < pH_UL_h2)
 else
    I_pH_h2 = 1.0;
 */
-   
+
 /* Hill function on pH inhibition
 pHLim_aa = (pH_UL_aa + pH_LL_aa)/2.0;
 pHLim_ac = (pH_UL_ac + pH_LL_ac)/2.0;
@@ -447,7 +447,7 @@ reac24 = f_xI_xc*proc1;
 q_gas = k_P*(P_gas-P_atm);
 if (q_gas < 0)
    q_gas = 0.0;
-   
+
 dx[0] = 1.0/V_liq*(u[26]*(u[0]-x[0]))+reac1;
 dx[1] = 1.0/V_liq*(u[26]*(u[1]-x[1]))+reac2;
 dx[2] = 1.0/V_liq*(u[26]*(u[2]-x[2]))+reac3;
@@ -492,7 +492,7 @@ dx[35] = 0; /* Flow */
 dx[36] = 0; /* Temp */
 
 /* Dummy states for future use */
-dx[37] = 0; 
+dx[37] = 0;
 dx[38] = 0;
 dx[39] = 0;
 dx[40] = 0;
@@ -512,4 +512,3 @@ static void mdlTerminate(SimStruct *S)
 #else
 #include "cg_sfun.h"       /* Code generation registration function */
 #endif
-

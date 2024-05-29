@@ -1,5 +1,5 @@
 /*
- * storagebypass_bsm2.c is a C-file S-function defining the 
+ * storagebypass_bsm2.c is a C-file S-function defining the
  * rules for potential necessary bypass of the storage tank.
  * See documentation by Dr Marie-Noelle Pons.
  * If liquid volume > 90% of total volume then automatically bypass flow.
@@ -8,7 +8,7 @@
  * Output(22) is current output flow from the storage tank.
  * Input(22) is the requested output flow from a controller.
  * Input(23) is the current volume in the storage tank.
- * 
+ *
  * Copyright: Ulf Jeppsson, IEA, Lund University, Lund, Sweden
  *
  */
@@ -84,14 +84,14 @@ if (u[22] <= (vol*0.1)) {
     Qout_s = 0.0;
     Qbypass_s = 0.0;
 }
-  
+
   for (i = 0; i < 14; i++) {
       y[i] = u[i];
       }
 
- y[14] = Qin_s; 
- y[15] = u[15];                                  
-         
+ y[14] = Qin_s;
+ y[15] = u[15];
+
  y[16] = u[16];
  y[17] = u[17];
  y[18] = u[18];
@@ -99,22 +99,22 @@ if (u[22] <= (vol*0.1)) {
  y[20] = u[20];
 
  y[21] = Qout_s;    /* next output flow rate for storage tank */
- 
+
  /* The potentially bypassed flow */
  for (i = 22; i < 36; i++) {
     y[i] = u[i-22];
     }
 
   y[36] = Qbypass_s;    /* bypassed flow rate */
-  y[37] = u[15];                        
-         
+  y[37] = u[15];
+
  /* dummy states, no need for non-activatation */
   y[38] = u[16];
   y[39] = u[17];
   y[40] = u[18];
   y[41] = u[19];
   y[42] = u[20];
- 
+
 }
 
 /*
@@ -145,5 +145,3 @@ static void mdlTerminate(SimStruct *S)
 #else
 #include "cg_sfun.h"       /* Code generation registration function */
 #endif
-
-

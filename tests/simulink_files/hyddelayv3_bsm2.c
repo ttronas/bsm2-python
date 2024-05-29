@@ -1,12 +1,12 @@
 /*
- * hyddelayv3_bsm2 is a C-file S-function for first order reaction of flow and conc.  
+ * hyddelayv3_bsm2 is a C-file S-function for first order reaction of flow and conc.
  * In this version the loads are first calculated and the first
  * order reaction is used for the load and flow. After this the concentrations are
  * recalculated based on the delayed flow and load. Note that the state
- * vector internally here represents mass. State no 14 (TSS) is a dummy state to 
+ * vector internally here represents mass. State no 14 (TSS) is a dummy state to
  * maintain consistence with the normal vector size used in reactors.
  * For temperature T(out) = T(in) independently of parameter TEMPMODEL.
- *  
+ *
  * Copyright: Ulf Jeppsson, IEA, Lund University, Lund, Sweden
  */
 
@@ -78,9 +78,9 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
 
   y[13] = (X_I2TSS*x[2]+X_S2TSS*x[3]+X_BH2TSS*x[4]+X_BA2TSS*x[5]+X_P2TSS*x[6])/x[14];
   y[14] = x[14]; /* Flow rate */
-  
+
   y[15] = x[15]; /* Temp */
-  
+
   /* dummy states */
   y[16] = x[16]/x[14];
   y[17] = x[17]/x[14];
@@ -120,13 +120,13 @@ if (timeconst > 0.000001) {
   dx[10] = (u[10]*u[14]-x[10])/timeconst;
   dx[11] = (u[11]*u[14]-x[11])/timeconst;
   dx[12] = (u[12]*u[14]-x[12])/timeconst;
-  
+
   dx[13] = (u[13]*u[14]-x[13])/timeconst; /* TSS */
-  
+
   dx[14] = (u[14]-x[14])/timeconst;       /* Flow rate */
-  
+
   dx[15] = (u[15]-x[15])/timeconst;       /* Temp */
-  
+
   /* dummy states */
   dx[16] = (u[16]*u[14]-x[16])/timeconst;
   dx[17] = (u[17]*u[14]-x[17])/timeconst;
@@ -149,15 +149,15 @@ else {
   dx[10] = 0;
   dx[11] = 0;
   dx[12] = 0;
-  dx[13] = 0; 
-  dx[14] = 0; 
-  dx[15] = 0; 
-  dx[16] = 0; 
-  dx[17] = 0; 
-  dx[18] = 0; 
-  dx[19] = 0; 
-  dx[20] = 0; 
-  
+  dx[13] = 0;
+  dx[14] = 0;
+  dx[15] = 0;
+  dx[16] = 0;
+  dx[17] = 0;
+  dx[18] = 0;
+  dx[19] = 0;
+  dx[20] = 0;
+
   x[0] = u[0]*u[14];
   x[1] = u[1]*u[14];
   x[2] = u[2]*u[14];
@@ -195,4 +195,3 @@ static void mdlTerminate(SimStruct *S)
 #else
 #include "cg_sfun.h"       /* Code generation registration function */
 #endif
-

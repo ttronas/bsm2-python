@@ -4,13 +4,13 @@
  * balancing and temperature dependency for applicable parameters.
  * Model parameters are defined in adm1init_bsm2.m
  * u is the input in ADM1 terminology + extra dummy states, 33 variables
- * plus two extra inputs: 1) dynamic pH from the ADM1 system (needed for 
+ * plus two extra inputs: 1) dynamic pH from the ADM1 system (needed for
  * accurate charge balancing - also used the ASM1 to ADM1 interface) and
  * 2) wastewater temperature into the ASM2ADM interface, which is used as
  * the output temperature from the ADM2ASM interface (assume heat exchangers etc).
  * If temperature control of AD is used then the operational temperature
  * of the ADM1 should also be an input rather than a defined parameter.
- * Temperature in the ADM1 and the ASM1 to ADM1 and the ADM1 to ASM1 
+ * Temperature in the ADM1 and the ASM1 to ADM1 and the ADM1 to ASM1
  * interfaces should be identical at every time instant.
  * The interface assumes identical N-content of particulate inerts in both
  * AD and AS. The same holds for biomass. The N-content of soluble inerts may vary.
@@ -72,7 +72,7 @@
  *            University, Sweden; Damien Batstone, Univ of Queensland,
  *            Australia, Ingmar Nopens, Univ of Ghent, Belgium,
  *            Marie-Noelle Pons, Nancy, France, Peter Vanrolleghem,
- *            Univ. Laval, Canada, Jens Alex, IFAK, Germany and 
+ *            Univ. Laval, Canada, Jens Alex, IFAK, Germany and
  *            Eveline Volcke, Univ of Ghent, Belgium.
  */
 
@@ -129,7 +129,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
 	double 	XPtemp, XStemp, XStemp2;
     double  biomass, biomass_nobio, biomass_bioN, remainCOD, inertX, noninertX, inertS, utemp[35];
 	int	i;
-    
+
     /* parameters defined in adm1init_bsm2.m, INTERFACEPAR */
     CODequiv = mxGetPr(PAR)[0];         /* not used in ADM2ASM */
     fnaa = mxGetPr(PAR)[1];
@@ -142,9 +142,9 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
     frlibac = mxGetPr(PAR)[8];          /* not used in ADM2ASM */
     frxs_adm = mxGetPr(PAR)[9];         /* not used in ADM2ASM */
     fdegrade_adm = mxGetPr(PAR)[10];    /* not used in ADM2ASM */
-    frxs_as = mxGetPr(PAR)[11];       
-    fdegrade_as = mxGetPr(PAR)[12];   
-    R = mxGetPr(PAR)[13]; 
+    frxs_as = mxGetPr(PAR)[11];
+    fdegrade_as = mxGetPr(PAR)[12];
+    R = mxGetPr(PAR)[13];
     T_base = mxGetPr(PAR)[14];
     T_op = mxGetPr(PAR)[15];          /* should be an input variable if dynamic temperature control is used */
     pK_w_base = mxGetPr(PAR)[16];
@@ -153,7 +153,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
     pK_a_pro_base = mxGetPr(PAR)[19];
     pK_a_ac_base = mxGetPr(PAR)[20];
     pK_a_co2_base = mxGetPr(PAR)[21];
-    pK_a_IN_base = mxGetPr(PAR)[22];  
+    pK_a_IN_base = mxGetPr(PAR)[22];
 
     pH_adm = u[33];
 
@@ -173,15 +173,15 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
 
 	for (i = 0; i < 35; i++)
      	utemp[i] = u[i];
-	
+
 	for (i = 0; i < 21; i++)
-		y[i] = 0.0; 
+		y[i] = 0.0;
 
     /*================================================================================================*/
     /* Biomass becomes part of XS and XP when transformed into ASM
 	* Assume Npart of formed XS to be fnxc and Npart of XP to be fxni
 	* Remaining N goes into the ammonia pool (also used as source if necessary) */
-    
+
     biomass = 1000.0*(utemp[16] + utemp[17] + utemp[18] + utemp[19] + utemp[20] + utemp[21] + utemp[22]);
     biomass_nobio = biomass*(1.0 - frxs_as);   /* part which is mapped to XP */
     biomass_bioN = (biomass*fnbac - biomass_nobio*fxni);
@@ -202,7 +202,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
         if ((utemp[10]*14000.0/fnaa) >= remainCOD) {  /* use part of remaining S_IN to form XS */
             XStemp = XStemp + remainCOD;
         }
-        else {       
+        else {
             /* Problems: if here we should print 'ERROR: not enough nitrogen to map the requested XS part of biomass' */
             /* System failure! */
         }
@@ -214,7 +214,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
     utemp[10] = utemp[10] + biomass*fnbac/14000.0 - XPtemp*fxni/14000.0 - XStemp*fnxc/14000.0;  /* any remaining N in S_IN */
     y[3] = (utemp[12] + utemp[13] + utemp[14] + utemp[15])*1000.0 + XStemp;     /* Xs = sum all X except Xi, + biomass as handled above */
     y[6] = XPtemp;      /* inert part of biomass */
-    
+
 
     /*================================================================================================*/
     /*  mapping of inert XI in AD into XI and possibly XS in AS
@@ -231,7 +231,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
         noninertX = fdegrade_as*utemp[23]*1000.0;
         if (fxni < fnxc)  {     /* N in XI(AD) not enough */
             XStemp2 = noninertX*fxni/fnxc;
-            noninertX = noninertX - noninertX*fxni/fnxc; 
+            noninertX = noninertX - noninertX*fxni/fnxc;
             if ((utemp[10]*14000.0) < (noninertX*fnxc))  {  /* N in SNH not enough */
                 XStemp2 = XStemp2 + (utemp[10]*14000.0)/fnxc;
                 noninertX = noninertX - (utemp[10]*14000.0)/fnxc;
@@ -255,7 +255,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
 
     y[2] = inertX;          /* Xi = Xi*fdegrade_AS + possibly nonmappable XS */
     y[3] = y[3] + XStemp2;  /* extra added XS (biodegradable XI) */
-    
+
     /*================================================================================================*/
     /* Mapping of ADM SI to ASM1 SI
     * It is assumed that this mapping will be 100% on COD basis
@@ -289,7 +289,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
 
     /*================================================================================================*/
     /* Define the outputs including charge balance */
-    
+
     /* nitrogen in biomass, composites, proteins
 	* Xnd is the nitrogen part of Xs in ASM1. Therefore Xnd should be based on the
 	* same variables as constitutes Xs, ie AD biomass (part not mapped to XP), xc and xpr if we assume
@@ -302,11 +302,11 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
 	* same variables as constitutes Ss, and we assume
 	* there is only nitrogen in the amino acids. The N content of Si is
     * not included in Snd in ASM1 and should in my view not be included. */
-    
+
     y[10] = fnaa*1000.0*utemp[1];
 
     /* sh2 and sch4 assumed to be stripped upon reentry to ASM side */
-    
+
     y[1] = (utemp[0] + utemp[1] + utemp[2] + utemp[3] + utemp[4] + utemp[5] + utemp[6])*1000.0;	/* Ss = sum all S except Sh2, Sch4, Si, Sic, Sin */
 
     y[9] = utemp[10]*14000.0;		/* Snh = S_IN including adjustments above */
@@ -324,7 +324,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
     y[12] = (u[3]*alfa_va + u[4]*alfa_bu + u[5]*alfa_pro + u[6]*alfa_ac + u[9]*alfa_co2 + u[10]*alfa_IN - y[8]*alfa_NO - y[9]*alfa_NH)/alfa_alk;
 
     /* Finally there should be a input-output mass balance check here of COD and N */
-    
+
 }
 
 /*
@@ -355,4 +355,3 @@ static void mdlTerminate(SimStruct *S)
 #else
 #include "cg_sfun.h"       /* Code generation registration function */
 #endif
-

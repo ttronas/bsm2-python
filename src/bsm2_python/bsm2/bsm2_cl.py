@@ -164,13 +164,13 @@ class BSM2CL:
         self.storage = Storage(storageinit.VOL_S, storageinit.ystinit, tempmodel, activate)
         self.splitter_storage = Splitter()
 
-        self.so4_sensor = aerationcontrol.Oxygensensor(
+        self.so4_sensor = aerationcontrol.OxygenSensor(
             aerationcontrolinit.MIN_SO4,
             aerationcontrolinit.MAX_SO4,
             aerationcontrolinit.T_SO4,
             aerationcontrolinit.STD_SO4,
         )
-        self.aerationcontrol4 = aerationcontrol.PIaeration(
+        self.aerationcontrol4 = aerationcontrol.PIAeration(
             aerationcontrolinit.KLA4_MIN,
             aerationcontrolinit.KLA4_MAX,
             aerationcontrolinit.KSO4,
@@ -185,7 +185,7 @@ class BSM2CL:
             use_antiwindup=aerationcontrolinit.USEANTIWINDUPSO4,
         )
 
-        self.kla4_actuator = aerationcontrol.KLaactuator(aerationcontrolinit.T_KLA4)
+        self.kla4_actuator = aerationcontrol.KLaActuator(aerationcontrolinit.T_KLA4)
 
         if data_in is None:
             # dyninfluent from BSM2:

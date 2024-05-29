@@ -19,13 +19,13 @@ load ./Influent_data/dynsludge_bsm2.mat;
 
 
 % General parameter for all subsystems
-% TEMPMODEL: 0 - influent wastewater temperature is just passed through process reactors 
+% TEMPMODEL: 0 - influent wastewater temperature is just passed through process reactors
 %            1 - mass balance for the wastewater temperature is used in
 %            process reactors
 % Note: thickener and dewatering are ideal models, i.e. no impact since T_out =
 % T_in, in flow splitters T_out = T_in and in flow combiners mass balance based heat balance is always used.
 
-TEMPMODEL = [ 0 ]; 
+TEMPMODEL = [ 0 ];
 
 % to activate calculation of  dummy states in settler, AS reactors and storage tank set ACTIVATE = 1
 ACTIVATE = [ 0 ];

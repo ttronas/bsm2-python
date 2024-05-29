@@ -1,8 +1,8 @@
 /*
- * asm1_bsm2 is a C-file S-function for IAWQ AS Model No 1 with temperature 
+ * asm1_bsm2 is a C-file S-function for IAWQ AS Model No 1 with temperature
  * dependencies of the kinetic parameters. In addition to the ASM1 states, TSS
  * and dummy states are included. TEMPMODEL defines how temperature changes
- * in the input affects the reactor temperature. Temperature dependency for 
+ * in the input affects the reactor temperature. Temperature dependency for
  * oxygen saturation concentration and KLa has also been added in accordance
  * with BSM2 documentation.
  *
@@ -78,20 +78,20 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
 
   tempmodel = mxGetPr(TEMPMODEL)[0];
   activate = mxGetPr(ACTIVATE)[0];
-  
+
   for (i = 0; i < 13; i++) {
       y[i] = x[i];
   }
 
   y[13] = X_I2TSS*x[2]+X_S2TSS*x[3]+X_BH2TSS*x[4]+X_BA2TSS*x[5]+X_P2TSS*x[6];
-  
+
   y[14] = u[14];                                  /* Flow */
 
-  if (tempmodel < 0.5)                            /* Temp */ 
-     y[15] = u[15];                                  
-  else 
-     y[15] = x[15]; 
-         
+  if (tempmodel < 0.5)                            /* Temp */
+     y[15] = u[15];
+  else
+     y[15] = x[15];
+
   /* dummy states, only give outputs if ACTIVATE = 1 */
   if (activate > 0.5) {
       y[16] = x[16];
@@ -157,7 +157,7 @@ SO_sat = mxGetPr(SOSAT)[0];
 tempmodel = mxGetPr(TEMPMODEL)[0];
 
 /* temperature compensation */
-if (tempmodel < 0.5) {                            
+if (tempmodel < 0.5) {
    mu_H = mu_H*exp((log(mu_H/3.0)/5.0)*(u[15]-15.0)); /* Compensation from the temperature at the influent of the reactor */
    b_H = b_H*exp((log(b_H/0.2)/5.0)*(u[15]-15.0));
    mu_A = mu_A*exp((log(mu_A/0.3)/5.0)*(u[15]-15.0));
@@ -176,7 +176,7 @@ else {
    k_a = k_a*exp((log(k_a/0.04)/5.0)*(x[15]-15.0));
    SO_sat_temp = 0.9997743214*8.0/10.5*(56.12*6791.5*exp(-66.7354 + 87.4755/((x[15]+273.15)/100.0) + 24.4526*log((x[15]+273.15)/100.0))); /* van't Hoff equation */
    KLa_temp = u[21]*pow(1.024, (x[15]-15.0));
-} 
+}
 
 for (i = 0; i < 21; i++) {
    if (x[i] < 0.0)
@@ -238,11 +238,11 @@ dx[13] = 0.0; /* TSS */
 
 dx[14] = 0.0; /* Flow */
 
-if (tempmodel < 0.5)               /* Temp */    
-   dx[15] = 0.0;                                  
-else 
-   dx[15] = 1.0/vol*(u[14]*(u[15]-x[15]));  
-  
+if (tempmodel < 0.5)               /* Temp */
+   dx[15] = 0.0;
+else
+   dx[15] = 1.0/vol*(u[14]*(u[15]-x[15]));
+
 
 /* dummy states, only dilution at this point */
 dx[16] = 1.0/vol*(u[14]*(u[16]-x[16]))+reac16;
@@ -266,5 +266,3 @@ static void mdlTerminate(SimStruct *S)
 #else
 #include "cg_sfun.h"       /* Code generation registration function */
 #endif
-
-

@@ -1,15 +1,15 @@
 /*
- * flowsplitter_bsm2.c calculates the output concentrations when splitting two flow  
+ * flowsplitter_bsm2.c calculates the output concentrations when splitting two flow
  * streams. Output temperature is always identical in both flows,
  * i.e. parameter TEMPMODEL is not used. If any output flow rate is
  * (less or) equal to zero then all outputs are set to zero.
  * TYPE = 0: specific fraction of influent flow rate to first output (value between 0 and 1)
  * TYPE = 1: specific flow rate (m3/d) to first output
  * TYPE = 2: flow rate (m3/d) above specific limit to first output
- * If more flow than available is trying to be diverted then the flow is 
+ * If more flow than available is trying to be diverted then the flow is
  * automatically limited to the maximum available flow rate.
  * Input(22)=u[21] is the requested bypass flow rate (control input).
- * 
+ *
  * Copyright: Ulf Jeppsson, IEA, Lund University, Lund, Sweden
  */
 
@@ -59,16 +59,16 @@ static void mdlInitializeConditions(double *x0, SimStruct *S)
 
 static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
 {
-    
+
   int type, i;
 
   type = mxGetPr(TYPE)[0];
-  
+
   for (i = 0; i < 21; i++) {
       y[i] = u[i];
       y[i+21] = u[i];
   }
-  
+
   if (type == 0) {          /* divert specific fraction of influent flow */
     y[14]=u[14]*u[21];
   }
@@ -90,7 +90,7 @@ static void mdlOutputs(double *y, double *x, double *u, SimStruct *S, int tid)
     }
 
   y[35]=u[14]-y[14];
-      
+
   if (y[14] <= 0.00001) {
       for (i = 0; i < 21; i++) {
       y[i] = 0.0;
@@ -133,4 +133,3 @@ static void mdlTerminate(SimStruct *S)
 #else
 #include "cg_sfun.h"       /* Code generation registration function */
 #endif
-

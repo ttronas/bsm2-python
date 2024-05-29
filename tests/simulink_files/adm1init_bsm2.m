@@ -1,7 +1,7 @@
 % This file initiates parameter values and sets initial conditions for any of the three
 % model implementations adm1_ODE, adm1_DAE1 and adm1_DAE2. Note that some of the
 % parameter values deviate from the values given in the ADM1-STR (Batstone et al., 2002).
-% 
+%
 % Copyright 2006:
 % Dr Christian Rosen, Dr Darko Vrecko and Dr Ulf Jeppsson
 % Dept. Industrial Electrical Engineering and Automation
@@ -59,7 +59,7 @@ X_D5_D = 0;
 S_H_ion = 5.4562e-8;
 
 % used by all three ADM implementations, adm1_ODE, adm1_DAE1 and adm1_DAE2.
-DIGESTERINIT = [ S_su S_aa S_fa S_va S_bu S_pro S_ac S_h2 S_ch4 S_IC S_IN S_I X_xc X_ch X_pr X_li X_su X_aa X_fa X_c4 X_pro X_ac X_h2 ... 
+DIGESTERINIT = [ S_su S_aa S_fa S_va S_bu S_pro S_ac S_h2 S_ch4 S_IC S_IN S_I X_xc X_ch X_pr X_li X_su X_aa X_fa X_c4 X_pro X_ac X_h2 ...
                  X_I S_cat S_an S_hva S_hbu S_hpro S_hac S_hco3 S_nh3 S_gas_h2 S_gas_ch4 S_gas_co2 Q_D T_D S_D1_D S_D2_D S_D3_D X_D4_D X_D5_D ];
 
 % used by both DAE ADM implementations, adm1_DAE1 and adm1_DAE2.
@@ -72,7 +72,7 @@ f_sI_xc = 0.1;
 f_xI_xc = 0.2;
 f_ch_xc = 0.2;
 f_pr_xc = 0.2;
-f_li_xc = 0.3;  
+f_li_xc = 0.3;
 N_xc = 0.0376/14.0;
 N_I = 0.06/14.0;
 N_aa = 0.007;
@@ -156,7 +156,7 @@ pK_a_ac_base = 4.76;
 pK_a_co2_base = 6.35;
 pK_a_IN_base = 9.25;
 k_A_Bva = 1.0e10;     % 1e8; according to STR
-k_A_Bbu = 1.0e10;     % 1e8; according to STR   
+k_A_Bbu = 1.0e10;     % 1e8; according to STR
 k_A_Bpro = 1.0e10;    % 1e8; according to STR
 k_A_Bac = 1.0e10;     % 1e8; according to STR
 k_A_Bco2 = 1.0e10;    % 1e8; according to STR
@@ -192,7 +192,7 @@ fxni = N_I*14.0;     % N content of inerts XI and XP, same in AS and AD
 fsni = 0.0;          % N content of SI, assumed zero in ASM1 and BSM1
 fsni_adm = N_I*14.0; % N content of SI in the AD system
 % fnbac, fxni and fsni are adjusted to fit the benchmark values of iXB=0.08 and
-% iXP=0.06 in the AS. 	
+% iXP=0.06 in the AS.
 frlixs = 0.7;           % lipid fraction of non-nitrogenous XS in BSM2
 frlibac = 0.4;          % lipid fraction of non-nitrogenous biomass in BSM2
 frxs_adm = 0.68;        % anaerobically degradable fraction of AS biomass in BSM2
