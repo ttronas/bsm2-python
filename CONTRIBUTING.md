@@ -78,18 +78,34 @@ This often provides additional considerations and avoids unnecessary work.
    git clone git@github.com:YourLogin/bsm2-python.git
    cd bsm2-python
    ```
-4. Make sure [pipx] is installed using [pip] and install [hatch]:
+### Install the project
+
+You can install the project in two ways:
+#### Installation via dev container
+1. If you want to use a dev container (tested with [VSCode]):
+   Open the project folder in [VSCode] and click on the green button in the bottom left corner.
+   Choose `Remote-Containers: Reopen in Container` and wait for the container to build.
+   To make it work, you need to have [Docker] installed on your machine.
+   The dev container is preconfigured with all necessary tools and dependencies.
+
+#### Installation via hatch
+1. Make sure [pipx] is installed using [pip] and install [hatch]:
 
    ```console
    pip install pipx
    pipx install hatch
    ```
 
-5. \[only once\] install [pre-commit] hooks in the default environment with:
+2. \[only once\] install [pre-commit] hooks in the default environment with:
 
    ```console
    hatch run pre-commit install
    ```
+
+3. Set `hatch run test` as default environment:
+   Find your path to the `test` environment by running `hatch env find test`.
+   In VSCode, open the `Python: Select Interpreter` command and choose the python executable within the folder structure.
+   Now you can run the code just as you would in a normal python environment.
 
 ### Implement your changes
 
@@ -171,6 +187,7 @@ in [pyproject.toml](pyproject.toml) for more commands as well as the package, bu
 [black]: https://pypi.org/project/black/
 [contribution-guide.org]: http://www.contribution-guide.org/
 [creating a PR]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request
+[Docker]: https://docs.docker.com/desktop/
 [docstrings]: https://peps.python.org/pep-0257/
 [flake8]: https://flake8.pycqa.org/en/stable/
 [git]: https://git-scm.com
@@ -182,3 +199,4 @@ in [pyproject.toml](pyproject.toml) for more commands as well as the package, bu
 [python software foundation's code of conduct]: https://www.python.org/psf/conduct/
 [Google style]: https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
 [guide created by FreeCodeCamp]: https://github.com/FreeCodeCamp/how-to-contribute-to-open-source
+[VSCode]: https://code.visualstudio.com/

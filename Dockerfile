@@ -1,5 +1,5 @@
 FROM mcr.microsoft.com/devcontainers/python:1-3.11-bookworm
-ARG PATH_TO_REPO="/bsm2-python"
+ARG PATH_TO_REPO="/workspaces/bsm2-python"
 COPY .. ${PATH_TO_REPO}
 # ARG PATH_TO_VERSION_PY="src/bsm2_python/_version.py"
 # COPY pyproject.toml ${PATH_TO_REPO}/pyproject.toml
@@ -18,3 +18,5 @@ RUN hatch run python -V
 RUN hatch run test:python -V
 RUN hatch run docs:python -V
 RUN hatch run lint:python -V
+# get path to python executable from hatch env find test
+RUN echo "PATH_TO_TEST_ENV=$(hatch env find test)/bin/python" >> /root/.bashrc

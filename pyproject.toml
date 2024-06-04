@@ -242,6 +242,7 @@ dependencies = [
     "numpy",
     "scipy",
     "tqdm",
+    "matplotlib",
 ]
 [tool.hatch.envs.test.scripts]
 cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=src/bsm2_python --cov=tests {args}"

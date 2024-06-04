@@ -15,7 +15,8 @@
 				"streetsidesoftware.code-spell-checker-german"
 			],
 			"settings": {"cSpell.language": "en,de,en-GB",
-			"python.defaultInterpreterPath": "/root/.local/share/hatch/env/virtual/bsm2-python/9EdBZCY_/test/bin/python"}
+			"python.defaultInterpreterPath": "${env:PATH_TO_TEST_ENV}"
 		}
 	}
+}
 }

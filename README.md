@@ -7,7 +7,7 @@ A description of BSM2 can be found [here](https://iwaponline.com/ebooks/book-pdf
 - [ ] Lukas: Get your fingers on hatch and find out how to use it inside IDEs (perhaps share your experience inside [CONTRIBUTING.md](CONTRIBUTING.md)):D
 - [ ] Lukas: put init files in separate folder
 - [ ] Lukas: Write parent class for all BSM2 objects (e.g. methods `stabilize` or `simulate`)
-- [ ] Jonas: Implement containerised tests as part of the CI/CD pipeline
+- [x] Jonas: Implement containerised tests as part of the CI/CD pipeline
 - [ ] Lukas: Import different plant setups - including BSM2OLEM (BSM2 open loop with energy management)
 - [ ] Lukas: Write simple controller (focusing on kla and gas management control based on electricity prices)
 - [ ] Nick: Write docs!
@@ -32,7 +32,8 @@ print(bsm2_ol.y_eff_all)
 ```
 This will print out the results of the BSM2 Open Loop model for a random aeration control strategy over 609 days of simulation.
 
-There is also a fully functional Docker image available in the [GitLab Container Registry](gitlab.rrze.fau.de:4567/evt/klaeffizient/bsm2-python). (**Not at the moment**)
+There is also a fully functional Docker image available in the [GitLab Container Registry](gitlab.rrze.fau.de:4567/evt/klaeffizient/bsm2-python).
+It is a dev container and can be used to run the tests and do active development.
 
 ## Project structure
 The project is structured as follows:
