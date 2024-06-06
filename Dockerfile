@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/python:1-3.11-bookworm
+FROM mcr.microsoft.com/devcontainers/python:1-3.10-bookworm
 ARG PATH_TO_REPO="/workspaces/bsm2-python"
 COPY .. ${PATH_TO_REPO}
 # ARG PATH_TO_VERSION_PY="src/bsm2_python/_version.py"

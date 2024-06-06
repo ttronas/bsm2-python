@@ -23,6 +23,7 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: Implementation :: CPython",
 ]
 # direct dependencies of this package, installed when users `pip install bsm2-python` later.
@@ -315,6 +316,26 @@ all = [
 ]
 
 # Test matrix for various Python versions replacing the functionality of tox
+[tool.hatch.envs.py-test]
+dependencies = [
+    # required test dependencies
+    "coverage[toml]>=6.2",
+    "pytest",
+    "pytest-cov",
+    "pytest-mock",
+    "pytest-vcr",
+    "pytest-sugar",
+    # additional test & development dependencies
+    # ToDo: Modify according to your needs!
+    "hypothesis",
+    "jupyterlab",
+    "ipython",
+    "numba",
+    "numpy",
+    "scipy",
+    "tqdm",
+    "matplotlib",
+]
+
 [[tool.hatch.envs.py-test.matrix]]
-template = ["test"]
-python = ["310", "311", "312"]
+python = ["3.10", "3.11", "3.12"]
