@@ -5,7 +5,7 @@ All parameters and specifications are based on BSM1 model.
 This file will be executed when running asm1runss_ac.py, asm1run_ac.py, asm1runss_ps.py or asm1run_ps.py.
 """
 
-import bsm2_python.bsm2.asm1init_bsm2 as asm1init
+import bsm2_python.bsm2.init.asm1init_bsm2 as asm1init
 
 # maximum possible external carbon flow rate to reactors
 CARB1_MAX = 5
