@@ -5,9 +5,11 @@ from numba import int32
 from numba.experimental import jitclass
 from numba.typed import List
 
+from bsm2_python.bsm2.module import Module
+
 
 @jitclass
-class Combiner:
+class Combiner(Module):
     def __init__(self):
         """
         Combines multiple arrays in ASM1 format into one array in ASM1 format.
@@ -47,7 +49,7 @@ class Combiner:
 
 
 @jitclass(spec=(('sp_type', int32),))
-class Splitter:
+class Splitter(Module):
     def __init__(self, sp_type=1):
         """
         Splits an array in ASM1 format into multiple arrays in ASM1 format.
@@ -62,7 +64,7 @@ class Splitter:
         """
         self.sp_type = sp_type
 
-    def outputs(self, in1, splitratio=(0.0, 0.0), qthreshold=0):
+    def output(self, in1, splitratio=(0.0, 0.0), qthreshold=0):
         """
         Splits an array in ASM1 format into multiple arrays in ASM1 format.
 

@@ -25,6 +25,8 @@ import numpy as np
 from numba import jit
 from scipy.integrate import odeint
 
+from bsm2_python.bsm2.module import Module
+
 indices_components = np.arange(21)
 SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = indices_components
 
@@ -251,7 +253,7 @@ def settlerequations(t, ys, ys_in, sedpar, dim, layer, q_r, q_w, tempmodel, mode
 
 
 @jit(nopython=True)
-def get_outputs(ys_int, ys_in, nooflayers, tempmodel, q_r, q_w, dim, asm1par, sedpar):
+def get_output(ys_int, ys_in, nooflayers, tempmodel, q_r, q_w, dim, asm1par, sedpar):
     ys_ret = np.zeros(21)
     ys_was = np.zeros(21)
     ys_eff = np.zeros(21)
@@ -346,7 +348,7 @@ def get_outputs(ys_int, ys_in, nooflayers, tempmodel, q_r, q_w, dim, asm1par, se
     return ys_ret, ys_was, ys_eff, sludge_height
 
 
-class Settler:
+class Settler(Module):
     def __init__(self, dim, layer, q_r, q_w, ys0, sedpar, asm1par, tempmodel, modeltype):
         """
         Parameters
@@ -388,7 +390,7 @@ class Settler:
             err = 'Model type not implemented yet. Choose modeltype = 0'
             raise NotImplementedError(err)
 
-    def outputs(self, timestep, step, ys_in):
+    def output(self, timestep, step, ys_in):
         """Returns the solved differential equations of settling model.
 
         Parameters
@@ -434,7 +436,7 @@ class Settler:
         ys_int = odes[1]
         self.ys0 = ys_int
 
-        ys_ret, ys_was, ys_eff, sludge_height = get_outputs(
+        ys_ret, ys_was, ys_eff, sludge_height = get_output(
             ys_int, ys_in, nooflayers, self.tempmodel, self.q_r, self.q_w, self.dim, self.asm1par, self.sedpar
         )
 

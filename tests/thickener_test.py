@@ -10,7 +10,7 @@ import time
 import numpy as np
 from tqdm import tqdm
 
-from bsm2_python.bsm2 import thickenerinit_bsm2 as thickenerinit
+from bsm2_python.bsm2.init import thickenerinit_bsm2 as thickenerinit
 from bsm2_python.bsm2.thickener_bsm2 import Thickener
 
 path_name = os.path.dirname(__file__)
@@ -57,7 +57,7 @@ def test_thickener():
     start = time.perf_counter()
 
     for _ in simtime:
-        yt_uf, yt_of = thickener.outputs(y_in)
+        yt_uf, yt_of = thickener.output(y_in)
 
     stop = time.perf_counter()
     logging.info('Steady state simulation completed after: %s seconds', stop - start)
@@ -150,7 +150,7 @@ def test_thickener_dyn():
     for i, step in enumerate(tqdm(simtime)):
         # get influent data that is smaller than and closest to current time step
         y_in_timestep = y_in[np.where(data_time <= step)[0][-1], :]
-        yt_uf, yt_of = thickener.outputs(y_in_timestep)
+        yt_uf, yt_of = thickener.output(y_in_timestep)
         yt_uf_all[i] = yt_uf
         yt_of_all[i] = yt_of
 

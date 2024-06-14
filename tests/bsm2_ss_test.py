@@ -11,7 +11,7 @@ import time
 import numpy as np
 from tqdm import tqdm
 
-from bsm2_python.bsm2.bsm2_ol import BSM2OL
+from bsm2_python.bsm2_ol import BSM2OL
 
 path_name = os.path.dirname(__file__)
 

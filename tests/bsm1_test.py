@@ -8,8 +8,8 @@ import time
 import numpy as np
 from tqdm import tqdm
 
-import bsm2_python.bsm2.asm1init_bsm1 as asm1init
-import bsm2_python.bsm2.settler1dinit_bsm2 as settler1dinit
+import bsm2_python.bsm2.init.asm1init_bsm1 as asm1init
+import bsm2_python.bsm2.init.settler1dinit_bsm2 as settler1dinit
 from bsm2_python.bsm2.asm1_bsm2 import ASM1reactor
 from bsm2_python.bsm2.helpers_bsm2 import Combiner, Splitter
 from bsm2_python.bsm2.settler1d_bsm2 import Settler
@@ -131,9 +131,9 @@ def test_bsm1():
         y_out4 = reactor4.output(timestep, step, y_out3)
         y_out5 = reactor5.output(timestep, step, y_out4)
 
-        ys_in, y_out5_r = splitter.outputs(y_out5, (y_out5[14] - qintr, qintr))
+        ys_in, y_out5_r = splitter.output(y_out5, (y_out5[14] - qintr, qintr))
 
-        ys_out, _, ys_eff, sludge_height = settler.outputs(timestep, step, ys_in)
+        ys_out, _, ys_eff, sludge_height = settler.output(timestep, step, ys_in)
 
     stop = time.perf_counter()
 
@@ -214,9 +214,9 @@ def test_bsm1_ol():
         y_out4 = reactor4.output(timestep, step, y_out3)
         y_out5 = reactor5.output(timestep, step, y_out4)
 
-        ys_in, y_out5_r = splitter.outputs(y_out5, (y_out5[14] - qintr, qintr))
+        ys_in, y_out5_r = splitter.output(y_out5, (y_out5[14] - qintr, qintr))
 
-        ys_out, _, ys_eff, sludge_height = settler.outputs(timestep, step, ys_in)
+        ys_out, _, ys_eff, sludge_height = settler.output(timestep, step, ys_in)
 
         ys_eff_all[i] = ys_eff
         sludge_height_all[i] = sludge_height

@@ -83,6 +83,7 @@ pretty = true
 show_column_numbers = true
 warn_no_return = false
 warn_unused_ignores = true
+disable_error_code = ["attr-defined"]  # numba compatibility
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -244,6 +245,7 @@ dependencies = [
     "scipy",
     "tqdm",
     "matplotlib",
+    "pandas",
 ]
 [tool.hatch.envs.test.scripts]
 cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=src/bsm2_python --cov=tests {args}"

@@ -13,14 +13,13 @@ import numpy as np
 import bsm2_python.bsm2.init.adm1init_bsm2 as adm1init
 import bsm2_python.bsm2.init.asm1init_bsm2 as asm1init
 import bsm2_python.bsm2.init.dewateringinit_bsm2 as dewateringinit
+import bsm2_python.bsm2.init.primclarinit_bsm2 as primclarinit
 import bsm2_python.bsm2.init.reginit_bsm2 as reginit
 import bsm2_python.bsm2.init.settler1dinit_bsm2 as settler1dinit
 import bsm2_python.bsm2.init.storageinit_bsm2 as storageinit
 import bsm2_python.bsm2.init.thickenerinit_bsm2 as thickenerinit
-from bsm2_python.bsm2.init import primclarinit_bsm2 as primclarinit
 from bsm2_python.bsm2.adm1_bsm2 import ADM1Reactor
 from bsm2_python.bsm2.asm1_bsm2 import ASM1reactor
-from bsm2_python.controller_oxygen import ControllerOxygen
 from bsm2_python.bsm2.dewatering_bsm2 import Dewatering
 from bsm2_python.bsm2.helpers_bsm2 import Combiner, Splitter
 from bsm2_python.bsm2.plantperformance_step import PlantPerformance
@@ -32,7 +31,7 @@ from bsm2_python.bsm2.thickener_bsm2 import Thickener
 path_name = os.path.dirname(__file__)
 
 
-class BSM2_OL:
+class BSM2OL:
     def __init__(
         self,
         data_in=None,
@@ -140,7 +139,7 @@ class BSM2_OL:
             settler1dinit.MODELTYPE,
         )
         self.combiner_effluent = Combiner()
-        self.thickener = Thickener(thickenerinit.THICKENERPAR, asm1init.PAR1)
+        self.thickener = Thickener(thickenerinit.THICKENERPAR)
         self.splitter_thickener = Splitter()
         self.combiner_adm1 = Combiner()
         self.adm1_reactor = ADM1Reactor(
@@ -149,15 +148,10 @@ class BSM2_OL:
         self.dewatering = Dewatering(dewateringinit.DEWATERINGPAR)
         self.storage = Storage(storageinit.VOL_S, storageinit.ystinit, tempmodel, activate)
         self.splitter_storage = Splitter()
-        self.plantperformance = PlantPerformance()
-
-        klas = np.array([reginit.KLA1, reginit.KLA2, reginit.KLA3, reginit.KLA4, reginit.KLA5])
-        # scenario 5, 75th percentile, 50% reduction when S_NH below 4g/m3
-        self.controller = ControllerOxygen(timestep, 0.75, klas, 0.5, 4)
 
         if data_in is None:
             # dyninfluent from BSM2:
-            with open(path_name + '/../data/dyninfluent_bsm2.csv', encoding='utf-8-sig') as f:
+            with open(path_name + '/data/dyninfluent_bsm2.csv', encoding='utf-8-sig') as f:
                 data_in = np.array(list(csv.reader(f, delimiter=','))).astype(np.float64)
 
         if timestep is None:
@@ -180,6 +174,12 @@ class BSM2_OL:
         self.data_time = data_in[:, 0]
 
         self.y_in = data_in[:, 1:]
+
+        self.plantperformance = PlantPerformance()
+
+        self.klas = np.array([reginit.KLA1, reginit.KLA2, reginit.KLA3, reginit.KLA4, reginit.KLA5])
+        # scenario 5, 75th percentile, 50% reduction when S_NH below 4g/m3
+        # self.controller = ControllerOxygen(self.timestep[0], 0.75, klas, 0.5, 4)
 
         self.yst_sp_p = np.zeros(21)
         self.yt_sp_p = np.zeros(21)
@@ -208,9 +208,12 @@ class BSM2_OL:
 
         self.sludge_height = 0
 
+        self.y_out5_r[14] = asm1init.QINTR
+
     def step(
         self,
-        i: int
+        i: int,
+        klas: np.ndarray | None = None,
     ):
         """
         Simulates one time step of the BSM2 model.
@@ -219,10 +222,14 @@ class BSM2_OL:
         ----------
         i : int
             Index of the current time step
+        klas : np.ndarray, optional
+            Array with the values of the oxygen transfer coefficients for the 5 ASM1 reactors.
+            Default is (reginit.KLA1, reginit.KLA2, reginit.KLA3, reginit.KLA4, reginit.KLA5)
         """
-        S_NH_reactors = np.array([self.reactor1.y0[9], self.reactor2.y0[9], self.reactor3.y0[9], self.reactor4.y0[9], self.reactor5.y0[9]])
-        klas = self.controller.get_klas(i, S_NH_reactors)
+        if klas is None:
+            klas = np.array([reginit.KLA1, reginit.KLA2, reginit.KLA3, reginit.KLA4, reginit.KLA5])
 
+        # timestep = timesteps[i]
         step: float = self.simtime[i]
         stepsize: float = self.timestep[i]
 
@@ -235,12 +242,12 @@ class BSM2_OL:
         # get influent data that is smaller than and closest to current time step
         y_in_timestep = self.y_in[np.where(self.data_time <= step)[0][-1], :]
 
-        yp_in_c, y_in_bp = self.input_splitter.outputs(y_in_timestep, (0, 0), reginit.QBYPASS)
-        y_plant_bp, y_in_as_c = self.bypass_plant.outputs(y_in_bp, (1 - reginit.QBYPASSPLANT, reginit.QBYPASSPLANT))
+        yp_in_c, y_in_bp = self.input_splitter.output(y_in_timestep, (0, 0), reginit.QBYPASS)
+        y_plant_bp, y_in_as_c = self.bypass_plant.output(y_in_bp, (1 - reginit.QBYPASSPLANT, reginit.QBYPASSPLANT))
         yp_in = self.combiner_primclar_pre.output(yp_in_c, self.yst_sp_p, self.yt_sp_p)
-        yp_uf, yp_of = self.primclar.outputs(self.timestep[i], step, yp_in)
+        yp_uf, yp_of = self.primclar.output(self.timestep[i], step, yp_in)
         y_c_as_bp = self.combiner_primclar_post.output(yp_of[:21], y_in_as_c)
-        y_bp_as, y_as_bp_c_eff = self.bypass_reactor.outputs(y_c_as_bp, (1 - reginit.QBYPASSAS, reginit.QBYPASSAS))
+        y_bp_as, y_as_bp_c_eff = self.bypass_reactor.output(y_c_as_bp, (1 - reginit.QBYPASSAS, reginit.QBYPASSAS))
 
         y_in1 = self.combiner_reactor.output(self.ys_r, y_bp_as, self.yst_sp_as, self.yt_sp_as, self.y_out5_r)
         y_out1 = self.reactor1.output(stepsize, step, y_in1)
@@ -248,23 +255,23 @@ class BSM2_OL:
         y_out3 = self.reactor3.output(stepsize, step, y_out2)
         y_out4 = self.reactor4.output(stepsize, step, y_out3)
         y_out5 = self.reactor5.output(stepsize, step, y_out4)
-        ys_in, self.y_out5_r = self.splitter_reactor.outputs(y_out5, (y_out5[14] - asm1init.QINTR, asm1init.QINTR))
+        ys_in, self.y_out5_r = self.splitter_reactor.output(y_out5, (y_out5[14] - asm1init.QINTR, asm1init.QINTR))
 
-        self.ys_r, ys_was, ys_of, _ = self.settler.outputs(stepsize, step, ys_in)
+        self.ys_r, ys_was, ys_of, _ = self.settler.output(stepsize, step, ys_in)
 
         y_eff = self.combiner_effluent.output(y_plant_bp, y_as_bp_c_eff, ys_of[:21])
 
-        yt_uf, yt_of = self.thickener.outputs(ys_was)
-        self.yt_sp_p, self.yt_sp_as = self.splitter_thickener.outputs(
+        yt_uf, yt_of = self.thickener.output(ys_was)
+        self.yt_sp_p, self.yt_sp_as = self.splitter_thickener.output(
             yt_of[:21], (1 - reginit.QTHICKENER2AS, reginit.QTHICKENER2AS)
         )
 
         self.yd_in = self.combiner_adm1.output(yt_uf, yp_uf)
-        y_out2, self.yd_out, _ = self.adm1_reactor.outputs(stepsize, step, self.yd_in, reginit.T_OP)
-        ydw_s, ydw_r = self.dewatering.outputs(y_out2)
+        y_out2, self.yd_out, _ = self.adm1_reactor.output(stepsize, step, self.yd_in, reginit.T_OP)
+        ydw_s, ydw_r = self.dewatering.output(y_out2)
         yst_out, _ = self.storage.output(stepsize, step, ydw_r, reginit.QSTORAGE)
 
-        self.yst_sp_p, self.yst_sp_as = self.splitter_storage.outputs(
+        self.yst_sp_p, self.yst_sp_as = self.splitter_storage.output(
             yst_out, (1 - reginit.QSTORAGE2AS, reginit.QSTORAGE2AS)
         )
 
@@ -353,7 +360,15 @@ class BSM2_OL:
         kla = np.array([self.reactor1.kla, self.reactor2.kla, self.reactor3.kla, self.reactor4.kla, self.reactor5.kla])
 
         # aerationenergy:
-        vol = np.array([self.reactor1.volume, self.reactor2.volume, self.reactor3.volume, self.reactor4.volume, self.reactor5.volume])
+        vol = np.array(
+            [
+                self.reactor1.volume,
+                self.reactor2.volume,
+                self.reactor3.volume,
+                self.reactor4.volume,
+                self.reactor5.volume,
+            ]
+        )
         sosat = np.array([asm1init.SOSAT1, asm1init.SOSAT2, asm1init.SOSAT3, asm1init.SOSAT4, asm1init.SOSAT5])
 
         ae = self.plantperformance.aerationenergy(kla, vol, sosat)
@@ -379,13 +394,13 @@ class BSM2_OL:
             Heat demand of the plant
         """
         # heat demand:
-        T_in = self.yd_in[15]  # °C
+        t_in = self.yd_in[15]  # °C
         inflow = self.yd_in[14] / 24  # m3/d -> m3/h
 
         h2o_rho_l = 998  # kg/m³
         h2o_cp_l = 4.18  # kJ/kg/K
         # delta T [K] * inflow [m3/h] * density [kg/m3] * specific heat capacity [kJ/kgK] / 3600 [kJ/kWh] = kW
-        heat_demand = ((reginit.T_OP - 273.15) - T_in) * inflow * h2o_rho_l * h2o_cp_l / 3600
+        heat_demand = ((reginit.T_OP - 273.15) - t_in) * inflow * h2o_rho_l * h2o_cp_l / 3600
 
         return heat_demand
 

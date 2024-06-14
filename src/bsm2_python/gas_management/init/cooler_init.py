@@ -1,0 +1,8 @@
+import numpy as np
+
+INDICES_CONSUMABLES = np.arange(1)
+HEAT = INDICES_CONSUMABLES[0]
+
+MAX_HEAT = 10000  # kW
+
+CAPEX = 0  # €

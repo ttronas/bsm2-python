@@ -57,8 +57,8 @@ def test_helpers():
 
     y_mix = combiner.output(y_in1, y_in2)
 
-    y_split1, y_split2 = splitter.outputs(y_in1, (0.6, 0.4))
-    y_split3, y_split4 = splitter2.outputs(y_in1, (0, 0), 18000)
+    y_split1, y_split2 = splitter.output(y_in1, (0.6, 0.4))
+    y_split3, y_split4 = splitter2.output(y_in1, (0, 0), 18000)
 
     stop = time.perf_counter()
 

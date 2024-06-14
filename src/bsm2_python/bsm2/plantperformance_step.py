@@ -1,8 +1,5 @@
-import sys
-import os
 import numpy as np
-path_name = os.path.dirname(__file__)
-sys.path.append(path_name + '/..')
+
 import bsm2_python.bsm2.init.asm1init_bsm2 as asm1init
 
 indices_components = np.arange(21)
@@ -15,7 +12,8 @@ class PlantPerformance:
         Creates a PlantPerformance object.
         """
 
-    def aerationenergy(self, kla, vol, sosat):
+    @staticmethod
+    def aerationenergy(kla, vol, sosat):
         """Returns the aeration energy of the plant during the evaluation time
 
         Parameters
@@ -36,7 +34,8 @@ class PlantPerformance:
         ae = sum(sosat * vol * kla) / (1.8 * 1000) / 24
         return ae
 
-    def pumpingenergy(self, flows, pumpfactor):
+    @staticmethod
+    def pumpingenergy(flows, pumpfactor):
         """Returns the pumping energy of the plant during the evaluation time
 
         Parameters
@@ -56,7 +55,8 @@ class PlantPerformance:
         pe = sum(flows * pumpfactor) / 24
         return pe
 
-    def mixingenergy(self, kla, vol):
+    @staticmethod
+    def mixingenergy(kla, vol):
         """Returns the mixing energy of the plant during the evaluation time
 
         Parameters
@@ -71,12 +71,13 @@ class PlantPerformance:
         float
             Float value of the aeration energy during the evaluation time in kW
         """
-
-        me = 24 * 0.005 * np.sum((kla[i] < 20) * vol[i] for i in range(len(kla))).item() / 24
+        lim = 20
+        me = 24 * 0.005 * sum((kla[i] < lim) * vol[i] for i in range(len(kla))) / 24
 
         return me
 
-    def violation(self, arr_eff, limit, sampleinterval, evaltime):
+    @staticmethod
+    def violation(arr_eff, limit, sampleinterval, evaltime):
         """Returns the time in days and percentage of time in which a certain component is over the limit value during
         the evaluation time
 
@@ -105,7 +106,8 @@ class PlantPerformance:
         violationvalues[1] = len(arr_eff[arr_eff > limit]) * sampleinterval / (evaltime[1] - evaltime[0]) * 100
         return violationvalues
 
-    def advanced_quantities(self, arr_eff, components=['kjeldahlN', 'totalN', 'COD', 'BOD5'], asm1par=asm1init.PAR1):
+    @staticmethod
+    def advanced_quantities(arr_eff, components=('kjeldahlN', 'totalN', 'COD', 'BOD5'), asm1par=asm1init.PAR1):
         """
         Takes an ASM1 array (single timestep or multiple timesteps) and returns
         advanced quantities of the effluent.
@@ -129,19 +131,30 @@ class PlantPerformance:
 
         for idx, component in enumerate(components):
             if component == 'kjeldahlN':
-                adv_eff[idx] = arr_eff[SNH] + arr_eff[SND] + arr_eff[XND] + \
-                    asm1par[17] * (arr_eff[XBH] + arr_eff[XBA]) + \
-                    asm1par[18] * (arr_eff[XP] + arr_eff[XI])
+                adv_eff[idx] = (
+                    arr_eff[SNH]
+                    + arr_eff[SND]
+                    + arr_eff[XND]
+                    + asm1par[17] * (arr_eff[XBH] + arr_eff[XBA])
+                    + asm1par[18] * (arr_eff[XP] + arr_eff[XI])
+                )
             elif component == 'totalN':
-                adv_eff[idx] = arr_eff[SNH] + arr_eff[SND] + arr_eff[XND] + \
-                    asm1par[17] * (arr_eff[XBH] + arr_eff[XBA]) + \
-                    asm1par[18] * (arr_eff[XP] + arr_eff[XI]) + arr_eff[SNO]
+                adv_eff[idx] = (
+                    arr_eff[SNH]
+                    + arr_eff[SND]
+                    + arr_eff[XND]
+                    + asm1par[17] * (arr_eff[XBH] + arr_eff[XBA])
+                    + asm1par[18] * (arr_eff[XP] + arr_eff[XI])
+                    + arr_eff[SNO]
+                )
             elif component == 'COD':
-                adv_eff[idx] = arr_eff[SS] + arr_eff[SI] + arr_eff[XS] + arr_eff[XI] + \
-                    arr_eff[XBH] + arr_eff[XBA] + arr_eff[XP]
+                adv_eff[idx] = (
+                    arr_eff[SS] + arr_eff[SI] + arr_eff[XS] + arr_eff[XI] + arr_eff[XBH] + arr_eff[XBA] + arr_eff[XP]
+                )
             elif component == 'BOD5':
-                adv_eff[idx] = 0.25 * (arr_eff[SS] + arr_eff[XS] + (1-asm1par[16]) * (arr_eff[XBH] + arr_eff[XBA]))
+                adv_eff[idx] = 0.25 * (arr_eff[SS] + arr_eff[XS] + (1 - asm1par[16]) * (arr_eff[XBH] + arr_eff[XBA]))
             else:
-                raise ValueError(f'Component \'{component}\' not supported')
+                err = f"Component '{component}' not supported"
+                raise ValueError(err)
 
         return adv_eff

@@ -10,8 +10,8 @@ import time
 import numpy as np
 from tqdm import tqdm
 
-from bsm2_python.bsm2 import dewateringinit_bsm2 as dewateringinit
 from bsm2_python.bsm2.dewatering_bsm2 import Dewatering
+from bsm2_python.bsm2.init import dewateringinit_bsm2 as dewateringinit
 
 path_name = os.path.dirname(__file__)
 
@@ -35,7 +35,7 @@ def test_dewatering():
     start = time.perf_counter()
 
     for _ in simtime:
-        ydw_s, ydw_r = dewatering.outputs(y_in)
+        ydw_s, ydw_r = dewatering.output(y_in)
 
     stop = time.perf_counter()
 
@@ -128,7 +128,7 @@ def test_dewatering_dyn():
     for i, step in enumerate(tqdm(simtime)):
         # get influent data that is smaller than and closest to current time step
         y_in_timestep = y_in[np.where(data_time <= step)[0][-1], :]
-        ydw_s, ydw_r = dewatering.outputs(y_in_timestep)
+        ydw_s, ydw_r = dewatering.output(y_in_timestep)
         ydw_s_all[i, :] = ydw_s
         ydw_r_all[i, :] = ydw_r
 

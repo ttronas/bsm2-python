@@ -233,7 +233,7 @@ class KLaActuator:
         den_kla = [self.t_kla * self.t_kla, 2 * self.t_kla, 1]
         timestep = control / (60 * 24)
         if step == 0:
-            kla = kla[14].astype(float)
+            kla_out = kla[14][0]
         elif step <= transferfunction / (60 * 24):
             t_kla_lower15 = np.arange(0, step + timestep, timestep)
             _, yout_kla, _ = signal.lsim(
@@ -241,10 +241,10 @@ class KLaActuator:
                 kla[((int(transferfunction / control) + 1) - controlnumber) : (int(transferfunction / control) + 1)],
                 t_kla_lower15[0:controlnumber],
             )
-            kla = yout_kla[controlnumber - 1].astype(float)
+            kla_out = yout_kla[controlnumber - 1][0]
         else:
             t_kla_15 = np.arange(step - transferfunction / control * timestep, step + timestep, timestep)
             _, yout_kla, _ = signal.lsim((num_kla, den_kla), kla, t_kla_15[0 : (int(transferfunction / control) + 1)])
-            kla = yout_kla[int(transferfunction / control)].astype(float)
+            kla_out = yout_kla[int(transferfunction / control)][0]
 
-        return kla
+        return kla_out

@@ -1,83 +1,97 @@
+"""A Module class that represents a generic gas management module."""
+
 import numpy as np
 
-class Module():
+
+class Module:
     def __init__(self) -> None:
-        self.global_time: float = 2.0
-        self.runtime: float = 0.0
-        self.remaining_maintenance_time: float = 0.0
-        self.time_since_last_maintenance: float = 0.0
-        self.under_maintenance: bool = False
-        self.total_maintenance_time: float = 0.0
+        """
+        A class that represents a generic gas management module.
+        Contains the step method that is called in each time step.
+
+        Children classes should implement the following methods:
+        - check_failure
+        - produce
+        - consume
+        - calculate_maintenance_time
+
+        """
+        self.global_time: float = 0.0
+        self._runtime: float = 0.0
+        self._remaining_maintenance_time: float = 0.0
+        self._time_since_last_maintenance: float = 0.0
+        self._under_maintenance: bool = False
+        self._total_maintenance_time: float = 0.0
         self.maintenance_cost_per_hour: float = 0.0
-        self.MTTF: float = 0.0 # Mean Time To Failure
-        self.MTTR: float = 0.0 # Mean Time To Repair
-        self.load: float = 0.0
+        self.mttf: float = 0.0  # Mean Time To Failure
+        self.mttr: float = 0.0  # Mean Time To Repair
+        self._load: float = 0.0
+        self._products: np.ndarray = np.array([0.0])
+        self._consumption: np.ndarray = np.array([0.0])
 
     @property
-    def Runtime(self) -> float:
-        return self.runtime
+    def runtime(self) -> float:
+        return self._runtime
 
     @property
-    def Load(self) -> float:
-        return self.load
+    def load(self) -> float:
+        return self._load
 
-    @Load.setter
-    def Load(self, value: float) -> None:
-        self.load = value
-
-    @property
-    def TotalMaintenanceTime(self) -> float:
-        return self.total_maintenance_time
-
-    @TotalMaintenanceTime.setter
-    def TotalMaintenanceTime(self, value: float) -> None:
-        self.total_maintenance_time = value
+    @load.setter
+    def load(self, value: float) -> None:
+        self._load = value
 
     @property
-    def RemainingMaintenanceTime(self) -> float:
-        return self.remaining_maintenance_time
+    def total_maintenance_time(self) -> float:
+        return self._total_maintenance_time
 
-    @RemainingMaintenanceTime.setter
-    def RemainingMaintenanceTime(self, value: float) -> None:
-        self.remaining_maintenance_time = value
-        if self.remaining_maintenance_time <= 0:
-            self.remaining_maintenance_time = 0
-            self.under_maintenance = False
-            self.time_since_last_maintenance = 0.0
+    @total_maintenance_time.setter
+    def total_maintenance_time(self, value: float) -> None:
+        self._total_maintenance_time = value
+
+    @property
+    def remaining_maintenance_time(self) -> float:
+        return self._remaining_maintenance_time
+
+    @remaining_maintenance_time.setter
+    def remaining_maintenance_time(self, value: float) -> None:
+        self._remaining_maintenance_time = value
+        if self._remaining_maintenance_time <= 0:
+            self._remaining_maintenance_time = 0
+            self._under_maintenance = False
+            self._time_since_last_maintenance = 0.0
         else:
-            self.under_maintenance = True
+            self._under_maintenance = True
             self.load = 0.0
 
     @property
-    def TimeSinceLastMaintenance(self) -> float:
-        return self.time_since_last_maintenance
+    def time_since_last_maintenance(self) -> float:
+        return self._time_since_last_maintenance
 
     @property
-    def UnderMaintenance(self) -> bool:
-        return self.under_maintenance
+    def under_maintenance(self) -> bool:
+        return self._under_maintenance
 
-    @UnderMaintenance.setter
-    def UnderMaintenance(self, value: bool) -> None:
-        self.under_maintenance = value
-
-    @property
-    def Products(self) -> np.ndarray:
-        return self.products
+    @under_maintenance.setter
+    def under_maintenance(self, value: bool) -> None:
+        self._under_maintenance = value
 
     @property
-    def Consumption(self) -> np.ndarray:
-        return self.consumption
+    def products(self) -> np.ndarray:
+        return self._products
 
-    def check_failure(self) -> bool:
+    @property
+    def consumption(self) -> np.ndarray:
+        return self._consumption
+
+    def check_failure(self):
         """
         Checks if the module has failed.
         Returns:
             failed: bool, True if the module has failed, False otherwise
         """
-        pass
+        raise NotImplementedError('The check_failure method must be implemented by the child class.')
 
-    
-    # [TODO] Guess time_delta is not required for produce and consume functions.
     def produce(self) -> np.ndarray:
         """
         Produces energy based on the load and time delta.
@@ -86,7 +100,7 @@ class Module():
         Returns:
             products: list, list of products produced by the module
         """
-        pass
+        raise NotImplementedError('The produce method must be implemented by the child class.')
 
     def consume(self) -> np.ndarray:
         """
@@ -96,7 +110,7 @@ class Module():
         Returns:
             products: list, list of products consumed by the module
         """
-        pass
+        raise NotImplementedError('The consume method must be implemented by the child class.')
 
     def maintain(self, time_delta: float):
         """
@@ -104,7 +118,7 @@ class Module():
         Arguments:
             time_delta: float, time difference in hours
         """
-        self.RemainingMaintenanceTime -= time_delta
+        self.remaining_maintenance_time -= time_delta
 
     def calculate_maintenance_time(self) -> float:
         """
@@ -112,7 +126,7 @@ class Module():
         Returns:
             maintenance_time: float, maintenance time in hours
         """
-        pass
+        raise NotImplementedError('The calculate_maintenance_time method must be implemented by the child class.')
 
     def report_status(self) -> np.ndarray:
         """
@@ -122,9 +136,9 @@ class Module():
         """
         status = [
             self.load,
-            self.remaining_maintenance_time,
-            *self.products,
-            *self.consumption,
+            self._remaining_maintenance_time,
+            *self._products,
+            *self._consumption,
         ]
         return np.array(status)
 
@@ -135,19 +149,19 @@ class Module():
             time_delta: float, time difference in hours
         """
         self.global_time += time_delta
-        if not self.under_maintenance:
+        if not self._under_maintenance:
             if self.check_failure():
-                self.RemainingMaintenanceTime = self.calculate_maintenance_time()
-                self.total_maintenance_time += self.RemainingMaintenanceTime
+                self.remaining_maintenance_time = self.calculate_maintenance_time()
+                self._total_maintenance_time += self.remaining_maintenance_time
                 self.maintain(time_delta)
-                self.products = np.zeros_like(self.products)
-                self.consumption = np.zeros_like(self.consumption)
+                self._products = np.zeros_like(self.products)
+                self._consumption = np.zeros_like(self.consumption)
             else:
-                self.time_since_last_maintenance += time_delta
-                self.runtime += time_delta
-                self.products = self.produce()
-                self.consumption = self.consume()
+                self._time_since_last_maintenance += time_delta
+                self._runtime += time_delta
+                self._products = self.produce()
+                self._consumption = self.consume()
         else:
             self.maintain(time_delta)
-            self.products = np.zeros_like(self.products)
-            self.consumption = np.zeros_like(self.consumption)
+            self._products = np.zeros_like(self.products)
+            self._consumption = np.zeros_like(self.consumption)

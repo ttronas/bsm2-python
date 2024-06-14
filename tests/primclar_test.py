@@ -10,8 +10,8 @@ import time
 import numpy as np
 from tqdm import tqdm
 
-from bsm2_python.bsm2 import asm1init_bsm2 as asm1init
-from bsm2_python.bsm2 import primclarinit_bsm2 as primclarinit
+from bsm2_python.bsm2.init import asm1init_bsm2 as asm1init
+from bsm2_python.bsm2.init import primclarinit_bsm2 as primclarinit
 from bsm2_python.bsm2.primclar_bsm2 import PrimaryClarifier
 
 path_name = os.path.dirname(__file__)
@@ -52,7 +52,7 @@ def test_primclar():
     start = time.perf_counter()
 
     for step in simtime:
-        yp_uf, yp_of = primclar.outputs(timestep, step, y_in)
+        yp_uf, yp_of = primclar.output(timestep, step, y_in)
 
     stop = time.perf_counter()
 
@@ -153,7 +153,7 @@ def test_primclar_dyn():
     for i, step in enumerate(tqdm(simtime)):
         # get influent data that is smaller than and closest to current time step
         y_in_timestep = y_in[np.where(data_time <= step)[0][-1], :]
-        yp_uf, yp_of = primclar.outputs(timestep, step, y_in_timestep)
+        yp_uf, yp_of = primclar.output(timestep, step, y_in_timestep)
         yp_uf_all[i] = yp_uf
         yp_of_all[i] = yp_of
 

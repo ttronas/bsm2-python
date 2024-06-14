@@ -10,8 +10,8 @@ import time
 import numpy as np
 from tqdm import tqdm
 
-from bsm2_python.bsm2 import adm1init_bsm2 as adm1init
 from bsm2_python.bsm2.adm1_bsm2 import ADM1Reactor
+from bsm2_python.bsm2.init import adm1init_bsm2 as adm1init
 
 path_name = os.path.dirname(__file__)
 
@@ -58,7 +58,7 @@ def test_adm1():
     start = time.perf_counter()
 
     for step in simtime:
-        y_out2, yd_out, y_out1 = adm1_reactor.outputs(timestep, step, y_in, adm1init.t_op)
+        y_out2, yd_out, y_out1 = adm1_reactor.output(timestep, step, y_in, adm1init.t_op)
 
     stop = time.perf_counter()
 
@@ -224,7 +224,7 @@ def test_adm1_dyn():
     for i, step in enumerate(tqdm(simtime)):
         # get influent data that is smaller than and closest to current time step
         y_in_timestep = y_in[np.where(data_time <= step)[0][-1], :]
-        y_out2, yd_out, y_out1 = adm1_reactor.outputs(timestep, step, y_in_timestep, adm1init.t_op)
+        y_out2, yd_out, y_out1 = adm1_reactor.output(timestep, step, y_in_timestep, adm1init.t_op)
         y_out2_all[i] = y_out2
         yd_out_all[i] = yd_out
         y_out1_all[i] = y_out1

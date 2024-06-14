@@ -9,7 +9,7 @@ import time
 import numpy as np
 from tqdm import tqdm
 
-from bsm2_python.bsm2.bsm2_cl import BSM2CL
+from bsm2_python.bsm2_cl import BSM2CL
 
 
 def test_bsm2_cl():

@@ -4,6 +4,8 @@ import numpy as np
 from numba import jit
 from scipy.integrate import odeint
 
+from bsm2_python.bsm2.module import Module
+
 # import warnings
 
 
@@ -54,7 +56,7 @@ indices_components = np.arange(42)
 ) = indices_components
 
 
-class ADM1Reactor:
+class ADM1Reactor(Module):
     """
     Class for ADM1 reactor
     parameters:
@@ -79,11 +81,12 @@ class ADM1Reactor:
         self.temperature = 0.0
         self.yd_out = np.zeros(51)
 
-    def outputs(self, timestep, step, y_in1, t_op):
+    def output(self, timestep, step, y_in1, t_op):
         """
         Returns the solved differential equations based on ADM1 model
 
         Parameters
+        ----------
         timestep : float
             Time distance to integrate over
         step : float

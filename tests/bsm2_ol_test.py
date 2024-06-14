@@ -4,12 +4,20 @@ But it runs the BSM2 model with dynamic influent data.
 """
 
 import logging
+import sys
 import time
 
 import numpy as np
 from tqdm import tqdm
 
-from bsm2_python.bsm2.bsm2_ol import BSM2OL
+from bsm2_python.bsm2_ol import BSM2OL
+
+logging.basicConfig(
+    format='%(asctime)s.%(msecs)03d %(levelname)-8s %(message)s',
+    level=logging.INFO,
+    datefmt='%H:%M:%S',
+    stream=sys.stdout,
+)
 
 
 def test_bsm2_ol():
@@ -49,7 +57,7 @@ def test_bsm2_ol():
         ]
     )
 
-    logging.info('Effluent difference to MatLab solution: %s\n', y_eff_matlab - bsm2_ol.y_eff_all[-1, :])
+    logging.info('Effluent difference to MatLab solution: \n%s', y_eff_matlab - bsm2_ol.y_eff_all[-1, :])
 
     assert np.allclose(bsm2_ol.y_eff_all[-1, :], y_eff_matlab, rtol=3e-1, atol=1e0)
 

@@ -25,6 +25,7 @@ from numba import jit
 from scipy.integrate import odeint
 
 from bsm2_python.bsm2.helpers_bsm2 import Combiner
+from bsm2_python.bsm2.module import Module
 
 indices_components = np.arange(22)
 SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5, VOL = (
@@ -72,7 +73,7 @@ def storageequations(t, yst, yst_in1, tempmodel, activate):
     return dyst
 
 
-class Storage:
+class Storage(Module):
     def __init__(self, volume, yst0, tempmodel, activate):
         """
         Parameters

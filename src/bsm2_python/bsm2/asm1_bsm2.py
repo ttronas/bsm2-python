@@ -24,6 +24,8 @@ import numpy as np
 from numba import jit
 from scipy.integrate import odeint
 
+from bsm2_python.bsm2.module import Module
+
 indices_components = np.arange(21)
 SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = indices_components
 
@@ -236,7 +238,7 @@ def carbonaddition(y_in, carb, csourceconc):
     return y_in
 
 
-class ASM1reactor:
+class ASM1reactor(Module):
     def __init__(
         self,
         kla: float,
@@ -280,7 +282,9 @@ class ASM1reactor:
         self.tempmodel = tempmodel
         self.activate = activate
 
-    def output(self, timestep: int | float, step: int | float, y_in: np.ndarray):
+    def output(
+        self, timestep: int | float, step: int | float, y_in: np.ndarray
+    ) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
         """Returns the solved differential equations based on ASM1 model
 
         Parameters

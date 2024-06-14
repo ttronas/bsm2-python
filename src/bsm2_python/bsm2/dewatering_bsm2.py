@@ -22,12 +22,14 @@ import numpy as np
 from numba import float64
 from numba.experimental import jitclass
 
+from bsm2_python.bsm2.module import Module
+
 indices_components = np.arange(21)
 SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = indices_components
 
 
 @jitclass(spec=[('dw_par', float64[:])])
-class Dewatering:
+class Dewatering(Module):
     def __init__(self, dw_par):
         """
         Calculates the water and sludge stream concentrations from an 'ideal'
@@ -51,7 +53,7 @@ class Dewatering:
         """
         self.dw_par = dw_par
 
-    def outputs(self, ydw_in):
+    def output(self, ydw_in):
         """
         Returns the sludge and reject concentrations from an 'ideal' dewatering unit.
 

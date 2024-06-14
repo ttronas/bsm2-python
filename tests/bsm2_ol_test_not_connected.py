@@ -13,14 +13,14 @@ import time
 import numpy as np
 from tqdm import tqdm
 
-import bsm2_python.bsm2.adm1init_bsm2 as adm1init
-import bsm2_python.bsm2.asm1init_bsm2 as asm1init
-import bsm2_python.bsm2.dewateringinit_bsm2 as dewateringinit
-import bsm2_python.bsm2.reginit_bsm2 as reginit
-import bsm2_python.bsm2.settler1dinit_bsm2 as settler1dinit
-import bsm2_python.bsm2.storageinit_bsm2 as storageinit
-import bsm2_python.bsm2.thickenerinit_bsm2 as thickenerinit
-from bsm2_python.bsm2 import primclarinit_bsm2 as primclarinit
+import bsm2_python.bsm2.init.adm1init_bsm2 as adm1init
+import bsm2_python.bsm2.init.asm1init_bsm2 as asm1init
+import bsm2_python.bsm2.init.dewateringinit_bsm2 as dewateringinit
+import bsm2_python.bsm2.init.primclarinit_bsm2 as primclarinit
+import bsm2_python.bsm2.init.reginit_bsm2 as reginit
+import bsm2_python.bsm2.init.settler1dinit_bsm2 as settler1dinit
+import bsm2_python.bsm2.init.storageinit_bsm2 as storageinit
+import bsm2_python.bsm2.init.thickenerinit_bsm2 as thickenerinit
 from bsm2_python.bsm2.adm1_bsm2 import ADM1Reactor
 from bsm2_python.bsm2.asm1_bsm2 import ASM1reactor
 from bsm2_python.bsm2.dewatering_bsm2 import Dewatering
@@ -175,12 +175,12 @@ def test_bsm2_ol_not_connected():
         # get influent data that is smaller than and closest to current time step
         y_in_timestep = y_in[np.where(data_time <= step)[0][-1], :]
 
-        yp_in_c, y_in_bp = input_splitter.outputs(y_in_timestep, (0, 0), reginit.QBYPASS)
-        y_plant_bp, y_in_as_c = bypass_plant.outputs(y_in_bp, (1 - reginit.QBYPASSPLANT, reginit.QBYPASSPLANT))
+        yp_in_c, y_in_bp = input_splitter.output(y_in_timestep, (0, 0), reginit.QBYPASS)
+        y_plant_bp, y_in_as_c = bypass_plant.output(y_in_bp, (1 - reginit.QBYPASSPLANT, reginit.QBYPASSPLANT))
         # yp_in = combiner_primclar_pre.output(yp_in_c, yst_sp_p, yt_sp_p)
-        yp_uf, yp_of = primclar.outputs(timestep, step, yp_in_c)
+        yp_uf, yp_of = primclar.output(timestep, step, yp_in_c)
         y_c_as_bp = combiner_primclar_post.output(yp_of, y_in_as_c)
-        y_bp_as, y_as_bp_c_eff = bypass_reactor.outputs(y_c_as_bp, (1 - reginit.QBYPASSAS, reginit.QBYPASSAS))
+        y_bp_as, y_as_bp_c_eff = bypass_reactor.output(y_c_as_bp, (1 - reginit.QBYPASSAS, reginit.QBYPASSAS))
 
         # y_in1 = combiner_reactor.output(ys_r, y_bp_as, yst_sp_as, yt_sp_as, y_out5_r)
         y_in1 = combiner_reactor.output(ys_r, y_bp_as, y_out5_r)
@@ -189,21 +189,21 @@ def test_bsm2_ol_not_connected():
         y_out3 = reactor3.output(timestep, step, y_out2)
         y_out4 = reactor4.output(timestep, step, y_out3)
         y_out5 = reactor5.output(timestep, step, y_out4)
-        ys_in, y_out5_r = splitter_reactor.outputs(y_out5, (y_out5[14] - asm1init.QINTR, asm1init.QINTR))
+        ys_in, y_out5_r = splitter_reactor.output(y_out5, (y_out5[14] - asm1init.QINTR, asm1init.QINTR))
 
-        ys_r, ys_was, ys_of, sludge_height = settler.outputs(timestep, step, ys_in)
+        ys_r, ys_was, ys_of, sludge_height = settler.output(timestep, step, ys_in)
 
         y_eff = combiner_effluent.output(y_plant_bp, y_as_bp_c_eff, ys_of)
 
-        yt_uf, yt_of = thickener.outputs(ys_was)
-        yt_sp_p, yt_sp_as = splitter_thickener.outputs(yt_of, (1 - reginit.QTHICKENER2AS, reginit.QTHICKENER2AS))
+        yt_uf, yt_of = thickener.output(ys_was)
+        yt_sp_p, yt_sp_as = splitter_thickener.output(yt_of, (1 - reginit.QTHICKENER2AS, reginit.QTHICKENER2AS))
 
         yd_in = combiner_adm1.output(yt_uf, yp_uf)
-        y_out2, _, _ = adm1_reactor.outputs(timestep, step, yd_in, reginit.t_op)
-        ydw_s, ydw_r = dewatering.outputs(y_out2)
+        y_out2, _, _ = adm1_reactor.output(timestep, step, yd_in, reginit.T_OP)
+        ydw_s, ydw_r = dewatering.output(y_out2)
         yst_out, _ = storage.output(timestep, step, ydw_r, reginit.QSTORAGE)
 
-        yst_sp_p, yst_sp_as = splitter_storage.outputs(yst_out, (1 - reginit.QSTORAGE2AS, reginit.QSTORAGE2AS))
+        yst_sp_p, yst_sp_as = splitter_storage.output(yst_out, (1 - reginit.QSTORAGE2AS, reginit.QSTORAGE2AS))
 
         y_in_all[i] = y_in_timestep
         y_eff_all[i] = y_eff

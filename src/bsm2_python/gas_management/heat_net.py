@@ -1,18 +1,21 @@
 # class to model the heating network
-import numpy as np
+from numba import float64
 from numba.experimental import jitclass
-from numba import float64, int32
 
-@jitclass([
-    ('cp', float64),
-    ('temperature', float64),
-    ('mass_flow', float64),
-    ('lower_threshold', float64),
-    ('upper_threshold', float64)
-])
-class HeatNet():
-    def __init__(self, cp: float, initial_temp: float, mass_flow: float, lower_threshold: float,
-                 upper_threshold: float) -> None:
+
+@jitclass(
+    [
+        ('cp', float64),
+        ('temperature', float64),
+        ('mass_flow', float64),
+        ('lower_threshold', float64),
+        ('upper_threshold', float64),
+    ]
+)
+class HeatNet:
+    def __init__(
+        self, cp: float, initial_temp: float, mass_flow: float, lower_threshold: float, upper_threshold: float
+    ) -> None:
         """
         Initializes the heat network with a specific heat capacity c_p in kJ/(kg*K).
         Arguments:

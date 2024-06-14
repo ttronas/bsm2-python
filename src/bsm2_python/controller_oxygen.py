@@ -1,9 +1,12 @@
 """
 Adjusts KLA values based on electricity prices and ammonia concentration in the effluent
 """
-import os
-import numpy as np
+
 import csv
+import os
+
+import numpy as np
+
 
 class ControllerOxygen:
     def __init__(
@@ -11,8 +14,8 @@ class ControllerOxygen:
         timestep: float,
         price_percentile: float,
         klas_init: np.ndarray,
-        KLA_reduction: float,
-        S_NH_threshold: float,
+        kla_reduction: float,
+        s_nh_threshold: float,
     ):
         """
         Creates a Controller object.
@@ -25,16 +28,16 @@ class ControllerOxygen:
             Electricity prices in €/MWh
         price_percentile : float
             Percentile of electricity prices used to adjust KLA values
-        KLA_reduction : float
+        kla_reduction : float
             Reduction factor for KLA values
-        S_NH_threshold : float
+        s_nh_threshold : float
             Maximum value of ammonia concentration in the effluent
         """
         self.timestep = timestep
         self.price_percentile = price_percentile
         self.klas_init = klas_init
-        self.KLA_reduction = KLA_reduction
-        self.S_NH_threshold = S_NH_threshold
+        self.kla_reduction = kla_reduction
+        self.s_nh_threshold = s_nh_threshold
         self.steps_per_day = round(1 / timestep)
         self.is_price_in_percentile = np.full(self.steps_per_day, False)
         path_name = os.path.dirname(__file__)
@@ -45,23 +48,23 @@ class ControllerOxygen:
                 prices.append(price[0])
             self.electricity_prices = np.array(prices).astype(np.float64)
 
-    def get_klas(self, step: int, S_NH_reactors: np.ndarray):
+    def get_klas(self, step: int, s_nh_reactors: np.ndarray):
         """
         Returns the KLA values for the reactor compartments.
         """
         step_in_day = step % self.steps_per_day
         # get hours with the highest electricity prices
         if step_in_day == 0:
-            electricity_prices_day = self.electricity_prices[step: step + self.steps_per_day]
+            electricity_prices_day = self.electricity_prices[step : step + self.steps_per_day]
             steps_in_percentile = round(self.steps_per_day * (1 - self.price_percentile))
             indices_percentile = np.argpartition(electricity_prices_day, -steps_in_percentile)[-steps_in_percentile:]
             for i in range(self.steps_per_day):
                 self.is_price_in_percentile[i] = i in indices_percentile
 
         klas = np.zeros(len(self.klas_init))
-        for i, S_NH in enumerate(S_NH_reactors):
-            if S_NH < self.S_NH_threshold and self.is_price_in_percentile[step_in_day]:
-                klas[i] = self.klas_init[i] * self.KLA_reduction
+        for i, s_nh in enumerate(s_nh_reactors):
+            if self.s_nh_threshold > s_nh and self.is_price_in_percentile[step_in_day]:
+                klas[i] = self.klas_init[i] * self.kla_reduction
             else:
                 klas[i] = self.klas_init[i]
 

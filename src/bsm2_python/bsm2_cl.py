@@ -12,7 +12,6 @@ import sys
 import numpy as np
 
 import bsm2_python.bsm2.init.adm1init_bsm2 as adm1init
-import bsm2_python.bsm2.init.aerationcontrolinit as aerationcontrolinit
 import bsm2_python.bsm2.init.asm1init_bsm2 as asm1init
 import bsm2_python.bsm2.init.dewateringinit_bsm2 as dewateringinit
 import bsm2_python.bsm2.init.reginit_bsm2 as reginit
@@ -20,11 +19,12 @@ import bsm2_python.bsm2.init.settler1dinit_bsm2 as settler1dinit
 import bsm2_python.bsm2.init.storageinit_bsm2 as storageinit
 import bsm2_python.bsm2.init.thickenerinit_bsm2 as thickenerinit
 from bsm2_python.bsm2 import aerationcontrol
-from bsm2_python.bsm2.init import primclarinit_bsm2 as primclarinit
 from bsm2_python.bsm2.adm1_bsm2 import ADM1Reactor
 from bsm2_python.bsm2.asm1_bsm2 import ASM1reactor
 from bsm2_python.bsm2.dewatering_bsm2 import Dewatering
 from bsm2_python.bsm2.helpers_bsm2 import Combiner, Splitter
+from bsm2_python.bsm2.init import aerationcontrolinit
+from bsm2_python.bsm2.init import primclarinit_bsm2 as primclarinit
 from bsm2_python.bsm2.primclar_bsm2 import PrimaryClarifier
 from bsm2_python.bsm2.settler1d_bsm2 import Settler
 from bsm2_python.bsm2.storage_bsm2 import Storage
@@ -190,7 +190,7 @@ class BSM2CL:
 
         if data_in is None:
             # dyninfluent from BSM2:
-            with open(path_name + '/../data/dyninfluent_bsm2.csv', encoding='utf-8-sig') as f:
+            with open(path_name + '/data/dyninfluent_bsm2.csv', encoding='utf-8-sig') as f:
                 data_in = np.array(list(csv.reader(f, delimiter=','))).astype(np.float64)
 
         if endtime is None:
@@ -207,7 +207,7 @@ class BSM2CL:
             self.noise_timestep = np.array((0, self.endtime))
         elif use_noise == 1:
             if noise_file is None:
-                noise_file = path_name + '/../data/sensornoise.csv'
+                noise_file = path_name + '/data/sensornoise.csv'
             with open(noise_file, encoding='utf-8-sig') as f:
                 noise_data = np.array(list(csv.reader(f, delimiter=','))).astype(np.float64)
             if noise_data[-1, 0] < self.endtime:
@@ -318,12 +318,12 @@ class BSM2CL:
         # get influent data that is smaller than and closest to current time step
         y_in_timestep = self.y_in[np.where(self.data_time <= step)[0][-1], :]
 
-        yp_in_c, y_in_bp = self.input_splitter.outputs(y_in_timestep, (0, 0), reginit.QBYPASS)
-        y_plant_bp, y_in_as_c = self.bypass_plant.outputs(y_in_bp, (1 - reginit.QBYPASSPLANT, reginit.QBYPASSPLANT))
+        yp_in_c, y_in_bp = self.input_splitter.output(y_in_timestep, (0, 0), reginit.QBYPASS)
+        y_plant_bp, y_in_as_c = self.bypass_plant.output(y_in_bp, (1 - reginit.QBYPASSPLANT, reginit.QBYPASSPLANT))
         yp_in = self.combiner_primclar_pre.output(yp_in_c, self.yst_sp_p, self.yt_sp_p)
-        yp_uf, yp_of = self.primclar.outputs(self.timestep[i], step, yp_in)
+        yp_uf, yp_of = self.primclar.output(self.timestep[i], step, yp_in)
         y_c_as_bp = self.combiner_primclar_post.output(yp_of[:21], y_in_as_c)
-        y_bp_as, y_as_bp_c_eff = self.bypass_reactor.outputs(y_c_as_bp, (1 - reginit.QBYPASSAS, reginit.QBYPASSAS))
+        y_bp_as, y_as_bp_c_eff = self.bypass_reactor.output(y_c_as_bp, (1 - reginit.QBYPASSAS, reginit.QBYPASSAS))
 
         y_in1 = self.combiner_reactor.output(self.ys_r, y_bp_as, self.yst_sp_as, self.yt_sp_as, self.y_out5_r)
         y_out1 = self.reactor1.output(stepsize, step, y_in1)
@@ -355,23 +355,23 @@ class BSM2CL:
 
             self.controlnumber += 1
 
-        ys_in, self.y_out5_r = self.splitter_reactor.outputs(y_out5, (y_out5[14] - asm1init.QINTR, asm1init.QINTR))
+        ys_in, self.y_out5_r = self.splitter_reactor.output(y_out5, (y_out5[14] - asm1init.QINTR, asm1init.QINTR))
 
-        self.ys_r, ys_was, ys_of, _ = self.settler.outputs(stepsize, step, ys_in)
+        self.ys_r, ys_was, ys_of, _ = self.settler.output(stepsize, step, ys_in)
 
         y_eff = self.combiner_effluent.output(y_plant_bp, y_as_bp_c_eff, ys_of)
 
-        yt_uf, yt_of = self.thickener.outputs(ys_was)
-        self.yt_sp_p, self.yt_sp_as = self.splitter_thickener.outputs(
+        yt_uf, yt_of = self.thickener.output(ys_was)
+        self.yt_sp_p, self.yt_sp_as = self.splitter_thickener.output(
             yt_of, (1 - reginit.QTHICKENER2AS, reginit.QTHICKENER2AS)
         )
 
         yd_in = self.combiner_adm1.output(yt_uf, yp_uf)
-        y_out2, _, _ = self.adm1_reactor.outputs(stepsize, step, yd_in, reginit.t_op)
-        ydw_s, ydw_r = self.dewatering.outputs(y_out2)
+        y_out2, _, _ = self.adm1_reactor.output(stepsize, step, yd_in, reginit.T_OP)
+        ydw_s, ydw_r = self.dewatering.output(y_out2)
         yst_out, _ = self.storage.output(stepsize, step, ydw_r, reginit.QSTORAGE)
 
-        self.yst_sp_p, self.yst_sp_as = self.splitter_storage.outputs(
+        self.yst_sp_p, self.yst_sp_as = self.splitter_storage.output(
             yst_out, (1 - reginit.QSTORAGE2AS, reginit.QSTORAGE2AS)
         )
 

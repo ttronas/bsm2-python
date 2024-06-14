@@ -21,6 +21,8 @@ import numpy as np
 from numba import jit
 from scipy.integrate import odeint
 
+from bsm2_python.bsm2.module import Module
+
 indices_components = np.arange(21)
 SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = indices_components
 
@@ -66,7 +68,7 @@ def primclarequations(t, yp, yp_in, p_par, volume, tempmodel):
     return dyp
 
 
-class PrimaryClarifier:
+class PrimaryClarifier(Module):
     def __init__(self, volume, yp0, p_par, asm1par, x_vector, tempmodel, activate):
         """
         This is an implementation of the Otterpohl/Freund primary clarifier model.
@@ -103,7 +105,7 @@ class PrimaryClarifier:
         self.tempmodel = tempmodel
         self.activate = activate
 
-    def outputs(self, timestep, step, yp_in):
+    def output(self, timestep, step, yp_in):
         """
         Returns the overflow and underflow concentrations from a
         primary clarifier at the current time step.

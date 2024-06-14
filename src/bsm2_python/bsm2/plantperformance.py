@@ -1,6 +1,6 @@
 import numpy as np
 
-import bsm2_python.bsm2.asm1init_bsm2 as asm1init
+import bsm2_python.bsm2.init.asm1init_bsm2 as asm1init
 
 indices_components = np.arange(21)
 SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = indices_components

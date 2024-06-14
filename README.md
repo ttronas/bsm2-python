@@ -4,13 +4,13 @@ A Python implementation of the Benchmark Simulation Model 2 (BSM2) plant layout 
 A description of BSM2 can be found [here](https://iwaponline.com/ebooks/book-pdf/650794/wio9781780401171.pdf).
 
 ## To-Do:
-- [ ] Lukas: Get your fingers on hatch and find out how to use it inside IDEs (perhaps share your experience inside [CONTRIBUTING.md](CONTRIBUTING.md)):D
-- [ ] Lukas: put init files in separate folder
-- [ ] Lukas: Write parent class for all BSM2 objects (e.g. methods `stabilize` or `simulate`)
-- [x] Jonas: Implement containerised tests as part of the CI/CD pipeline
+- [x] Lukas: Get your fingers on hatch and find out how to use it inside IDEs (perhaps share your experience inside [CONTRIBUTING.md](CONTRIBUTING.md)):D
+- [x] Lukas: put init files in separate folder
+- [x] Lukas: Write parent class for all BSM2 objects (e.g. methods `stabilize` or `simulate`)
 - [ ] Lukas: Import different plant setups - including BSM2OLEM (BSM2 open loop with energy management)
-- [ ] Lukas: Write simple controller (focusing on kla and gas management control based on electricity prices)
+- [x] Lukas: Write simple controller (focusing on kla and gas management control based on electricity prices)
 - [ ] Nick: Write docs!
+- [ ] Jonas: Remove dependency from `pandas` to `matplotlib`
 
 ## Installation
 To run the project, build it yourself via `hatch build`.
@@ -45,12 +45,19 @@ bsm2-python
 |   └────Jupyter notebooks as explanatory examples
 ├───src
 │   └────bsm2_python
-│        |   └─Root folder of the project code
+│        |      └─Root folder of the project code
+│        │        Contains pre-defined plant layouts and controllers
 │        ├───bsm2
-│        │   └─All modules for the BSM2 plant layouts
+│        │   │  └─All modules for the BSM2 plant layouts
+│        │   └───init
+│        │       └─Initialisation files for the BSM2 plant layouts
 │        └───data
-│           └─Standard datasets for influent data
-│             and sensor noise
+│        │      └─Standard datasets for influent data
+│        │        and sensor noise
+│        └───gas_management
+│            │  └─Modules for the gas management side of the BSM2 plant
+│            └───init
+│                └─Initialisation files for the gas management side
 └───tests
     |  └─Unit tests for the BSM2 components in both
     │    steady state and dynamic mode

@@ -1,35 +1,46 @@
 import numpy as np
-from bsm2_python.gas_management.gases.gases import GasMix
-from bsm2_python.gas_management.module import Module
-from numba import float64, boolean, int32
+from numba import boolean, float64, int32
 from numba.experimental import jitclass
 
-@jitclass(spec=[
-    # ============ Module ============
-    ('global_time', float64),
-    ('runtime', float64),
-    ('remaining_maintenance_time', float64),
-    ('products', float64[:]),
-    ('consumption', float64[:]),
-    ('time_since_last_maintenance', float64),
-    ('total_maintenance_time', float64),
-    ('maintenance_cost_per_hour', float64),
-    ('MTTF', float64),
-    ('MTTR', float64),
-    ('under_maintenance', boolean),
-    ('load', float64),
-    # ============ Boiler ============
-    ('max_gas_power_uptake', float64),
-    ('efficiency_rules', float64[:,:]),
-    ('stepless_intervals', boolean),
-    ('minimum_load', float64),
-    ('maintenance_cost_per_hour', float64),
-    ('capex', int32),
-    ('biogas', GasMix.class_type.instance_type),
-])
+from bsm2_python.gas_management.gases.gases import GasMix
+from bsm2_python.gas_management.module import Module
+
+
+@jitclass(
+    spec=[
+        # ============ Module ============
+        ('global_time', float64),
+        ('_runtime', float64),
+        ('_remaining_maintenance_time', float64),
+        ('_products', float64[:]),
+        ('_consumption', float64[:]),
+        ('_time_since_last_maintenance', float64),
+        ('_total_maintenance_time', float64),
+        ('maintenance_cost_per_hour', float64),
+        ('mttf', float64),
+        ('mttr', float64),
+        ('_under_maintenance', boolean),
+        ('_load', float64),
+        # ============ Boiler ============
+        ('max_gas_power_uptake', float64),
+        ('efficiency_rules', float64[:, :]),
+        ('stepless_intervals', boolean),
+        ('minimum_load', float64),
+        ('maintenance_cost_per_hour', float64),
+        ('capex', int32),
+        ('biogas', GasMix.class_type.instance_type),
+    ]
+)
 class Boiler(Module):
-    def __init__(self, max_gas_power_uptake: int, efficiency_rules: np.ndarray, stepless_intervals: boolean,
-                 minimum_load: float, capex: int, biogas: GasMix):
+    def __init__(
+        self,
+        max_gas_power_uptake: int,
+        efficiency_rules: np.ndarray,
+        stepless_intervals: boolean,
+        minimum_load: float,
+        capex: int,
+        biogas: GasMix,
+    ):
         """
         A class that represents a boiler.
         Arguments:
@@ -45,18 +56,21 @@ class Boiler(Module):
         self.stepless_intervals = stepless_intervals
         self.minimum_load = minimum_load
         self.capex = capex
-        self.products = np.array([0.0])
-        self.consumption = np.array([0.0])
+        self._products = np.array([0.0])
+        self._consumption = np.array([0.0])
         self.biogas = biogas
+        self._load = 0.0
 
     def get_efficiencies(self, load: float):
         """
         Returns the efficiency of the boiler at a certain load.
         """
-        if load - self.minimum_load < -1e-5:
-            if load > 1e-5:
-                print("Warning: Load below minimum load, efficiencies set to 0")
-            return np.array([0.])
+        threshold = 1e-5
+        if load - self.minimum_load < -threshold:
+            if load > threshold:
+                # logging.warning('Load below minimum load, efficiencies set to 0')
+                pass
+            return np.array([0.0])
         else:
             closest_rule = np.argmin(np.abs(self.efficiency_rules[:, 0] - load))
             # thermal efficiency
@@ -66,10 +80,12 @@ class Boiler(Module):
         """
         Returns the consumption of the boiler at a certain load.
         """
-        if load - self.minimum_load < -1e-5:
-            if load > 1e-5:
-                print("Warning: Load below minimum load, consumption set to 0")
-            return np.array([0.])
+        threshold = 1e-5
+        if load - self.minimum_load < -threshold:
+            if load > threshold:
+                # logging.warning('Load below minimum load, consumption set to 0')
+                pass
+            return np.array([0.0])
         else:
             return np.array([self.max_gas_power_uptake * load / self.biogas.h_u])
 
@@ -77,10 +93,12 @@ class Boiler(Module):
         """
         Returns the products of the boiler at a certain load.
         """
-        if load - self.minimum_load < -1e-5:
-            if load > 1e-5:
-                print("Warning: Load below minimum load, products set to 0")
-            return np.array([0.])
+        threshold = 1e-5
+        if load - self.minimum_load < -threshold:
+            if load > threshold:
+                # logging.warning('Load below minimum load, products set to 0')
+                pass
+            return np.array([0.0])
         else:
             th_power = self.max_gas_power_uptake * self.get_efficiencies(load)[0] * load
             return np.array([th_power])
@@ -89,14 +107,13 @@ class Boiler(Module):
         """
         Returns the consumption of the boiler at the current load.
         """
-        return self.get_consumption(self.Load)
+        return self.get_consumption(self._load)
 
     def produce(self) -> np.ndarray:
         """
         Returns the products of the boiler at the current load.
         """
-        return self.get_products(self.Load)
-
+        return self.get_products(self._load)
 
     def calculate_load(self, power_demand: float) -> float:
         """
@@ -104,9 +121,9 @@ class Boiler(Module):
         """
         max_heat_output = self.max_gas_power_uptake * self.get_efficiencies(1.0)[0]
         if power_demand <= 0.0:
-            return float(0.0)
+            return 0.0
         elif power_demand >= max_heat_output:
-            return float(1.0)
+            return 1.0
         else:
             load = power_demand / max_heat_output
             if load < self.minimum_load:
@@ -115,7 +132,8 @@ class Boiler(Module):
                 return load
 
     def calculate_maintenance_time(self) -> float:
-        return self.MTTR
+        return self.mttr
 
-    def check_failure(self) -> bool:
+    @staticmethod
+    def check_failure() -> bool:
         return False

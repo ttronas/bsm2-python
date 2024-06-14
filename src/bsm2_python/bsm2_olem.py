@@ -10,51 +10,51 @@ import os
 
 import numpy as np
 
-import bsm2.init.adm1init_bsm2 as adm1init
-import bsm2.init.asm1init_bsm2 as asm1init
-import bsm2.init.dewateringinit_bsm2 as dewateringinit
-import bsm2.init.reginit_bsm2 as reginit
-import bsm2.init.settler1dinit_bsm2 as settler1dinit
-import bsm2.init.storageinit_bsm2 as storageinit
-import bsm2.init.thickenerinit_bsm2 as thickenerinit
-from bsm2.init import primclarinit_bsm2 as primclarinit
+import bsm2_python.bsm2.init.adm1init_bsm2 as adm1init
+import bsm2_python.bsm2.init.asm1init_bsm2 as asm1init
+import bsm2_python.bsm2.init.dewateringinit_bsm2 as dewateringinit
+import bsm2_python.bsm2.init.reginit_bsm2 as reginit
+import bsm2_python.bsm2.init.settler1dinit_bsm2 as settler1dinit
+import bsm2_python.bsm2.init.storageinit_bsm2 as storageinit
+import bsm2_python.bsm2.init.thickenerinit_bsm2 as thickenerinit
 from bsm2_python.bsm2.adm1_bsm2 import ADM1Reactor
 from bsm2_python.bsm2.asm1_bsm2 import ASM1reactor
-from bsm2_python.controller_oxygen import ControllerOxygen
 from bsm2_python.bsm2.dewatering_bsm2 import Dewatering
 from bsm2_python.bsm2.helpers_bsm2 import Combiner, Splitter
+from bsm2_python.bsm2.init import primclarinit_bsm2 as primclarinit
 from bsm2_python.bsm2.plantperformance_step import PlantPerformance
 from bsm2_python.bsm2.primclar_bsm2 import PrimaryClarifier
 from bsm2_python.bsm2.settler1d_bsm2 import Settler
 from bsm2_python.bsm2.storage_bsm2 import Storage
 from bsm2_python.bsm2.thickener_bsm2 import Thickener
-
-from bsm2_python.gas_management.fermenter import Fermenter
-import bsm2_python.gas_management.init.fermenter_init as fermenter_init
-from bsm2_python.gas_management.chp import CHP
-import bsm2_python.gas_management.init.chp_init as chp_init
-from bsm2_python.gas_management.boiler import Boiler
-import bsm2_python.gas_management.init.boiler_init as boiler_init
-from bsm2_python.gas_management.storage import BiogasStorage
-import bsm2_python.gas_management.init.storage_init as storage_init
-from bsm2_python.gas_management.compressor import Compressor
-import bsm2_python.gas_management.init.compressor_init as compressor_init
-from bsm2_python.gas_management.flare import Flare
-import bsm2_python.gas_management.init.flare_init as flare_init
-from bsm2_python.gas_management.cooler import Cooler
-import bsm2_python.gas_management.init.cooler_init as cooler_init
-from bsm2_python.gas_management.heat_net import HeatNet
-import bsm2_python.gas_management.init.heat_net_init as heat_net_init
-from bsm2_python.gas_management.evaluation import Evaluation
-from bsm2_python.gas_management.economics import Economics
 from bsm2_python.controller_energy import ControllerEnergy
-
-from bsm2_python.gas_management.gases.gases import h2o, o2, biogas, ch4
+from bsm2_python.controller_oxygen import ControllerOxygen
+from bsm2_python.gas_management.boiler import Boiler
+from bsm2_python.gas_management.chp import CHP
+from bsm2_python.gas_management.compressor import Compressor
+from bsm2_python.gas_management.cooler import Cooler
+from bsm2_python.gas_management.economics import Economics
+from bsm2_python.gas_management.evaluation import Evaluation
+from bsm2_python.gas_management.fermenter import Fermenter
+from bsm2_python.gas_management.flare import Flare
+from bsm2_python.gas_management.gases.gases import BIOGAS, CH4, H2O, O2
+from bsm2_python.gas_management.heat_net import HeatNet
+from bsm2_python.gas_management.init import (
+    boiler_init,
+    chp_init,
+    compressor_init,
+    cooler_init,
+    fermenter_init,
+    flare_init,
+    heat_net_init,
+    storage_init,
+)
+from bsm2_python.gas_management.storage import BiogasStorage
 
 path_name = os.path.dirname(__file__)
 
 
-class BSM2_OLEM:
+class BSM2OLEM:
     def __init__(
         self,
         data_in=None,
@@ -234,39 +234,90 @@ class BSM2_OLEM:
 
         self.fermenter = Fermenter(fermenter_init.CAPEX_SP, fermenter_init.OPEX_FACTOR, reginit.T_OP)
 
-        chp1 = CHP(chp_init.MAX_POWER_1, chp_init.EFFICIENCY_RULES_1, chp_init.STEPLESS_INTERVALS_1,
-                   chp_init.MINIMUM_LOAD_1, chp_init.FAILURE_RULES_1[0], chp_init.FAILURE_RULES_1[1], chp_init.CAPEX_1,
-                   biogas)
-        chp2 = CHP(chp_init.MAX_POWER_2, chp_init.EFFICIENCY_RULES_2, chp_init.STEPLESS_INTERVALS_2,
-                   chp_init.MINIMUM_LOAD_2, chp_init.FAILURE_RULES_2[0], chp_init.FAILURE_RULES_2[1], chp_init.CAPEX_2,
-                   biogas)
-        self.chps = list([chp1, chp2])
+        chp1 = CHP(
+            chp_init.MAX_POWER_1,
+            chp_init.EFFICIENCY_RULES_1,
+            chp_init.MINIMUM_LOAD_1,
+            chp_init.FAILURE_RULES_1[0],
+            chp_init.FAILURE_RULES_1[1],
+            chp_init.CAPEX_1,
+            BIOGAS,
+            stepless_intervals=chp_init.STEPLESS_INTERVALS_1,
+        )
+        chp2 = CHP(
+            chp_init.MAX_POWER_2,
+            chp_init.EFFICIENCY_RULES_2,
+            chp_init.MINIMUM_LOAD_2,
+            chp_init.FAILURE_RULES_2[0],
+            chp_init.FAILURE_RULES_2[1],
+            chp_init.CAPEX_2,
+            BIOGAS,
+            stepless_intervals=chp_init.STEPLESS_INTERVALS_2,
+        )
+        self.chps = [chp1, chp2]
 
-        boiler1 = Boiler(boiler_init.MAX_POWER_1, boiler_init.EFFICIENCY_RULES_1, boiler_init.STEPLESS_INTERVALS_1,
-                         boiler_init.MINIMUM_LOAD_1, boiler_init.CAPEX_1, biogas)
-        self.boilers = list([boiler1])
+        boiler1 = Boiler(
+            boiler_init.MAX_POWER_1,
+            boiler_init.EFFICIENCY_RULES_1,
+            boiler_init.STEPLESS_INTERVALS_1,
+            boiler_init.MINIMUM_LOAD_1,
+            boiler_init.CAPEX_1,
+            BIOGAS,
+        )
+        self.boilers = [boiler1]
 
-        self.biogas_storage = BiogasStorage(storage_init.MAX_VOL, storage_init.P_STORE, storage_init.VOL_INIT,
-                                            storage_init.CAPEX_SP, storage_init.OPEX_FACTOR, biogas,
-                                            self.fermenter.get_composition())
+        self.biogas_storage = BiogasStorage(
+            storage_init.MAX_VOL,
+            storage_init.P_STORE,
+            storage_init.VOL_INIT,
+            storage_init.CAPEX_SP,
+            storage_init.OPEX_FACTOR,
+            BIOGAS,
+            self.fermenter.get_composition(),
+        )
 
-        self.compressor = Compressor(biogas, self.fermenter.P_gas, self.biogas_storage.p_store,
-                                     compressor_init.EFFICIENCY, self.fermenter.gas_production * 2, self.fermenter.T_op,
-                                     compressor_init.OPEX_FACTOR)
+        self.compressor = Compressor(
+            BIOGAS,
+            self.fermenter.p_gas,
+            self.biogas_storage.p_store,
+            compressor_init.EFFICIENCY,
+            self.fermenter.gas_production * 2,
+            self.fermenter.t_op,
+            compressor_init.OPEX_FACTOR,
+        )
 
         self.flare = Flare(flare_init.CAPEX, flare_init.MAX_GAS_UPTAKE, flare_init.FLARE_THRESHOLD)
 
         self.cooler = Cooler(cooler_init.CAPEX, cooler_init.MAX_HEAT)
 
-        self.heat_net = HeatNet(h2o.cp_l, heat_net_init.TEMP_INIT, heat_net_init.VOL_FLOW * h2o.rho_l,
-                                heat_net_init.TEMP_THRESHOLDS[0], heat_net_init.TEMP_THRESHOLDS[1])
+        self.heat_net = HeatNet(
+            H2O.cp_l,
+            heat_net_init.TEMP_INIT,
+            heat_net_init.VOL_FLOW * H2O.rho_l,
+            heat_net_init.TEMP_THRESHOLDS[0],
+            heat_net_init.TEMP_THRESHOLDS[1],
+        )
 
-        self.evaluator = Evaluation(round(self.endtime / self.timestep[0]), len(self.chps), len(self.boilers),
-                                    self.chps[0].report_status().shape[0], self.boilers[0].report_status().shape[0],
-                                    self.flare.report_status().shape[0], self.cooler.report_status().shape[0])
+        self.evaluator = Evaluation(
+            len(self.simtime),
+            len(self.chps),
+            len(self.boilers),
+            self.chps[0].report_status().shape[0],
+            self.boilers[0].report_status().shape[0],
+            self.flare.report_status().shape[0],
+            self.cooler.report_status().shape[0],
+        )
 
-        self.economics = Economics(self.chps, self.boilers, self.biogas_storage, self.compressor, self.fermenter,
-                                   self.flare, self.heat_net, self.cooler)
+        self.economics = Economics(
+            self.chps,
+            self.boilers,
+            self.biogas_storage,
+            self.compressor,
+            self.fermenter,
+            self.flare,
+            self.heat_net,
+            self.cooler,
+        )
 
         gas_storage_rules = np.array([chp_init.STORAGE_RULES_1, chp_init.STORAGE_RULES_2])
         num_gas_storage_rules = np.count_nonzero(~np.isnan(gas_storage_rules[:, :, 0]), axis=1)
@@ -274,7 +325,9 @@ class BSM2_OLEM:
         self.timestep_hour = self.timestep[0] / (1 / 24)
 
         self.operator = ControllerEnergy(
-            biogas, o2, ch4,
+            BIOGAS,
+            O2,
+            CH4,
             gas_storage_rules,
             num_gas_storage_rules,
             gas_storage_above_threshold,
@@ -284,22 +337,19 @@ class BSM2_OLEM:
             round(1 / self.timestep_hour),
         )
 
-    def step(
-        self,
-        i: int,
-        stabilized: bool
-    ):
+    def step(self, i: int, *, stabilized: bool):
         """
-                Simulates one time step of the BSM2 model.
+        Simulates one time step of the BSM2 model.
 
-                Parameters
-                ----------
-                i : int
-                    Index of the current time step
-                """
-        S_NH_reactors = np.array(
-            [self.reactor1.y0[9], self.reactor2.y0[9], self.reactor3.y0[9], self.reactor4.y0[9], self.reactor5.y0[9]])
-        klas = self.controller.get_klas(i, S_NH_reactors)
+        Parameters
+        ----------
+        i : int
+            Index of the current time step
+        """
+        s_nh_reactors = np.array(
+            [self.reactor1.y0[9], self.reactor2.y0[9], self.reactor3.y0[9], self.reactor4.y0[9], self.reactor5.y0[9]]
+        )
+        klas = self.controller.get_klas(i, s_nh_reactors)
 
         step: float = self.simtime[i]
         stepsize: float = self.timestep[i]
@@ -313,12 +363,12 @@ class BSM2_OLEM:
         # get influent data that is smaller than and closest to current time step
         y_in_timestep = self.y_in[np.where(self.data_time <= step)[0][-1], :]
 
-        yp_in_c, y_in_bp = self.input_splitter.outputs(y_in_timestep, (0, 0), reginit.QBYPASS)
-        y_plant_bp, y_in_as_c = self.bypass_plant.outputs(y_in_bp, (1 - reginit.QBYPASSPLANT, reginit.QBYPASSPLANT))
+        yp_in_c, y_in_bp = self.input_splitter.output(y_in_timestep, (0, 0), reginit.QBYPASS)
+        y_plant_bp, y_in_as_c = self.bypass_plant.output(y_in_bp, (1 - reginit.QBYPASSPLANT, reginit.QBYPASSPLANT))
         yp_in = self.combiner_primclar_pre.output(yp_in_c, self.yst_sp_p, self.yt_sp_p)
-        yp_uf, yp_of = self.primclar.outputs(self.timestep[i], step, yp_in)
+        yp_uf, yp_of = self.primclar.output(self.timestep[i], step, yp_in)
         y_c_as_bp = self.combiner_primclar_post.output(yp_of[:21], y_in_as_c)
-        y_bp_as, y_as_bp_c_eff = self.bypass_reactor.outputs(y_c_as_bp, (1 - reginit.QBYPASSAS, reginit.QBYPASSAS))
+        y_bp_as, y_as_bp_c_eff = self.bypass_reactor.output(y_c_as_bp, (1 - reginit.QBYPASSAS, reginit.QBYPASSAS))
 
         y_in1 = self.combiner_reactor.output(self.ys_r, y_bp_as, self.yst_sp_as, self.yt_sp_as, self.y_out5_r)
         y_out1 = self.reactor1.output(stepsize, step, y_in1)
@@ -326,23 +376,23 @@ class BSM2_OLEM:
         y_out3 = self.reactor3.output(stepsize, step, y_out2)
         y_out4 = self.reactor4.output(stepsize, step, y_out3)
         y_out5 = self.reactor5.output(stepsize, step, y_out4)
-        ys_in, self.y_out5_r = self.splitter_reactor.outputs(y_out5, (y_out5[14] - asm1init.QINTR, asm1init.QINTR))
+        ys_in, self.y_out5_r = self.splitter_reactor.output(y_out5, (y_out5[14] - asm1init.QINTR, asm1init.QINTR))
 
-        self.ys_r, ys_was, ys_of, _ = self.settler.outputs(stepsize, step, ys_in)
+        self.ys_r, ys_was, ys_of, _ = self.settler.output(stepsize, step, ys_in)
 
         y_eff = self.combiner_effluent.output(y_plant_bp, y_as_bp_c_eff, ys_of[:21])
 
-        yt_uf, yt_of = self.thickener.outputs(ys_was)
-        self.yt_sp_p, self.yt_sp_as = self.splitter_thickener.outputs(
+        yt_uf, yt_of = self.thickener.output(ys_was)
+        self.yt_sp_p, self.yt_sp_as = self.splitter_thickener.output(
             yt_of[:21], (1 - reginit.QTHICKENER2AS, reginit.QTHICKENER2AS)
         )
 
         self.yd_in = self.combiner_adm1.output(yt_uf, yp_uf)
-        y_out2, self.yd_out, _ = self.adm1_reactor.outputs(stepsize, step, self.yd_in, reginit.T_OP)
-        ydw_s, ydw_r = self.dewatering.outputs(y_out2)
+        y_out2, self.yd_out, _ = self.adm1_reactor.output(stepsize, step, self.yd_in, reginit.T_OP)
+        ydw_s, ydw_r = self.dewatering.output(y_out2)
         yst_out, _ = self.storage.output(stepsize, step, ydw_r, reginit.QSTORAGE)
 
-        self.yst_sp_p, self.yst_sp_as = self.splitter_storage.outputs(
+        self.yst_sp_p, self.yst_sp_as = self.splitter_storage.output(
             yst_out, (1 - reginit.QSTORAGE2AS, reginit.QSTORAGE2AS)
         )
 
@@ -366,22 +416,33 @@ class BSM2_OLEM:
             gas_production, gas_parameters = self.get_gas_production()
             electricity_demand = self.get_electricity_demand()
             heat_demand = self.get_heat_demand()
-            alpha_SAE = 2.5  # aeration efficiency in standard conditions in process water, 25 kgO2/kWh, src: T. Frey, Invent Umwelt- und Verfahrenstechnik AG
-            oxygen_demand = electricity_demand[0] * alpha_SAE / o2.rho_norm  # kW * kgO2/kWh / kg/Nm3 = Nm3/h
+            # aeration efficiency in standard conditions in process water (sae),
+            # 25 kgO2/kWh, src: T. Frey, Invent Umwelt- und Verfahrenstechnik AG
+            # alpha_sae = 2.5
+            # oxygen_demand = electricity_demand[0] * alpha_sae / O2.rho_norm  # kW * kgO2/kWh / kg/Nm3 = Nm3/h
 
             # gas management part
             self.fermenter.step(gas_production, gas_parameters, heat_demand, sum(electricity_demand))
-            biogas = self.biogas_storage.update_inflow(self.fermenter.gas_production, self.fermenter.get_composition(),
-                                                       self.timestep_hour)
+            biogas = self.biogas_storage.update_inflow(
+                self.fermenter.gas_production, self.fermenter.get_composition(), self.timestep_hour
+            )
             self.operator.biogas = biogas
             for chp in self.chps:
                 chp.biogas = biogas
             for boiler in self.boilers:
                 boiler.biogas = biogas
 
-            self.operator.schedule_production(self.timestep_hour, self.chps, self.boilers, self.biogas_storage, self.cooler,
-                                              self.flare, self.heat_net, self.fermenter.heat_demand,
-                                              self.fermenter.gas_production)
+            self.operator.schedule_production(
+                self.timestep_hour,
+                self.chps,
+                self.boilers,
+                self.biogas_storage,
+                self.cooler,
+                self.flare,
+                self.heat_net,
+                self.fermenter.heat_demand,
+                self.fermenter.gas_production,
+            )
 
             [chp.step(self.timestep_hour) for chp in self.chps]
             [boiler.step(self.timestep_hour) for boiler in self.boilers]
@@ -390,25 +451,36 @@ class BSM2_OLEM:
             self.compressor.step(self.timestep_hour)
 
             self.heat_net.update_temperature(
-                np.sum([boiler.Products[boiler_init.HEAT] * self.timestep_hour for boiler in self.boilers])
-                + np.sum([chp.Products[chp_init.HEAT] * self.timestep_hour for chp in self.chps])
+                np.sum([boiler.products[boiler_init.HEAT] * self.timestep_hour for boiler in self.boilers])
+                + np.sum([chp.products[chp_init.HEAT] * self.timestep_hour for chp in self.chps])
                 - self.fermenter.heat_demand * self.timestep_hour
-                - self.cooler.Consumption[cooler_init.HEAT] * self.timestep_hour
+                - self.cooler.consumption[cooler_init.HEAT] * self.timestep_hour
             )
 
-            biogas_net_outflow = np.sum([chp.Consumption[chp_init.BIOGAS] for chp in self.chps]) + \
-                                 np.sum([boiler.Consumption[boiler_init.BIOGAS] for boiler in self.boilers]) + \
-                                 self.flare.Consumption[flare_init.BIOGAS]
+            biogas_net_outflow = (
+                np.sum([chp.consumption[chp_init.BIOGAS] for chp in self.chps])
+                + np.sum([boiler.consumption[boiler_init.BIOGAS] for boiler in self.boilers])
+                + self.flare.consumption[flare_init.BIOGAS]
+            )
 
             self.biogas_storage.update_outflow(biogas_net_outflow, self.timestep_hour)
 
             net_electricity = self.fermenter.electricity_demand - np.sum(
-                [chp.Products[chp_init.ELECTRICITY] for chp in self.chps])
+                [chp.products[chp_init.ELECTRICITY] for chp in self.chps]
+            )
 
-            self.evaluator.calculate_data(i, self.fermenter, self.chps, self.boilers, self.flare, self.cooler,
-                                          self.biogas_storage, self.heat_net,
-                                          self.economics.get_income(net_electricity, i, self.timestep_hour),
-                                          self.economics.get_expenditures(net_electricity, i, self.timestep_hour))
+            self.evaluator.calculate_data(
+                i,
+                self.fermenter,
+                self.chps,
+                self.boilers,
+                self.flare,
+                self.cooler,
+                self.biogas_storage,
+                self.heat_net,
+                self.economics.get_income(net_electricity, i, self.timestep_hour),
+                self.economics.get_expenditures(net_electricity, i, self.timestep_hour),
+            )
 
     def stabilize(self, atol: float = 1e-3):
         """
@@ -443,7 +515,7 @@ class BSM2_OLEM:
         while not stable:
             i += 1
             logging.debug('Stabilizing iteration %s', i)
-            self.step(s, stable)
+            self.step(s, stabilized=stable)
             check_vars = np.concatenate(
                 [
                     self.y_eff_all[s],
@@ -479,7 +551,15 @@ class BSM2_OLEM:
         kla = np.array([self.reactor1.kla, self.reactor2.kla, self.reactor3.kla, self.reactor4.kla, self.reactor5.kla])
 
         # aerationenergy:
-        vol = np.array([self.reactor1.volume, self.reactor2.volume, self.reactor3.volume, self.reactor4.volume, self.reactor5.volume])
+        vol = np.array(
+            [
+                self.reactor1.volume,
+                self.reactor2.volume,
+                self.reactor3.volume,
+                self.reactor4.volume,
+                self.reactor5.volume,
+            ]
+        )
         sosat = np.array([asm1init.SOSAT1, asm1init.SOSAT2, asm1init.SOSAT3, asm1init.SOSAT4, asm1init.SOSAT5])
 
         ae = self.plantperformance.aerationenergy(kla, vol, sosat)
@@ -505,13 +585,13 @@ class BSM2_OLEM:
             Heat demand of the plant
         """
         # heat demand:
-        T_in = self.yd_in[15]  # °C
+        t_in = self.yd_in[15]  # °C
         inflow = self.yd_in[14] / 24  # m3/d -> m3/h
 
         h2o_rho_l = 998  # kg/m³
         h2o_cp_l = 4.18  # kJ/kg/K
         # delta T [K] * inflow [m3/h] * density [kg/m3] * specific heat capacity [kJ/kgK] / 3600 [kJ/kWh] = kW
-        heat_demand = ((reginit.T_OP - 273.15) - T_in) * inflow * h2o_rho_l * h2o_cp_l / 3600
+        heat_demand = ((reginit.T_OP - 273.15) - t_in) * inflow * h2o_rho_l * h2o_cp_l / 3600
 
         return heat_demand
 
