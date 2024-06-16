@@ -56,6 +56,7 @@ class Economics:
             for price in data:
                 prices.append(price[0])
             self.electricity_prices = np.array(prices).astype(np.float64)
+        self.cum_cash_flow = 0
 
     @staticmethod
     def calculate_debt_payment_timestep(time_diff: float, investment: float):
@@ -150,12 +151,13 @@ class Economics:
         )
 
     def get_income(self, net_electricity_wwtp, step, time_diff):
+        income = 0
         if net_electricity_wwtp < 0 and self.electricity_prices[step] > 0:
-            return -net_electricity_wwtp * self.electricity_prices[step] * time_diff
+            income = -net_electricity_wwtp * self.electricity_prices[step] * time_diff
         elif net_electricity_wwtp > 0 and self.electricity_prices[step] < 0:
-            return net_electricity_wwtp * -self.electricity_prices[step] * time_diff
-        else:
-            return 0
+            income = net_electricity_wwtp * -self.electricity_prices[step] * time_diff
+        self.cum_cash_flow += income
+        return income
 
     def get_expenditures(self, net_electricity_wwtp, step, time_diff):
         expenditure_capex = self.get_total_capex(time_diff)
@@ -165,4 +167,5 @@ class Economics:
             expenditure_electricity = net_electricity_wwtp * self.electricity_prices[step] * time_diff
         elif net_electricity_wwtp < 0 and self.electricity_prices[step] < 0:
             expenditure_electricity = net_electricity_wwtp * self.electricity_prices[step] * time_diff
+        self.cum_cash_flow -= expenditure_capex + expenditure_opex + expenditure_electricity
         return expenditure_capex + expenditure_opex + expenditure_electricity

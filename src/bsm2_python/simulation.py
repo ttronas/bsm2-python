@@ -14,7 +14,7 @@ The parameters 'tempmodel' and 'activate' can be set to 'True' if you want to ac
 import logging
 import sys
 
-from bsm2_olem import BSM2_OLEM
+from bsm2_olem import BSM2OLEM
 
 logging.basicConfig(
     format='%(asctime)s.%(msecs)03d %(levelname)-8s %(message)s',
@@ -24,14 +24,10 @@ logging.basicConfig(
 )
 logging.root.setLevel(logging.INFO)
 
-TOTAL_SIM_STEPS = 35028
-
-logging.info(str(TOTAL_SIM_STEPS) + ' sim steps\n')
-
 logging.info('Initialize bsm2\n')
 
-timestep = 15 / 24 / 60  # 15 minutes in days
-endtime = TOTAL_SIM_STEPS * timestep
+timestep = 15 / 24 / 60  # 15 minutes in fraction of a day
+endtime = 50  # 50 days
 
 tempmodel = (
     False  # if tempmodel is False influent wastewater temperature is just passed through process reactors and settler
@@ -41,20 +37,20 @@ tempmodel = (
 activate = False  # if activate is False dummy states are 0
 # if activate is True dummy states are activated
 
-bsm2 = BSM2_OLEM(timestep=timestep, endtime=endtime, tempmodel=tempmodel, activate=activate)
+bsm2 = BSM2OLEM(timestep=timestep, endtime=endtime, tempmodel=tempmodel, activate=activate)
 
 logging.info('Stabilize bsm2\n')
 
-bsm2.stabilize()
+# bsm2.stabilize()
 
 logging.info('Start simulation\n')
-for i in range(0, TOTAL_SIM_STEPS):
-    bsm2.step(i, True)
+for i, _ in enumerate(bsm2.simtime):
+    bsm2.step(i, stabilized=True)
 
     if i % 1000 == 0:
-        logging.info('timestep: ' + str(i) + ' of ' + str(TOTAL_SIM_STEPS) + '\n')
+        logging.info('timestep: ' + str(i) + ' of ' + str(bsm2.simtime) + '\n')
 
-    if i == TOTAL_SIM_STEPS - 1:
+    if i == bsm2.simtime - 1:
         bsm2.finish_evaluation()
         logging.info('Simulation finished\n')
         break

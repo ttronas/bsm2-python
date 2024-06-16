@@ -13,7 +13,7 @@ STORAGE_RULES_1 = np.array(
         # above 15% biogas storage fill level, tendency doesn't matter, full load
         [0.15, 0, 1],
         # above 10% biogas storage fill level, tendency positive, 50% load
-        [0.1, 0, 0.54],
+        [0.1, 1, 0.54],
     ]
 )
 STORAGE_RULES_2 = np.array(
@@ -22,7 +22,7 @@ STORAGE_RULES_2 = np.array(
         # above 15% biogas storage fill level, tendency doesn't matter, full load
         [0.15, 0, 1],
         # above 10% biogas storage fill level, tendency positive, 50% load
-        [0.1, 0, 0.54],
+        [0.1, 1, 0.54],
     ]
 )
 

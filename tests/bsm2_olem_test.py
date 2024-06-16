@@ -22,11 +22,12 @@ def test_bsm2_olem():
 
     bsm2_olem.stabilize()
     for i, _ in enumerate(tqdm(bsm2_olem.simtime)):
+        print(i, bsm2_olem.simtime)
         bsm2_olem.step(i, stabilized=True)
         if i % 1000 == 0:
             logging.info(i)
 
-    cumulative_cash_flow_simulated = np.array([bsm2_olem.evaluator.economics_all[-1, 2]])
+    cumulative_cash_flow_simulated = np.array([bsm2_olem.economics.cum_cash_flow])
     cumulative_cash_flow_expected = np.array([15931573.30219831])
 
     assert np.allclose(cumulative_cash_flow_simulated, cumulative_cash_flow_expected, rtol=1e-2)

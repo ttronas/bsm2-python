@@ -27,14 +27,13 @@ from bsm2_python.bsm2.primclar_bsm2 import PrimaryClarifier
 from bsm2_python.bsm2.settler1d_bsm2 import Settler
 from bsm2_python.bsm2.storage_bsm2 import Storage
 from bsm2_python.bsm2.thickener_bsm2 import Thickener
-from bsm2_python.controller_energy import ControllerEnergy
-from bsm2_python.controller_oxygen import ControllerOxygen
+from bsm2_python.controller import Controller
+from bsm2_python.evaluation import Evaluation
 from bsm2_python.gas_management.boiler import Boiler
 from bsm2_python.gas_management.chp import CHP
 from bsm2_python.gas_management.compressor import Compressor
 from bsm2_python.gas_management.cooler import Cooler
 from bsm2_python.gas_management.economics import Economics
-from bsm2_python.gas_management.evaluation import Evaluation
 from bsm2_python.gas_management.fermenter import Fermenter
 from bsm2_python.gas_management.flare import Flare
 from bsm2_python.gas_management.gases.gases import BIOGAS, CH4, H2O, O2
@@ -175,7 +174,7 @@ class BSM2OLEM:
 
         klas = np.array([reginit.KLA1, reginit.KLA2, reginit.KLA3, reginit.KLA4, reginit.KLA5])
         # scenario 5, 75th percentile, 50% reduction when S_NH below 4g/m3
-        self.controller = ControllerOxygen(timestep, 0.75, klas, 0.5, 4)
+        self.controller = Controller(timestep, 0.75, klas, 0.5, 4, BIOGAS, O2, CH4)
 
         if data_in is None:
             # dyninfluent from BSM2:
@@ -189,6 +188,7 @@ class BSM2OLEM:
         else:
             self.simtime = np.arange(0, data_in[-1, 0], timestep)
             self.timestep = timestep * np.ones(len(self.simtime) - 1)
+        self.timestep_hour = np.dot(self.timestep, 24)
 
         if endtime is None:
             self.endtime = data_in[-1, 0]
@@ -242,7 +242,8 @@ class BSM2OLEM:
             chp_init.FAILURE_RULES_1[1],
             chp_init.CAPEX_1,
             BIOGAS,
-            stepless_intervals=chp_init.STEPLESS_INTERVALS_1,
+            chp_init.STEPLESS_INTERVALS_1,
+            chp_init.STORAGE_RULES_1,
         )
         chp2 = CHP(
             chp_init.MAX_POWER_2,
@@ -252,7 +253,8 @@ class BSM2OLEM:
             chp_init.FAILURE_RULES_2[1],
             chp_init.CAPEX_2,
             BIOGAS,
-            stepless_intervals=chp_init.STEPLESS_INTERVALS_2,
+            chp_init.STEPLESS_INTERVALS_2,
+            chp_init.STORAGE_RULES_2,
         )
         self.chps = [chp1, chp2]
 
@@ -299,13 +301,7 @@ class BSM2OLEM:
         )
 
         self.evaluator = Evaluation(
-            len(self.simtime),
-            len(self.chps),
-            len(self.boilers),
-            self.chps[0].report_status().shape[0],
-            self.boilers[0].report_status().shape[0],
-            self.flare.report_status().shape[0],
-            self.cooler.report_status().shape[0],
+            path_name + '/data/'
         )
 
         self.economics = Economics(
@@ -317,24 +313,6 @@ class BSM2OLEM:
             self.flare,
             self.heat_net,
             self.cooler,
-        )
-
-        gas_storage_rules = np.array([chp_init.STORAGE_RULES_1, chp_init.STORAGE_RULES_2])
-        num_gas_storage_rules = np.count_nonzero(~np.isnan(gas_storage_rules[:, :, 0]), axis=1)
-        gas_storage_above_threshold = np.zeros(shape=(len(self.chps), gas_storage_rules.shape[1]))
-        self.timestep_hour = self.timestep[0] / (1 / 24)
-
-        self.operator = ControllerEnergy(
-            BIOGAS,
-            O2,
-            CH4,
-            gas_storage_rules,
-            num_gas_storage_rules,
-            gas_storage_above_threshold,
-            self.flare.threshold,
-            len(self.chps),
-            len(self.boilers),
-            round(1 / self.timestep_hour),
         )
 
     def step(self, i: int, *, stabilized: bool):
@@ -424,37 +402,36 @@ class BSM2OLEM:
             # gas management part
             self.fermenter.step(gas_production, gas_parameters, heat_demand, sum(electricity_demand))
             biogas = self.biogas_storage.update_inflow(
-                self.fermenter.gas_production, self.fermenter.get_composition(), self.timestep_hour
+                self.fermenter.gas_production, self.fermenter.get_composition(), self.timestep_hour[i]
             )
-            self.operator.biogas = biogas
+            self.controller.biogas = biogas
             for chp in self.chps:
                 chp.biogas = biogas
             for boiler in self.boilers:
                 boiler.biogas = biogas
 
-            self.operator.schedule_production(
-                self.timestep_hour,
+            self.controller.control_gas_management(
+                self.timestep_hour[i],
                 self.chps,
                 self.boilers,
                 self.biogas_storage,
                 self.cooler,
                 self.flare,
                 self.heat_net,
-                self.fermenter.heat_demand,
-                self.fermenter.gas_production,
+                self.fermenter,
             )
 
-            [chp.step(self.timestep_hour) for chp in self.chps]
-            [boiler.step(self.timestep_hour) for boiler in self.boilers]
-            self.flare.step(self.timestep_hour)
-            self.cooler.step(self.timestep_hour)
-            self.compressor.step(self.timestep_hour)
+            [chp.step(self.timestep_hour[i]) for chp in self.chps]
+            [boiler.step(self.timestep_hour[i]) for boiler in self.boilers]
+            self.flare.step(self.timestep_hour[i])
+            self.cooler.step(self.timestep_hour[i])
+            self.compressor.step(self.timestep_hour[i])
 
             self.heat_net.update_temperature(
-                np.sum([boiler.products[boiler_init.HEAT] * self.timestep_hour for boiler in self.boilers])
-                + np.sum([chp.products[chp_init.HEAT] * self.timestep_hour for chp in self.chps])
-                - self.fermenter.heat_demand * self.timestep_hour
-                - self.cooler.consumption[cooler_init.HEAT] * self.timestep_hour
+                np.sum([boiler.products[boiler_init.HEAT] * self.timestep_hour[i] for boiler in self.boilers])
+                + np.sum([chp.products[chp_init.HEAT] * self.timestep_hour[i] for chp in self.chps])
+                - self.fermenter.heat_demand * self.timestep_hour[i]
+                - self.cooler.consumption[cooler_init.HEAT] * self.timestep_hour[i]
             )
 
             biogas_net_outflow = (
@@ -463,24 +440,28 @@ class BSM2OLEM:
                 + self.flare.consumption[flare_init.BIOGAS]
             )
 
-            self.biogas_storage.update_outflow(biogas_net_outflow, self.timestep_hour)
+            self.biogas_storage.update_outflow(biogas_net_outflow, self.timestep_hour[i])
 
             net_electricity = self.fermenter.electricity_demand - np.sum(
                 [chp.products[chp_init.ELECTRICITY] for chp in self.chps]
             )
 
-            self.evaluator.calculate_data(
-                i,
-                self.fermenter,
-                self.chps,
-                self.boilers,
-                self.flare,
-                self.cooler,
-                self.biogas_storage,
-                self.heat_net,
-                self.economics.get_income(net_electricity, i, self.timestep_hour),
-                self.economics.get_expenditures(net_electricity, i, self.timestep_hour),
-            )
+            self.economics.get_income(net_electricity, i, self.timestep_hour[i])
+            self.economics.get_expenditures(net_electricity, i, self.timestep_hour[i])
+
+            s_nh_data = ([], [], [], float(i))
+            for j, s_nh in enumerate(s_nh_reactors):
+                s_nh_data[0].append("s_nh" + str(j+1))
+                s_nh_data[1].append("g/m3")
+                s_nh_data[2].append(s_nh)
+            kla_data = ([], [], [], float(i))
+            for j, kla in enumerate(klas):
+                kla_data[0].append("kla" + str(j+1))
+                kla_data[1].append("1/d")
+                kla_data[2].append(kla)
+            elec_data = (["demand", "price"], ["kW", "€/MWh"],
+                         [self.fermenter.electricity_demand, self.controller.electricity_prices[i]], float(i))
+            self.evaluator.update_data(data1=s_nh_data, data2=kla_data, data3=elec_data)
 
     def stabilize(self, atol: float = 1e-3):
         """
@@ -613,6 +594,6 @@ class BSM2OLEM:
         """
         Finishes the evaluation of the plant.
         """
-        self.evaluator.display_data()
+        self.evaluator.plot_data()
 
-        self.evaluator.save_data(path_name + '/../data/')
+        self.evaluator.export_data()

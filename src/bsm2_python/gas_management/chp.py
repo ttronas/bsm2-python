@@ -25,6 +25,7 @@ from bsm2_python.gas_management.module import Module
         ('max_gas_power_uptake', int32),
         ('efficiency_rules', float64[:, :]),
         ('stepless_intervals', boolean),
+        ('storage_rules', float64[:, :]),
         ('minimum_load', float64),
         ('capex', int32),
         ('biogas', GasMix.class_type.instance_type),
@@ -41,8 +42,8 @@ class CHP(Module):
         mttr: int,
         capex: int,
         biogas: GasMix,
-        *,
         stepless_intervals: bool,
+        storage_rules: np.ndarray,
     ):
         """
         A class that represents a combined heat and power unit.
@@ -55,10 +56,12 @@ class CHP(Module):
             capex: capital expenditure of the CHP
             biogas: GasMix object
             stepless_intervals: boolean, describes whether the CHP can operate at any load between minimum_load and 1
+            storage_rules: a 2D array with the storage rules of the CHP showing the gas load at different fill levels
         """
         self.max_gas_power_uptake = max_gas_power_uptake
         self.efficiency_rules = efficiency_rules
         self.stepless_intervals = stepless_intervals
+        self.storage_rules = storage_rules
         self.minimum_load = minimum_load
         self.mttf = mttf
         self.mttr = mttr
