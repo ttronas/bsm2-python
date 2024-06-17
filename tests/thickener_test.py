@@ -3,7 +3,6 @@ test thickener_bsm2.py
 """
 
 import csv
-import logging
 import os
 import time
 
@@ -12,6 +11,7 @@ from tqdm import tqdm
 
 from bsm2_python.bsm2.init import thickenerinit_bsm2 as thickenerinit
 from bsm2_python.bsm2.thickener_bsm2 import Thickener
+from logger import log
 
 path_name = os.path.dirname(__file__)
 
@@ -60,9 +60,9 @@ def test_thickener():
         yt_uf, yt_of = thickener.output(y_in)
 
     stop = time.perf_counter()
-    logging.info('Steady state simulation completed after: %s seconds', stop - start)
-    logging.info('Underflow at t = %s d: \n%s', endtime, yt_uf)
-    logging.info('Overflow at t = %s d: \n%s', endtime, yt_of)
+    log.info('Steady state simulation completed after: %s seconds', stop - start)
+    log.info('Underflow at t = %s d: \n%s', endtime, yt_uf)
+    log.info('Overflow at t = %s d: \n%s', endtime, yt_of)
 
     yt_uf_matlab = np.array(
         [
@@ -115,8 +115,8 @@ def test_thickener():
         ]
     )
 
-    logging.info('Underflow difference to MatLab solution: \n%s', str(yt_uf_matlab - yt_uf))
-    logging.info('Overflow difference to MatLab solution: \n%s', str(yt_of_matlab - yt_of))
+    log.info('Underflow difference to MatLab solution: \n%s', str(yt_uf_matlab - yt_uf))
+    log.info('Overflow difference to MatLab solution: \n%s', str(yt_of_matlab - yt_of))
 
     assert np.allclose(yt_uf, yt_uf_matlab, rtol=1e-5, atol=1e-5)
     assert np.allclose(yt_of, yt_of_matlab, rtol=1e-5, atol=1e-5)
@@ -159,9 +159,9 @@ def test_thickener_dyn():
     # np.savetxt(path_name + '/../data/test_yt_uf_all.csv', yt_uf_all, delimiter=',')
     # np.savetxt(path_name + '/../data/test_yt_of.csv', yt_of_all, delimiter=',')
 
-    logging.info('Dynamic simulation completed after: %s seconds', stop - start)
-    logging.info('Underflow at t = %s d: \n%s', endtime, yt_uf)
-    logging.info('Overflow at t = %s d: \n%s', endtime, yt_of)
+    log.info('Dynamic simulation completed after: %s seconds', stop - start)
+    log.info('Underflow at t = %s d: \n%s', endtime, yt_uf)
+    log.info('Overflow at t = %s d: \n%s', endtime, yt_of)
 
     # Values from 50 days dynamic simulation in Matlab (thickener_test_dyn.slx):
     yt_uf_matlab = np.array(
@@ -215,8 +215,8 @@ def test_thickener_dyn():
         ]
     )
 
-    logging.info('Underflow difference to MatLab solution: \n%s', str(yt_uf_matlab - yt_uf))
-    logging.info('Overflow difference to MatLab solution: \n%s', str(yt_of_matlab - yt_of))
+    log.info('Underflow difference to MatLab solution: \n%s', str(yt_uf_matlab - yt_uf))
+    log.info('Overflow difference to MatLab solution: \n%s', str(yt_of_matlab - yt_of))
 
     assert np.allclose(yt_uf, yt_uf_matlab, rtol=1e-5, atol=1e-5)
     assert np.allclose(yt_of, yt_of_matlab, rtol=1e-5, atol=1e-5)

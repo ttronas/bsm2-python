@@ -2,12 +2,12 @@
 test helpers_bsm2.py
 """
 
-import logging
 import time
 
 import numpy as np
 
 from bsm2_python.bsm2.helpers_bsm2 import Combiner, Splitter
+from logger import log
 
 
 def test_helpers():
@@ -62,14 +62,14 @@ def test_helpers():
 
     stop = time.perf_counter()
 
-    logging.info('Simulation completed after: %s seconds', stop - start)
-    logging.info('Mix: \n%s', y_mix)
-    logging.info('Split flow 1: \n%s', y_split1)
-    logging.info('Split flow 2: \n%s', y_split2)
-    logging.info('Split flow 3: \n%s', y_split3)
-    logging.info('Split flow 4: \n%s', y_split4)
-    logging.info('3 flow: \n%s', y_split3[14])
-    logging.info('4 flow: \n%s', y_split4[14])
+    log.info('Simulation completed after: %s seconds', stop - start)
+    log.info('Mix: \n%s', y_mix)
+    log.info('Split flow 1: \n%s', y_split1)
+    log.info('Split flow 2: \n%s', y_split2)
+    log.info('Split flow 3: \n%s', y_split3)
+    log.info('Split flow 4: \n%s', y_split4)
+    log.info('3 flow: \n%s', y_split3[14])
+    log.info('4 flow: \n%s', y_split4[14])
 
     y_mix_ref = np.array(
         [
@@ -109,11 +109,11 @@ def test_helpers():
         [30, 69.5, 51.2, 202.32, 28.17, 0, 0, 0, 0, 31.56, 6.95, 10.59, 7, 211.2675, 446, 15, 0, 0, 0, 0, 0]
     )
 
-    logging.info('Mix difference: \n%s', y_mix_ref - y_mix)
-    logging.info('Split flow 1 difference: \n%s', y_split1_ref - y_split1)
-    logging.info('Split flow 2 difference: \n%s', y_split2_ref - y_split2)
-    logging.info('Split flow 3 difference: \n%s', y_split3_ref - y_split3)
-    logging.info('Split flow 4 difference: \n%s', y_split4_ref - y_split4)
+    log.info('Mix difference: \n%s', y_mix_ref - y_mix)
+    log.info('Split flow 1 difference: \n%s', y_split1_ref - y_split1)
+    log.info('Split flow 2 difference: \n%s', y_split2_ref - y_split2)
+    log.info('Split flow 3 difference: \n%s', y_split3_ref - y_split3)
+    log.info('Split flow 4 difference: \n%s', y_split4_ref - y_split4)
 
     assert np.allclose(y_mix, y_mix_ref, rtol=1e-5, atol=1e-5)
     assert np.allclose(y_split1, y_split1_ref, rtol=1e-5, atol=1e-5)

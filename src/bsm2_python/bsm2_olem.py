@@ -5,7 +5,6 @@ adm1-fermenter and sludge storage in dynamic simulation without any controllers.
 """
 
 import csv
-import logging
 import os
 
 import numpy as np
@@ -27,18 +26,17 @@ from bsm2_python.bsm2.primclar_bsm2 import PrimaryClarifier
 from bsm2_python.bsm2.settler1d_bsm2 import Settler
 from bsm2_python.bsm2.storage_bsm2 import Storage
 from bsm2_python.bsm2.thickener_bsm2 import Thickener
-from bsm2_python.controller import Controller
-from bsm2_python.evaluation import Evaluation
-from bsm2_python.gas_management.boiler import Boiler
-from bsm2_python.gas_management.chp import CHP
-from bsm2_python.gas_management.compressor import Compressor
-from bsm2_python.gas_management.cooler import Cooler
-from bsm2_python.gas_management.economics import Economics
-from bsm2_python.gas_management.fermenter import Fermenter
-from bsm2_python.gas_management.flare import Flare
-from bsm2_python.gas_management.gases.gases import BIOGAS, CH4, H2O, O2
-from bsm2_python.gas_management.heat_net import HeatNet
-from bsm2_python.gas_management.init import (
+from bsm2_python.controller_em import Controller
+from bsm2_python.energy_management.boiler import Boiler
+from bsm2_python.energy_management.chp import CHP
+from bsm2_python.energy_management.compressor import Compressor
+from bsm2_python.energy_management.cooler import Cooler
+from bsm2_python.energy_management.economics import Economics
+from bsm2_python.energy_management.fermenter import Fermenter
+from bsm2_python.energy_management.flare import Flare
+from bsm2_python.energy_management.gases.gases import BIOGAS, CH4, H2O, O2
+from bsm2_python.energy_management.heat_net import HeatNet
+from bsm2_python.energy_management.init import (
     boiler_init,
     chp_init,
     compressor_init,
@@ -48,7 +46,9 @@ from bsm2_python.gas_management.init import (
     heat_net_init,
     storage_init,
 )
-from bsm2_python.gas_management.storage import BiogasStorage
+from bsm2_python.energy_management.storage import BiogasStorage
+from bsm2_python.evaluation import Evaluation
+from logger import log
 
 path_name = os.path.dirname(__file__)
 
@@ -242,8 +242,8 @@ class BSM2OLEM:
             chp_init.FAILURE_RULES_1[1],
             chp_init.CAPEX_1,
             BIOGAS,
-            chp_init.STEPLESS_INTERVALS_1,
             chp_init.STORAGE_RULES_1,
+            chp_init.STEPLESS_INTERVALS_1,
         )
         chp2 = CHP(
             chp_init.MAX_POWER_2,
@@ -253,18 +253,18 @@ class BSM2OLEM:
             chp_init.FAILURE_RULES_2[1],
             chp_init.CAPEX_2,
             BIOGAS,
-            chp_init.STEPLESS_INTERVALS_2,
             chp_init.STORAGE_RULES_2,
+            chp_init.STEPLESS_INTERVALS_2,
         )
         self.chps = [chp1, chp2]
 
         boiler1 = Boiler(
             boiler_init.MAX_POWER_1,
             boiler_init.EFFICIENCY_RULES_1,
-            boiler_init.STEPLESS_INTERVALS_1,
             boiler_init.MINIMUM_LOAD_1,
             boiler_init.CAPEX_1,
             BIOGAS,
+            boiler_init.STEPLESS_INTERVALS_1,
         )
         self.boilers = [boiler1]
 
@@ -300,9 +300,7 @@ class BSM2OLEM:
             heat_net_init.TEMP_THRESHOLDS[1],
         )
 
-        self.evaluator = Evaluation(
-            path_name + '/data/'
-        )
+        self.evaluator = Evaluation(path_name + '/data/output_evaluation.csv')
 
         self.economics = Economics(
             self.chps,
@@ -451,16 +449,20 @@ class BSM2OLEM:
 
             s_nh_data = ([], [], [], float(i))
             for j, s_nh in enumerate(s_nh_reactors):
-                s_nh_data[0].append("s_nh" + str(j+1))
-                s_nh_data[1].append("g/m3")
+                s_nh_data[0].append('s_nh' + str(j + 1))
+                s_nh_data[1].append('g/m3')
                 s_nh_data[2].append(s_nh)
             kla_data = ([], [], [], float(i))
             for j, kla in enumerate(klas):
-                kla_data[0].append("kla" + str(j+1))
-                kla_data[1].append("1/d")
+                kla_data[0].append('kla' + str(j + 1))
+                kla_data[1].append('1/d')
                 kla_data[2].append(kla)
-            elec_data = (["demand", "price"], ["kW", "€/MWh"],
-                         [self.fermenter.electricity_demand, self.controller.electricity_prices[i]], float(i))
+            elec_data = (
+                ['demand', 'price'],
+                ['kW', '€/MWh'],
+                [self.fermenter.electricity_demand, self.controller.electricity_prices[i]],
+                float(i),
+            )
             self.evaluator.update_data(data1=s_nh_data, data2=kla_data, data3=elec_data)
 
     def stabilize(self, atol: float = 1e-3):
@@ -495,7 +497,7 @@ class BSM2OLEM:
         )
         while not stable:
             i += 1
-            logging.debug('Stabilizing iteration %s', i)
+            log.debug('Stabilizing iteration %s', i)
             self.step(s, stabilized=stable)
             check_vars = np.concatenate(
                 [
@@ -518,7 +520,7 @@ class BSM2OLEM:
             if np.isclose(check_vars, old_check_vars, atol=atol).all():
                 stable = True
             old_check_vars = np.array(check_vars)
-        logging.info('Stabilized after %s iterations\n', i)
+        log.info('Stabilized after %s iterations\n', i)
 
     def get_electricity_demand(self):
         """

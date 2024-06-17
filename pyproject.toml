@@ -311,6 +311,7 @@ fix = [
     "ruff format {args:.}",
     "ruff check --fix {args:.}",
     "style",  # feedback on what is not fixable
+    "typing",
 ]
 all = [
     "style",

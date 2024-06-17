@@ -2,8 +2,8 @@ import numpy as np
 from numba import boolean, float64, int32
 from numba.experimental import jitclass
 
-from bsm2_python.gas_management.gases.gases import GasMix
-from bsm2_python.gas_management.module import Module
+from bsm2_python.energy_management.gases.gases import GasMix
+from bsm2_python.energy_management.module import Module
 
 
 @jitclass(
@@ -42,8 +42,8 @@ class CHP(Module):
         mttr: int,
         capex: int,
         biogas: GasMix,
-        stepless_intervals: bool,
         storage_rules: np.ndarray,
+        stepless_intervals: bool,
     ):
         """
         A class that represents a combined heat and power unit.
@@ -60,8 +60,8 @@ class CHP(Module):
         """
         self.max_gas_power_uptake = max_gas_power_uptake
         self.efficiency_rules = efficiency_rules
-        self.stepless_intervals = stepless_intervals
         self.storage_rules = storage_rules
+        self.stepless_intervals = stepless_intervals
         self.minimum_load = minimum_load
         self.mttf = mttf
         self.mttr = mttr

@@ -3,7 +3,6 @@ test adm1_bsm2.py
 """
 
 import csv
-import logging
 import os
 import time
 
@@ -12,6 +11,7 @@ from tqdm import tqdm
 
 from bsm2_python.bsm2.adm1_bsm2 import ADM1Reactor
 from bsm2_python.bsm2.init import adm1init_bsm2 as adm1init
+from logger import log
 
 path_name = os.path.dirname(__file__)
 
@@ -62,10 +62,10 @@ def test_adm1():
 
     stop = time.perf_counter()
 
-    logging.info('Steady state simulation completed after: %s seconds', stop - start)
-    logging.info('ADM2ASM output at t = %s d: \n%s', endtime, y_out2)
-    logging.info('Digester output at t = %s d: \n%s', endtime, yd_out)
-    logging.info('ASM2ADM output at t = %s d: \n%s', endtime, y_out1)
+    log.info('Steady state simulation completed after: %s seconds', stop - start)
+    log.info('ADM2ASM output at t = %s d: \n%s', endtime, y_out2)
+    log.info('Digester output at t = %s d: \n%s', endtime, yd_out)
+    log.info('ASM2ADM output at t = %s d: \n%s', endtime, y_out1)
 
     y_out2_matlab = np.array(
         [
@@ -185,9 +185,9 @@ def test_adm1():
         ]
     )
 
-    logging.info('ASM2ADM output difference to MatLab solution: \n%s', y_out1_matlab - y_out1)
-    logging.info('Digester output difference to MatLab solution: \n%s', yd_out_matlab - yd_out)
-    logging.info('ADM2ASM output difference to MatLab solution: \n%s', y_out2_matlab - y_out2)
+    log.info('ASM2ADM output difference to MatLab solution: \n%s', y_out1_matlab - y_out1)
+    log.info('Digester output difference to MatLab solution: \n%s', yd_out_matlab - yd_out)
+    log.info('ADM2ASM output difference to MatLab solution: \n%s', y_out2_matlab - y_out2)
 
     assert np.allclose(y_out1, y_out1_matlab, rtol=1e-5, atol=1e-5)
     assert np.allclose(yd_out, yd_out_matlab, rtol=1e-3, atol=1e-3)
@@ -235,10 +235,10 @@ def test_adm1_dyn():
     # np.savetxt(path_name + '/../data/test_yd_out_all.csv', yd_out_all, delimiter=',')
     # np.savetxt(path_name + '/../data/test_y_out1_all.csv', y_out1_all, delimiter=',')
 
-    logging.info('Dynamic simulation completed after: %s seconds', stop - start)
-    logging.info('ADM2ASM output at t = %s d: \n%s', endtime, y_out2)
-    logging.info('Digester output at t = %s d: \n%s', endtime, yd_out)
-    logging.info('ASM2ADM output at t = ' + str(endtime) + ' d: \n' + str(y_out1))
+    log.info('Dynamic simulation completed after: %s seconds', stop - start)
+    log.info('ADM2ASM output at t = %s d: \n%s', endtime, y_out2)
+    log.info('Digester output at t = %s d: \n%s', endtime, yd_out)
+    log.info('ASM2ADM output at t = ' + str(endtime) + ' d: \n' + str(y_out1))
 
     # Values from 50 days dynamic simulation in Matlab (adm1_test_dyn.slx):
     y_out2_matlab = np.array(
@@ -359,9 +359,9 @@ def test_adm1_dyn():
         ]
     )  # digesterin
 
-    logging.info('ASM2ADM output difference to MatLab solution: \n' + str(y_out1_matlab - y_out1))
-    logging.info('Digester output difference to MatLab solution: \n' + str(yd_out_matlab - yd_out))
-    logging.info('ADM2ASM output difference to MatLab solution: \n' + str(y_out2_matlab - y_out2))
+    log.info('ASM2ADM output difference to MatLab solution: \n' + str(y_out1_matlab - y_out1))
+    log.info('Digester output difference to MatLab solution: \n' + str(yd_out_matlab - yd_out))
+    log.info('ADM2ASM output difference to MatLab solution: \n' + str(y_out2_matlab - y_out2))
 
     assert np.allclose(y_out1, y_out1_matlab, rtol=1e-5, atol=1e-5)
     assert np.allclose(yd_out, yd_out_matlab, rtol=1e-3, atol=1e-3)

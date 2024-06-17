@@ -1,7 +1,6 @@
 """Execution file for BSM1 model (5 ASM1 reactors in series + settler) test case"""
 
 import csv
-import logging
 import os
 import time
 
@@ -13,6 +12,7 @@ import bsm2_python.bsm2.init.settler1dinit_bsm2 as settler1dinit
 from bsm2_python.bsm2.asm1_bsm2 import ASM1reactor
 from bsm2_python.bsm2.helpers_bsm2 import Combiner, Splitter
 from bsm2_python.bsm2.settler1d_bsm2 import Settler
+from logger import log
 
 path_name = os.path.dirname(__file__)
 
@@ -137,10 +137,10 @@ def test_bsm1():
 
     stop = time.perf_counter()
 
-    logging.info('Steady state simulation completed after: %s seconds', stop - start)
-    logging.info('Effluent at t = %s d: \n %s', endtime, ys_eff)
-    logging.info('Sludge height at t = %s d: \n %s', endtime, sludge_height)
-    logging.info(f'Sludge height at t = {endtime} d: \n{sludge_height}')
+    log.info('Steady state simulation completed after: %s seconds', stop - start)
+    log.info('Effluent at t = %s d: \n %s', endtime, ys_eff)
+    log.info('Sludge height at t = %s d: \n %s', endtime, sludge_height)
+    log.info(f'Sludge height at t = {endtime} d: \n{sludge_height}')
 
     ys_eff_matlab = np.array(
         [
@@ -168,8 +168,8 @@ def test_bsm1():
         ]
     )
     sludge_height_matlab = 0.447178539974702
-    logging.info('Effluent difference to MatLab solution: \n %s', ys_eff_matlab - ys_eff)
-    logging.info('Sludge height difference to MatLab solution: \n %s', sludge_height_matlab - sludge_height)
+    log.info('Effluent difference to MatLab solution: \n %s', ys_eff_matlab - ys_eff)
+    log.info('Sludge height difference to MatLab solution: \n %s', sludge_height_matlab - sludge_height)
 
     assert np.allclose(ys_eff, ys_eff_matlab, rtol=1e-5, atol=1e-5)
     assert np.allclose(sludge_height, sludge_height_matlab, rtol=1e-5, atol=1e-5)
@@ -226,9 +226,9 @@ def test_bsm1_ol():
     # np.savetxt(path_name + '/../data/test_ys_eff_all.csv', ys_eff_all, delimiter=',')
     # np.savetxt(path_name + '/../data/test_sludge_height_all.csv', sludge_height_all, delimiter=',')
 
-    logging.info('Dynamic open loop simulation completed after: %s seconds', stop - start)
-    logging.info('Effluent at t = %s d: \n %s', endtime, ys_eff)
-    logging.info('Sludge height at t = %s, d: %s \n', endtime, sludge_height)
+    log.info('Dynamic open loop simulation completed after: %s seconds', stop - start)
+    log.info('Effluent at t = %s d: \n %s', endtime, ys_eff)
+    log.info('Sludge height at t = %s, d: %s \n', endtime, sludge_height)
 
     # Values from 50 days dynamic simulation in Matlab (bsm1_test_ol.slx):
     ys_eff_matlab = np.array(
@@ -258,8 +258,8 @@ def test_bsm1_ol():
     )
     sludge_height_matlab = 2.83301562022632  # refers to settler[166] in MatLab
 
-    logging.info('Effluent difference to MatLab solution: \n %s', ys_eff_matlab - ys_eff)
-    logging.info('Sludge height difference to MatLab solution: \n %s', sludge_height_matlab - sludge_height)
+    log.info('Effluent difference to MatLab solution: \n %s', ys_eff_matlab - ys_eff)
+    log.info('Sludge height difference to MatLab solution: \n %s', sludge_height_matlab - sludge_height)
 
     # high tolerances to speed up testing.
     # If timestep is refined (e.g. up to 1 minute), smaller tolerances are achieved.

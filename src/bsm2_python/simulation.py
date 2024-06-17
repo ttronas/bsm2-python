@@ -11,23 +11,15 @@ within the Python environment you are running this script.
 The parameters 'tempmodel' and 'activate' can be set to 'True' if you want to activate them.
 """
 
-import logging
-import sys
-
 from bsm2_olem import BSM2OLEM
 
-logging.basicConfig(
-    format='%(asctime)s.%(msecs)03d %(levelname)-8s %(message)s',
-    level=logging.INFO,
-    datefmt='%H:%M:%S',
-    stream=sys.stdout,
-)
-logging.root.setLevel(logging.INFO)
+from logger import log
 
-logging.info('Initialize bsm2\n')
+log.info('Initialize bsm2\n')
 
 timestep = 15 / 24 / 60  # 15 minutes in fraction of a day
 endtime = 50  # 50 days
+total_steps = int(endtime / timestep)
 
 tempmodel = (
     False  # if tempmodel is False influent wastewater temperature is just passed through process reactors and settler
@@ -39,18 +31,18 @@ activate = False  # if activate is False dummy states are 0
 
 bsm2 = BSM2OLEM(timestep=timestep, endtime=endtime, tempmodel=tempmodel, activate=activate)
 
-logging.info('Stabilize bsm2\n')
+log.info('Stabilize bsm2\n')
 
-# bsm2.stabilize()
+bsm2.stabilize()
 
-logging.info('Start simulation\n')
-for i, _ in enumerate(bsm2.simtime):
+log.info('Start simulation\n')
+for i in range(total_steps):
     bsm2.step(i, stabilized=True)
 
     if i % 1000 == 0:
-        logging.info('timestep: ' + str(i) + ' of ' + str(bsm2.simtime) + '\n')
+        log.info('timestep: ' + str(i) + ' of ' + str(total_steps) + '\n')
 
-    if i == bsm2.simtime - 1:
+    if i == total_steps - 1:
         bsm2.finish_evaluation()
-        logging.info('Simulation finished\n')
+        log.info('Simulation finished\n')
         break

@@ -2,12 +2,12 @@
 # pytest tests all files containing test_*.py or *_test.py
 # mind that pytest needs __init__.py files in the directories to work
 # (they are used to be identified as python directories)
-import logging
 
 import numpy as np
 from tqdm import tqdm
 
 from bsm2_python.bsm2_olem import BSM2OLEM
+from logger import log
 
 
 def test_bsm2_olem():
@@ -22,10 +22,9 @@ def test_bsm2_olem():
 
     bsm2_olem.stabilize()
     for i, _ in enumerate(tqdm(bsm2_olem.simtime)):
-        print(i, bsm2_olem.simtime)
         bsm2_olem.step(i, stabilized=True)
         if i % 1000 == 0:
-            logging.info(i)
+            log.info(i)
 
     cumulative_cash_flow_simulated = np.array([bsm2_olem.economics.cum_cash_flow])
     cumulative_cash_flow_expected = np.array([15931573.30219831])

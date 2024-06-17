@@ -6,7 +6,6 @@ electricity price dependent controller.
 """
 
 import csv
-import logging
 import os
 
 import numpy as np
@@ -28,7 +27,8 @@ from bsm2_python.bsm2.primclar_bsm2 import PrimaryClarifier
 from bsm2_python.bsm2.settler1d_bsm2 import Settler
 from bsm2_python.bsm2.storage_bsm2 import Storage
 from bsm2_python.bsm2.thickener_bsm2 import Thickener
-from bsm2_python.controller_oxygen import ControllerOxygen
+from bsm2_python.controller import Controller
+from logger import log
 
 path_name = os.path.dirname(__file__)
 
@@ -154,7 +154,7 @@ class BSM2OL:
 
         klas = np.array([reginit.KLA1, reginit.KLA2, reginit.KLA3, reginit.KLA4, reginit.KLA5])
         # scenario 5, 75th percentile, 50% reduction when S_NH below 4g/m3
-        self.controller = ControllerOxygen(timestep, 0.75, klas, 0.5, 4)
+        self.controller = Controller(timestep, 0.75, klas, 0.5, 4)
 
         if data_in is None:
             # dyninfluent from BSM2:
@@ -316,7 +316,7 @@ class BSM2OL:
         )
         while not stable:
             i += 1
-            logging.debug('Stabilizing iteration %s', i)
+            log.debug('Stabilizing iteration %s', i)
             self.step(s)
             check_vars = np.concatenate(
                 [
@@ -339,7 +339,7 @@ class BSM2OL:
             if np.isclose(check_vars, old_check_vars, atol=atol).all():
                 stable = True
             old_check_vars = np.array(check_vars)
-        logging.info('Stabilized after %s iterations\n', i)
+        log.info('Stabilized after %s iterations\n', i)
 
     def get_electricity_demand(self):
         """

@@ -5,7 +5,6 @@ adm1-fermenter and sludge storage in dynamic simulation with sensor, controller 
 """
 
 import csv
-import logging
 import os
 import sys
 
@@ -29,6 +28,7 @@ from bsm2_python.bsm2.primclar_bsm2 import PrimaryClarifier
 from bsm2_python.bsm2.settler1d_bsm2 import Settler
 from bsm2_python.bsm2.storage_bsm2 import Storage
 from bsm2_python.bsm2.thickener_bsm2 import Thickener
+from logger import log
 
 path_name = os.path.dirname(__file__)
 sys.path.append(path_name + '/..')
@@ -423,7 +423,7 @@ class BSM2CL:
         )
         while not stable:
             i += 1
-            logging.debug('Stabilizing iteration %s', i)
+            log.debug('Stabilizing iteration %s', i)
             self.step(s)
             check_vars = np.concatenate(
                 [
@@ -446,4 +446,4 @@ class BSM2CL:
             if np.isclose(check_vars, old_check_vars, atol=atol).all():
                 stable = True
             old_check_vars = np.array(check_vars)
-        logging.info('Stabilized after %s iterations', i)
+        log.info('Stabilized after %s iterations', i)

@@ -3,14 +3,14 @@ import os
 
 import numpy as np
 
-from bsm2_python.gas_management.boiler import Boiler
-from bsm2_python.gas_management.chp import CHP
-from bsm2_python.gas_management.compressor import Compressor
-from bsm2_python.gas_management.cooler import Cooler
-from bsm2_python.gas_management.fermenter import Fermenter
-from bsm2_python.gas_management.flare import Flare
-from bsm2_python.gas_management.heat_net import HeatNet
-from bsm2_python.gas_management.storage import BiogasStorage
+from bsm2_python.energy_management.boiler import Boiler
+from bsm2_python.energy_management.chp import CHP
+from bsm2_python.energy_management.compressor import Compressor
+from bsm2_python.energy_management.cooler import Cooler
+from bsm2_python.energy_management.fermenter import Fermenter
+from bsm2_python.energy_management.flare import Flare
+from bsm2_python.energy_management.heat_net import HeatNet
+from bsm2_python.energy_management.storage import BiogasStorage
 
 path_name = os.path.dirname(__file__)
 

@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from bsm2_python.bsm2.module import Module as BSM2Module
-from bsm2_python.gas_management.module import Module as GasManagementModule
+from bsm2_python.energy_management.module import Module as GasManagementModule
 
 
 class TestBSM2Module:

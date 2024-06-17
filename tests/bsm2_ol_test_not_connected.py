@@ -6,7 +6,6 @@ In this specific test case the BSM2 model has (almost) no return flows. It is ma
 """
 
 import csv
-import logging
 import os
 import time
 
@@ -29,6 +28,7 @@ from bsm2_python.bsm2.primclar_bsm2 import PrimaryClarifier
 from bsm2_python.bsm2.settler1d_bsm2 import Settler
 from bsm2_python.bsm2.storage_bsm2 import Storage
 from bsm2_python.bsm2.thickener_bsm2 import Thickener
+from logger import log
 
 path_name = os.path.dirname(__file__)
 
@@ -239,21 +239,21 @@ def test_bsm2_ol_not_connected():
     # np.savetxt(path_name + '/../data/qstorage2prim.csv', qstorage2prim_all, delimiter=',')
     # np.savetxt(path_name + '/../data/sludge.csv', sludge_all, delimiter=',')
 
-    logging.info('Dynamic open loop simulation completed after: %s seconds', stop - start)
-    logging.info('Effluent at t = %s d: \n %s', endtime, y_eff)
-    logging.info('qpass at t = %s d: \n %s', endtime, y_in_bp)
-    logging.info('to_primary at t = %s d: \n %s', endtime, yp_in_c)
-    logging.info('qpassplant at t = %s d: \n %s', endtime, y_plant_bp)
-    logging.info('qpassplant_to_as at t = %s d: \n %s', endtime, y_in_as_c)
-    logging.info('qpassAS at t = %s d: \n %s', endtime, y_as_bp_c_eff)
-    logging.info('to_as at t = %s d: \n %s', endtime, y_bp_as)
-    logging.info('feed_settler at t = %s d: \n %s', endtime, ys_in)
-    logging.info('qthick2AS at t = %s d: \n %s', endtime, yt_sp_as)
-    logging.info('qthick2prim at t = %s d: \n %s', endtime, yt_sp_p)
-    logging.info('qstorage2AS at t = %s d: \n %s', endtime, yst_sp_as)
-    logging.info('qstorage2prim at t = %s d: \n %s', endtime, yst_sp_p)
-    logging.info('sludge at t = %s d: \n %s', endtime, ydw_s)
-    logging.info('Sludge height at t = %s d: \n %s', endtime, sludge_height)
+    log.info('Dynamic open loop simulation completed after: %s seconds', stop - start)
+    log.info('Effluent at t = %s d: \n %s', endtime, y_eff)
+    log.info('qpass at t = %s d: \n %s', endtime, y_in_bp)
+    log.info('to_primary at t = %s d: \n %s', endtime, yp_in_c)
+    log.info('qpassplant at t = %s d: \n %s', endtime, y_plant_bp)
+    log.info('qpassplant_to_as at t = %s d: \n %s', endtime, y_in_as_c)
+    log.info('qpassAS at t = %s d: \n %s', endtime, y_as_bp_c_eff)
+    log.info('to_as at t = %s d: \n %s', endtime, y_bp_as)
+    log.info('feed_settler at t = %s d: \n %s', endtime, ys_in)
+    log.info('qthick2AS at t = %s d: \n %s', endtime, yt_sp_as)
+    log.info('qthick2prim at t = %s d: \n %s', endtime, yt_sp_p)
+    log.info('qstorage2AS at t = %s d: \n %s', endtime, yst_sp_as)
+    log.info('qstorage2prim at t = %s d: \n %s', endtime, yst_sp_p)
+    log.info('sludge at t = %s d: \n %s', endtime, ydw_s)
+    log.info('Sludge height at t = %s d: \n %s', endtime, sludge_height)
 
     # Values from 50 days dynamic simulation in Matlab (bsm2_ol_test_not_connected.slx):
     y_eff_matlab = np.array(
@@ -463,26 +463,26 @@ def test_bsm2_ol_not_connected():
         ]
     )
 
-    logging.info('Effluent difference to MatLab solution: \n %s', y_eff_matlab - y_eff)
-    # logging.info('Sludge height difference to MatLab solution: \n', sludge_height_matlab - sludge_height)
-    logging.info('qpassplant flow difference to Matlab: \n %s', qpass_plant_matlab[14] - y_plant_bp[14])
-    logging.info('qpassplant_to_as flow difference to Matlab: \n %s', qpassplant_to_as_matlab[14] - y_in_as_c[14])
-    logging.info('feed (settler) flow difference to Matlab: \n %s', feed_settler_matlab[14] - ys_in[14])
-    logging.info('qstorage2AS flow difference to Matlab: \n %s', qstorage2as_matlab[14] - yst_sp_as[14])
-    logging.info('qstorage2prim flow difference to Matlab: \n %s', qstorage2prim_matlab[14] - yst_sp_p[14])
-    logging.info('Effluent flow difference to Matlab: \n %s', y_eff_matlab[14] - y_eff[14])
-    logging.info('qpass flow difference to Matlab: \n %s', qpass_matlab[14] - y_in_bp[14])
-    logging.info('to_primary flow difference to Matlab: \n %s', to_primary_matlab[14] - yp_in_c[14])
-    logging.info('qpassplant flow difference to Matlab: \n %s', qpass_plant_matlab[14] - y_plant_bp[14])
-    logging.info('qpassplant_to_as flow difference to Matlab: \n %s', qpassplant_to_as_matlab[14] - y_in_as_c[14])
-    logging.info('qpassAS flow difference to Matlab: \n %s', qpassas_matlab[14] - y_as_bp_c_eff[14])
-    logging.info('to_as flow difference to Matlab: \n %s', to_as_matlab[14] - y_bp_as[14])
-    logging.info('feed (settler) flow difference to Matlab: \n %s', feed_settler_matlab[14] - ys_in[14])
-    logging.info('qthick2AS flow difference to Matlab: \n %s', qthick2as_matlab[14] - yt_sp_as[14])
-    logging.info('qthick2prim flow difference to Matlab: \n %s', qthick2prim_matlab[14] - yt_sp_p[14])
-    logging.info('qstorage2AS flow difference to Matlab: \n %s', qstorage2as_matlab[14] - yst_sp_as[14])
-    logging.info('qstorage2prim flow difference to Matlab: \n %s', qstorage2prim_matlab[14] - yst_sp_p[14])
-    logging.info('sludge flow difference to Matlab: \n %s', sludge_matlab[14] - ydw_s[14])
+    log.info('Effluent difference to MatLab solution: \n %s', y_eff_matlab - y_eff)
+    # log.info('Sludge height difference to MatLab solution: \n', sludge_height_matlab - sludge_height)
+    log.info('qpassplant flow difference to Matlab: \n %s', qpass_plant_matlab[14] - y_plant_bp[14])
+    log.info('qpassplant_to_as flow difference to Matlab: \n %s', qpassplant_to_as_matlab[14] - y_in_as_c[14])
+    log.info('feed (settler) flow difference to Matlab: \n %s', feed_settler_matlab[14] - ys_in[14])
+    log.info('qstorage2AS flow difference to Matlab: \n %s', qstorage2as_matlab[14] - yst_sp_as[14])
+    log.info('qstorage2prim flow difference to Matlab: \n %s', qstorage2prim_matlab[14] - yst_sp_p[14])
+    log.info('Effluent flow difference to Matlab: \n %s', y_eff_matlab[14] - y_eff[14])
+    log.info('qpass flow difference to Matlab: \n %s', qpass_matlab[14] - y_in_bp[14])
+    log.info('to_primary flow difference to Matlab: \n %s', to_primary_matlab[14] - yp_in_c[14])
+    log.info('qpassplant flow difference to Matlab: \n %s', qpass_plant_matlab[14] - y_plant_bp[14])
+    log.info('qpassplant_to_as flow difference to Matlab: \n %s', qpassplant_to_as_matlab[14] - y_in_as_c[14])
+    log.info('qpassAS flow difference to Matlab: \n %s', qpassas_matlab[14] - y_as_bp_c_eff[14])
+    log.info('to_as flow difference to Matlab: \n %s', to_as_matlab[14] - y_bp_as[14])
+    log.info('feed (settler) flow difference to Matlab: \n %s', feed_settler_matlab[14] - ys_in[14])
+    log.info('qthick2AS flow difference to Matlab: \n %s', qthick2as_matlab[14] - yt_sp_as[14])
+    log.info('qthick2prim flow difference to Matlab: \n %s', qthick2prim_matlab[14] - yt_sp_p[14])
+    log.info('qstorage2AS flow difference to Matlab: \n %s', qstorage2as_matlab[14] - yst_sp_as[14])
+    log.info('qstorage2prim flow difference to Matlab: \n %s', qstorage2prim_matlab[14] - yst_sp_p[14])
+    log.info('sludge flow difference to Matlab: \n %s', sludge_matlab[14] - ydw_s[14])
 
     assert np.allclose(y_eff, y_eff_matlab, rtol=3e-1, atol=1e0)
     # assert np.allclose(sludge_height, sludge_height_matlab, rtol=1e-2, atol=1e-2)
