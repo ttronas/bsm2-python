@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 import bsm2_python.bsm2.init.storageinit_bsm2 as storageinit
 from bsm2_python.bsm2.storage_bsm2 import Storage
-from logger import log
+from bsm2_python.logger import log
 
 path_name = os.path.dirname(__file__)
 

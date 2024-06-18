@@ -12,7 +12,7 @@ import bsm2_python.bsm2.init.settler1dinit_bsm2 as settler1dinit
 from bsm2_python.bsm2.asm1_bsm2 import ASM1reactor
 from bsm2_python.bsm2.helpers_bsm2 import Combiner, Splitter
 from bsm2_python.bsm2.settler1d_bsm2 import Settler
-from logger import log
+from bsm2_python.logger import log
 
 path_name = os.path.dirname(__file__)
 

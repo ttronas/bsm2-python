@@ -48,7 +48,7 @@ from bsm2_python.energy_management.init import (
 )
 from bsm2_python.energy_management.storage import BiogasStorage
 from bsm2_python.evaluation import Evaluation
-from logger import log
+from bsm2_python.logger import log
 
 path_name = os.path.dirname(__file__)
 
@@ -243,7 +243,7 @@ class BSM2OLEM:
             chp_init.CAPEX_1,
             BIOGAS,
             chp_init.STORAGE_RULES_1,
-            chp_init.STEPLESS_INTERVALS_1,
+            stepless_intervals=chp_init.STEPLESS_INTERVALS_1,
         )
         chp2 = CHP(
             chp_init.MAX_POWER_2,
@@ -254,7 +254,7 @@ class BSM2OLEM:
             chp_init.CAPEX_2,
             BIOGAS,
             chp_init.STORAGE_RULES_2,
-            chp_init.STEPLESS_INTERVALS_2,
+            stepless_intervals=chp_init.STEPLESS_INTERVALS_2,
         )
         self.chps = [chp1, chp2]
 
@@ -447,12 +447,12 @@ class BSM2OLEM:
             self.economics.get_income(net_electricity, i, self.timestep_hour[i])
             self.economics.get_expenditures(net_electricity, i, self.timestep_hour[i])
 
-            s_nh_data = ([], [], [], float(i))
+            s_nh_data: tuple[list, list, list, float] = ([], [], [], float(i))
             for j, s_nh in enumerate(s_nh_reactors):
                 s_nh_data[0].append('s_nh' + str(j + 1))
                 s_nh_data[1].append('g/m3')
                 s_nh_data[2].append(s_nh)
-            kla_data = ([], [], [], float(i))
+            kla_data: tuple[list, list, list, float] = ([], [], [], float(i))
             for j, kla in enumerate(klas):
                 kla_data[0].append('kla' + str(j + 1))
                 kla_data[1].append('1/d')

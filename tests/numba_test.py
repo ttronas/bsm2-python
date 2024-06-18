@@ -3,7 +3,7 @@
 import numpy as np
 from numba import jit
 
-from logger import log
+from bsm2_python.logger import log
 
 
 @jit(nopython=True)

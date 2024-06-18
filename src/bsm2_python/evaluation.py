@@ -2,6 +2,7 @@
 Evaluation file to store, export and plot data.
 """
 
+import logging
 import math
 
 import matplotlib.pyplot as plt
@@ -50,7 +51,7 @@ class Evaluation:
         """
         Exports the data stored in the vars_dicts list to a csv file at the specified filepath.
         """
-        with open(self.filepath, 'w') as f:
+        with open(self.filepath, 'w', encoding='utf-8') as f:
             header = ''
             for i, dictionary in enumerate(self.vars_dicts):
                 num_names = len(dictionary['names'])
@@ -74,7 +75,7 @@ class Evaluation:
                     else:
                         line += ';;'
                 f.write(line + '\n')
-        print('Data exported to ' + self.filepath)
+        logging.info('Data exported to ' + self.filepath)
 
     def plot_data(self):
         """

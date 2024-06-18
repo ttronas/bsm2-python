@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 from bsm2_python.bsm2.adm1_bsm2 import ADM1Reactor
 from bsm2_python.bsm2.init import adm1init_bsm2 as adm1init
-from logger import log
+from bsm2_python.logger import log
 
 path_name = os.path.dirname(__file__)
 

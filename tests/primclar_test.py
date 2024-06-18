@@ -12,7 +12,7 @@ from tqdm import tqdm
 from bsm2_python.bsm2.init import asm1init_bsm2 as asm1init
 from bsm2_python.bsm2.init import primclarinit_bsm2 as primclarinit
 from bsm2_python.bsm2.primclar_bsm2 import PrimaryClarifier
-from logger import log
+from bsm2_python.logger import log
 
 path_name = os.path.dirname(__file__)
 

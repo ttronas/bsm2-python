@@ -28,7 +28,7 @@ from bsm2_python.bsm2.settler1d_bsm2 import Settler
 from bsm2_python.bsm2.storage_bsm2 import Storage
 from bsm2_python.bsm2.thickener_bsm2 import Thickener
 from bsm2_python.controller import Controller
-from logger import log
+from bsm2_python.logger import log
 
 path_name = os.path.dirname(__file__)
 

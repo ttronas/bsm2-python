@@ -7,7 +7,7 @@ import numpy as np
 from tqdm import tqdm
 
 from bsm2_python.bsm2_olem import BSM2OLEM
-from logger import log
+from bsm2_python.logger import log
 
 
 def test_bsm2_olem():

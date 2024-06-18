@@ -7,7 +7,7 @@ import time
 import numpy as np
 
 from bsm2_python.bsm2.helpers_bsm2 import Combiner, Splitter
-from logger import log
+from bsm2_python.logger import log
 
 
 def test_helpers():

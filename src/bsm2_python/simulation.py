@@ -13,7 +13,7 @@ The parameters 'tempmodel' and 'activate' can be set to 'True' if you want to ac
 
 from bsm2_olem import BSM2OLEM
 
-from logger import log
+from bsm2_python.logger import log
 
 log.info('Initialize bsm2\n')
 

@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 from bsm2_python.bsm2.init import thickenerinit_bsm2 as thickenerinit
 from bsm2_python.bsm2.thickener_bsm2 import Thickener
-from logger import log
+from bsm2_python.logger import log
 
 path_name = os.path.dirname(__file__)
 

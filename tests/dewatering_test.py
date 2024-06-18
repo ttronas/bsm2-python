@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 from bsm2_python.bsm2.dewatering_bsm2 import Dewatering
 from bsm2_python.bsm2.init import dewateringinit_bsm2 as dewateringinit
-from logger import log
+from bsm2_python.logger import log
 
 path_name = os.path.dirname(__file__)
 

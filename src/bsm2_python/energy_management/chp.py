@@ -43,6 +43,7 @@ class CHP(Module):
         capex: int,
         biogas: GasMix,
         storage_rules: np.ndarray,
+        *,
         stepless_intervals: bool,
     ):
         """
