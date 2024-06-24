@@ -50,7 +50,22 @@ class Controller:
 
     def get_klas(self, step: int, s_nh_reactors: np.ndarray):
         """
-        Returns the KLA values for the reactor compartments.
+        Calculates and returns the KLA values for the reactor compartments based on electricity prices and ammonia
+        concentration.
+
+        Parameters
+        ----------
+        step : int
+            Current step of the simulation
+        s_nh_reactors : np.ndarray
+            Ammonia concentration in the effluent of the reactor compartments
+            [s_nh_reactor1, s_nh_reactor2, ...]
+
+        Returns
+        -------
+        np.ndarray
+            KLA values for the reactor compartments
+            [kla_reactor1, kla_reactor2, ...]
         """
         step_in_day = step % self.steps_per_day
         # get hours with the highest electricity prices

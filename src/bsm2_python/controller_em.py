@@ -74,14 +74,16 @@ class Controller:
         Parameters
         ----------
         step : int
-            Current simulation step
+            Current step of the simulation
         s_nh_reactors : np.ndarray
-            Ammonia concentration in the reactor compartments
+            Ammonia concentration in the effluent of the reactor compartments
+            [s_nh_reactor1, s_nh_reactor2, ...]
 
         Returns
         -------
         np.ndarray
             KLA values for the reactor compartments
+            [kla_reactor1, kla_reactor2, ...]
         """
         step_in_day = step % self.steps_per_day
         # get hours with the highest electricity prices

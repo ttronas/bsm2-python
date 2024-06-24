@@ -11,7 +11,22 @@ class ADM1Performance:
     def energy_consumption(self, t_new, t_old, rho_h2o=997, cp_h2o=4182):
         """
         Energy needed to heat up the reactor from t_old to t_new.
-        Returns the energy consumption of the reactor in kW.
+
+        Parameters
+        ----------
+        t_new : float
+            The new temperature of the reactor.
+        t_old : float
+            The old temperature of the reactor.
+        rho_h2o : float
+            The density of water in kg/m3.
+        cp_h2o : float
+            The specific heat capacity of water in J/kgK.
+
+        Returns
+        -------
+        float
+            Energy needed to heat up the reactor [kWh].
         """
         vol_reactor = self.dim[0]
         # Q = mcΔT
@@ -23,6 +38,22 @@ class ADM1Performance:
     def reactor_temperature(self, heat_in_kwh, t_old, rho_h2o=997, cp_h2o=4182):
         """
         Calculate the temperature of the reactor after the energy is added to the reactor.
+
+        Parameters
+        ----------
+        heat_in_kwh : float
+            Energy needed to heat up the reactor [kWh].
+        t_old : float
+            The old temperature of the reactor.
+        rho_h2o : float
+            The density of water in kg/m3.
+        cp_h2o : float
+            The specific heat capacity of water in J/kgK.
+
+        Returns
+        -------
+        float
+            The new temperature of the reactor.
         """
         vol_reactor = self.dim[0]
         t_new = t_old + (heat_in_kwh * 3600 * 1000) / (rho_h2o * vol_reactor * cp_h2o)

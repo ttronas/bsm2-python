@@ -87,52 +87,69 @@ class Module:
     def check_failure(self):
         """
         Checks if the module has failed.
-        Returns:
-            failed: bool, True if the module has failed, False otherwise
+
+        Returns
+        -------
+        bool
+            True if the module has failed, False otherwise
         """
         raise NotImplementedError('The check_failure method must be implemented by the child class.')
 
     def produce(self) -> np.ndarray:
         """
         Produces energy based on the load and time delta.
-        Arguments:
-            load: float, load as a value between 0 and 1
-        Returns:
-            products: list, list of products produced by the module
+
+        Returns
+        -------
+        np.ndarray
+            Production of the module at the current load
+            [production]
         """
         raise NotImplementedError('The produce method must be implemented by the child class.')
 
     def consume(self) -> np.ndarray:
         """
         Consumes energy based on the load and time delta.
-        Arguments:
-            load: float, load as a value between 0 and 1
-        Returns:
-            products: list, list of products consumed by the module
+
+        Returns
+        -------
+        np.ndarray
+            Consumption of the module at the current load
+            [consumption]
         """
         raise NotImplementedError('The consume method must be implemented by the child class.')
 
     def maintain(self, time_delta: float):
         """
         Maintains the module based on the time delta.
-        Arguments:
-            time_delta: float, time difference in hours
+
+        Parameters
+        ----------
+        time_delta : float
+            time difference in hours
         """
         self.remaining_maintenance_time -= time_delta
 
     def calculate_maintenance_time(self) -> float:
         """
         Calculates the maintenance time of the module.
-        Returns:
-            maintenance_time: float, maintenance time in hours
+
+        Returns
+        -------
+        float
+            Time it takes to maintain the module
         """
         raise NotImplementedError('The calculate_maintenance_time method must be implemented by the child class.')
 
     def report_status(self) -> np.ndarray:
         """
         Reports the status of the module.
-        Returns:
-            status: list, list of status parameters
+
+        Returns
+        -------
+        np.ndarray
+            Status of the module
+            [load, remaining maintenance time, products, consumption]
         """
         status = [
             self.load,
@@ -145,8 +162,11 @@ class Module:
     def step(self, time_delta: float):
         """
         Updates the module based on the load and time delta.
-        Arguments:
-            time_delta: float, time difference in hours
+
+        Parameters
+        ----------
+        time_delta : float
+            time difference in hours
         """
         self.global_time += time_delta
         if not self._under_maintenance:

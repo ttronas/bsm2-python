@@ -1,3 +1,7 @@
+"""
+This file initiates parameter values and sets initial conditions for the model implementation of boiler.py.
+"""
+
 import numpy as np
 
 INDICES_PRODUCTS = np.arange(1)

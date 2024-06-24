@@ -17,13 +17,20 @@ class HeatNet:
         self, cp: float, initial_temp: float, mass_flow: float, lower_threshold: float, upper_threshold: float
     ) -> None:
         """
-        Initializes the heat network with a specific heat capacity c_p in kJ/(kg*K).
-        Arguments:
-            cp: float, specific heat capacity in kJ/(kg*K)
-            initial_temp: float, temperature at simulation begin in °C
-            mass_flow: float, mass flow in heat net in kg/h
-            lower_threshold: float, lower threshold for temperature in °C (temperature must not be lower)
-            upper_threshold: float, upper threshold for temperature in °C (temperature must not be higher)
+        A class that represents a heating network.
+
+        Parameters
+        ----------
+        cp : float
+            Specific heat capacity of the fluid in the heating network [kJ/kgK]
+        initial_temp : float
+            Initial temperature of the heating network [°C]
+        mass_flow : float
+            Mass flow of the fluid in the heating network [kg/h]
+        lower_threshold : float
+            Lower threshold of the heating network (temperature must not fall below this value) [°C]
+        upper_threshold : float
+            Upper threshold of the heating network (temperature must not rise above this value) [°C]
         """
         self.cp = cp
         self.temperature = initial_temp
@@ -35,8 +42,11 @@ class HeatNet:
         """
         Sets new temperature based on heat input, previous temperature of HeatNet and mass_flow in the heat_network
         Implements the equation: $T_{new} = T_{old} + Q/(m_dot*c_p)$
-        Arguments:
-            heat: float, heat input in kW
+
+        Parameters
+        ----------
+        heat: float
+            heat input in kW
         """
         self.temperature += heat / (self.mass_flow * (self.cp / 3600))
 
@@ -44,10 +54,16 @@ class HeatNet:
         """
         Calculates heat output based on old and new temperature and mass flow in the heat_network
         Implements the equation: $Q = m_dot*c_p*(T_{new}-T_{old})$
-        Arguments:
-            new_temperature: float, temperature in °C
-        Returns:
-            heat: float, heat output in kW
+
+        Parameters
+        ----------
+        new_temperature: float
+            temperature in °C
+
+        Returns
+        -------
+        float
+            heat output in kW
         """
         return self.mass_flow * (self.cp / 3600) * (new_temperature - self.temperature)
 
@@ -55,11 +71,18 @@ class HeatNet:
         """
         Calculates temperature based on heat input, previous temperature and mass_flow in the heat_network
         Implements the equation: $T_{new} = T_{old} + Q/(m_dot*c_p)$
-        Arguments:
-            heat: float, heat input in kW
-            old_temperature: float, temperature in °C
-        Returns:
-            new_temperature: float, temperature in °C
+
+        Parameters
+        ----------
+        heat: float
+            heat input in kW
+        temperature_old: float
+            initial temperature in °C
+
+        Returns
+        -------
+        float
+            new temperature in °C
         """
         temperature_new = temperature_old + heat / (self.mass_flow * (self.cp / 3600))
         return temperature_new

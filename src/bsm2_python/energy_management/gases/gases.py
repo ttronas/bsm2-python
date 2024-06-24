@@ -27,7 +27,7 @@ from bsm2_python.energy_management.gases.gas_params import GAS_PARAMS
 )
 class Gas:
     """
-    A class that represents a gas species. Contains properties such as density, enthalpy, etc.
+    A class that represents a singular gas species. Contains properties such as density, enthalpy, etc.
     """
 
     def __init__(
@@ -102,8 +102,25 @@ class GasMix:
         n2: Gas = N2,
     ):
         """
-        A class that represents a Gas mixture of CH4, CO2, H2, H2O and N2.
-        Contains composition as well as deducted properties (heating value etc.)
+        A class that represents a mixture of gases. Contains fractions of each gas
+
+        Parameters
+        ----------
+        ch4_frac : float
+            Volumetric fraction of methane
+        co2_frac : float
+            Volumetric fraction of carbon dioxide
+        h2_frac : float
+            Volumetric fraction of hydrogen
+        h2o_frac : float
+            Volumetric fraction of water
+        n2_frac : float
+            Volumetric fraction of nitrogen
+        h2 : Gas
+        ch4 : Gas
+        h2o : Gas
+        co2 : Gas
+        n2 : Gas
         """
         self.ch4_frac = ch4_frac
         self.co2_frac = co2_frac
@@ -157,7 +174,26 @@ class GasMix:
 
     def mix(self, gas1_comp: np.ndarray, gas1_vol: float, gas2_comp: np.ndarray, gas2_vol: float):
         """
-        Mixes two gases with their respective compositions and volumes.
+        Mixes two gases with their respective compositions and volumes and updates the properties of the mixture
+
+        Parameters
+        ----------
+        gas1_comp : np.ndarray
+            Composition of gas 1
+            [ch4_frac, co2_frac, h2_frac, h2o_frac, n2_frac]
+        gas1_vol : float
+            Volume of gas 1
+        gas2_comp : np.ndarray
+            Composition of gas 2
+            [ch4_frac, co2_frac, h2_frac, h2o_frac, n2_frac]
+        gas2_vol : float
+            Volume of gas 2
+
+        Returns
+        -------
+        np.ndarray
+            New composition of the gas mixture
+            [ch4_frac, co2_frac, h2_frac, h2o_frac, n2_frac]
         """
         # if a composition is changed, the heating value as well as the total fraction is recalculated
         self.ch4_frac = (gas1_comp[0] * gas1_vol + gas2_comp[0] * gas2_vol) / (gas1_vol + gas2_vol)

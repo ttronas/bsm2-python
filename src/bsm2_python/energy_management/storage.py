@@ -35,22 +35,23 @@ class BiogasStorage:
     ):
         """
         A class that represents a gas storage.
-        Arguments:
-            max_vol:
-                maximum volume of the storage [Nm³]
-            p_store:
-                pressure of the storage [bar]
-            vol_init:
-                initial volume of the storage [Nm³]
-            capex_sp:
-                specific capital expenditure of the storage [€/Nm³]
-            opex_factor:
-                factor for the operational expenditure [h^-1]
-                (will get multiplied with CAPEX, so that it forms [€/h])
-            biogas:
-                GasMix object
-            gas_composition:
-                composition of the gas in the storage
+
+        Parameters
+        ----------
+        max_vol : int
+            Maximum volume of the storage [Nm³]
+        p_store : int
+            Pressure of the storage [bar]
+        vol_init : int
+            Initial volume of the storage [Nm³]
+        capex_sp : int
+            Capital expenditure per volume of the storage [€/Nm³]
+        opex_factor : int
+            Operational expenditure factor [h^-1]
+        biogas : GasMix
+        gas_composition : np.ndarray
+            Initial gas composition of the storage
+            [ch4_frac, co2_frac, h2_frac, h2o_frac, n2_frac]
         """
         self.tendency = 0.0
         self.max_vol = max_vol
@@ -70,6 +71,21 @@ class BiogasStorage:
         """
         Updates the gas composition and volume of the storage with only the inflow.
         Volume can at first be higher than the maximum volume.
+
+        Parameters
+        ----------
+        gas_flow_in : int | float
+            The gas flow that is coming into the storage [Nm³/h]
+        gas_flow_in_composition : np.ndarray
+            The gas composition of the incoming gas
+            [ch4_frac, co2_frac, h2_frac, h2o_frac, n2_frac]
+        time_diff : int | float
+            The time difference since the last update [h]
+
+        Returns
+        -------
+        GasMix
+            The biogas object with the updated gas composition
         """
         self.gas_composition = self.biogas.mix(self.gas_composition, self.vol, gas_flow_in_composition, gas_flow_in)
         self.vol += gas_flow_in * time_diff
@@ -80,6 +96,18 @@ class BiogasStorage:
         """
         Updates the gas composition and volume of the storage with only the outflow.
         Maximum volume is now considered.
+
+        Parameters
+        ----------
+        gas_flow_out : int | float
+            The gas flow that is coming out of the storage [Nm³/h]
+        time_diff : int | float
+            The time difference since the last update [h]
+
+        Returns
+        -------
+        tuple
+            The surplus and deficiency of the storage, respectively [Nm³]
         """
         self.vol -= gas_flow_out * time_diff
 

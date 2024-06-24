@@ -42,6 +42,28 @@ class Economics:
         heat_net: HeatNet,
         cooler: Cooler,
     ):
+        """
+        A class that represents the economic aspects of the energy management.
+
+        Parameters
+        ----------
+        chps : list[CHP]
+            A list of CHPs in the system
+        boilers : list[Boiler]
+            A list of boilers in the system
+        biogas_storage : BiogasStorage
+            The biogas storage in the system
+        biogas_compressor : Compressor
+            The biogas compressor in the system
+        fermenter : Fermenter
+            The fermenter in the system
+        flare : Flare
+            The flare in the system
+        heat_net : HeatNet
+            The heat net in the system
+        cooler : Cooler
+            The cooler in the system
+        """
         self.chps = chps
         self.boilers = boilers
         self.biogas_storage = biogas_storage
@@ -60,9 +82,37 @@ class Economics:
 
     @staticmethod
     def calculate_debt_payment_timestep(time_diff: float, investment: float):
+        """
+        Calculates the debt payment for a specific investment in the current timestep.
+
+        Parameters
+        ----------
+        time_diff : float
+            The time difference between the timesteps [h]
+        investment : float
+            The investment costs [€]
+
+        Returns
+        -------
+        float
+            The debt payment for the timestep [€]
+        """
         return investment * ANNUITY / (HOURS_IN_YEAR / time_diff)
 
-    def get_debt_payment(self, time_diff: float):  # additional to existing wwtp -> electrolyzer, methanation, storages
+    def get_debt_payment(self, time_diff: float):
+        """
+        Returns the debt payment for the current timestep.
+
+        Parameters
+        ----------
+        time_diff : float
+            The time difference between the timesteps [h]
+
+        Returns
+        -------
+        float
+            The total debt payment for the timestep [€]
+        """
         payment_chps = np.sum([self.calculate_debt_payment_timestep(time_diff, chp.capex) for chp in self.chps])
         payment_boilers = np.sum(
             [self.calculate_debt_payment_timestep(time_diff, boiler.capex) for boiler in self.boilers]
@@ -97,6 +147,19 @@ class Economics:
         )
 
     def get_maintenance_costs(self, time_diff: float):
+        """
+        Returns the maintenance costs for the current timestep.
+
+        Parameters
+        ----------
+        time_diff : float
+            The time difference between the timesteps [h]
+
+        Returns
+        -------
+        float
+            The total maintenance costs for the timestep [€]
+        """
         maintenance_chps = np.sum([chp.capex * MAINTENANCE_COST / (HOURS_IN_YEAR / time_diff) for chp in self.chps])
         maintenance_boilers = np.sum(
             [boiler.capex * MAINTENANCE_COST / (HOURS_IN_YEAR / time_diff) for boiler in self.boilers]
@@ -118,6 +181,19 @@ class Economics:
         return total_maintenance
 
     def get_insurance_costs(self, time_diff: float):
+        """
+        Returns the insurance costs for the current timestep.
+
+        Parameters
+        ----------
+        time_diff : float
+            The time difference between the timesteps [h]
+
+        Returns
+        -------
+        float
+            The total insurance costs for the timestep [€]
+        """
         insurance_chps = np.sum([chp.capex * INSURANCE_COST / (HOURS_IN_YEAR / time_diff) for chp in self.chps])
         insurance_boilers = np.sum(
             [boiler.capex * INSURANCE_COST / (HOURS_IN_YEAR / time_diff) for boiler in self.boilers]
@@ -140,17 +216,74 @@ class Economics:
 
     @staticmethod
     def get_staff_cost(time_diff: float):
+        """
+        Returns the staff costs for the current timestep.
+        (Currently not implemented)
+
+        Parameters
+        ----------
+        time_diff : float
+            The time difference between the timesteps [h]
+
+        Returns
+        -------
+        float
+            The total staff costs for the timestep [€]
+        """
         return 0
 
     def get_total_capex(self, time_diff: float):
+        """
+        Returns the total capital expenditure for the current timestep by calling all capex related functions.
+
+        Parameters
+        ----------
+        time_diff : float
+            The time difference between the timesteps [h]
+
+        Returns
+        -------
+        float
+            The total capital expenditure for the timestep [€]
+        """
         return self.get_debt_payment(time_diff)
 
     def get_total_opex(self, time_diff: float):
+        """
+        Returns the total operational expenditure for the current timestep by calling all opex related functions.
+
+        Parameters
+        ----------
+        time_diff : float
+            The time difference between the timesteps [h]
+
+        Returns
+        -------
+        float
+            The total operational expenditure for the timestep [€]
+        """
         return (
             self.get_maintenance_costs(time_diff) + self.get_insurance_costs(time_diff) + self.get_staff_cost(time_diff)
         )
 
     def get_income(self, net_electricity_wwtp, step, time_diff):
+        """
+        Returns the income for the current timestep.
+
+        Parameters
+        ----------
+        net_electricity_wwtp : float
+            The electricity bought from the grid minus the electricity sold to the grid [kWh]
+        step : int
+            The current time step of the simulation loop
+        time_diff : float
+            The time difference between the timesteps [h]
+
+        Returns
+        -------
+        float
+            The income for the timestep [€]
+        """
         income = 0
         if net_electricity_wwtp < 0 and self.electricity_prices[step] > 0:
             income = -net_electricity_wwtp * self.electricity_prices[step] * time_diff
@@ -160,6 +293,23 @@ class Economics:
         return income
 
     def get_expenditures(self, net_electricity_wwtp, step, time_diff):
+        """
+        Returns the expenditures for the current timestep.
+
+        Parameters
+        ----------
+        net_electricity_wwtp : float
+            The electricity bought from the grid minus the electricity sold to the grid [kWh]
+        step : int
+            The current time step of the simulation loop
+        time_diff : float
+            The time difference between the timesteps [h]
+
+        Returns
+        -------
+        float
+            The expenditures for the timestep [€]
+        """
         expenditure_capex = self.get_total_capex(time_diff)
         expenditure_opex = self.get_total_opex(time_diff)
         expenditure_electricity = 0

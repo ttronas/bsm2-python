@@ -254,6 +254,51 @@ def settlerequations(t, ys, ys_in, sedpar, dim, layer, q_r, q_w, tempmodel, mode
 
 @jit(nopython=True)
 def get_output(ys_int, ys_in, nooflayers, tempmodel, q_r, q_w, dim, asm1par, sedpar):
+    """
+    Returns the return, waste and effluent concentrations of the settler model
+
+    Parameters
+    ----------
+    ys_int : np.ndarray
+        Solution of the differential equations, needed for the solver
+        Values for the 12 components (without Q and particulates) for each layer, sorted by components
+    ys_in : np.ndarray
+        Settler inlet concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+    nooflayers : int
+        Number of layers in the settler
+    tempmodel : bool
+        If true, differential equation for the wastewater temperature is used,
+        otherwise influent wastewater temperature is just passed through the settler
+    q_r : int
+        Return sludge flow rate
+    q_w : int
+        flow rate of waste sludge
+    dim : np.ndarray
+        Dimensions of the settler, area and height
+    asm1par : np.ndarray
+        ASM1 parameters
+    sedpar : np.ndarray
+        6 parameters needed for settler equations
+
+    Returns
+    -------
+    (np.ndarray, np.ndarray, np.ndarray, float)
+            Tuple containing three arrays and a float:
+                ys_ret: Array containing the values of the 21 components
+                (13 ASM1 components, TSS, Q, T and 5 dummy states)
+                in the underflow (bottom layer of settler) at the current time step
+                after the integration - return sludge
+                ys_was: Array containing the values of the 21 components
+                (13 ASM1 components, TSS, Q, T and 5 dummy states)
+                in the underflow (bottom layer of settler) at the current time step
+                after the integration - waste sludge
+                ys_eff: Array containing the values of the 21 components
+                (13 ASM1 components, TSS, Q, T and 5 dummy states)
+                in the effluent (top layer of settler) and 4 additional parameters
+                (Kjeldahl N, total N, total COD, BOD5 concentration)
+                at the current time step after the integration - effluent
+                sludge_height: Float containing the continuous signal of sludge blanket level
+    """
     ys_ret = np.zeros(21)
     ys_was = np.zeros(21)
     ys_eff = np.zeros(21)
