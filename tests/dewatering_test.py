@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 from bsm2_python.bsm2.dewatering_bsm2 import Dewatering
 from bsm2_python.bsm2.init import dewateringinit_bsm2 as dewateringinit
-from bsm2_python.logger import log
+from bsm2_python.log import logger
 
 path_name = os.path.dirname(__file__)
 
@@ -39,9 +39,9 @@ def test_dewatering():
 
     stop = time.perf_counter()
 
-    log.info('Steady state simulation completed after: %s seconds', stop - start)
-    log.info('Sludge flow at t = %s d: \n%s', endtime, ydw_s)
-    log.info('Reject flow at t = %s d: \n%s', endtime, ydw_r)
+    logger.info('Steady state simulation completed after: %s seconds', stop - start)
+    logger.info('Sludge flow at t = %s d: \n%s', endtime, ydw_s)
+    logger.info('Reject flow at t = %s d: \n%s', endtime, ydw_r)
 
     ydw_s_matlab = np.array(
         [
@@ -94,8 +94,8 @@ def test_dewatering():
         ]
     )
 
-    log.info('Sludge flow difference to MatLab solution: \n%s', ydw_s_matlab - ydw_s)
-    log.info('Reject flow difference to MatLab solution: \n%s', ydw_r_matlab - ydw_r)
+    logger.info('Sludge flow difference to MatLab solution: \n%s', ydw_s_matlab - ydw_s)
+    logger.info('Reject flow difference to MatLab solution: \n%s', ydw_r_matlab - ydw_r)
 
     assert np.allclose(ydw_s, ydw_s_matlab, rtol=1e-5, atol=1e-5)
     assert np.allclose(ydw_r, ydw_r_matlab, rtol=1e-5, atol=1e-5)
@@ -137,9 +137,9 @@ def test_dewatering_dyn():
     # np.savetxt(path_name + '/../data/test_ydw_s_all.csv', ydw_s_all, delimiter=',')
     # np.savetxt(path_name + '/../data/test_ydw_r_all.csv', ydw_r_all, delimiter=',')
 
-    log.info('Dynamic simulation completed after: %s seconds', stop - start)
-    log.info('Sludge flow at t = %s d: \n%s', endtime, ydw_s)
-    log.info('Reject flow at t = %s d: \n%s', endtime, ydw_r)
+    logger.info('Dynamic simulation completed after: %s seconds', stop - start)
+    logger.info('Sludge flow at t = %s d: \n%s', endtime, ydw_s)
+    logger.info('Reject flow at t = %s d: \n%s', endtime, ydw_r)
 
     # Values from 50 days dynamic simulation in Matlab (dewatering_test_dyn.slx):
     ydw_s_matlab = np.array(
@@ -193,8 +193,8 @@ def test_dewatering_dyn():
         ]
     )
 
-    log.info('Sludge flow difference to MatLab solution: \n%s', ydw_s_matlab - ydw_s)
-    log.info('Reject flow difference to MatLab solution: \n%s', ydw_r_matlab - ydw_r)
+    logger.info('Sludge flow difference to MatLab solution: \n%s', ydw_s_matlab - ydw_s)
+    logger.info('Reject flow difference to MatLab solution: \n%s', ydw_r_matlab - ydw_r)
 
     assert np.allclose(ydw_s, ydw_s_matlab, rtol=1e-5, atol=1e-5)
     assert np.allclose(ydw_r, ydw_r_matlab, rtol=1e-5, atol=1e-5)

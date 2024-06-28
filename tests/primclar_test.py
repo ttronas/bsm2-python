@@ -12,7 +12,7 @@ from tqdm import tqdm
 from bsm2_python.bsm2.init import asm1init_bsm2 as asm1init
 from bsm2_python.bsm2.init import primclarinit_bsm2 as primclarinit
 from bsm2_python.bsm2.primclar_bsm2 import PrimaryClarifier
-from bsm2_python.logger import log
+from bsm2_python.log import logger
 
 path_name = os.path.dirname(__file__)
 
@@ -56,9 +56,9 @@ def test_primclar():
 
     stop = time.perf_counter()
 
-    log.info('Steady state simulation completed after: %s seconds', stop - start)
-    log.info('Effluent at t = 200 d: \n%s', yp_of)
-    log.info('Sludge at t = 200 d: \n%s', yp_uf)
+    logger.info('Steady state simulation completed after: %s seconds', stop - start)
+    logger.info('Effluent at t = 200 d: \n%s', yp_of)
+    logger.info('Sludge at t = 200 d: \n%s', yp_uf)
 
     yp_of_matlab = np.array(
         [
@@ -111,8 +111,8 @@ def test_primclar():
         ]
     )
 
-    log.info('Effluent difference to MatLab solution: \n%s', yp_of_matlab - yp_of)
-    log.info('Sludge difference to MatLab solution: \n%s', yp_uf_matlab - yp_uf)
+    logger.info('Effluent difference to MatLab solution: \n%s', yp_of_matlab - yp_of)
+    logger.info('Sludge difference to MatLab solution: \n%s', yp_uf_matlab - yp_uf)
 
     assert np.allclose(yp_of, yp_of_matlab, rtol=1e-5, atol=1e-5)
     assert np.allclose(yp_uf, yp_uf_matlab, rtol=1e-5, atol=1e-5)
@@ -162,9 +162,9 @@ def test_primclar_dyn():
     # np.savetxt(path_name + '/../data/test_yp_uf.csv', yp_uf_all, delimiter=',')
     # np.savetxt(path_name + '/../data/test_yp_of.csv', yp_of_all, delimiter=',')
 
-    log.info('Dynamic simulation completed after: %s seconds', stop - start)
-    log.info('Effluent at t = %s d: \n%s', endtime, yp_of)
-    log.info('Sludge at t = %s d: \n%s', endtime, yp_uf)
+    logger.info('Dynamic simulation completed after: %s seconds', stop - start)
+    logger.info('Effluent at t = %s d: \n%s', endtime, yp_of)
+    logger.info('Sludge at t = %s d: \n%s', endtime, yp_uf)
 
     # Values from 50 days dynamic simulation in Matlab (primclar_test_dyn.slx):
     yp_uf_matlab = np.array(
@@ -218,8 +218,8 @@ def test_primclar_dyn():
         ]
     )
 
-    log.info('Effluent difference to MatLab solution: \n%s', yp_of_matlab - yp_of)
-    log.info('Sludge difference to MatLab solution: \n%s', yp_uf_matlab - yp_uf)
+    logger.info('Effluent difference to MatLab solution: \n%s', yp_of_matlab - yp_of)
+    logger.info('Sludge difference to MatLab solution: \n%s', yp_uf_matlab - yp_uf)
 
     assert np.allclose(yp_of, yp_of_matlab, rtol=1e-2)
     assert np.allclose(yp_uf, yp_uf_matlab, rtol=1e-2)

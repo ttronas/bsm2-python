@@ -9,4 +9,4 @@ logging.basicConfig(
 )
 logging.root.setLevel(logging.INFO)
 
-log = logging.getLogger('')
+logger = logging.getLogger('')

@@ -3,7 +3,7 @@
 import numpy as np
 from numba import jit
 
-from bsm2_python.logger import log
+from bsm2_python.log import logger
 
 
 @jit(nopython=True)
@@ -25,12 +25,12 @@ def numba_example():
 
 def test_numba_numpy_example():
     a = numba_numpy_example()
-    log.info(a)
+    logger.info(a)
 
 
 def test_numba_example():
     a = numba_example()
-    log.info(a)
+    logger.info(a)
 
 
 test_numba_example()

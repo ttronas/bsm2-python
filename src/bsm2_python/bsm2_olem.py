@@ -48,7 +48,7 @@ from bsm2_python.energy_management.init import (
 )
 from bsm2_python.energy_management.storage import BiogasStorage
 from bsm2_python.evaluation import Evaluation
-from bsm2_python.logger import log
+from bsm2_python.log import logger
 
 path_name = os.path.dirname(__file__)
 
@@ -497,7 +497,7 @@ class BSM2OLEM:
         )
         while not stable:
             i += 1
-            log.debug('Stabilizing iteration %s', i)
+            logger.debug('Stabilizing iteration %s', i)
             self.step(s, stabilized=stable)
             check_vars = np.concatenate(
                 [
@@ -520,7 +520,7 @@ class BSM2OLEM:
             if np.isclose(check_vars, old_check_vars, atol=atol).all():
                 stable = True
             old_check_vars = np.array(check_vars)
-        log.info('Stabilized after %s iterations\n', i)
+        logger.info('Stabilized after %s iterations\n', i)
 
     def get_electricity_demand(self):
         """

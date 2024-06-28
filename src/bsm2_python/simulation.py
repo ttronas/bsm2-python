@@ -13,9 +13,9 @@ The parameters 'tempmodel' and 'activate' can be set to 'True' if you want to ac
 
 from bsm2_olem import BSM2OLEM
 
-from bsm2_python.logger import log
+from bsm2_python.log import logger
 
-log.info('Initialize bsm2\n')
+logger.info('Initialize bsm2\n')
 
 timestep = 15 / 24 / 60  # 15 minutes in fraction of a day
 endtime = 50  # 50 days
@@ -31,18 +31,18 @@ activate = False  # if activate is False dummy states are 0
 
 bsm2 = BSM2OLEM(timestep=timestep, endtime=endtime, tempmodel=tempmodel, activate=activate)
 
-log.info('Stabilize bsm2\n')
+logger.info('Stabilize bsm2\n')
 
 bsm2.stabilize()
 
-log.info('Start simulation\n')
+logger.info('Start simulation\n')
 for i in range(total_steps):
     bsm2.step(i, stabilized=True)
 
     if i % 1000 == 0:
-        log.info('timestep: ' + str(i) + ' of ' + str(total_steps) + '\n')
+        logger.info('timestep: ' + str(i) + ' of ' + str(total_steps) + '\n')
 
     if i == total_steps - 1:
         bsm2.finish_evaluation()
-        log.info('Simulation finished\n')
+        logger.info('Simulation finished\n')
         break

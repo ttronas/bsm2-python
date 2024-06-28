@@ -11,7 +11,7 @@ import numpy as np
 from tqdm import tqdm
 
 from bsm2_python.bsm2_ol import BSM2OL
-from bsm2_python.logger import log
+from bsm2_python.log import logger
 
 path_name = os.path.dirname(__file__)
 
@@ -26,8 +26,8 @@ def test_bsm2_ss():
         bsm2_ol.step(idx)
     stop = time.perf_counter()
 
-    log.info('Steady state simulation for %s days completed after: %s seconds', bsm2_ol.endtime, stop - start)
-    log.info('Effluent at t = %s d: \n %s', bsm2_ol.endtime, bsm2_ol.y_eff_all[-1, :])
+    logger.info('Steady state simulation for %s days completed after: %s seconds', bsm2_ol.endtime, stop - start)
+    logger.info('Effluent at t = %s d: \n %s', bsm2_ol.endtime, bsm2_ol.y_eff_all[-1, :])
 
     # Values from steady state simulation in Matlab (bsm2_ss_test.slx):
     y_eff_matlab = np.array(
@@ -56,7 +56,7 @@ def test_bsm2_ss():
         ]
     )
 
-    log.info('Effluent difference to MatLab solution: %s\n', y_eff_matlab - bsm2_ol.y_eff_all[-1, :])
+    logger.info('Effluent difference to MatLab solution: %s\n', y_eff_matlab - bsm2_ol.y_eff_all[-1, :])
 
     assert np.allclose(bsm2_ol.y_eff_all[-1, :], y_eff_matlab, rtol=3e-1, atol=1e0)
 

@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 import bsm2_python.bsm2.init.storageinit_bsm2 as storageinit
 from bsm2_python.bsm2.storage_bsm2 import Storage
-from bsm2_python.logger import log
+from bsm2_python.log import logger
 
 path_name = os.path.dirname(__file__)
 
@@ -71,8 +71,8 @@ def test_storage():
 
     stop = time.perf_counter()
 
-    log.info('Steady state simulation completed after: %s seconds', stop - start)
-    log.info('Sludge at t = %s d: \n%s', endtime, yst_out)
+    logger.info('Steady state simulation completed after: %s seconds', stop - start)
+    logger.info('Sludge at t = %s d: \n%s', endtime, yst_out)
 
     yst_out_matlab = np.array(
         [
@@ -101,8 +101,8 @@ def test_storage():
     )
     yst_vol_matlab = 144.364056261084
 
-    log.info('Sludge difference to MatLab solution: \n%s', yst_out_matlab - yst_out)
-    log.info('Volume difference to MatLab solution: \n%s', yst_vol_matlab - yst_vol)
+    logger.info('Sludge difference to MatLab solution: \n%s', yst_out_matlab - yst_out)
+    logger.info('Volume difference to MatLab solution: \n%s', yst_vol_matlab - yst_vol)
 
     assert np.allclose(yst_out, yst_out_matlab, rtol=1e-5, atol=1e-5)
     assert np.allclose(
@@ -147,9 +147,9 @@ def test_storage_dyn():
     # np.savetxt(path_name + '/../data/test_yst_out_all.csv', yst_out_all, delimiter=',')
     # np.savetxt(path_name + '/../data/test_yst_vol_all.csv', yst_vol_all, delimiter=',')
 
-    log.info('Dynamic simulation completed after: %s seconds', stop - start)
-    log.info('Sludge at t = %s d: \n%s', endtime, yst_out)
-    log.info('Volume at t = %s d: \n%s', endtime, yst_vol)
+    logger.info('Dynamic simulation completed after: %s seconds', stop - start)
+    logger.info('Sludge at t = %s d: \n%s', endtime, yst_out)
+    logger.info('Volume at t = %s d: \n%s', endtime, yst_vol)
 
     # Values from 50 days dynamic simulation in Matlab (storage_test_dyn.slx)
     yst_out_matlab = np.array(
@@ -179,8 +179,8 @@ def test_storage_dyn():
     )
     yst_vol_matlab = 144.496536811897
 
-    log.info('Sludge difference to MatLab solution: \n%s', yst_out_matlab - yst_out)
-    log.info('Volume difference to MatLab solution: \n%s', yst_vol_matlab - yst_vol)
+    logger.info('Sludge difference to MatLab solution: \n%s', yst_out_matlab - yst_out)
+    logger.info('Volume difference to MatLab solution: \n%s', yst_vol_matlab - yst_vol)
 
     assert np.allclose(yst_out, yst_out_matlab, rtol=1e-5, atol=1e-5)
     assert np.allclose(

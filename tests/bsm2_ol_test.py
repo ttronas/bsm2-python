@@ -9,7 +9,7 @@ import numpy as np
 from tqdm import tqdm
 
 from bsm2_python.bsm2_ol import BSM2OL
-from bsm2_python.logger import log
+from bsm2_python.log import logger
 
 
 def test_bsm2_ol():
@@ -19,8 +19,8 @@ def test_bsm2_ol():
         bsm2_ol.step(idx)
     stop = time.perf_counter()
 
-    log.info('Dynamic open loop simulation completed after: %s seconds', stop - start)
-    log.info('Effluent at t = %s d: \n%s', bsm2_ol.endtime, bsm2_ol.y_eff_all[-1, :])
+    logger.info('Dynamic open loop simulation completed after: %s seconds', stop - start)
+    logger.info('Effluent at t = %s d: \n%s', bsm2_ol.endtime, bsm2_ol.y_eff_all[-1, :])
 
     # Values from 50 days dynamic simulation in Matlab (bsm2_ol_test.slx):
     y_eff_matlab = np.array(
@@ -49,7 +49,7 @@ def test_bsm2_ol():
         ]
     )
 
-    log.info('Effluent difference to MatLab solution: \n%s', y_eff_matlab - bsm2_ol.y_eff_all[-1, :])
+    logger.info('Effluent difference to MatLab solution: \n%s', y_eff_matlab - bsm2_ol.y_eff_all[-1, :])
 
     assert np.allclose(bsm2_ol.y_eff_all[-1, :], y_eff_matlab, rtol=3e-1, atol=1e0)
 

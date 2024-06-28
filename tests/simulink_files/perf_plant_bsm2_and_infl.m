@@ -6,7 +6,7 @@
 % startime = time where plant evaluation period start (integer)
 % stoptime = time where plant evaluation period stops (integer)
 
-% Cut away first and last samples, i.e. t=smaller than starttime and 
+% Cut away first and last samples, i.e. t=smaller than starttime and
 % t = larger than stoptime. The last 52 weeks of simulated data are used to
 % evaluate the plant performance. Set plotflag = 1 to activate plotting.
 %
@@ -14,7 +14,7 @@
 
 close all
 
-start=clock; 
+start=clock;
 disp(' ')
 disp('***** Plant evaluation of BSM2 system initiated *****')
 disp(['Start time for BSM2 evaluation (hour:min:sec) = ', num2str(round(start(4:6)))]); %Display start time of evaluation
@@ -22,8 +22,8 @@ disp(' ')
 
 plotflag = 1;
 
-starttime = 0; 
-stoptime = 50;
+starttime = 15;
+stoptime = 20;
 
 startindex=max(find(t <= starttime));
 stopindex=min(find(t >= stoptime));
@@ -58,15 +58,15 @@ TSSemax = 30;
 BOD5emax = 10;
 
 % Pollutant weighting factors, effluent pollutants
-BSS=2; 
+BSS=2;
 BCOD=1;
-BNKj=30; 
+BNKj=30;
 BNO=10;
 BBOD5=2;
 
 % Pumping energy factors
 PF_Qintr = 0.004; % kWh/m3, pumping energy factor, internal AS recirculation
-PF_Qr = 0.008;   % kWh/m3, pumping energy factor, AS sludge recycle 
+PF_Qr = 0.008;   % kWh/m3, pumping energy factor, AS sludge recycle
 PF_Qw = 0.05;    % kWh/m3, pumping energy factor, AS wastage flow
 PF_Qpu = 0.075;  % kWh/m3, pumping energy factor, pumped underflow from primary clarifier
 PF_Qtu = 0.060;  % kWh/m3, pumping energy factor, pumped underflow from thickener
@@ -101,10 +101,10 @@ timevector = time_eval(2:end)-time_eval(1:(end-1));
 
 Qinvec = inpart(:,15).*timevector;
 SIinvec = inpart(:,1).*Qinvec;
-SSinvec = inpart(:,2).*Qinvec;     
+SSinvec = inpart(:,2).*Qinvec;
 XIinvec = inpart(:,3).*Qinvec;
-XSinvec = inpart(:,4).*Qinvec;  
-XBHinvec = inpart(:,5).*Qinvec;  
+XSinvec = inpart(:,4).*Qinvec;
+XBHinvec = inpart(:,5).*Qinvec;
 XBAinvec = inpart(:,6).*Qinvec;
 XPinvec = inpart(:,7).*Qinvec;
 SOinvec = inpart(:,8).*Qinvec;
@@ -209,10 +209,10 @@ end
 % Effluent concentrations
 Qevec = effluentpart(:,15).*timevector;
 SIevec = effluentpart(:,1).*Qevec;
-SSevec = effluentpart(:,2).*Qevec;     
+SSevec = effluentpart(:,2).*Qevec;
 XIevec = effluentpart(:,3).*Qevec;
-XSevec = effluentpart(:,4).*Qevec;  
-XBHevec = effluentpart(:,5).*Qevec;  
+XSevec = effluentpart(:,4).*Qevec;
+XBHevec = effluentpart(:,5).*Qevec;
 XBAevec = effluentpart(:,6).*Qevec;
 XPevec = effluentpart(:,7).*Qevec;
 SOevec = effluentpart(:,8).*Qevec;
@@ -235,25 +235,25 @@ Qeav = Qetot/totalt;
 
 % special to handle different BOD content in bypassed effluent
 Qbypassplantvec = qpassplantpart(:,15).*timevector;
-SSbypassplantvec = qpassplantpart(:,2).*Qbypassplantvec;     
-XSbypassplantvec = qpassplantpart(:,4).*Qbypassplantvec;     
-XBHbypassplantvec = qpassplantpart(:,5).*Qbypassplantvec;     
-XBAbypassplantvec = qpassplantpart(:,6).*Qbypassplantvec;     
+SSbypassplantvec = qpassplantpart(:,2).*Qbypassplantvec;
+XSbypassplantvec = qpassplantpart(:,4).*Qbypassplantvec;
+XBHbypassplantvec = qpassplantpart(:,5).*Qbypassplantvec;
+XBAbypassplantvec = qpassplantpart(:,6).*Qbypassplantvec;
 QbypassASvec = qpassASpart(:,15).*timevector;
-SSbypassASvec = qpassASpart(:,2).*QbypassASvec;     
-XSbypassASvec = qpassASpart(:,4).*QbypassASvec;     
-XBHbypassASvec = qpassASpart(:,5).*QbypassASvec;     
-XBAbypassASvec = qpassASpart(:,6).*QbypassASvec;  
-Qbypassplanttot = sum(Qbypassplantvec);     
-SSbypassplantload = sum(SSbypassplantvec);     
-XSbypassplantload = sum(XSbypassplantvec);     
-XBHbypassplantload = sum(XBHbypassplantvec);     
-XBAbypassplantload = sum(XBAbypassplantvec);    
-QbypassAStot = sum(QbypassASvec);     
-SSbypassASload = sum(SSbypassASvec);     
-XSbypassASload = sum(XSbypassASvec);     
-XBHbypassASload = sum(XBHbypassASvec);     
-XBAbypassASload = sum(XBAbypassASvec);     
+SSbypassASvec = qpassASpart(:,2).*QbypassASvec;
+XSbypassASvec = qpassASpart(:,4).*QbypassASvec;
+XBHbypassASvec = qpassASpart(:,5).*QbypassASvec;
+XBAbypassASvec = qpassASpart(:,6).*QbypassASvec;
+Qbypassplanttot = sum(Qbypassplantvec);
+SSbypassplantload = sum(SSbypassplantvec);
+XSbypassplantload = sum(XSbypassplantvec);
+XBHbypassplantload = sum(XBHbypassplantvec);
+XBAbypassplantload = sum(XBAbypassplantvec);
+QbypassAStot = sum(QbypassASvec);
+SSbypassASload = sum(SSbypassASvec);
+XSbypassASload = sum(XSbypassASvec);
+XBHbypassASload = sum(XBHbypassASvec);
+XBAbypassASload = sum(XBAbypassASvec);
 
 
 SIeload = sum(SIevec);
@@ -342,10 +342,10 @@ end
 % Sludge disposal concentrations
 Qsvec = sludgepart(:,15).*timevector;
 SIsvec = sludgepart(:,1).*Qsvec;
-SSsvec = sludgepart(:,2).*Qsvec;     
+SSsvec = sludgepart(:,2).*Qsvec;
 XIsvec = sludgepart(:,3).*Qsvec;
-XSsvec = sludgepart(:,4).*Qsvec;  
-XBHsvec = sludgepart(:,5).*Qsvec;  
+XSsvec = sludgepart(:,4).*Qsvec;
+XBHsvec = sludgepart(:,5).*Qsvec;
 XBAsvec = sludgepart(:,6).*Qsvec;
 XPsvec = sludgepart(:,7).*Qsvec;
 SOsvec = sludgepart(:,8).*Qsvec;
@@ -451,7 +451,7 @@ SSe=effluentpart(:,14);
 CODe=effluentpart(:,1)+effluentpart(:,2)+effluentpart(:,3)+effluentpart(:,4)+effluentpart(:,5)+effluentpart(:,6)+effluentpart(:,7);
 SNKje=effluentpart(:,10)+effluentpart(:,11)+effluentpart(:,12)+i_XB*(effluentpart(:,5)+effluentpart(:,6))+i_XP*(effluentpart(:,3)+effluentpart(:,7));
 SNOe=effluentpart(:,9);
-BOD5e=BOD5evec2; 
+BOD5e=BOD5evec2;
 
 EQIvecinst=(BSS*SSe+BCOD*CODe+BNKj*SNKje+BNO*SNOe+BBOD5*BOD5e).*effluentpart(:,15);
 
@@ -590,7 +590,7 @@ Qgasav = Qgastot/totalt;
 
 % Heating energy for anaerobic digester
 ro = 1000; %Water density in kg/m3
-cp = 4.186; %Specific heat capacity for water in Ws/gC 
+cp = 4.186; %Specific heat capacity for water in Ws/gC
 % Potential truck input to AD has been removed below
 Tdigesterin = (primarypart(:,37).*primarypart(:,36)+thickenerpart(:,16).*thickenerpart(:,15))./(primarypart(:,36)+thickenerpart(:,15));
 Heatpower = (35-Tdigesterin).*digesterinpart(:,27)*ro*cp/86400; %kW
@@ -602,7 +602,7 @@ airenergycost=1*airenergyperd;
 mixenergycost=1*mixenergyperd;
 pumpenergycost=1*pumpenergyperd;
 carbonmasscost=3*carbonmassperd;
-EnergyfromMethaneperdcost = 6*Methaneprodperd; 
+EnergyfromMethaneperdcost = 6*Methaneprodperd;
 Heatenergycost = max(0,Heatenergyperd-7*Methaneprodperd);
 
 OCI=TSScost+airenergycost+mixenergycost+pumpenergycost+carbonmasscost-EnergyfromMethaneperdcost+Heatenergycost;
@@ -941,7 +941,7 @@ if plotflag==1
     movingaveragewindow = 96; % even number
     timeshift = movingaveragewindow/2;
     b = ones(1,movingaveragewindow)./movingaveragewindow;
-    
+
     figure(1)
     plot(time_eval(1:(end-1)),totalNevec2,'b','LineWidth',1)
     hold on
@@ -1037,7 +1037,7 @@ if plotflag==1
     hold off
     xlim([starttime stoptime])
     set(gca,'LineWidth',1.5,'FontSize',10,'FontWeight','bold')
-    
+
     figure(8)
     plot(time_eval(1:(end-1)),pumpenergyvec,'b','LineWidth',1)
     hold on
@@ -1076,7 +1076,7 @@ if plotflag==1
     hold off
     xlim([starttime stoptime])
     set(gca,'LineWidth',1.5,'FontSize',10,'FontWeight','bold')
-   
+
     figure(11)
     plot(time_eval(1:(end-1)),Methaneflowvec,'b','LineWidth',1)
     hold on
@@ -1089,7 +1089,7 @@ if plotflag==1
     hold off
     xlim([starttime stoptime])
     set(gca,'LineWidth',1.5,'FontSize',10,'FontWeight','bold')
-       
+
     figure(12)
     plot(time_eval(1:(end-1)),digesteroutpart(:,51),'b','LineWidth',1)
     hold on
@@ -1102,7 +1102,7 @@ if plotflag==1
     hold off
     xlim([starttime stoptime])
     set(gca,'LineWidth',1.5,'FontSize',10,'FontWeight','bold')
-    
+
     figure(13)
     plot(time_eval(1:(end-1)),storagepart(:,22),'b','LineWidth',1)
     hold on
@@ -1115,7 +1115,7 @@ if plotflag==1
     hold off
     xlim([starttime stoptime])
     set(gca,'LineWidth',1.5,'FontSize',10,'FontWeight','bold')
-    
+
     % Plot of the SNH, TN and TSS curves
     SNHeffsort=sort(SNHevec2);
     TNeffsort=sort(totalNevec2);
@@ -1158,7 +1158,7 @@ if plotflag==1
     title('Ordered effluent TSS concentrations with 95% percentile','FontSize',10,'FontWeight','bold')
     xlim([0 105])
     set(gca,'LineWidth',1.5,'FontSize',10,'FontWeight','bold')
-    
+
     disp('Plotting of BSM2 evaluation results has been completed')
     disp('******************************************************')
     disp(' ')

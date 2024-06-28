@@ -114,6 +114,8 @@ class Storage(Module):
         -------
         yst_out1 : np.ndarray
             Storage tank effluent concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        curr_vol : float
+            Current volume of the storage tank
         """
         yst_in1 = np.zeros(22)
         yst_bp = np.zeros(21)  # bypass

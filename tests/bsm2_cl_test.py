@@ -9,7 +9,7 @@ import numpy as np
 from tqdm import tqdm
 
 from bsm2_python.bsm2_cl import BSM2CL
-from bsm2_python.logger import log
+from bsm2_python.log import logger
 
 
 def test_bsm2_cl():
@@ -19,8 +19,8 @@ def test_bsm2_cl():
         bsm2_cl.step(idx)
 
     stop = time.perf_counter()
-    log.info('Dynamic open loop simulation completed after: %s seconds', stop - start)
-    log.info('Effluent at t = %s d: \n%s', bsm2_cl.endtime, bsm2_cl.y_eff_all[-1, :])
+    logger.info('Dynamic open loop simulation completed after: %s seconds', stop - start)
+    logger.info('Effluent at t = %s d: \n%s', bsm2_cl.endtime, bsm2_cl.y_eff_all[-1, :])
     y_eff_matlab = np.array(
         [
             30.325155279916,

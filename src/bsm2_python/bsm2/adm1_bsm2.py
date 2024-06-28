@@ -100,25 +100,25 @@ class ADM1Reactor(Module):
             At the moment very rudimentary implementation! No heat losses / transfer embedded!
         Returns
         -------
-        y_out2 : np.ndarray(35)
-            concentrations of the 35 components (26 ADM1 components, 9 other gas-related components)
-            [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
-             X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
-             Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D]
+        yi_out2 : np.ndarray(35)
+            concentrations of the 33 components after ADM2ASM interface
+            (21 ASM1 components, 9 other gas-related components, Q, T and 2 dummy states)
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+             SD1, SD2, SD3, XD4, XD5, pH, T_WW]
         yd_out : np.ndarray(51)
-            concentrations of the 51 components
+            concentrations of the 51 components after the ADM1 reactor
             (35 ADM1 components, 9 other gas-related components, Q, T and 5 dummy states)
             [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
              X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
              Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D, pH, S_H_ion, S_hva, S_hbu,
              S_hpro, S_hac, S_hco3, S_CO2, S_nh3, S_NH4+, S_gas_h2, S_gas_ch4, S_gas_co2,
              p_gas_h2, p_gas_ch4, p_gas_co2, P_gas, q_gas]
-        y_out1 : np.ndarray(33)
-            concentrations of the 33 components
-            (21 ASM1 components, 9 other gas-related components, Q, T and 2 dummy states)
-            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
-                SD1, SD2, SD3, XD4, XD5, pH, T_WW]
-
+        yi_out1 : np.ndarray(33)
+            concentrations of the 35 components after ASM2ADM interface.
+            (26 ADM1 components, 9 other gas-related components)
+            [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
+             X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
+             Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D]
         """
         self.t_op = t_op
         yd_out = np.zeros(51)
@@ -134,7 +134,7 @@ class ADM1Reactor(Module):
 
         self.y_in1[:21] = y_in1[:21]
 
-        y_out1 = asm2adm(self.y_in1, t_op, self.interfacepar)
+        yi_out1 = asm2adm(self.y_in1, t_op, self.interfacepar)
         # y_out1
         #  0     1     2     3     4     5      6     7     8      9     10    11   12
         # [S_SU, S_AA, S_FA, S_VA, S_BU, S_PRO, S_AC, S_H2, S_CH4, S_IC, S_IN, S_I, X_XC,
@@ -155,8 +155,8 @@ class ADM1Reactor(Module):
         # 36   37      38      39      40      41
         # T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D
 
-        yd_in[:26] = y_out1[:26]
-        yd_in[35:] = y_out1[26:]
+        yd_in[:26] = yi_out1[:26]
+        yd_in[35:] = yi_out1[26:]
         # [S_SU, S_AA, S_FA, S_VA, S_BU, S_PRO, S_AC, S_H2, S_CH4, S_IC, S_IN, S_I, X_XC, X_CH, X_PR,
         #  X_LI, X_SU, X_AA, X_FA, X_C4, X_PRO, X_AC, X_H2, X_I, S_CAT, S_AN, S_HVA, S_HBU, S_HPRO, S_HAC,
         #  S_HCO3, S_NH3, S_GAS_H2, S_GAS_CH4, S_GAS_CO2, Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D]
@@ -256,12 +256,12 @@ class ADM1Reactor(Module):
         y_in2[33] = yd_out[33]  # pH
         y_in2[34] = self.y_in1[15]
         self.temperature = yd_out[27]  # Temperature
-        y_out2 = adm2asm(y_in2, t_op, self.interfacepar)
+        yi_out2 = adm2asm(y_in2, t_op, self.interfacepar)
         if step % 10 == 0:
             pass
         self.yd_out = yd_out
 
-        return y_out2, yd_out, y_out1
+        return yi_out2, yd_out, yi_out1
 
 
 @jit(nopython=True, cache=True)

@@ -28,7 +28,7 @@ from bsm2_python.bsm2.settler1d_bsm2 import Settler
 from bsm2_python.bsm2.storage_bsm2 import Storage
 from bsm2_python.bsm2.thickener_bsm2 import Thickener
 from bsm2_python.controller import Controller
-from bsm2_python.logger import log
+from bsm2_python.log import logger
 
 path_name = os.path.dirname(__file__)
 
@@ -316,7 +316,7 @@ class BSM2OL:
         )
         while not stable:
             i += 1
-            log.debug('Stabilizing iteration %s', i)
+            logger.debug('Stabilizing iteration %s', i)
             self.step(s)
             check_vars = np.concatenate(
                 [
@@ -339,7 +339,7 @@ class BSM2OL:
             if np.isclose(check_vars, old_check_vars, atol=atol).all():
                 stable = True
             old_check_vars = np.array(check_vars)
-        log.info('Stabilized after %s iterations\n', i)
+        logger.info('Stabilized after %s iterations\n', i)
 
     def get_electricity_demand(self):
         """

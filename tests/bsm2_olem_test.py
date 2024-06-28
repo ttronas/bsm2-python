@@ -7,7 +7,7 @@ import numpy as np
 from tqdm import tqdm
 
 from bsm2_python.bsm2_olem import BSM2OLEM
-from bsm2_python.logger import log
+from bsm2_python.log import logger
 
 
 def test_bsm2_olem():
@@ -24,7 +24,7 @@ def test_bsm2_olem():
     for i, _ in enumerate(tqdm(bsm2_olem.simtime)):
         bsm2_olem.step(i, stabilized=True)
         if i % 1000 == 0:
-            log.info(i)
+            logger.info(i)
 
     cumulative_cash_flow_simulated = np.array([bsm2_olem.economics.cum_cash_flow])
     cumulative_cash_flow_expected = np.array([15931573.30219831])

@@ -4,13 +4,11 @@ A Python implementation of the Benchmark Simulation Model 2 (BSM2) plant layout 
 A description of BSM2 can be found [here](https://iwaponline.com/ebooks/book-pdf/650794/wio9781780401171.pdf).
 
 ## To-Do:
-- [x] Lukas: Get your fingers on hatch and find out how to use it inside IDEs (perhaps share your experience inside [CONTRIBUTING.md](CONTRIBUTING.md)):D
-- [x] Lukas: put init files in separate folder
 - [x] Lukas: Write parent class for all BSM2 objects (e.g. methods `stabilize` or `simulate`)
 - [ ] Lukas: Import different plant setups - including BSM2OLEM (BSM2 open loop with energy management)
 - [x] Lukas: Write simple controller (focusing on kla and gas management control based on electricity prices)
 - [ ] Nick: Write docs!
-- [ ] Jonas: Remove dependency from `pandas` to `matplotlib`
+- [ ] Jonas: install mkdocs dependencies in Dockerfile
 
 ## Installation
 To run the project, build it yourself via `hatch build`.
