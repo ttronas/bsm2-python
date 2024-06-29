@@ -1,3 +1,4 @@
+import csv
 import os
 import sys
 
@@ -53,6 +54,13 @@ class PlantPerformance:
         self.pp_par = pp_par
         self.simtime = simtime
         self.evaltime = evaltime
+        path_name = os.path.dirname(__file__)
+        with open(path_name + '/../data/electricity_prices_2023.csv', encoding='utf-8-sig') as f:
+            prices = []
+            data = np.array(list(csv.reader(f, delimiter=','))).astype(np.float64)
+            for price in data:
+                prices.append(price[0])
+            self.electricity_prices = np.array(prices).astype(np.float64)
 
     def aerationenergy(self, kla, vol, sosat, timestep, evaltime=None):
         """
@@ -620,32 +628,50 @@ class PlantPerformance:
 
         return heatenergyperd
 
-    @staticmethod
-    def oci(pe, ae, me, tss, cm, he, mp):
+    def oci(self, pe, ae, me, eg, tss, cm, he, mp, idx, *, dyn=False):
         """
         Calculates the operational cost index of the plant
 
         Parameters
         ----------
-        pe : np.ndarray
-            The pumping energy of the plant / kW
-        ae : np.ndarray
-            The aeration energy of the plant / kW
-        me : np.ndarray
-            The mixing energy of the plant / kW
-        tss : np.ndarray
+        pe : float
+            The pumping energy of the plant / kWh/d
+        ae : float
+            The aeration energy of the plant / kWh/d
+        me : float
+            The mixing energy of the plant / kWh/d
+        eg : float
+            The electricity generation of the plant / kWh/d
+        tss : float
             The total suspended solids production of the plant / kg/d
-        cm : np.ndarray
+        cm : float
             The added carbon mass of the plant / kg/d
-        he : np.ndarray
-            The heating demand of the plant / kW
-        mp : np.ndarray
+        he : float
+            The heating demand of the plant / kWh/d
+        mp : float
             The methane production of the plant / kg/d
+        idx : int
+            The index of the current time step
+        dyn : bool
+            If True, calculates the OCI with varying power prices. Defaults to False.
         """
-        oci = 3 * tss + ae + me + pe + 3 * cm + max(0, he - 7 * mp) - 6 * mp
-        return oci
-
-    # TODO: Add doci (dynamic oci) for varying power prices
+        tss_cost = 3 * tss
+        ae_cost = ae
+        me_cost = me
+        pe_cost = pe
+        eg_income = eg
+        cm_cost = 3 * cm
+        he_cost = max(0.0, he - 7 * mp)
+        mp_income = 6 * mp
+        if dyn:
+            steps_perd = 4 * 24
+            step_start = idx - idx % steps_perd
+            daily_avg_price = np.mean(self.electricity_prices[step_start : step_start + steps_perd])
+            cur_price = self.electricity_prices[idx]
+            ae_cost *= cur_price / daily_avg_price
+            me_cost *= cur_price / daily_avg_price
+            pe_cost *= cur_price / daily_avg_price
+        return tss_cost + ae_cost + me_cost + pe_cost - eg_income + cm_cost + he_cost - mp_income
 
     @staticmethod
     def _reshape_if_1d(arr):

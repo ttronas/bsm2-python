@@ -15,9 +15,9 @@ from bsm2_python.log import logger
 SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = np.arange(21)
 
 
-bsm2_ol_pp = BSM2OLPP(endtime=20, timestep=15 / 60 / 24, tempmodel=False, activate=False)
+bsm2_ol_pp = BSM2OLPP(endtime=20, timestep=1 / 60 / 24, tempmodel=False, activate=False)
 evaltime = np.array([15, 20])
-eval_idx = evaltime * int(60/15) * 24
+eval_idx = evaltime * 60 * 24
 num_eval_timesteps = eval_idx[1] - eval_idx[0]
 performance = PlantPerformance(pp_init.PP_PAR, bsm2_ol_pp.simtime, evaltime)
 pe_flow_all = np.zeros((len(bsm2_ol_pp.simtime), 6))
@@ -94,13 +94,15 @@ for idx, _ in enumerate(tqdm(bsm2_ol_pp.simtime)):
     heat_yt_uf_all[idx] = performance.heat_demand_step(bsm2_ol_pp.yt_uf_all[idx], reginit.T_OP)[0]
     heat = heat_yp_uf_all[idx] + heat_yt_uf_all[idx]
     oci_all[idx] = performance.oci(
-        pumpingenergy_all[idx],
-        aerationenergy_all[idx],
-        mixingenergy_all[idx],
+        pumpingenergy_all[idx] * 24,  # kWh/d
+        aerationenergy_all[idx] * 24,
+        mixingenergy_all[idx] * 24,
+        0,
         ydw_s_tss_flow_all[idx],
         added_carbon_mass_all[idx],
-        heat,
+        heat * 24,
         ch4_prod_all[idx],
+        idx,
     )
 stop = time.perf_counter()
 # save bsm2_ol_pp.yp_uf_all and bsm2_ol_pp.yt_uf_all to a npz file
@@ -110,23 +112,23 @@ np.savez('bsm2_ol_pp.yt_uf_all.npz', yt_uf_all=bsm2_ol_pp.yt_uf_all)
 pumpingenergy = np.sum(pumpingenergy_all[eval_idx[0] : eval_idx[1]]) / num_eval_timesteps * 24  # 24 to get kWh/day
 pe_flow_compare = np.sum(pe_flow_all[eval_idx[0] : eval_idx[1]], axis=0)
 pumpingenergy_compare = performance.pumpingenergy(pe_flow_compare, pp_init.PP_PAR[10:16], bsm2_ol_pp.timestep[0])
-logger.info('Pumping energy = %s \n Pumping energy compare = %s', str(pumpingenergy), str(pumpingenergy_compare))
+logger.info('Pumping energy = %s \n Pumping energy compare = %s\n', str(pumpingenergy), str(pumpingenergy_compare))
 
 aerationenergy = np.sum(aerationenergy_all[eval_idx[0] : eval_idx[1]]) / num_eval_timesteps * 24
 aerationenergy_compare = performance.aerationenergy(
     np.outer(ones[eval_idx[0] : eval_idx[1]], klas), vols[0:5], sosat, bsm2_ol_pp.timestep[0], evaltime
 )
-logger.info('Aeration energy = %s \n Aeration energy compare = %s', str(aerationenergy), str(aerationenergy_compare))
+logger.info('Aeration energy = %s \n Aeration energy compare = %s\n', str(aerationenergy), str(aerationenergy_compare))
 
 mixingenergy = np.sum(mixingenergy_all[eval_idx[0] : eval_idx[1]]) / num_eval_timesteps * 24
 mixingenergy_compare = performance.mixingenergy(
     np.outer(ones[eval_idx[0] : eval_idx[1]], klas), vols, bsm2_ol_pp.timestep[0], evaltime, pp_init.PP_PAR[16]
 )
-logger.info('Mixing energy = %s \n Mixing energy compare = %s', str(mixingenergy), str(mixingenergy_compare))
+logger.info('Mixing energy = %s \n Mixing energy compare = %s\n', str(mixingenergy), str(mixingenergy_compare))
 
 iqi = np.sum(iqi_all[eval_idx[0] : eval_idx[1]]) / num_eval_timesteps
 eqi = np.sum(eqi_all[eval_idx[0] : eval_idx[1]]) / num_eval_timesteps
-logger.info('EQI = %s \n IQI = %s', str(eqi), str(iqi))
+logger.info('EQI = %s \n IQI = %s\n', str(eqi), str(iqi))
 
 violation = np.zeros(2)
 violation[0] = np.sum(violation_all[eval_idx[0] : eval_idx[1]]) / 60 / 24  # / 60 / 24 to get violations/day
@@ -134,28 +136,28 @@ violation[1] = np.sum(violation_all[eval_idx[0] : eval_idx[1]]) / num_eval_times
 violation_compare = performance.violation(
     bsm2_ol_pp.y_eff_all[eval_idx[0] : eval_idx[1], SNH], 4, bsm2_ol_pp.timestep[0], evaltime
 )
-logger.info('Violation step = %s \n Violation compare = %s', str(violation), str(violation_compare))
+logger.info('Violation step = %s \n Violation compare = %s\n', str(violation), str(violation_compare))
 
-tot_tss_mass_bsm2 = (
-    np.sum(ydw_s_tss_flow_all[eval_idx[0] : eval_idx[1]]) / num_eval_timesteps
-    + (tss_mass_bsm2_all[eval_idx[1]] - tss_mass_bsm2_all[eval_idx[0]]) / (evaltime[-1] - evaltime[0])
-)
+tot_tss_mass_bsm2 = np.sum(ydw_s_tss_flow_all[eval_idx[0] : eval_idx[1]]) / num_eval_timesteps + (
+    tss_mass_bsm2_all[eval_idx[1]] - tss_mass_bsm2_all[eval_idx[0]]
+) / (evaltime[-1] - evaltime[0])
+
 tot_sludge_prod = (
-    (np.sum(y_eff_tss_flow_all[eval_idx[0] : eval_idx[1]]) + np.sum(ydw_s_tss_flow_all[eval_idx[0] : eval_idx[1]]))
-    / num_eval_timesteps
-    + (tss_mass_bsm2_all[eval_idx[1]] - tss_mass_bsm2_all[eval_idx[0]]) / (evaltime[-1] - evaltime[0])
+    np.sum(y_eff_tss_flow_all[eval_idx[0] : eval_idx[1]]) + np.sum(ydw_s_tss_flow_all[eval_idx[0] : eval_idx[1]])
+) / num_eval_timesteps + (tss_mass_bsm2_all[eval_idx[1]] - tss_mass_bsm2_all[eval_idx[0]]) / (
+    evaltime[-1] - evaltime[0]
 )
-logger.info('Totsludgeprodperd = %s \n TSSproducedperd = %s', str(tot_sludge_prod), str(tot_tss_mass_bsm2))
+logger.info('Totsludgeprodperd = %s \n TSSproducedperd = %s\n', str(tot_sludge_prod), str(tot_tss_mass_bsm2))
 
 carb_mass = np.sum(added_carbon_mass_all[eval_idx[0] : eval_idx[1]]) / num_eval_timesteps
-logger.info('carbonmassperd = %s', str(carb_mass))
+logger.info('carbonmassperd = %s\n', str(carb_mass))
 
 ch4_prod = np.sum(ch4_prod_all[eval_idx[0] : eval_idx[1]]) / num_eval_timesteps
 h2_prod = np.sum(h2_prod_all[eval_idx[0] : eval_idx[1]]) / num_eval_timesteps
 co2_prod = np.sum(co2_prod_all[eval_idx[0] : eval_idx[1]]) / num_eval_timesteps
 q_gas = np.sum(q_gas_all[eval_idx[0] : eval_idx[1]]) / num_eval_timesteps
 logger.info(
-    'Methaneprodperd = %s \n Hydrogenprodperd = %s \n Carbondioxideprodperd = %s \n Qgasav = %s',
+    'Methaneprodperd = %s \n Hydrogenprodperd = %s \n Carbondioxideprodperd = %s \n Qgasav = %s\n',
     str(ch4_prod),
     str(h2_prod),
     str(co2_prod),
@@ -173,12 +175,15 @@ heat_demand_compare = performance.heat_demand(
     bsm2_ol_pp.timestep[0],
     evaltime,
 )
-logger.info('Heatenergyperd = %s \n Heatenergyperd compare = %s', heat_demand, heat_demand_compare)
+logger.info('Heatenergyperd = %s \n Heatenergyperd compare = %s\n', heat_demand, heat_demand_compare)
 
-oci = np.sum(oci_all[eval_idx[0] : eval_idx[1]]) / num_eval_timesteps
-logger.info('OCI = %s', str(oci))
+# oci = np.sum(oci_all[eval_idx[0] : eval_idx[1]]) / num_eval_timesteps
+oci = performance.oci(
+    pumpingenergy, aerationenergy, mixingenergy, 0, tot_tss_mass_bsm2, carb_mass, heat_demand, ch4_prod, 0
+)
+logger.info('OCI = %s\n', str(oci))
 
-logger.info('Dynamic open loop simulation completed after: %s seconds', stop - start)
+logger.info('Dynamic open loop simulation completed after: %s seconds\n', stop - start)
 eval_array = [
     iqi,
     eqi,
@@ -214,16 +219,16 @@ eval_par_matlab = np.array(
     ]
 )
 logger.info(
-    'Effluent difference to MatLab solution: \nIQI: %s\nEQI: %s\nTotsludgeprodperd: %s\nTSSproducedperd: %s\n\
-        carbonmassperd: %s\nMethaneprodperd: %s\nHydrogenprodperd: %s\nCarbondioxideprodperd: %s\nQgasav: %s\n\
-            Heatenergyperd: %s\nmixenergyperd: %s\nPumpingenergy: %s\naerationenergy: %s\nOCI: %s',
+    'Effluent difference to MatLab solution: \n IQI: %s\n EQI: %s\n Totsludgeprodperd: %s\n TSSproducedperd: %s\n '
+    'carbonmassperd: %s\n Methaneprodperd: %s\n Hydrogenprodperd: %s\n Carbondioxideprodperd: %s\n Qgasav: %s\n '
+    'Heatenergyperd: %s\n mixenergyperd: %s\n Pumpingenergy: %s\n aerationenergy: %s\n OCI: %s\n',
     *eval_par_matlab - eval_array,
 )
 
 logger.info(
-    'Fraction Effluent / Matlab solution: \nIQI: %s\nEQI: %s\nTotsludgeprodperd: %s\nTSSproducedperd: %s\n\
-        carbonmassperd: %s\nMethaneprodperd: %s\nHydrogenprodperd: %s\nCarbondioxideprodperd: %s\nQgasav: %s\n\
-            Heatenergyperd: %s\nmixenergyperd: %s\nPumpingenergy: %s\naerationenergy: %s\nOCI: %s',
+    'Fraction Matlab solution / Python solution: \n IQI: %s\n EQI: %s\n Totsludgeprodperd: %s\n TSSproducedperd: %s\n '
+    'carbonmassperd: %s\n Methaneprodperd: %s\n Hydrogenprodperd: %s\n Carbondioxideprodperd: %s\n Qgasav: %s\n '
+    'Heatenergyperd: %s\n mixenergyperd: %s\n Pumpingenergy: %s\n aerationenergy: %s\n OCI: %s\n',
     *eval_par_matlab / eval_array,
 )
 
