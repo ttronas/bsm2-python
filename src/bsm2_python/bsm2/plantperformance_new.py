@@ -575,7 +575,7 @@ class PlantPerformance:
         y_uf = self._reshape_if_1d(y_uf)
         flow = y_uf[:, 14]
         t = t_op - (y_uf[:, 15] + 273.15)
-        heat_demand = flow / 24 / 60 * rho * cp * t  # m^3/s * kg/m^3 * kJ/kg*K * K = kW
+        heat_demand = flow / 86400 * rho * cp * t  # m^3/d / s/d * kg/m^3 * kJ/kg*K * K = kW
 
         return heat_demand
 

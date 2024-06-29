@@ -9,15 +9,15 @@ import bsm2_python.bsm2.init.asm1init_bsm2 as asm1init
 import bsm2_python.bsm2.init.plantperformanceinit_bsm2 as pp_init
 import bsm2_python.bsm2.init.reginit_bsm2 as reginit
 from bsm2_python.bsm2.plantperformance_new import PlantPerformance
-from bsm2_python.bsm2_ol_PP import BSM2OLPP
+from bsm2_python.bsm2_ol_pp import BSM2OLPP
 from bsm2_python.log import logger
 
 SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = np.arange(21)
 
 
-bsm2_ol_pp = BSM2OLPP(endtime=20, timestep=1 / 60 / 24, tempmodel=False, activate=False)
+bsm2_ol_pp = BSM2OLPP(endtime=20, timestep=15 / 60 / 24, tempmodel=False, activate=False)
 evaltime = np.array([15, 20])
-eval_idx = evaltime * 60 * 24
+eval_idx = evaltime * int(60/15) * 24
 num_eval_timesteps = eval_idx[1] - eval_idx[0]
 performance = PlantPerformance(pp_init.PP_PAR, bsm2_ol_pp.simtime, evaltime)
 pe_flow_all = np.zeros((len(bsm2_ol_pp.simtime), 6))
@@ -138,15 +138,13 @@ logger.info('Violation step = %s \n Violation compare = %s', str(violation), str
 
 tot_tss_mass_bsm2 = (
     np.sum(ydw_s_tss_flow_all[eval_idx[0] : eval_idx[1]]) / num_eval_timesteps
-    + tss_mass_bsm2_all[eval_idx[1]]
-    - tss_mass_bsm2_all[eval_idx[0]]
-) / num_eval_timesteps
+    + (tss_mass_bsm2_all[eval_idx[1]] - tss_mass_bsm2_all[eval_idx[0]]) / (evaltime[-1] - evaltime[0])
+)
 tot_sludge_prod = (
     (np.sum(y_eff_tss_flow_all[eval_idx[0] : eval_idx[1]]) + np.sum(ydw_s_tss_flow_all[eval_idx[0] : eval_idx[1]]))
     / num_eval_timesteps
-    + tss_mass_bsm2_all[eval_idx[1]]
-    - tss_mass_bsm2_all[eval_idx[0]]
-) / num_eval_timesteps
+    + (tss_mass_bsm2_all[eval_idx[1]] - tss_mass_bsm2_all[eval_idx[0]]) / (evaltime[-1] - evaltime[0])
+)
 logger.info('Totsludgeprodperd = %s \n TSSproducedperd = %s', str(tot_sludge_prod), str(tot_tss_mass_bsm2))
 
 carb_mass = np.sum(added_carbon_mass_all[eval_idx[0] : eval_idx[1]]) / num_eval_timesteps
@@ -220,6 +218,13 @@ logger.info(
         carbonmassperd: %s\nMethaneprodperd: %s\nHydrogenprodperd: %s\nCarbondioxideprodperd: %s\nQgasav: %s\n\
             Heatenergyperd: %s\nmixenergyperd: %s\nPumpingenergy: %s\naerationenergy: %s\nOCI: %s',
     *eval_par_matlab - eval_array,
+)
+
+logger.info(
+    'Fraction Effluent / Matlab solution: \nIQI: %s\nEQI: %s\nTotsludgeprodperd: %s\nTSSproducedperd: %s\n\
+        carbonmassperd: %s\nMethaneprodperd: %s\nHydrogenprodperd: %s\nCarbondioxideprodperd: %s\nQgasav: %s\n\
+            Heatenergyperd: %s\nmixenergyperd: %s\nPumpingenergy: %s\naerationenergy: %s\nOCI: %s',
+    *eval_par_matlab / eval_array,
 )
 
 # %%
