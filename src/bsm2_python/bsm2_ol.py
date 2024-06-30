@@ -12,6 +12,7 @@ import numpy as np
 import bsm2_python.bsm2.init.adm1init_bsm2 as adm1init
 import bsm2_python.bsm2.init.asm1init_bsm2 as asm1init
 import bsm2_python.bsm2.init.dewateringinit_bsm2 as dewateringinit
+import bsm2_python.bsm2.init.plantperformanceinit_bsm2 as pp_init
 import bsm2_python.bsm2.init.primclarinit_bsm2 as primclarinit
 import bsm2_python.bsm2.init.reginit_bsm2 as reginit
 import bsm2_python.bsm2.init.settler1dinit_bsm2 as settler1dinit
@@ -21,7 +22,7 @@ from bsm2_python.bsm2.adm1_bsm2 import ADM1Reactor
 from bsm2_python.bsm2.asm1_bsm2 import ASM1reactor
 from bsm2_python.bsm2.dewatering_bsm2 import Dewatering
 from bsm2_python.bsm2.helpers_bsm2 import Combiner, Splitter
-from bsm2_python.bsm2.plantperformance_step import PlantPerformance
+from bsm2_python.bsm2.plantperformance_new import PlantPerformance
 from bsm2_python.bsm2.primclar_bsm2 import PrimaryClarifier
 from bsm2_python.bsm2.settler1d_bsm2 import Settler
 from bsm2_python.bsm2.storage_bsm2 import Storage
@@ -175,7 +176,7 @@ class BSM2OL:
 
         self.y_in = data_in[:, 1:]
 
-        self.plantperformance = PlantPerformance()
+        self.plantperformance = PlantPerformance(pp_init.PP_PAR)
 
         self.klas = np.array([reginit.KLA1, reginit.KLA2, reginit.KLA3, reginit.KLA4, reginit.KLA5])
         # scenario 5, 75th percentile, 50% reduction when S_NH below 4g/m3
@@ -245,7 +246,7 @@ class BSM2OL:
         yp_in_c, y_in_bp = self.input_splitter.output(y_in_timestep, (0, 0), reginit.QBYPASS)
         y_plant_bp, y_in_as_c = self.bypass_plant.output(y_in_bp, (1 - reginit.QBYPASSPLANT, reginit.QBYPASSPLANT))
         yp_in = self.combiner_primclar_pre.output(yp_in_c, self.yst_sp_p, self.yt_sp_p)
-        yp_uf, yp_of = self.primclar.output(self.timestep[i], step, yp_in)
+        yp_uf, yp_of, _ = self.primclar.output(self.timestep[i], step, yp_in)
         y_c_as_bp = self.combiner_primclar_post.output(yp_of[:21], y_in_as_c)
         y_bp_as, y_as_bp_c_eff = self.bypass_reactor.output(y_c_as_bp, (1 - reginit.QBYPASSAS, reginit.QBYPASSAS))
 

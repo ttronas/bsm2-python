@@ -77,6 +77,7 @@ class ADM1Reactor(Module):
         self.digesterpar = digesterpar
         self.interfacepar = interfacepar
         self.dim = dim
+        self.volume_liq, self.volume_gas = self.dim
         self.t_op = 0.0
         self.temperature = 0.0
         self.yd_out = np.zeros(51)

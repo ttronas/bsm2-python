@@ -12,6 +12,7 @@ import numpy as np
 import bsm2_python.bsm2.init.adm1init_bsm2 as adm1init
 import bsm2_python.bsm2.init.asm1init_bsm2 as asm1init
 import bsm2_python.bsm2.init.dewateringinit_bsm2 as dewateringinit
+import bsm2_python.bsm2.init.plantperformanceinit_bsm2 as pp_init
 import bsm2_python.bsm2.init.reginit_bsm2 as reginit
 import bsm2_python.bsm2.init.settler1dinit_bsm2 as settler1dinit
 import bsm2_python.bsm2.init.storageinit_bsm2 as storageinit
@@ -21,7 +22,7 @@ from bsm2_python.bsm2.asm1_bsm2 import ASM1reactor
 from bsm2_python.bsm2.dewatering_bsm2 import Dewatering
 from bsm2_python.bsm2.helpers_bsm2 import Combiner, Splitter
 from bsm2_python.bsm2.init import primclarinit_bsm2 as primclarinit
-from bsm2_python.bsm2.plantperformance_step import PlantPerformance
+from bsm2_python.bsm2.plantperformance_new import PlantPerformance
 from bsm2_python.bsm2.primclar_bsm2 import PrimaryClarifier
 from bsm2_python.bsm2.settler1d_bsm2 import Settler
 from bsm2_python.bsm2.storage_bsm2 import Storage
@@ -170,7 +171,7 @@ class BSM2OLEM:
         self.dewatering = Dewatering(dewateringinit.DEWATERINGPAR)
         self.storage = Storage(storageinit.VOL_S, storageinit.ystinit, tempmodel, activate)
         self.splitter_storage = Splitter()
-        self.plantperformance = PlantPerformance()
+        self.performance = PlantPerformance(pp_init.PP_PAR)
 
         klas = np.array([reginit.KLA1, reginit.KLA2, reginit.KLA3, reginit.KLA4, reginit.KLA5])
         # scenario 5, 75th percentile, 50% reduction when S_NH below 4g/m3
@@ -221,6 +222,7 @@ class BSM2OLEM:
         self.qpassplant_to_as_all = np.zeros((len(self.simtime), 21))
         self.qpassAS_all = np.zeros((len(self.simtime), 21))
         self.to_as_all = np.zeros((len(self.simtime), 21))
+        self.ys_in_all = np.zeros((len(self.simtime), 21))
         self.feed_settler_all = np.zeros((len(self.simtime), 21))
         self.qthick2AS_all = np.zeros((len(self.simtime), 21))
         self.qthick2prim_all = np.zeros((len(self.simtime), 21))
@@ -229,6 +231,30 @@ class BSM2OLEM:
         self.sludge_all = np.zeros((len(self.simtime), 21))
 
         self.sludge_height = 0
+
+        self.iqi_all = np.zeros(len(self.simtime))
+        self.eqi_all = np.zeros(len(self.simtime))
+        self.oci_all = np.zeros(len(self.simtime))
+        self.violation_all = np.zeros(len(self.simtime))
+
+        self.y_out1_all = np.zeros((len(self.simtime), 21))
+        self.y_out2_all = np.zeros((len(self.simtime), 21))
+        self.y_out3_all = np.zeros((len(self.simtime), 21))
+        self.y_out4_all = np.zeros((len(self.simtime), 21))
+        self.y_out5_all = np.zeros((len(self.simtime), 21))
+        self.ys_r_all = np.zeros((len(self.simtime), 21))
+        self.ys_was_all = np.zeros((len(self.simtime), 21))
+        self.ys_of_all = np.zeros((len(self.simtime), 21))
+        self.yp_uf_all = np.zeros((len(self.simtime), 21))
+        self.yp_of_all = np.zeros((len(self.simtime), 21))
+        self.yi_out2_all = np.zeros((len(self.simtime), 21))
+        self.yst_out_all = np.zeros((len(self.simtime), 21))
+        self.yst_vol_all = np.zeros((len(self.simtime), 2))
+        self.ydw_s_all = np.zeros((len(self.simtime), 21))
+        self.yt_uf_all = np.zeros((len(self.simtime), 21))
+        self.yp_internal_all = np.zeros((len(self.simtime), 21))
+        self.yd_out_all = np.zeros((len(self.simtime), 51))
+        self.yt_uf_all = np.zeros((len(self.simtime), 21))
 
         self.y_out5_r[14] = asm1init.QINTR
 
@@ -339,10 +365,13 @@ class BSM2OLEM:
         # get influent data that is smaller than and closest to current time step
         y_in_timestep = self.y_in[np.where(self.data_time <= step)[0][-1], :]
 
+        iqi = self.performance.qi(y_in_timestep)[0]
+        self.iqi_all[i] = iqi
+
         yp_in_c, y_in_bp = self.input_splitter.output(y_in_timestep, (0, 0), reginit.QBYPASS)
         y_plant_bp, y_in_as_c = self.bypass_plant.output(y_in_bp, (1 - reginit.QBYPASSPLANT, reginit.QBYPASSPLANT))
         yp_in = self.combiner_primclar_pre.output(yp_in_c, self.yst_sp_p, self.yt_sp_p)
-        yp_uf, yp_of = self.primclar.output(self.timestep[i], step, yp_in)
+        self.yp_uf, yp_of, yp_internal = self.primclar.output(self.timestep[i], step, yp_in)
         y_c_as_bp = self.combiner_primclar_post.output(yp_of[:21], y_in_as_c)
         y_bp_as, y_as_bp_c_eff = self.bypass_reactor.output(y_c_as_bp, (1 - reginit.QBYPASSAS, reginit.QBYPASSAS))
 
@@ -358,18 +387,33 @@ class BSM2OLEM:
 
         y_eff = self.combiner_effluent.output(y_plant_bp, y_as_bp_c_eff, ys_of[:21])
 
-        yt_uf, yt_of = self.thickener.output(ys_was)
+        eqi = self.performance.qi(y_eff, eqi=True)[0]
+        self.eqi_all[i] = eqi
+
+        self.yt_uf, yt_of = self.thickener.output(ys_was)
         self.yt_sp_p, self.yt_sp_as = self.splitter_thickener.output(
             yt_of[:21], (1 - reginit.QTHICKENER2AS, reginit.QTHICKENER2AS)
         )
 
-        self.yd_in = self.combiner_adm1.output(yt_uf, yp_uf)
-        y_out2, self.yd_out, _ = self.adm1_reactor.output(stepsize, step, self.yd_in, reginit.T_OP)
-        ydw_s, ydw_r = self.dewatering.output(y_out2)
-        yst_out, _ = self.storage.output(stepsize, step, ydw_r, reginit.QSTORAGE)
+        self.yd_in = self.combiner_adm1.output(self.yt_uf, self.yp_uf)
+        yi_out2, self.yd_out, _ = self.adm1_reactor.output(stepsize, step, self.yd_in, reginit.T_OP)
+        self.ydw_s, ydw_r = self.dewatering.output(yi_out2)
+        yst_out, yst_vol = self.storage.output(stepsize, step, ydw_r, reginit.QSTORAGE)
 
         self.yst_sp_p, self.yst_sp_as = self.splitter_storage.output(
             yst_out, (1 - reginit.QSTORAGE2AS, reginit.QSTORAGE2AS)
+        )
+
+        ae, pe, me = self.get_electricity_demand()
+        ydw_s_tss_flow = self.performance.tss_flow(self.ydw_s)
+        carb = reginit.CARB1 + reginit.CARB2 + reginit.CARB3 + reginit.CARB4 + reginit.CARB5
+        added_carbon_mass = self.performance.added_carbon_mass(carb, reginit.CARBONSOURCECONC)
+        heat_yp_uf = self.performance.heat_demand_step(self.yp_uf, reginit.T_OP)
+        heat_yt_uf = self.performance.heat_demand_step(self.yt_uf, reginit.T_OP)
+        heat = heat_yp_uf + heat_yt_uf
+        ch4_prod, _, _, _ = self.performance.gas_production(self.yd_out, reginit.T_OP)
+        self.oci_all[i] = self.performance.oci(
+            pe * 24, ae * 24, me * 24, 0, ydw_s_tss_flow, added_carbon_mass, heat * 24, ch4_prod
         )
 
         self.y_in_all[i] = y_in_timestep
@@ -381,12 +425,29 @@ class BSM2OLEM:
         self.qpassplant_to_as_all[i] = y_in_as_c
         self.qpassAS_all[i] = y_as_bp_c_eff
         self.to_as_all[i] = y_bp_as
-        self.feed_settler_all[i] = ys_in
+        self.ys_in_all[i] = ys_in
         self.qthick2AS_all[i] = self.yt_sp_as
         self.qthick2prim_all[i] = self.yt_sp_p
         self.qstorage2AS_all[i] = self.yst_sp_as
         self.qstorage2prim_all[i] = self.yst_sp_p
-        self.sludge_all[i] = ydw_s
+
+        self.y_out1_all[i] = y_out1
+        self.y_out2_all[i] = y_out2
+        self.y_out3_all[i] = y_out3
+        self.y_out4_all[i] = y_out4
+        self.y_out5_all[i] = y_out5
+        self.ys_r_all[i] = self.ys_r
+        self.ys_was_all[i] = ys_was
+        self.ys_of_all[i] = ys_of
+        self.yp_uf_all[i] = self.yp_uf
+        self.yp_of_all[i] = yp_of
+        self.yt_uf_all[i] = self.yt_uf
+        self.yd_out_all[i] = self.yd_out
+        self.yi_out2_all[i] = yi_out2
+        self.yst_out_all[i] = yst_out
+        self.yst_vol_all[i] = yst_vol, step
+        self.ydw_s_all[i] = self.ydw_s
+        self.yp_internal_all[i] = yp_internal
 
         if stabilized:
             gas_production, gas_parameters = self.get_gas_production()
@@ -541,23 +602,23 @@ class BSM2OLEM:
                 self.reactor3.volume,
                 self.reactor4.volume,
                 self.reactor5.volume,
+                self.adm1_reactor.volume_liq,
             ]
         )
         sosat = np.array([asm1init.SOSAT1, asm1init.SOSAT2, asm1init.SOSAT3, asm1init.SOSAT4, asm1init.SOSAT5])
 
-        ae = self.plantperformance.aerationenergy(kla, vol, sosat)
+        ae = self.performance.aerationenergy_step(kla, vol[0:5], sosat)
 
         # pumping energy:
-        pumpfactor = np.array([0.004, 0.008, 0.05])
-        flows = np.array([asm1init.QINTR, asm1init.QR, asm1init.QW])
-
-        pe = self.plantperformance.pumpingenergy(flows, pumpfactor)
+        flows = np.array([asm1init.QINTR, asm1init.QR, asm1init.QW, self.yp_uf[14], self.yt_uf[14], self.ydw_s[14]])
+        pe = self.performance.pumpingenergy_step(flows, pp_init.PP_PAR[10:16])
 
         # mixing energy:
-        me = self.plantperformance.mixingenergy(kla, vol)
+        me = self.performance.mixingenergy_step(kla, vol, pp_init.PP_PAR[16])
 
         return np.array([ae, pe, me])
 
+    # TODO: please check if this (and other) function(s) can be replaced by self.performance.heat_demand_step
     def get_heat_demand(self):
         """
         Returns the heat demand of the plant.

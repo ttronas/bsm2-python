@@ -128,6 +128,10 @@ class PrimaryClarifier(Module):
         yp_of : np.ndarray
             primary clarifier overflow (effluent) concentrations of the 21 components
             (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        yp_internal : np.ndarray
+            primary clarifier internal (basically influent) concentrations of the 21 components
+            (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            Only for evaluation purposes
         """
         # f_corr, f_X, t_m, f_PS = p_par
         # y = yp_uf, yp_of

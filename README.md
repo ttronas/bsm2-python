@@ -8,7 +8,8 @@ A description of BSM2 can be found [here](https://iwaponline.com/ebooks/book-pdf
 - [ ] Lukas: Import different plant setups - including BSM2OLEM (BSM2 open loop with energy management)
 - [x] Lukas: Write simple controller (focusing on kla and gas management control based on electricity prices)
 - [ ] Nick: Write docs!
-- [ ] Jonas: install mkdocs dependencies in Dockerfile
+- [ ] Lukas: Mind the TODOs in the code and fix them. Afterwards, you can delete them.
+- [ ] Lukas: Insert the PlantPerformance class in bsm2_ol and bsm2_cl as well (just as in bsm2_olem) so that we have a consistent structure
 
 ## Installation
 To run the project, build it yourself via `hatch build`.

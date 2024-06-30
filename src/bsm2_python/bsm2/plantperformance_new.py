@@ -36,7 +36,7 @@ SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, S
 
 
 class PlantPerformance:
-    def __init__(self, pp_par, simtime, evaltime):
+    def __init__(self, pp_par):
         """
         Creates a PlantPerformance object.
 
@@ -46,15 +46,10 @@ class PlantPerformance:
             Plant performance parameters
             [TOTALCODEMAX, TOTALNEMAX, SNHEMAX, TSSEMAX, BOD5EMAX, BSS, BCOD,
             BNKJ, BNO, BBOD5, PF_QINTR, PF_QR, PF_QW, PF_QPU, PF_QTU, PF_QDO, ME_AD_UNIT]
-        simtime : np.ndarray
-            Time steps of the simulation
-        evaltime : np.ndarray
-            Starting and end point of the evaluation time in days
         """
         self.pp_par = pp_par
-        self.simtime = simtime
-        self.evaltime = evaltime
         path_name = os.path.dirname(__file__)
+        # TODO: This needs to be more flexible. It should be possible to pass the path to the data files, but not forced
         with open(path_name + '/../data/electricity_prices_2023.csv', encoding='utf-8-sig') as f:
             prices = []
             data = np.array(list(csv.reader(f, delimiter=','))).astype(np.float64)
@@ -62,7 +57,8 @@ class PlantPerformance:
                 prices.append(price[0])
             self.electricity_prices = np.array(prices).astype(np.float64)
 
-    def aerationenergy(self, kla, vol, sosat, timestep, evaltime=None):
+    @staticmethod
+    def aerationenergy(kla, vol, sosat, timestep, evaltime):
         """
         Calculates the aeration energy.
 
@@ -85,8 +81,6 @@ class PlantPerformance:
         float
             Aeration energy in kWh/d
         """
-        if evaltime is None:
-            evaltime = self.evaltime
 
         aerationenergy = sum(sum(sosat * vol * kla) * timestep) / (1.8 * 1000 * (evaltime[1] - evaltime[0]))
 
@@ -114,7 +108,8 @@ class PlantPerformance:
         aerationenergy = sum(sosat * vol * kla) / (1.8 * 1000) / 24
         return aerationenergy
 
-    def pumpingenergy(self, flows, pumpfactor, timestep, evaltime=None):
+    @staticmethod
+    def pumpingenergy(flows, pumpfactor, timestep, evaltime):
         """
         Calculates the pumping energy.
 
@@ -138,8 +133,6 @@ class PlantPerformance:
         if flows.shape != pumpfactor.shape:
             err = f'Shapes of flows and pumpfactor do not match: {flows.shape} and {pumpfactor.shape}'
             raise ValueError(err)
-        if evaltime is None:
-            evaltime = self.evaltime
 
         pumpingenergy = np.sum(flows * pumpfactor * timestep) / (evaltime[1] - evaltime[0])
 
@@ -272,7 +265,7 @@ class PlantPerformance:
         arr_eff: np.ndarray
             Concentration of the component in the effluent at every time step of the evaluation time
         limit: int or float
-            limit value of the component
+            limit value of the component. Must have the same unit as the component
         timestep : int or float
             Time step of the evaluation time in days
 
@@ -628,7 +621,7 @@ class PlantPerformance:
 
         return heatenergyperd
 
-    def oci(self, pe, ae, me, eg, tss, cm, he, mp, idx, *, dyn=False):
+    def oci(self, pe, ae, me, eg, tss, cm, he, mp, *, idx=None, dyn=False):
         """
         Calculates the operational cost index of the plant
 
@@ -650,11 +643,14 @@ class PlantPerformance:
             The heating demand of the plant / kWh/d
         mp : float
             The methane production of the plant / kg/d
-        idx : int
-            The index of the current time step
+        idx : int | None
+            The index of the current time step. Only needed if dyn is True. Defaults to None.
         dyn : bool
             If True, calculates the OCI with varying power prices. Defaults to False.
         """
+        if idx is None and dyn:
+            err = 'Index must be provided if dyn is True'
+            raise ValueError(err)
         tss_cost = 3 * tss
         ae_cost = ae
         me_cost = me
@@ -663,7 +659,7 @@ class PlantPerformance:
         cm_cost = 3 * cm
         he_cost = max(0.0, he - 7 * mp)
         mp_income = 6 * mp
-        if dyn:
+        if dyn and idx is not None:
             steps_perd = 4 * 24
             step_start = idx - idx % steps_perd
             daily_avg_price = np.mean(self.electricity_prices[step_start : step_start + steps_perd])

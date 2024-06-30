@@ -52,7 +52,7 @@ def test_primclar():
     start = time.perf_counter()
 
     for step in simtime:
-        yp_uf, yp_of = primclar.output(timestep, step, y_in)
+        yp_uf, yp_of, _ = primclar.output(timestep, step, y_in)
 
     stop = time.perf_counter()
 
@@ -153,7 +153,7 @@ def test_primclar_dyn():
     for i, step in enumerate(tqdm(simtime)):
         # get influent data that is smaller than and closest to current time step
         y_in_timestep = y_in[np.where(data_time <= step)[0][-1], :]
-        yp_uf, yp_of = primclar.output(timestep, step, y_in_timestep)
+        yp_uf, yp_of, _ = primclar.output(timestep, step, y_in_timestep)
         yp_uf_all[i] = yp_uf
         yp_of_all[i] = yp_of
 
