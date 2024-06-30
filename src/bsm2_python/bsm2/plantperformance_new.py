@@ -8,6 +8,7 @@ import bsm2_python.bsm2.init.adm1init_bsm2 as adm1init
 import bsm2_python.bsm2.init.asm1init_bsm2 as asm1init
 import bsm2_python.bsm2.init.settler1dinit_bsm2 as settler1dinit
 from bsm2_python.bsm2.init import primclarinit_bsm2 as primclarinit
+from bsm2_python.gases.gases import H2O
 
 path_name = os.path.dirname(__file__)
 sys.path.append(path_name + '/..')
@@ -428,6 +429,7 @@ class PlantPerformance:
 
         return tss_flow
 
+    # TODO: Jonas check if descriptions are correct (especially ys_of = settler1d_bsm2 output ys_eff)
     def tss_mass_bsm2(
         self,
         yp_of,
@@ -446,7 +448,48 @@ class PlantPerformance:
         yst_vol,
     ):
         """
-        Calculates the sludge production of the BSM2 plant setup"""
+        Calculates the sludge production of the BSM2 plant setup
+
+        Parameters
+        ----------
+        yp_of : np.ndarray
+            primary clarifier overflow (effluent) concentrations of the 21 components
+            (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        yp_uf : np.ndarray
+            primary clarifier underflow (sludge) concentrations of the 21 components
+            (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        yp_internal : np.ndarray
+            primary clarifier internal (basically influent) concentrations of the 21 components
+            (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            Only for evaluation purposes
+        y_out1 : np.ndarray
+            concentrations of the 21 components and gas phase parameters after the first reactor
+        y_out2 : np.ndarray
+            concentrations of the 21 components and gas phase parameters after the second reactor
+        y_out3 : np.ndarray
+            concentrations of the 21 components and gas phase parameters after the third reactor
+        y_out4 : np.ndarray
+            concentrations of the 21 components and gas phase parameters after the fourth reactor
+        y_out5 : np.ndarray
+            concentrations of the 21 components and gas phase parameters after the fifth reactor
+        ys_r : np.ndarray
+            concentrations of the 21 components in the return sludge
+        ys_was : np.ndarray
+            concentrations of the 21 components in the waste sludge
+        ys_of : np.ndarray
+            concentrations of the 21 components in the overflow sludge
+        yd_out : np.ndarray
+            concentrations of the 51 components and gas phase parameters after the digester
+        yst_out : np.ndarray
+            concentrations of the 21 components in the effluent of the storage tank
+        yst_vol : np.ndarray
+            volume of the storage tank
+
+        Returns
+        -------
+        np.ndarray
+            sludge production in kg/d
+        """
         variables = [
             yp_of,
             yp_uf,
@@ -556,14 +599,16 @@ class PlantPerformance:
         q_gas = self._reshape_if_1_element(q_gas)
         return ch4, h2, co2, q_gas
 
-    def heat_demand_step(self, y_uf, t_op):
+    def heat_demand_step(self, y_in, t_op):
         """
         Calculates the heating demand of the sludge flow
 
         Parameters
         ----------
-        y_uf : np.ndarray
-            The sludge flow of a reactor
+        y_in : np.ndarray(21)
+            concentrations of the 21 standard components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+             SD1, SD2, SD3, XD4, XD5]
         t_op : np.ndarray
             The operating temperature of the reactor
         Returns
@@ -571,13 +616,12 @@ class PlantPerformance:
         np.ndarray
             The heating demand / kW
         """
-        rho = 1000  # kg/m^3 (density of water)
-        cp = 4.186  # kJ/kg*K (specific heat capacity of water)
-        y_uf = self._reshape_if_1d(y_uf)
-        flow = y_uf[:, 14]
-        t = t_op - (y_uf[:, 15] + 273.15)
+        rho = H2O.rho_l  # kg/m^3 (density of water)
+        cp = H2O.cp_l  # kJ/kg*K (specific heat capacity of water)
+        y_in = self._reshape_if_1d(y_in)
+        flow = y_in[:, 14]
+        t = t_op - (y_in[:, 15] + 273.15)
         heat_demand = flow / 86400 * rho * cp * t  # m^3/d / s/d * kg/m^3 * kJ/kg*K * K = kW
-
         return heat_demand
 
     @staticmethod
@@ -608,8 +652,8 @@ class PlantPerformance:
 
         totalt = evaltime[1] - evaltime[0]
 
-        ro = 1000  # Water density in kg/m3
-        cp = 4.186  # Specific heat capacity for water in Ws/gC
+        ro = H2O.rho_l  # Water density in kg/m3
+        cp = H2O.cp_l  # Specific heat capacity for water in Ws/gC
 
         tdigesterin = (
             np.multiply(primary_clarifier_yuf[:, 14], primary_clarifier_yuf[:, 15])
@@ -647,6 +691,11 @@ class PlantPerformance:
             The index of the current time step. Only needed if dyn is True. Defaults to None.
         dyn : bool
             If True, calculates the OCI with varying power prices. Defaults to False.
+
+        Returns
+        -------
+        float
+            The operational cost index of the plant
         """
         if idx is None and dyn:
             err = 'Index must be provided if dyn is True'

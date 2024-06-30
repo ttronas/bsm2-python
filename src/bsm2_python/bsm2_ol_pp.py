@@ -323,12 +323,10 @@ class BSM2OLPP:
         ydw_s_tss_flow = self.performance.tss_flow(ydw_s)
         carb = reginit.CARB1 + reginit.CARB2 + reginit.CARB3 + reginit.CARB4 + reginit.CARB5
         added_carbon_mass = self.performance.added_carbon_mass(carb, reginit.CARBONSOURCECONC)
-        heat_yp_uf = self.performance.heat_demand_step(yp_uf, reginit.T_OP)[0]
-        heat_yt_uf = self.performance.heat_demand_step(yt_uf, reginit.T_OP)[0]
-        heat = heat_yp_uf + heat_yt_uf
+        heat_demand = self.performance.heat_demand_step(yd_in, reginit.T_OP)[0]
         ch4_prod, _, _, _ = self.performance.gas_production(yd_out, reginit.T_OP)
         self.oci_all[i] = self.performance.oci(
-            pe * 24, ae * 24, me * 24, 0, ydw_s_tss_flow, added_carbon_mass, heat * 24, ch4_prod
+            pe * 24, ae * 24, me * 24, 0, ydw_s_tss_flow, added_carbon_mass, heat_demand * 24, ch4_prod
         )
         self.y_in_all[i] = y_in_timestep
         self.y_eff_all[i] = y_eff

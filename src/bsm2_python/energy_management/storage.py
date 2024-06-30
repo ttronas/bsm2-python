@@ -2,7 +2,7 @@ import numpy as np
 from numba import float64
 from numba.experimental import jitclass
 
-from bsm2_python.energy_management.gases.gases import GasMix
+from bsm2_python.gases.gases import GasMix
 
 
 @jitclass(

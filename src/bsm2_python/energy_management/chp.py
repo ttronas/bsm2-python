@@ -2,8 +2,8 @@ import numpy as np
 from numba import boolean, float64, int32
 from numba.experimental import jitclass
 
-from bsm2_python.energy_management.gases.gases import GasMix
 from bsm2_python.energy_management.module import Module
+from bsm2_python.gases.gases import GasMix
 
 
 @jitclass(
@@ -111,7 +111,7 @@ class CHP(Module):
         threshold = 1e-5
         if load - self.minimum_load < -threshold:
             if load > threshold:
-                # logging.warning('Load below minimum load, efficiencies set to 0')
+                # logger.warning('Load below minimum load, efficiencies set to 0')
                 pass
             return np.array([0.0, 0.0])
         else:
@@ -137,7 +137,7 @@ class CHP(Module):
         threshold = 1e-5
         if load - self.minimum_load < -threshold:
             if load > threshold:
-                # logging.warning('Load below minimum load, consumption set to 0')
+                # logger.warning('Load below minimum load, consumption set to 0')
                 pass
             return np.array([0.0])
         else:
@@ -161,7 +161,7 @@ class CHP(Module):
         threshold = 1e-5
         if load - self.minimum_load < -threshold:
             if load > threshold:
-                # logging.warning('Load below minimum load, products set to 0')
+                # logger.warning('Load below minimum load, products set to 0')
                 pass
             return np.array([0.0, 0.0])
         else:

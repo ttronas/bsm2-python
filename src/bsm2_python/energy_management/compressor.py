@@ -2,8 +2,8 @@ import numpy as np
 from numba import boolean, float64, int32
 from numba.experimental import jitclass
 
-from bsm2_python.energy_management.gases.gases import GasMix
 from bsm2_python.energy_management.module import Module
+from bsm2_python.gases.gases import GasMix
 
 
 @jitclass(

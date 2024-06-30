@@ -176,7 +176,7 @@ class BSM2OL:
 
         self.y_in = data_in[:, 1:]
 
-        self.plantperformance = PlantPerformance(pp_init.PP_PAR)
+        self.performance = PlantPerformance(pp_init.PP_PAR)
 
         self.klas = np.array([reginit.KLA1, reginit.KLA2, reginit.KLA3, reginit.KLA4, reginit.KLA5])
         # scenario 5, 75th percentile, 50% reduction when S_NH below 4g/m3
@@ -208,6 +208,11 @@ class BSM2OL:
         self.sludge_all = np.zeros((len(self.simtime), 21))
 
         self.sludge_height = 0
+
+        self.iqi_all = np.zeros(len(self.simtime))
+        self.eqi_all = np.zeros(len(self.simtime))
+        self.oci_all = np.zeros(len(self.simtime))
+        self.violation_all = np.zeros(len(self.simtime))
 
         self.y_out5_r[14] = asm1init.QINTR
 
@@ -243,6 +248,9 @@ class BSM2OL:
         # get influent data that is smaller than and closest to current time step
         y_in_timestep = self.y_in[np.where(self.data_time <= step)[0][-1], :]
 
+        iqi = self.performance.qi(y_in_timestep)[0]
+        self.iqi_all[i] = iqi
+
         yp_in_c, y_in_bp = self.input_splitter.output(y_in_timestep, (0, 0), reginit.QBYPASS)
         y_plant_bp, y_in_as_c = self.bypass_plant.output(y_in_bp, (1 - reginit.QBYPASSPLANT, reginit.QBYPASSPLANT))
         yp_in = self.combiner_primclar_pre.output(yp_in_c, self.yst_sp_p, self.yt_sp_p)
@@ -262,6 +270,9 @@ class BSM2OL:
 
         y_eff = self.combiner_effluent.output(y_plant_bp, y_as_bp_c_eff, ys_of[:21])
 
+        eqi = self.performance.qi(y_eff, eqi=True)[0]
+        self.eqi_all[i] = eqi
+
         yt_uf, yt_of = self.thickener.output(ys_was)
         self.yt_sp_p, self.yt_sp_as = self.splitter_thickener.output(
             yt_of[:21], (1 - reginit.QTHICKENER2AS, reginit.QTHICKENER2AS)
@@ -274,6 +285,32 @@ class BSM2OL:
 
         self.yst_sp_p, self.yst_sp_as = self.splitter_storage.output(
             yst_out, (1 - reginit.QSTORAGE2AS, reginit.QSTORAGE2AS)
+        )
+
+        kla = np.array([self.reactor1.kla, self.reactor2.kla, self.reactor3.kla, self.reactor4.kla, self.reactor5.kla])
+        vol = np.array(
+            [
+                self.reactor1.volume,
+                self.reactor2.volume,
+                self.reactor3.volume,
+                self.reactor4.volume,
+                self.reactor5.volume,
+                self.adm1_reactor.volume_liq,
+            ]
+        )
+        sosat = np.array([asm1init.SOSAT1, asm1init.SOSAT2, asm1init.SOSAT3, asm1init.SOSAT4, asm1init.SOSAT5])
+        ae = self.performance.aerationenergy_step(kla, vol[0:5], sosat)
+        flows = np.array([asm1init.QINTR, asm1init.QR, asm1init.QW, yp_uf[14], yt_uf[14], ydw_s[14]])
+        pe = self.performance.pumpingenergy_step(flows, pp_init.PP_PAR[10:16])
+        me = self.performance.mixingenergy_step(kla, vol, pp_init.PP_PAR[16])
+
+        ydw_s_tss_flow = self.performance.tss_flow(ydw_s)
+        carb = reginit.CARB1 + reginit.CARB2 + reginit.CARB3 + reginit.CARB4 + reginit.CARB5
+        added_carbon_mass = self.performance.added_carbon_mass(carb, reginit.CARBONSOURCECONC)
+        heat_demand = self.performance.heat_demand_step(self.yd_in, reginit.T_OP)[0]
+        ch4_prod, _, _, _ = self.performance.gas_production(self.yd_out, reginit.T_OP)
+        self.oci_all[i] = self.performance.oci(
+            pe * 24, ae * 24, me * 24, 0, ydw_s_tss_flow, added_carbon_mass, heat_demand * 24, ch4_prod
         )
 
         self.y_in_all[i] = y_in_timestep
@@ -348,73 +385,3 @@ class BSM2OL:
                 stable = True
             old_check_vars = np.array(check_vars)
         logger.info('Stabilized after %s iterations\n', i)
-
-    def get_electricity_demand(self):
-        """
-        Returns the electricity demand of the plant.
-
-        Returns
-        -------
-        np.ndarray
-            Array containing aeration, pumping and mixing energy
-        """
-        kla = np.array([self.reactor1.kla, self.reactor2.kla, self.reactor3.kla, self.reactor4.kla, self.reactor5.kla])
-
-        # aerationenergy:
-        vol = np.array(
-            [
-                self.reactor1.volume,
-                self.reactor2.volume,
-                self.reactor3.volume,
-                self.reactor4.volume,
-                self.reactor5.volume,
-            ]
-        )
-        sosat = np.array([asm1init.SOSAT1, asm1init.SOSAT2, asm1init.SOSAT3, asm1init.SOSAT4, asm1init.SOSAT5])
-
-        ae = self.plantperformance.aerationenergy(kla, vol, sosat)
-
-        # pumping energy:
-        pumpfactor = np.array([0.004, 0.008, 0.05])
-        flows = np.array([asm1init.QINTR, asm1init.QR, asm1init.QW])
-
-        pe = self.plantperformance.pumpingenergy(flows, pumpfactor)
-
-        # mixing energy:
-        me = self.plantperformance.mixingenergy(kla, vol)
-
-        return np.array([ae, pe, me])
-
-    def get_heat_demand(self):
-        """
-        Returns the heat demand of the plant.
-
-        Returns
-        -------
-        float
-            Heat demand of the plant
-        """
-        # heat demand:
-        t_in = self.yd_in[15]  # °C
-        inflow = self.yd_in[14] / 24  # m3/d -> m3/h
-
-        h2o_rho_l = 998  # kg/m³
-        h2o_cp_l = 4.18  # kJ/kg/K
-        # delta T [K] * inflow [m3/h] * density [kg/m3] * specific heat capacity [kJ/kgK] / 3600 [kJ/kWh] = kW
-        heat_demand = ((reginit.T_OP - 273.15) - t_in) * inflow * h2o_rho_l * h2o_cp_l / 3600
-
-        return heat_demand
-
-    def get_gas_production(self):
-        """
-        Returns the gas production of the plant.
-
-        Returns
-        -------
-        float
-            Gas production of the plant
-        """
-        gas_production = self.yd_out[-1] / 24  # Nm3/d -> Nm3/h
-        gas_parameters = self.yd_out[-5:]  # [p_H2 [bar], p_CH4 [bar], p_CO2 [bar], P_gas [bar], q_gas [Nm3/d]]
-
-        return gas_production, gas_parameters

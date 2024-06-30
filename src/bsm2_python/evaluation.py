@@ -2,11 +2,12 @@
 Evaluation file to store, export and plot data.
 """
 
-import logging
 import math
 
 import matplotlib.pyplot as plt
 import numpy as np
+
+from bsm2_python.log import logger
 
 
 class Evaluation:
@@ -75,7 +76,7 @@ class Evaluation:
                     else:
                         line += ';;'
                 f.write(line + '\n')
-        logging.info('Data exported to ' + self.filepath)
+        logger.info('Data exported to ' + self.filepath)
 
     def plot_data(self):
         """

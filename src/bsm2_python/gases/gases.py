@@ -1,10 +1,9 @@
-import logging
-
 import numpy as np
 from numba import float64, typeof
 from numba.experimental import jitclass
 
-from bsm2_python.energy_management.gases.gas_params import GAS_PARAMS
+from bsm2_python.gases.gas_params import GAS_PARAMS
+from bsm2_python.log import logger
 
 # A library with gas properties.
 
@@ -243,6 +242,5 @@ class GasMix:
 
 
 BIOGAS = GasMix(**GAS_PARAMS.BIOGAS)
-SNG = GasMix(**GAS_PARAMS.SNG)
 
-logging.debug('Imported gas properties.')
+logger.debug('Imported gas properties.')

@@ -16,8 +16,8 @@ class GasParams:
     }
     H2O: ClassVar[dict] = {
         'mole': 0.018,  # kg/mol
-        'rho_l': 998,  # kg/m³
-        'cp_l': 4.18,  # kJ/kg/K
+        'rho_l': 1000,  # kg/m³
+        'cp_l': 4.186,  # kJ/kg/K
         'h_evap_5bar': 2104.09,  # kJ/kg
         'h_evap_10bar': 2014.9,  # kJ/kg
         'h_8bar': 2652.23,  # kJ/kg
@@ -60,12 +60,6 @@ class GasParams:
         'cp': 1.04,  # kJ/kg/K
         'kappa': 1.40,
         # from https://www.powderprocess.net/Tools_html/Data_Diagrams/Tools_isentropic_coefficients.html
-    }
-
-    SNG: ClassVar[dict] = {
-        'ch4_frac': 0.95,
-        'co2_frac': 0.01,
-        'h2_frac': 0.04,
     }
 
     BIOGAS: ClassVar[dict] = {'ch4_frac': 0.6}  # fraction of CH4 in Biogas

@@ -35,7 +35,6 @@ from bsm2_python.energy_management.cooler import Cooler
 from bsm2_python.energy_management.economics import Economics
 from bsm2_python.energy_management.fermenter import Fermenter
 from bsm2_python.energy_management.flare import Flare
-from bsm2_python.energy_management.gases.gases import BIOGAS, CH4, H2O, O2
 from bsm2_python.energy_management.heat_net import HeatNet
 from bsm2_python.energy_management.init import (
     boiler_init,
@@ -49,6 +48,7 @@ from bsm2_python.energy_management.init import (
 )
 from bsm2_python.energy_management.storage import BiogasStorage
 from bsm2_python.evaluation import Evaluation
+from bsm2_python.gases.gases import BIOGAS, CH4, H2O, O2
 from bsm2_python.log import logger
 
 path_name = os.path.dirname(__file__)
@@ -173,15 +173,10 @@ class BSM2OLEM:
         self.splitter_storage = Splitter()
         self.performance = PlantPerformance(pp_init.PP_PAR)
 
-        klas = np.array([reginit.KLA1, reginit.KLA2, reginit.KLA3, reginit.KLA4, reginit.KLA5])
-        # scenario 5, 75th percentile, 50% reduction when S_NH below 4g/m3
-        self.controller = Controller(timestep, 0.75, klas, 0.5, 4, BIOGAS, O2, CH4)
-
         if data_in is None:
             # dyninfluent from BSM2:
             with open(path_name + '/data/dyninfluent_bsm2.csv', encoding='utf-8-sig') as f:
                 data_in = np.array(list(csv.reader(f, delimiter=','))).astype(np.float64)
-
         if timestep is None:
             # calculate difference between each time step in data_in
             self.simtime = data_in[:, 0]
@@ -201,6 +196,10 @@ class BSM2OLEM:
             self.endtime = endtime
             self.simtime = self.simtime[self.simtime <= endtime]
         self.data_time = data_in[:, 0]
+
+        klas = np.array([reginit.KLA1, reginit.KLA2, reginit.KLA3, reginit.KLA4, reginit.KLA5])
+        # scenario 5, 75th percentile, 50% reduction when S_NH below 4g/m3
+        self.controller = Controller(self.simtime, 0.75, klas, 0.5, 4, BIOGAS, O2, CH4)
 
         self.y_in = data_in[:, 1:]
 
@@ -404,16 +403,30 @@ class BSM2OLEM:
             yst_out, (1 - reginit.QSTORAGE2AS, reginit.QSTORAGE2AS)
         )
 
-        ae, pe, me = self.get_electricity_demand()
+        kla = np.array([self.reactor1.kla, self.reactor2.kla, self.reactor3.kla, self.reactor4.kla, self.reactor5.kla])
+        vol = np.array(
+            [
+                self.reactor1.volume,
+                self.reactor2.volume,
+                self.reactor3.volume,
+                self.reactor4.volume,
+                self.reactor5.volume,
+                self.adm1_reactor.volume_liq,
+            ]
+        )
+        sosat = np.array([asm1init.SOSAT1, asm1init.SOSAT2, asm1init.SOSAT3, asm1init.SOSAT4, asm1init.SOSAT5])
+        ae = self.performance.aerationenergy_step(kla, vol[0:5], sosat)
+        flows = np.array([asm1init.QINTR, asm1init.QR, asm1init.QW, self.yp_uf[14], self.yt_uf[14], self.ydw_s[14]])
+        pe = self.performance.pumpingenergy_step(flows, pp_init.PP_PAR[10:16])
+        me = self.performance.mixingenergy_step(kla, vol, pp_init.PP_PAR[16])
+
         ydw_s_tss_flow = self.performance.tss_flow(self.ydw_s)
         carb = reginit.CARB1 + reginit.CARB2 + reginit.CARB3 + reginit.CARB4 + reginit.CARB5
         added_carbon_mass = self.performance.added_carbon_mass(carb, reginit.CARBONSOURCECONC)
-        heat_yp_uf = self.performance.heat_demand_step(self.yp_uf, reginit.T_OP)
-        heat_yt_uf = self.performance.heat_demand_step(self.yt_uf, reginit.T_OP)
-        heat = heat_yp_uf + heat_yt_uf
+        heat_demand = self.performance.heat_demand_step(self.yd_in, reginit.T_OP)[0]
         ch4_prod, _, _, _ = self.performance.gas_production(self.yd_out, reginit.T_OP)
         self.oci_all[i] = self.performance.oci(
-            pe * 24, ae * 24, me * 24, 0, ydw_s_tss_flow, added_carbon_mass, heat * 24, ch4_prod
+            pe * 24, ae * 24, me * 24, 0, ydw_s_tss_flow, added_carbon_mass, heat_demand * 24, ch4_prod
         )
 
         self.y_in_all[i] = y_in_timestep
@@ -449,17 +462,16 @@ class BSM2OLEM:
         self.ydw_s_all[i] = self.ydw_s
         self.yp_internal_all[i] = yp_internal
 
+        # Energy Management
         if stabilized:
             gas_production, gas_parameters = self.get_gas_production()
-            electricity_demand = self.get_electricity_demand()
-            heat_demand = self.get_heat_demand()
+            electricity_demand = ae + pe + me
             # aeration efficiency in standard conditions in process water (sae),
             # 25 kgO2/kWh, src: T. Frey, Invent Umwelt- und Verfahrenstechnik AG
             # alpha_sae = 2.5
-            # oxygen_demand = electricity_demand[0] * alpha_sae / O2.rho_norm  # kW * kgO2/kWh / kg/Nm3 = Nm3/h
+            # oxygen_demand = ae * alpha_sae / O2.rho_norm  # kW * kgO2/kWh / kg/Nm3 = Nm3/h
 
-            # gas management part
-            self.fermenter.step(gas_production, gas_parameters, heat_demand, sum(electricity_demand))
+            self.fermenter.step(gas_production, gas_parameters, heat_demand, electricity_demand)
             biogas = self.biogas_storage.update_inflow(
                 self.fermenter.gas_production, self.fermenter.get_composition(), self.timestep_hour[i]
             )
@@ -508,12 +520,12 @@ class BSM2OLEM:
             self.economics.get_income(net_electricity, i, self.timestep_hour[i])
             self.economics.get_expenditures(net_electricity, i, self.timestep_hour[i])
 
-            s_nh_data: tuple[list, list, list, float] = ([], [], [], float(i))
+            s_nh_data: tuple[list, list, list, float] = ([], [], [], float(self.simtime[i]))
             for j, s_nh in enumerate(s_nh_reactors):
                 s_nh_data[0].append('s_nh' + str(j + 1))
                 s_nh_data[1].append('g/m3')
                 s_nh_data[2].append(s_nh)
-            kla_data: tuple[list, list, list, float] = ([], [], [], float(i))
+            kla_data: tuple[list, list, list, float] = ([], [], [], float(self.simtime[i]))
             for j, kla in enumerate(klas):
                 kla_data[0].append('kla' + str(j + 1))
                 kla_data[1].append('1/d')
@@ -522,7 +534,7 @@ class BSM2OLEM:
                 ['demand', 'price'],
                 ['kW', '€/MWh'],
                 [self.fermenter.electricity_demand, self.controller.electricity_prices[i]],
-                float(i),
+                float(self.simtime[i]),
             )
             self.evaluator.update_data(data1=s_nh_data, data2=kla_data, data3=elec_data)
 
@@ -582,62 +594,6 @@ class BSM2OLEM:
                 stable = True
             old_check_vars = np.array(check_vars)
         logger.info('Stabilized after %s iterations\n', i)
-
-    def get_electricity_demand(self):
-        """
-        Returns the electricity demand of the plant.
-
-        Returns
-        -------
-        np.ndarray
-            Array containing aeration, pumping and mixing energy
-        """
-        kla = np.array([self.reactor1.kla, self.reactor2.kla, self.reactor3.kla, self.reactor4.kla, self.reactor5.kla])
-
-        # aerationenergy:
-        vol = np.array(
-            [
-                self.reactor1.volume,
-                self.reactor2.volume,
-                self.reactor3.volume,
-                self.reactor4.volume,
-                self.reactor5.volume,
-                self.adm1_reactor.volume_liq,
-            ]
-        )
-        sosat = np.array([asm1init.SOSAT1, asm1init.SOSAT2, asm1init.SOSAT3, asm1init.SOSAT4, asm1init.SOSAT5])
-
-        ae = self.performance.aerationenergy_step(kla, vol[0:5], sosat)
-
-        # pumping energy:
-        flows = np.array([asm1init.QINTR, asm1init.QR, asm1init.QW, self.yp_uf[14], self.yt_uf[14], self.ydw_s[14]])
-        pe = self.performance.pumpingenergy_step(flows, pp_init.PP_PAR[10:16])
-
-        # mixing energy:
-        me = self.performance.mixingenergy_step(kla, vol, pp_init.PP_PAR[16])
-
-        return np.array([ae, pe, me])
-
-    # TODO: please check if this (and other) function(s) can be replaced by self.performance.heat_demand_step
-    def get_heat_demand(self):
-        """
-        Returns the heat demand of the plant.
-
-        Returns
-        -------
-        float
-            Heat demand of the plant
-        """
-        # heat demand:
-        t_in = self.yd_in[15]  # °C
-        inflow = self.yd_in[14] / 24  # m3/d -> m3/h
-
-        h2o_rho_l = 998  # kg/m³
-        h2o_cp_l = 4.18  # kJ/kg/K
-        # delta T [K] * inflow [m3/h] * density [kg/m3] * specific heat capacity [kJ/kgK] / 3600 [kJ/kWh] = kW
-        heat_demand = ((reginit.T_OP - 273.15) - t_in) * inflow * h2o_rho_l * h2o_cp_l / 3600
-
-        return heat_demand
 
     def get_gas_production(self):
         """

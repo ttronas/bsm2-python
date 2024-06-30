@@ -1,6 +1,6 @@
 import numpy as np
 
-from bsm2_python.energy_management.gases.gases import CH4, H2
+from bsm2_python.gases.gases import CH4, H2
 
 
 class Fermenter:
