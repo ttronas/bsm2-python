@@ -282,7 +282,7 @@ class BSM2OLPP:
         y_out5 = self.reactor5.output(stepsize, step, y_out4)
         ys_in, self.y_out5_r = self.splitter_reactor.output(y_out5, (y_out5[14] - asm1init.QINTR, asm1init.QINTR))
 
-        self.ys_r, ys_was, ys_of, _ = self.settler.output(stepsize, step, ys_in)
+        self.ys_r, ys_was, ys_of, _, _ = self.settler.output(stepsize, step, ys_in)
 
         y_eff = self.combiner_effluent.output(y_plant_bp, y_as_bp_c_eff, ys_of[:21])
 

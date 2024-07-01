@@ -191,7 +191,7 @@ def test_bsm2_ol_not_connected():
         y_out5 = reactor5.output(timestep, step, y_out4)
         ys_in, y_out5_r = splitter_reactor.output(y_out5, (y_out5[14] - asm1init.QINTR, asm1init.QINTR))
 
-        ys_r, ys_was, ys_of, sludge_height = settler.output(timestep, step, ys_in)
+        ys_r, ys_was, ys_of, sludge_height, _ = settler.output(timestep, step, ys_in)
 
         y_eff = combiner_effluent.output(y_plant_bp, y_as_bp_c_eff, ys_of)
 

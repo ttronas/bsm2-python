@@ -372,6 +372,11 @@ def get_output(ys_int, ys_in, nooflayers, tempmodel, q_r, q_w, dim, asm1par, sed
 
     ys_eff[Q] = ys_in[Q] - q_w - q_r
 
+    # internal TSS states, for plant performance only
+    ys_tss_internal = np.zeros(nooflayers)
+    for i in range(nooflayers):
+        ys_tss_internal[i] = ys_int[7 * nooflayers + i]
+
     # continuous signal of sludge blanket level
     no_sludge_layer = np.where(ys_int[7 * nooflayers : 8 * nooflayers] < sedpar[6])[0]
     # if all layers surpass threshold, sludge level is full.
@@ -390,7 +395,7 @@ def get_output(ys_int, ys_in, nooflayers, tempmodel, q_r, q_w, dim, asm1par, sed
             ys_int[8 * nooflayers - 1 - sludge_level] + ys_int[8 * nooflayers - 2 - sludge_level]
         ) / (ys_int[8 * nooflayers - sludge_level] - ys_int[8 * nooflayers - 2 - sludge_level])
 
-    return ys_ret, ys_was, ys_eff, sludge_height
+    return ys_ret, ys_was, ys_eff, sludge_height, ys_tss_internal
 
 
 class Settler(Module):
@@ -481,8 +486,8 @@ class Settler(Module):
         ys_int = odes[1]
         self.ys0 = ys_int
 
-        ys_ret, ys_was, ys_eff, sludge_height = get_output(
+        ys_ret, ys_was, ys_eff, sludge_height, ys_tss_internal = get_output(
             ys_int, ys_in, nooflayers, self.tempmodel, self.q_r, self.q_w, self.dim, self.asm1par, self.sedpar
         )
 
-        return ys_ret, ys_was, ys_eff, sludge_height
+        return ys_ret, ys_was, ys_eff, sludge_height, ys_tss_internal

@@ -19,7 +19,7 @@ def test_bsm2_olem():
     # if activate is True dummy states are activated
 
     # TODO:Please make the BSM2OLEM class not require the timestep parameter. This means especially the Controller class
-    bsm2_olem = BSM2OLEM(endtime=50, timestep=15 / 24 / 60, tempmodel=tempmodel, activate=activate)
+    bsm2_olem = BSM2OLEM(endtime=50, timestep=1 / 24 / 60, tempmodel=tempmodel, activate=activate)
 
     bsm2_olem.stabilize()
     for i, _ in enumerate(tqdm(bsm2_olem.simtime)):
