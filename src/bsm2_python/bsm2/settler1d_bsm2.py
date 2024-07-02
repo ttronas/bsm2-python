@@ -282,7 +282,7 @@ def get_output(ys_int, ys_in, nooflayers, tempmodel, q_r, q_w, dim, asm1par, sed
 
     Returns
     -------
-    (np.ndarray, np.ndarray, np.ndarray, float)
+    (np.ndarray, np.ndarray, np.ndarray, float, np.ndarray)
             Tuple containing three arrays and a float:
                 ys_ret: Array containing the values of the 21 components
                 (13 ASM1 components, TSS, Q, T and 5 dummy states)
@@ -298,6 +298,7 @@ def get_output(ys_int, ys_in, nooflayers, tempmodel, q_r, q_w, dim, asm1par, sed
                 (Kjeldahl N, total N, total COD, BOD5 concentration)
                 at the current time step after the integration - effluent
                 sludge_height: Float containing the continuous signal of sludge blanket level
+                ys_tss_internal: Array containing the internal TSS states of the settler
     """
     ys_ret = np.zeros(21)
     ys_was = np.zeros(21)
@@ -454,7 +455,7 @@ class Settler(Module):
 
         Returns
         -------
-        (np.ndarray, np.ndarray, np.ndarray, float)
+        (np.ndarray, np.ndarray, np.ndarray, float, np.ndarray)
             Tuple containing three arrays and a float:
                 ys_ret: Array containing the values of the 21 components
                 (13 ASM1 components, TSS, Q, T and 5 dummy states)
@@ -470,6 +471,7 @@ class Settler(Module):
                 (Kjeldahl N, total N, total COD, BOD5 concentration)
                 at the current time step after the integration - effluent
                 sludge_height: Float containing the continuous signal of sludge blanket level
+                ys_tss_internal: Array containing the internal TSS states of the settler
         """
 
         nooflayers = self.layer[1]
