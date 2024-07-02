@@ -282,9 +282,7 @@ class ASM1reactor(Module):
         self.tempmodel = tempmodel
         self.activate = activate
 
-    def output(
-        self, timestep: int | float, step: int | float, y_in: np.ndarray
-    ) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
+    def output(self, timestep: int | float, step: int | float, y_in: np.ndarray) -> np.ndarray:
         """Returns the solved differential equations based on ASM1 model
 
         Parameters

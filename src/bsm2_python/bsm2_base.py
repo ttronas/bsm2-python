@@ -33,7 +33,7 @@ from bsm2_python.log import logger
 path_name = os.path.dirname(__file__)
 
 
-class BSM2BASE:
+class BSM2Base:
     def __init__(
         self,
         data_in=None,
@@ -45,7 +45,7 @@ class BSM2BASE:
         activate=False,
     ):
         """
-        Creates a BSM2OL object.
+        Creates a BSM2Base object. Is a base class and resembles the BSM2 model without any controllers.
 
         Parameters
         ----------
@@ -152,11 +152,12 @@ class BSM2BASE:
         self.storage = Storage(storageinit.VOL_S, storageinit.ystinit, tempmodel, activate)
         self.splitter_storage = Splitter()
 
-        self.data_in = data_in
         if data_in is None:
             # dyninfluent from BSM2:
             with open(path_name + '/data/dyninfluent_bsm2.csv', encoding='utf-8-sig') as f:
                 self.data_in = np.array(list(csv.reader(f, delimiter=','))).astype(np.float64)
+        else:
+            self.data_in = data_in
 
         if timestep is None:
             # calculate difference between each time step in data_in
@@ -203,7 +204,7 @@ class BSM2BASE:
         self.yp_internal = np.zeros(21)
         self.yt_uf = np.zeros(21)
         self.yd_out = np.zeros(51)
-        self.y_out2 = np.zeros(21)
+        self.yd_out2 = np.zeros(21)
         self.ydw_s = np.zeros(21)
         self.yst_out = np.zeros(21)
         self.yst_vol = 0
@@ -249,11 +250,7 @@ class BSM2BASE:
 
         self.y_out5_r[14] = asm1init.QINTR
 
-    def step(
-        self,
-        i: int,
-        klas: np.ndarray | None = None,
-    ):
+    def step(self, i: int):
         """
         Simulates one time step of the BSM2 model.
 
@@ -261,22 +258,13 @@ class BSM2BASE:
         ----------
         i : int
             Index of the current time step
-        klas : np.ndarray, optional
-            Array with the values of the oxygen transfer coefficients for the 5 ASM1 reactors.
-            Default is (reginit.KLA1, reginit.KLA2, reginit.KLA3, reginit.KLA4, reginit.KLA5)
         """
-        if klas is None:
-            klas = np.array([reginit.KLA1, reginit.KLA2, reginit.KLA3, reginit.KLA4, reginit.KLA5])
 
         # timestep = timesteps[i]
         step: float = self.simtime[i]
         stepsize: float = self.timestep[i]
 
-        self.reactor1.kla = klas[0]
-        self.reactor2.kla = klas[1]
-        self.reactor3.kla = klas[2]
-        self.reactor4.kla = klas[3]
-        self.reactor5.kla = klas[4]
+        self.reactor1.kla, self.reactor2.kla, self.reactor3.kla, self.reactor4.kla, self.reactor5.kla = self.klas
 
         # get influent data that is smaller than and closest to current time step
         y_in_timestep = self.y_in[np.where(self.data_time <= step)[0][-1], :]
@@ -314,15 +302,14 @@ class BSM2BASE:
         )
 
         self.yd_in = self.combiner_adm1.output(self.yt_uf, self.yp_uf)
-        self.y_out2, self.yd_out, _ = self.adm1_reactor.output(stepsize, step, self.yd_in, reginit.T_OP)
-        self.ydw_s, ydw_r = self.dewatering.output(self.y_out2)
+        self.yd_out2, self.yd_out, _ = self.adm1_reactor.output(stepsize, step, self.yd_in, reginit.T_OP)
+        self.ydw_s, ydw_r = self.dewatering.output(self.yd_out2)
         self.yst_out, self.yst_vol = self.storage.output(stepsize, step, ydw_r, reginit.QSTORAGE)
 
         self.yst_sp_p, self.yst_sp_as = self.splitter_storage.output(
             self.yst_out, (1 - reginit.QSTORAGE2AS, reginit.QSTORAGE2AS)
         )
 
-        kla = np.array([self.reactor1.kla, self.reactor2.kla, self.reactor3.kla, self.reactor4.kla, self.reactor5.kla])
         vol = np.array(
             [
                 self.reactor1.volume,
@@ -334,10 +321,10 @@ class BSM2BASE:
             ]
         )
         sosat = np.array([asm1init.SOSAT1, asm1init.SOSAT2, asm1init.SOSAT3, asm1init.SOSAT4, asm1init.SOSAT5])
-        self.ae = self.performance.aerationenergy_step(kla, vol[0:5], sosat)
+        self.ae = self.performance.aerationenergy_step(self.klas, vol[0:5], sosat)
         flows = np.array([asm1init.QINTR, asm1init.QR, asm1init.QW, self.yp_uf[14], self.yt_uf[14], self.ydw_s[14]])
         self.pe = self.performance.pumpingenergy_step(flows, pp_init.PP_PAR[10:16])
-        self.me = self.performance.mixingenergy_step(kla, vol, pp_init.PP_PAR[16])
+        self.me = self.performance.mixingenergy_step(self.klas, vol, pp_init.PP_PAR[16])
 
         ydw_s_tss_flow = self.performance.tss_flow(self.ydw_s)
         carb = reginit.CARB1 + reginit.CARB2 + reginit.CARB3 + reginit.CARB4 + reginit.CARB5
