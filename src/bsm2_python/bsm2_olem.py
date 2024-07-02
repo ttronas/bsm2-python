@@ -60,6 +60,7 @@ class BSM2OLEM:
         data_in=None,
         timestep=None,
         endtime=None,
+        evaltime=None,
         *,
         tempmodel=False,
         activate=False,
@@ -171,7 +172,6 @@ class BSM2OLEM:
         self.dewatering = Dewatering(dewateringinit.DEWATERINGPAR)
         self.storage = Storage(storageinit.VOL_S, storageinit.ystinit, tempmodel, activate)
         self.splitter_storage = Splitter()
-        self.performance = PlantPerformance(pp_init.PP_PAR)
 
         if data_in is None:
             # dyninfluent from BSM2:
@@ -197,6 +197,15 @@ class BSM2OLEM:
             self.simtime = self.simtime[self.simtime <= endtime]
         self.data_time = data_in[:, 0]
 
+        if evaltime is None:
+            # evaluate the last 5 days of the simulation
+            starttime = self.simtime[np.argmin(np.abs(self.simtime - (self.simtime[-1] - 5)))]
+            self.evaltime = np.array([starttime, self.simtime[-1]])
+
+        self.evaluator = Evaluation(path_name + '/data/output_evaluation.csv')
+
+        self.performance = PlantPerformance(pp_init.PP_PAR)
+
         klas = np.array([reginit.KLA1, reginit.KLA2, reginit.KLA3, reginit.KLA4, reginit.KLA5])
         # scenario 5, 75th percentile, 50% reduction when S_NH below 4g/m3
         self.controller = Controller(self.simtime, 0.75, klas, 0.5, 4, BIOGAS, O2, CH4)
@@ -221,7 +230,6 @@ class BSM2OLEM:
         self.qpassplant_to_as_all = np.zeros((len(self.simtime), 21))
         self.qpassAS_all = np.zeros((len(self.simtime), 21))
         self.to_as_all = np.zeros((len(self.simtime), 21))
-        self.ys_in_all = np.zeros((len(self.simtime), 21))
         self.feed_settler_all = np.zeros((len(self.simtime), 21))
         self.qthick2AS_all = np.zeros((len(self.simtime), 21))
         self.qthick2prim_all = np.zeros((len(self.simtime), 21))
@@ -234,6 +242,7 @@ class BSM2OLEM:
         self.iqi_all = np.zeros(len(self.simtime))
         self.eqi_all = np.zeros(len(self.simtime))
         self.oci_all = np.zeros(len(self.simtime))
+        self.oci_factors_all = np.zeros((len(self.simtime), 8))
         self.violation_all = np.zeros(len(self.simtime))
 
         self.y_out1_all = np.zeros((len(self.simtime), 21))
@@ -324,8 +333,6 @@ class BSM2OLEM:
             heat_net_init.TEMP_THRESHOLDS[0],
             heat_net_init.TEMP_THRESHOLDS[1],
         )
-
-        self.evaluator = Evaluation(path_name + '/data/output_evaluation.csv')
 
         self.economics = Economics(
             self.chps,
@@ -428,6 +435,16 @@ class BSM2OLEM:
         self.oci_all[i] = self.performance.oci(
             pe * 24, ae * 24, me * 24, 0, ydw_s_tss_flow, added_carbon_mass, heat_demand * 24, ch4_prod
         )
+        self.oci_factors_all[i] = [
+            pe * 24,
+            ae * 24,
+            me * 24,
+            0,
+            ydw_s_tss_flow,
+            added_carbon_mass,
+            heat_demand * 24,
+            ch4_prod,
+        ]
 
         self.y_in_all[i] = y_in_timestep
         self.y_eff_all[i] = y_eff
@@ -438,7 +455,7 @@ class BSM2OLEM:
         self.qpassplant_to_as_all[i] = y_in_as_c
         self.qpassAS_all[i] = y_as_bp_c_eff
         self.to_as_all[i] = y_bp_as
-        self.ys_in_all[i] = ys_in
+        self.feed_settler_all[i] = ys_in
         self.qthick2AS_all[i] = self.yt_sp_as
         self.qthick2prim_all[i] = self.yt_sp_p
         self.qstorage2AS_all[i] = self.yst_sp_as
@@ -594,6 +611,39 @@ class BSM2OLEM:
                 stable = True
             old_check_vars = np.array(check_vars)
         logger.info('Stabilized after %s iterations\n', i)
+
+    def simulate(self):
+        """
+        Simulates the plant.
+        """
+        for i in range(len(self.simtime)):
+            self.step(i, stabilized=True)
+
+            if i % 1000 == 0:
+                logger.info('timestep: %s of %s\n', i, len(self.simtime))
+
+            if self.evaltime[0] <= self.simtime[i] <= self.evaltime[1]:
+                self.evaluator.update_data(
+                    data1=(['iqi'], [''], [self.iqi_all[i]], float(self.simtime[i])),
+                    data2=(['eqi'], [''], [self.eqi_all[i]], float(self.simtime[i])),
+                    data3=(['oci'], [''], [self.oci_all[i]], float(self.simtime[i])),
+                )
+
+        oci_final = self.performance.oci(
+            np.mean(self.oci_factors_all[:, 0]),
+            np.mean(self.oci_factors_all[:, 1]),
+            np.mean(self.oci_factors_all[:, 2]),
+            np.mean(self.oci_factors_all[:, 3]),
+            np.mean(self.oci_factors_all[:, 4]),
+            np.mean(self.oci_factors_all[:, 5]),
+            np.mean(self.oci_factors_all[:, 6]),
+            np.mean(self.oci_factors_all[:, 7]),
+        )
+        self.evaluator.update_data(
+            data1=(['oci_final'], [''], [oci_final], float(self.endtime)),
+        )
+
+        self.finish_evaluation()
 
     def get_gas_production(self):
         """

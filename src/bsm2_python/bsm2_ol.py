@@ -27,6 +27,7 @@ from bsm2_python.bsm2.primclar_bsm2 import PrimaryClarifier
 from bsm2_python.bsm2.settler1d_bsm2 import Settler
 from bsm2_python.bsm2.storage_bsm2 import Storage
 from bsm2_python.bsm2.thickener_bsm2 import Thickener
+from bsm2_python.evaluation import Evaluation
 from bsm2_python.log import logger
 
 path_name = os.path.dirname(__file__)
@@ -38,6 +39,7 @@ class BSM2OL:
         data_in=None,
         timestep=None,
         endtime=None,
+        evaltime=None,
         *,
         tempmodel=False,
         activate=False,
@@ -172,11 +174,19 @@ class BSM2OL:
                 raise ValueError(err)
             self.endtime = endtime
             self.simtime = self.simtime[self.simtime <= endtime]
+
+        if evaltime is None:
+            # evaluate the last 5 days of the simulation
+            starttime = self.simtime[np.argmin(np.abs(self.simtime - (self.simtime[-1] - 5)))]
+            self.evaltime = np.array([starttime, self.simtime[-1]])
+
+        self.evaluator = Evaluation(path_name + '/data/output_evaluation.csv')
+
+        self.performance = PlantPerformance(pp_init.PP_PAR)
+
         self.data_time = data_in[:, 0]
 
         self.y_in = data_in[:, 1:]
-
-        self.performance = PlantPerformance(pp_init.PP_PAR)
 
         self.klas = np.array([reginit.KLA1, reginit.KLA2, reginit.KLA3, reginit.KLA4, reginit.KLA5])
         # scenario 5, 75th percentile, 50% reduction when S_NH below 4g/m3
@@ -212,6 +222,7 @@ class BSM2OL:
         self.iqi_all = np.zeros(len(self.simtime))
         self.eqi_all = np.zeros(len(self.simtime))
         self.oci_all = np.zeros(len(self.simtime))
+        self.oci_factors_all = np.zeros((len(self.simtime), 8))
         self.violation_all = np.zeros(len(self.simtime))
 
         self.y_out5_r[14] = asm1init.QINTR
@@ -312,6 +323,16 @@ class BSM2OL:
         self.oci_all[i] = self.performance.oci(
             pe * 24, ae * 24, me * 24, 0, ydw_s_tss_flow, added_carbon_mass, heat_demand * 24, ch4_prod
         )
+        self.oci_factors_all[i] = [
+            pe * 24,
+            ae * 24,
+            me * 24,
+            0,
+            ydw_s_tss_flow,
+            added_carbon_mass,
+            heat_demand * 24,
+            ch4_prod,
+        ]
 
         self.y_in_all[i] = y_in_timestep
         self.y_eff_all[i] = y_eff
@@ -385,3 +406,44 @@ class BSM2OL:
                 stable = True
             old_check_vars = np.array(check_vars)
         logger.info('Stabilized after %s iterations\n', i)
+
+    def simulate(self):
+        """
+        Simulates the plant.
+        """
+        for i in range(len(self.simtime)):
+            self.step(i)
+
+            if i % 1000 == 0:
+                logger.info('timestep: %s of %s\n', i, len(self.simtime))
+
+            if self.evaltime[0] <= self.simtime[i] <= self.evaltime[1]:
+                self.evaluator.update_data(
+                    data1=(['iqi'], [''], [self.iqi_all[i]], float(self.simtime[i])),
+                    data2=(['eqi'], [''], [self.eqi_all[i]], float(self.simtime[i])),
+                    data3=(['oci'], [''], [self.oci_all[i]], float(self.simtime[i])),
+                )
+
+        oci_final = self.performance.oci(
+            np.mean(self.oci_factors_all[:, 0]),
+            np.mean(self.oci_factors_all[:, 1]),
+            np.mean(self.oci_factors_all[:, 2]),
+            np.mean(self.oci_factors_all[:, 3]),
+            np.mean(self.oci_factors_all[:, 4]),
+            np.mean(self.oci_factors_all[:, 5]),
+            np.mean(self.oci_factors_all[:, 6]),
+            np.mean(self.oci_factors_all[:, 7]),
+        )
+        self.evaluator.update_data(
+            data1=(['oci_final'], [''], [oci_final], float(self.endtime)),
+        )
+
+        self.finish_evaluation()
+
+    def finish_evaluation(self):
+        """
+        Finishes the evaluation of the plant.
+        """
+        self.evaluator.plot_data()
+
+        self.evaluator.export_data()

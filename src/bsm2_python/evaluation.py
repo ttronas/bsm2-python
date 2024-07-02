@@ -52,6 +52,9 @@ class Evaluation:
         """
         Exports the data stored in the vars_dicts list to a csv file at the specified filepath.
         """
+        if not self.vars_dicts:
+            logger.warning('No data to export')
+            return
         with open(self.filepath, 'w', encoding='utf-8') as f:
             header = ''
             for i, dictionary in enumerate(self.vars_dicts):
@@ -82,6 +85,9 @@ class Evaluation:
         """
         Plots the data stored in the vars_dicts list.
         """
+        if not self.vars_dicts:
+            logger.warning('No data to plot')
+            return
         for dictionary in self.vars_dicts:
             num_data = len(dictionary['names'])
             cols = math.ceil(num_data / 4)

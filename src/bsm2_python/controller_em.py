@@ -90,6 +90,10 @@ class Controller:
         steps_day = step_day_end - step_day_start
         step_in_day = np.argmin(np.abs(self.simtime - self.simtime[step])) - step_day_start
 
+        # in case of an incomplete day (day has less timesteps than first simulated day)
+        if steps_day < np.argmin(np.abs(self.simtime - (self.simtime[0] + 1))):
+            return self.klas_init
+
         # get hours with the highest electricity prices at start of day
         if step_in_day == 0:
             self.is_price_in_percentile.clear()
