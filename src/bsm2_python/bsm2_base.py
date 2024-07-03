@@ -22,7 +22,7 @@ from bsm2_python.bsm2.adm1_bsm2 import ADM1Reactor
 from bsm2_python.bsm2.asm1_bsm2 import ASM1reactor
 from bsm2_python.bsm2.dewatering_bsm2 import Dewatering
 from bsm2_python.bsm2.helpers_bsm2 import Combiner, Splitter
-from bsm2_python.bsm2.plantperformance_new import PlantPerformance
+from bsm2_python.bsm2.plantperformance import PlantPerformance
 from bsm2_python.bsm2.primclar_bsm2 import PrimaryClarifier
 from bsm2_python.bsm2.settler1d_bsm2 import Settler
 from bsm2_python.bsm2.storage_bsm2 import Storage
@@ -31,6 +31,8 @@ from bsm2_python.evaluation import Evaluation
 from bsm2_python.log import logger
 
 path_name = os.path.dirname(__file__)
+
+SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = np.arange(21)
 
 
 class BSM2Base:
@@ -180,7 +182,8 @@ class BSM2Base:
 
         if evaltime is None:
             # evaluate the last 5 days of the simulation
-            starttime = self.simtime[np.argmin(np.abs(self.simtime - (self.simtime[-1] - 5)))]
+            last_days = 5
+            starttime = self.simtime[np.argmin(np.abs(self.simtime - (self.simtime[-1] - last_days)))]
             self.evaltime = np.array([starttime, self.simtime[-1]])
 
         self.evaluator = Evaluation(path_name + '/data/output_evaluation.csv')
@@ -203,15 +206,14 @@ class BSM2Base:
         self.yp_of = np.zeros(21)
         self.yp_internal = np.zeros(21)
         self.yt_uf = np.zeros(21)
+        self.yd_in = np.zeros(21)
         self.yd_out = np.zeros(51)
-        self.yd_out2 = np.zeros(21)
+        self.yi_out2 = np.zeros(21)
         self.ydw_s = np.zeros(21)
         self.yst_out = np.zeros(21)
         self.yst_vol = 0
         self.yst_sp_as = np.zeros(21)
         self.yt_sp_as = np.zeros(21)
-        self.yd_in = np.zeros(21)
-        self.yd_out = np.zeros(51)
         self.y_out5_r = np.zeros(21)
 
         self.y_eff = np.zeros(21)
@@ -232,6 +234,26 @@ class BSM2Base:
         self.qstorage2prim_all = np.zeros((len(self.simtime), 21))
         self.sludge_all = np.zeros((len(self.simtime), 21))
 
+        self.y_out1_all = np.zeros((len(self.simtime), 21))
+        self.y_out2_all = np.zeros((len(self.simtime), 21))
+        self.y_out3_all = np.zeros((len(self.simtime), 21))
+        self.y_out4_all = np.zeros((len(self.simtime), 21))
+        self.y_out5_all = np.zeros((len(self.simtime), 21))
+        self.ys_r_all = np.zeros((len(self.simtime), 21))
+        self.ys_was_all = np.zeros((len(self.simtime), 21))
+        self.ys_of_all = np.zeros((len(self.simtime), 21))
+        self.ys_tss_internal_all = np.zeros((len(self.simtime), settler1dinit.LAYER[1]))
+        self.yp_uf_all = np.zeros((len(self.simtime), 21))
+        self.yp_of_all = np.zeros((len(self.simtime), 21))
+        self.yi_out2_all = np.zeros((len(self.simtime), 21))
+        self.yst_out_all = np.zeros((len(self.simtime), 21))
+        self.yst_vol_all = np.zeros((len(self.simtime), 2))
+        self.ydw_s_all = np.zeros((len(self.simtime), 21))
+        self.yt_uf_all = np.zeros((len(self.simtime), 21))
+        self.yp_internal_all = np.zeros((len(self.simtime), 21))
+        self.yd_out_all = np.zeros((len(self.simtime), 51))
+        self.yt_uf_all = np.zeros((len(self.simtime), 21))
+
         self.klas = np.array([reginit.KLA1, reginit.KLA2, reginit.KLA3, reginit.KLA4, reginit.KLA5])
         # scenario 5, 75th percentile, 50% reduction when S_NH below 4g/m3
         # self.controller = ControllerOxygen(self.timestep[0], 0.75, klas, 0.5, 4)
@@ -245,7 +267,7 @@ class BSM2Base:
         self.iqi_all = np.zeros(len(self.simtime))
         self.eqi_all = np.zeros(len(self.simtime))
         self.oci_all = np.zeros(len(self.simtime))
-        self.oci_factors_all = np.zeros((len(self.simtime), 8))
+        self.perf_factors_all = np.zeros((len(self.simtime), 13))
         self.violation_all = np.zeros(len(self.simtime))
 
         self.y_out5_r[14] = asm1init.QINTR
@@ -289,7 +311,7 @@ class BSM2Base:
             self.y_out5, (self.y_out5[14] - asm1init.QINTR, asm1init.QINTR)
         )
 
-        self.ys_r, self.ys_was, self.ys_of, _, _ = self.settler.output(stepsize, step, ys_in)
+        self.ys_r, self.ys_was, self.ys_of, _, ys_tss_internal = self.settler.output(stepsize, step, ys_in)
 
         self.y_eff = self.combiner_effluent.output(y_plant_bp, y_as_bp_c_eff, self.ys_of[:21])
 
@@ -302,8 +324,8 @@ class BSM2Base:
         )
 
         self.yd_in = self.combiner_adm1.output(self.yt_uf, self.yp_uf)
-        self.yd_out2, self.yd_out, _ = self.adm1_reactor.output(stepsize, step, self.yd_in, reginit.T_OP)
-        self.ydw_s, ydw_r = self.dewatering.output(self.yd_out2)
+        self.yi_out2, self.yd_out, _ = self.adm1_reactor.output(stepsize, step, self.yd_in, reginit.T_OP)
+        self.ydw_s, ydw_r = self.dewatering.output(self.yi_out2)
         self.yst_out, self.yst_vol = self.storage.output(stepsize, step, ydw_r, reginit.QSTORAGE)
 
         self.yst_sp_p, self.yst_sp_as = self.splitter_storage.output(
@@ -326,11 +348,28 @@ class BSM2Base:
         self.pe = self.performance.pumpingenergy_step(flows, pp_init.PP_PAR[10:16])
         self.me = self.performance.mixingenergy_step(self.klas, vol, pp_init.PP_PAR[16])
 
+        tss_mass = self.performance.tss_mass_bsm2(
+            self.yp_of,
+            self.yp_uf,
+            self.yp_internal,
+            self.y_out1,
+            self.y_out2,
+            self.y_out3,
+            self.y_out4,
+            self.y_out5,
+            ys_tss_internal,
+            self.yd_out,
+            self.yst_out,
+            self.yst_vol,
+        )
         ydw_s_tss_flow = self.performance.tss_flow(self.ydw_s)
+        y_eff_tss_flow = self.performance.tss_flow(self.y_eff)
         carb = reginit.CARB1 + reginit.CARB2 + reginit.CARB3 + reginit.CARB4 + reginit.CARB5
         added_carbon_mass = self.performance.added_carbon_mass(carb, reginit.CARBONSOURCECONC)
         self.heat_demand = self.performance.heat_demand_step(self.yd_in, reginit.T_OP)[0]
-        ch4_prod, _, _, _ = self.performance.gas_production(self.yd_out, reginit.T_OP)
+        ch4_prod, h2_prod, co2_prod, q_gas = self.performance.gas_production(self.yd_out, reginit.T_OP)
+        # This calculates an approximate oci value for each time step,
+        # neglecting changes in the tss mass inside the whole plant
         self.oci_all[i] = self.performance.oci(
             self.pe * 24,
             self.ae * 24,
@@ -341,15 +380,21 @@ class BSM2Base:
             self.heat_demand * 24,
             ch4_prod,
         )
-        self.oci_factors_all[i] = [
+        # These values are used to calculate the exact performance values at the end of the simulation
+        self.perf_factors_all[i] = [
             self.pe * 24,
             self.ae * 24,
             self.me * 24,
             0,
             ydw_s_tss_flow,
+            y_eff_tss_flow,
+            tss_mass,
             added_carbon_mass,
             self.heat_demand * 24,
             ch4_prod,
+            h2_prod,
+            co2_prod,
+            q_gas,
         ]
 
         self.y_in_all[i] = y_in_timestep
@@ -367,6 +412,27 @@ class BSM2Base:
         self.qstorage2AS_all[i] = self.yst_sp_as
         self.qstorage2prim_all[i] = self.yst_sp_p
         self.sludge_all[i] = self.ydw_s
+
+        # data for calculation of final oci
+        self.violation_all[i] = self.performance.violation_step(self.y_eff[SNH], 4)[0]
+        self.y_out1_all[i] = self.y_out1
+        self.y_out2_all[i] = self.y_out2
+        self.y_out3_all[i] = self.y_out3
+        self.y_out4_all[i] = self.y_out4
+        self.y_out5_all[i] = self.y_out5
+        self.ys_r_all[i] = self.ys_r
+        self.ys_was_all[i] = self.ys_was
+        self.ys_of_all[i] = self.ys_of
+        self.ys_tss_internal_all[i] = ys_tss_internal
+        self.yp_uf_all[i] = self.yp_uf
+        self.yp_of_all[i] = self.yp_of
+        self.yt_uf_all[i] = self.yt_uf
+        self.yd_out_all[i] = self.yd_out
+        self.yi_out2_all[i] = self.yi_out2
+        self.yst_out_all[i] = self.yst_out
+        self.yst_vol_all[i] = self.yst_vol, step
+        self.ydw_s_all[i] = self.ydw_s
+        self.yp_internal_all[i] = self.yp_internal
 
     def stabilize(self, atol: float = 1e-3):
         """
@@ -424,10 +490,18 @@ class BSM2Base:
                 stable = True
             old_check_vars = np.array(check_vars)
         logger.info('Stabilized after %s iterations\n', i)
+        return stable
 
-    def simulate(self):
+    def simulate(self, *, plot=True, export=True):
         """
         Simulates the plant.
+
+        Parameters
+        ----------
+        plot : bool, optional
+            If True, the data is plotted. Default is True
+        export : bool, optional
+            If True, the data is exported. Default is True
         """
         for i in range(len(self.simtime)):
             self.step(i)
@@ -442,26 +516,163 @@ class BSM2Base:
                     data3=(['oci'], [''], [self.oci_all[i]], float(self.simtime[i])),
                 )
 
-        oci_final = self.performance.oci(
-            np.mean(self.oci_factors_all[:, 0]),
-            np.mean(self.oci_factors_all[:, 1]),
-            np.mean(self.oci_factors_all[:, 2]),
-            np.mean(self.oci_factors_all[:, 3]),
-            np.mean(self.oci_factors_all[:, 4]),
-            np.mean(self.oci_factors_all[:, 5]),
-            np.mean(self.oci_factors_all[:, 6]),
-            np.mean(self.oci_factors_all[:, 7]),
-        )
+        self.oci_final = self.get_final_performance()[-1]
         self.evaluator.update_data(
-            data1=(['oci_final'], [''], [oci_final], float(self.endtime)),
+            data1=(['oci_final'], [''], [self.oci_final], float(self.endtime)),
         )
 
-        self.finish_evaluation()
+        self.finish_evaluation(plot=plot, export=export)
 
-    def finish_evaluation(self):
+    def finish_evaluation(self, *, plot=True, export=True):
         """
         Finishes the evaluation of the plant.
-        """
-        self.evaluator.plot_data()
 
-        self.evaluator.export_data()
+        Parameters
+        ----------
+        plot : bool, optional
+            If True, the data is plotted. Default is True
+        export : bool, optional
+            If True, the data is exported. Default is True
+        """
+        if plot:
+            self.evaluator.plot_data()
+        if export:
+            self.evaluator.export_data()
+
+    def get_violations(self, comp: tuple = ('SNH',), lim: tuple = (4,)):
+        """
+        Returns the violations of the given components within the evaluation interval.
+
+        Parameters
+        ----------
+        comp : tuple of str, optional
+            List of components to check for violations. Default is ('SNH')
+        lim : tuple of float, optional
+            List of limits for the components. Default is (4)
+
+        Returns
+        -------
+        violations : dict
+            Dictionary with the components as keys and the violations/day as values
+        """
+        comp_dict = {
+            'SI': 0,
+            'SS': 1,
+            'XI': 2,
+            'XS': 3,
+            'XBH': 4,
+            'XBA': 5,
+            'XP': 6,
+            'SO': 7,
+            'SNO': 8,
+            'SNH': 9,
+            'SND': 10,
+            'XND': 11,
+            'SALK': 12,
+            'TSS': 13,
+            'Q': 14,
+            'TEMP': 15,
+            'SD1': 16,
+            'SD2': 17,
+            'SD3': 18,
+            'XD4': 19,
+            'XD5': 20,
+        }
+        if len(comp) != len(lim):
+            raise ValueError('The length of comp and lim has to be the same.')
+        for c in comp:
+            if c not in comp_dict:
+                err = f'The component {c} is not in the list of components.'
+                raise ValueError(err)
+        comps = [comp_dict[c] for c in comp]
+
+        eval_idx = np.array(
+            [np.where(self.simtime <= self.evaltime[0])[0][-1], np.where(self.simtime <= self.evaltime[1])[0][-1]]
+        )
+        violations = {}
+        for i in range(len(comp)):
+            comp_eff = self.y_eff_all[eval_idx[0] : eval_idx[1], comps[i]]
+            violations[comp[i]] = np.sum(self.performance.violation_step(comp_eff, lim[i])) / 60 / 24
+        return violations
+
+    def get_final_performance(self):
+        """
+        Returns the final performance values for evaluation period.
+
+        Returns
+        -------
+        iqi_eval : float
+            The final iqi value / kg/d
+        eqi_eval : float
+            The final eqi value / kg/d
+        tot_sludge_prod : float
+            The total sludge production / kg/d
+        tot_tss_mass : float
+            The total tss mass / kg/d
+        carb_mass : float
+            The carbon mass / kg_COD/d
+        ch4_prod : float
+            The methane production / kg_CH4/d
+        h2_prod : float
+            The hydrogen production / kg_H2/d
+        co2_prod : float
+            The carbon dioxide production / kg_CO2/d
+        q_gas : float
+            The total gas production / m3/d
+        heat_demand : float
+            The heat demand / kWh/d
+        mixingenergy : float
+            The mixing energy / kWh/d
+        pumpingenergy : float
+            The pumping energy / kWh/d
+        aerationenergy : float
+            The aeration energy / kWh/d
+        oci_eval : float
+            The final oci value
+        """
+        # calculate the final performance values
+        eval_idx = np.array(
+            [np.where(self.simtime <= self.evaltime[0])[0][-1], np.where(self.simtime <= self.evaltime[1])[0][-1]]
+        )
+        num_eval_timesteps = eval_idx[1] - eval_idx[0]
+
+        iqi_eval = np.sum(self.iqi_all[eval_idx[0] : eval_idx[1]]) / num_eval_timesteps
+        eqi_eval = np.sum(self.eqi_all[eval_idx[0] : eval_idx[1]]) / num_eval_timesteps
+
+        oci_factors_eval = self.perf_factors_all[eval_idx[0] : eval_idx[1]]
+        pumpingenergy = np.sum(oci_factors_eval[:, 0]) / num_eval_timesteps
+        aerationenergy = np.sum(oci_factors_eval[:, 1]) / num_eval_timesteps
+        mixingenergy = np.sum(oci_factors_eval[:, 2]) / num_eval_timesteps
+        tot_tss_mass = np.sum(oci_factors_eval[:, 4]) / num_eval_timesteps + (
+            oci_factors_eval[-1, 6] - oci_factors_eval[0, 6]
+        ) / (self.evaltime[-1] - self.evaltime[0])
+        tot_sludge_prod = (np.sum(oci_factors_eval[:, 5]) + np.sum(oci_factors_eval[:, 4])) / num_eval_timesteps + (
+            oci_factors_eval[-1, 6] - oci_factors_eval[0, 6]
+        ) / (self.evaltime[-1] - self.evaltime[0])
+        carb_mass = np.sum(oci_factors_eval[:, 7]) / num_eval_timesteps
+        heat_demand = np.sum(oci_factors_eval[:, 8]) / num_eval_timesteps
+        ch4_prod = np.sum(oci_factors_eval[:, 9]) / num_eval_timesteps
+        h2_prod = np.sum(oci_factors_eval[:, 10]) / num_eval_timesteps
+        co2_prod = np.sum(oci_factors_eval[:, 11]) / num_eval_timesteps
+        q_gas = np.sum(oci_factors_eval[:, 12]) / num_eval_timesteps
+
+        oci_eval = self.performance.oci(
+            pumpingenergy, aerationenergy, mixingenergy, 0, tot_tss_mass, carb_mass, heat_demand, ch4_prod
+        )
+
+        return (
+            iqi_eval,
+            eqi_eval,
+            tot_sludge_prod,
+            tot_tss_mass,
+            carb_mass,
+            ch4_prod,
+            h2_prod,
+            co2_prod,
+            q_gas,
+            heat_demand,
+            mixingenergy,
+            pumpingenergy,
+            aerationenergy,
+            oci_eval,
+        )

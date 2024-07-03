@@ -50,7 +50,7 @@ settlerinit[7 * nooflayers : 8 * nooflayers] = [
 settlerinit[8 * nooflayers : 9 * nooflayers] = 14.8581  # T
 settlerinit[9 * nooflayers : 12 * nooflayers] = 0  # soluble dummy states
 
-LAYER = np.array([feedlayer, nooflayers])
+LAYER = np.array((feedlayer, nooflayers))
 
 
 # to use model with nooflayers for solubles use MODELTYPE 0 (IWA/COST Benchmark)

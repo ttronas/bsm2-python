@@ -243,18 +243,9 @@ class BSM2OLEM(BSM2Base):
                     data3=(['oci'], [''], [self.oci_all[i]], float(self.simtime[i])),
                 )
 
-        oci_final = self.performance.oci(
-            np.mean(self.oci_factors_all[:, 0]),
-            np.mean(self.oci_factors_all[:, 1]),
-            np.mean(self.oci_factors_all[:, 2]),
-            np.mean(self.oci_factors_all[:, 3]),
-            np.mean(self.oci_factors_all[:, 4]),
-            np.mean(self.oci_factors_all[:, 5]),
-            np.mean(self.oci_factors_all[:, 6]),
-            np.mean(self.oci_factors_all[:, 7]),
-        )
+        self.oci_final = self.get_final_performance()[-1]
         self.evaluator.update_data(
-            data1=(['oci_final'], [''], [oci_final], float(self.endtime)),
+            data1=(['oci_final'], [''], [self.oci_final], float(self.endtime)),
         )
 
         self.finish_evaluation()
