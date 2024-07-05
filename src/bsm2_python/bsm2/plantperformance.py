@@ -53,39 +53,13 @@ class PlantPerformance:
         # TODO: This needs to be more flexible. It should be possible to pass the path to the data files, but not forced
         with open(path_name + '/../data/electricity_prices_2023.csv', encoding='utf-8-sig') as f:
             prices = []
+            price_times = []
             data = np.array(list(csv.reader(f, delimiter=','))).astype(np.float64)
             for price in data:
-                prices.append(price[0])
+                prices.append(price[1])
+                price_times.append(price[0])
             self.electricity_prices = np.array(prices).astype(np.float64)
-
-    @staticmethod
-    def aerationenergy(kla, vol, sosat, timestep, evaltime):
-        """
-        Calculates the aeration energy.
-
-        Parameters
-        ----------
-        kla : np.ndarray
-            KLa in each reactor compartment at every time step of the evaluation time
-        vol : np.ndarray
-            Volume of the reactor in each reactor compartment
-        sosat : np.ndarray
-            Oxygen saturation concentration in each reactor compartment
-        timestep : float
-            Time step size of the simulation
-        evaltime : np.ndarray
-            Starting and end point of the evaluation time in days.
-            If None, the previously defined evaluation time will be used.
-
-        Returns
-        -------
-        float
-            Aeration energy in kWh/d
-        """
-
-        aerationenergy = sum(sum(sosat * vol * kla) * timestep) / (1.8 * 1000 * (evaltime[1] - evaltime[0]))
-
-        return aerationenergy
+            self.price_times = np.array(price_times).astype(np.float64)
 
     @staticmethod
     def aerationenergy_step(kla, vol, sosat):
@@ -108,36 +82,6 @@ class PlantPerformance:
 
         aerationenergy = sum(sosat * vol * kla) / (1.8 * 1000) / 24
         return aerationenergy
-
-    @staticmethod
-    def pumpingenergy(flows, pumpfactor, timestep, evaltime):
-        """
-        Calculates the pumping energy.
-
-        Parameters
-        ----------
-        flows : np.ndarray
-            Values of Qintr, Qr and Qw at every time step of the evaluation time
-        pumpfactor : np.ndarray
-            Weighting factor of each flow
-        timestep : float
-            Time step size of the simulation
-        evaltime : np.ndarray
-            Starting and end point of the evaluation time in days.
-            If None, the previously defined evaluation time will be used.
-
-        Returns
-        -------
-        float
-            Pumping energy in kWh/d
-        """
-        if flows.shape != pumpfactor.shape:
-            err = f'Shapes of flows and pumpfactor do not match: {flows.shape} and {pumpfactor.shape}'
-            raise ValueError(err)
-
-        pumpingenergy = np.sum(flows * pumpfactor * timestep) / (evaltime[1] - evaltime[0])
-
-        return pumpingenergy
 
     @staticmethod
     def pumpingenergy_step(flows, pumpfactor):
@@ -182,80 +126,6 @@ class PlantPerformance:
         me_adm = me_ad * vol[5]
         me = me_asm + me_adm
         return me
-
-    @staticmethod
-    def mixingenergy(kla, vol, timestep, evaltime, me_ad):
-        """Returns the mixing energy of the plant during the evaluation time
-
-        Parameters
-        ----------
-        kla : np.ndarray
-            KLa values of all reactor compartments at every time step of the evaluation time
-        vol : np.ndarray
-            Volume of each reactor compartment, including the AD unit
-        timestep : int or float
-            Time step of the evaluation time in days
-        evaltime : np.ndarray
-            Starting and end point of the evaluation time in days
-        me_ad : float
-            Mixing energy factor for the AD unit in kW/m3
-
-        Returns
-        -------
-        float
-            Float value of the aeration energy during the evaluation time in kWh/d
-        """
-
-        kla1, kla2, kla3, kla4, kla5 = kla[0], kla[1], kla[2], kla[3], kla[4]
-        lim = 20
-        me_asm = (
-            0.005
-            * (
-                len(kla1[kla1 < lim]) * vol[0]
-                + len(kla2[kla2 < lim]) * vol[1]
-                + len(kla3[kla3 < lim]) * vol[2]
-                + len(kla4[kla4 < lim]) * vol[3]
-                + len(kla5[kla5 < lim]) * vol[4]
-            )
-            * timestep
-            * 24
-        )
-
-        me_adm = 24 * me_ad * vol[5]
-
-        me = (me_asm + me_adm) / (evaltime[1] - evaltime[0])
-
-        return me
-
-    @staticmethod
-    def violation(arr_eff, limit, timestep, evaltime):
-        """Returns the time in days and percentage of time in which a certain component is over the limit value during
-        the evaluation time
-
-        Parameters
-        ----------
-        arr_eff: np.ndarray
-            Concentration of the component in the effluent at every time step of the evaluation time
-        limit: int or float
-            limit value of the component
-        timestep : int or float
-            Time step of the evaluation time in days
-        evaltime : np.ndarray
-            Starting and end point of the evaluation time in days
-
-        Returns
-        -------
-        np.ndarray
-            Array containing the time in days and percentage of time in which
-            a certain component is over the limit value during the evaluation time
-        """
-
-        violationvalues = np.zeros(2)
-        # time in days the component is over the limit value:
-        violationvalues[0] = len(arr_eff[arr_eff > limit]) * timestep
-        # percentage of time the component is over the limit value:
-        violationvalues[1] = len(arr_eff[arr_eff > limit]) * timestep / (evaltime[1] - evaltime[0]) * 100
-        return violationvalues
 
     def violation_step(self, arr_eff, limit):
         """Returns the time in days and percentage of time in which a certain component is over the limit value during
@@ -348,31 +218,24 @@ class PlantPerformance:
 
         return adv_eff
 
-    def qi(self, y_in, *, eqi=False):
-        """Returns the quality index of a stream
+    def iqi(self, y_in):
+        """Returns the influent quality index (IQI)
 
         Parameters
         ----------
-        y_in: np.ndarray(21)
+        y_in: np.ndarray(21) | np.ndarray(n, 21)
             Array containing the values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
-        eqi: bool
-            If True, returns the effluent quality index.
-            If False, returns the influent quality index. Defaults to False.
-            Only difference: eqi uses the BOD5e instead of BOD5.
-            Should be used when water passed the activated sludge stages.
 
         Returns
         -------
-        qi: int or float
-            the value of the quality index of the stream
+        iqi: int | float | np.ndarray
+            the value of the influent quality index of the stream
         """
-
-        bod5 = 'BOD5' if not eqi else 'BOD5e'
 
         y_in = self._reshape_if_1d(y_in)
 
-        adv_quant = self.advanced_quantities(y_in, ('kjeldahlN', 'totalN', 'COD', bod5, 'X_TSS'))
-        qi = (
+        adv_quant = self.advanced_quantities(y_in, ('kjeldahlN', 'totalN', 'COD', 'BOD5', 'X_TSS'))
+        iqi = (
             (
                 self.pp_par[BSS] * y_in[:, TSS]
                 + self.pp_par[BCOD] * adv_quant[:, 2]
@@ -384,7 +247,71 @@ class PlantPerformance:
             / 1000
         )
 
-        return qi
+        return iqi
+
+    def eqi(self, ys_of, y_plant_bp, y_as_bp_c_eff):
+        """
+        Returns the effluent quality index (EQI)
+
+        Parameters
+        ----------
+        ys_of: np.ndarray(21) | np.ndarray(n, 21)
+            Array containing the values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            after the fifth ASM reactor
+        y_plant_bp: np.ndarray(21) | np.ndarray(n, 21)
+            Array containing the values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            after the plant bypass
+        y_as_bp_c_eff: np.ndarray(21) | np.ndarray(n, 21)
+            Array containing the values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            after the ASM bypass
+
+        Returns
+        -------
+        eqi: int | float | np.ndarray
+            the value of the effluent quality index of the stream
+        """
+
+        ys_of = self._reshape_if_1d(ys_of)
+        y_plant_bp = self._reshape_if_1d(y_plant_bp)
+        y_as_bp_c_eff = self._reshape_if_1d(y_as_bp_c_eff)
+
+        y_out5_aq = self.advanced_quantities(ys_of, ('kjeldahlN', 'totalN', 'COD', 'BOD5e', 'X_TSS'))
+        y_p_bp_aq = self.advanced_quantities(y_plant_bp, ('kjeldahlN', 'totalN', 'COD', 'BOD5', 'X_TSS'))
+        y_bp_as_aq = self.advanced_quantities(y_as_bp_c_eff, ('kjeldahlN', 'totalN', 'COD', 'BOD5', 'X_TSS'))
+
+        qe = ys_of[:, Q] + y_plant_bp[:, Q] + y_as_bp_c_eff[:, Q]
+        tsse = (
+            ys_of[:, TSS] * ys_of[:, Q]
+            + y_plant_bp[:, TSS] * y_plant_bp[:, Q]
+            + y_as_bp_c_eff[:, TSS] * y_as_bp_c_eff[:, Q]
+        ) / qe
+        cod = (
+            y_out5_aq[:, 2] * ys_of[:, Q] + y_p_bp_aq[:, 2] * y_plant_bp[:, Q] + y_bp_as_aq[:, 2] * y_as_bp_c_eff[:, Q]
+        ) / qe
+        nkje = (
+            y_out5_aq[:, 0] * ys_of[:, Q] + y_p_bp_aq[:, 0] * y_plant_bp[:, Q] + y_bp_as_aq[:, 0] * y_as_bp_c_eff[:, Q]
+        ) / qe
+        snoe = (
+            ys_of[:, SNO] * ys_of[:, Q]
+            + y_plant_bp[:, SNO] * y_plant_bp[:, Q]
+            + y_as_bp_c_eff[:, SNO] * y_as_bp_c_eff[:, Q]
+        ) / qe
+        bod5e = (
+            y_out5_aq[:, 3] * ys_of[:, Q] + y_p_bp_aq[:, 3] * y_plant_bp[:, Q] + y_bp_as_aq[:, 3] * y_as_bp_c_eff[:, Q]
+        ) / qe
+
+        eqi = (
+            (
+                self.pp_par[BSS] * tsse
+                + self.pp_par[BCOD] * cod
+                + self.pp_par[BNKJ] * nkje
+                + self.pp_par[BNO] * snoe
+                + self.pp_par[BBOD5] * bod5e
+            )
+            * qe
+            / 1000
+        )
+        return eqi
 
     def tss_mass(self, y_out, vol):
         """
@@ -427,7 +354,6 @@ class PlantPerformance:
 
         return tss_flow
 
-    # TODO: Jonas check if descriptions are correct (especially ys_of = settler1d_bsm2 output ys_eff)
     def tss_mass_bsm2(
         self,
         yp_of,
@@ -613,47 +539,7 @@ class PlantPerformance:
         return heat_demand
 
     @staticmethod
-    def heat_demand(primary_clarifier_yuf, thickener_yuf, step_time, evaltime):
-        """Returns the net heating energy demand per day
-
-        Parameters
-        ----------
-        primary_clarifier_yuf: np.ndarray(len(simtime),21)
-            Under flow of Primary Clarifier unite containing the values of the 21 components
-            (13 ASM1 components, TSS, Q, T and 5 dummy states) at all time steps
-
-        thickner_yuf: np.ndarray(len(simtime),21)
-            Under flow of thickner unite containing the values of the 21 components
-            (13 ASM1 components, TSS, Q, T and 5 dummy states) at all time steps
-
-        step_time : int or float
-            Time step of the evaluation time in days
-
-        evaltime : np.ndarray
-            Starting and end point of the evaluation time in days
-
-        Returns
-        -------
-        Heatenergyperd: int or float
-            The net heating energy demand per day
-        """
-
-        totalt = evaltime[1] - evaltime[0]
-
-        ro = H2O.rho_l  # Water density in kg/m3
-        cp = H2O.cp_l  # Specific heat capacity for water in Ws/gC
-
-        tdigesterin = (
-            np.multiply(primary_clarifier_yuf[:, 14], primary_clarifier_yuf[:, 15])
-            + np.multiply(thickener_yuf[:, 14], thickener_yuf[:, 15])
-        ) / (primary_clarifier_yuf[:, 14] + thickener_yuf[:, 14])
-        qad = primary_clarifier_yuf[:, 14] + thickener_yuf[:, 14]  # Ref. page 67 technical documentation
-        heatpower = np.multiply((35 - tdigesterin), qad) * ro * cp / 86400  # kW
-        heatenergyperd = 24 * sum(heatpower * step_time) / totalt
-
-        return heatenergyperd
-
-    def oci(self, pe, ae, me, eg, tss, cm, he, mp, *, idx=None, dyn=False):
+    def oci(pe, ae, me, tss, cm, he, mp):
         """
         Calculates the operational cost index of the plant
 
@@ -665,8 +551,6 @@ class PlantPerformance:
             The aeration energy of the plant / kWh/d
         me : float
             The mixing energy of the plant / kWh/d
-        eg : float
-            The electricity generation of the plant / kWh/d
         tss : float
             The total suspended solids production of the plant / kg/d
         cm : float
@@ -675,36 +559,21 @@ class PlantPerformance:
             The heating demand of the plant / kWh/d
         mp : float
             The methane production of the plant / kg/d
-        idx : int | None
-            The index of the current time step. Only needed if dyn is True. Defaults to None.
-        dyn : bool
-            If True, calculates the OCI with varying power prices. Defaults to False.
 
         Returns
         -------
         float
             The operational cost index of the plant
         """
-        if idx is None and dyn:
-            err = 'Index must be provided if dyn is True'
-            raise ValueError(err)
         tss_cost = 3 * tss
         ae_cost = ae
         me_cost = me
         pe_cost = pe
-        eg_income = eg
         cm_cost = 3 * cm
         he_cost = max(0.0, he - 7 * mp)
         mp_income = 6 * mp
-        if dyn and idx is not None:
-            steps_perd = 4 * 24
-            step_start = idx - idx % steps_perd
-            daily_avg_price = np.mean(self.electricity_prices[step_start : step_start + steps_perd])
-            cur_price = self.electricity_prices[idx]
-            ae_cost *= cur_price / daily_avg_price
-            me_cost *= cur_price / daily_avg_price
-            pe_cost *= cur_price / daily_avg_price
-        return tss_cost + ae_cost + me_cost + pe_cost - eg_income + cm_cost + he_cost - mp_income
+
+        return tss_cost + ae_cost + me_cost + pe_cost + cm_cost + he_cost - mp_income
 
     @staticmethod
     def _reshape_if_1d(arr):

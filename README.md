@@ -4,12 +4,11 @@ A Python implementation of the Benchmark Simulation Model 2 (BSM2) plant layout 
 A description of BSM2 can be found [here](https://iwaponline.com/ebooks/book-pdf/650794/wio9781780401171.pdf).
 
 ## To-Do:
-- [x] Lukas: Write parent class for all BSM2 objects (e.g. methods `stabilize` or `simulate`)
-- [ ] Lukas: Import different plant setups - including BSM2OLEM (BSM2 open loop with energy management)
-- [x] Lukas: Write simple controller (focusing on kla and gas management control based on electricity prices)
 - [ ] Nick: Write docs!
 - [ ] Lukas: Mind the TODOs in the code and fix them. Afterwards, you can delete them.
-- [ ] Lukas: Insert the PlantPerformance class in bsm2_ol and bsm2_cl as well (just as in bsm2_olem) so that we have a consistent structure
+- [ ] Lukas: Please double-check the CHP production - the values seem pretty high
+- [ ] Lukas: Clean up files you don't use anymore :)
+- [ ] Lukas: Please go through files and consistently add units to outputs and inputs.
 
 ## Installation
 To run the project, build it yourself via `hatch build`.

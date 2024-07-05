@@ -184,7 +184,7 @@ class BSM2CL(BSM2Base):
         i : int
             Index of the current time step
         """
-
+        # TODO: Lukas, please check correctness of this implementation.
         self.klas = np.array([0, 0, self.kla3_a, self.kla4_a, self.kla5_a])
         step: float = self.simtime[i]
 

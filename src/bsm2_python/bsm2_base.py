@@ -8,6 +8,7 @@ import csv
 import os
 
 import numpy as np
+from tqdm import tqdm
 
 import bsm2_python.bsm2.init.adm1init_bsm2 as adm1init
 import bsm2_python.bsm2.init.asm1init_bsm2 as asm1init
@@ -59,6 +60,9 @@ class BSM2Base:
             Timestep for the simulation in days. If not provided, the timestep is calculated from the influent data
         endtime : float, optional
             Endtime for the simulation in days. If not provided, the endtime is the last time step in the influent data
+        evaltime : np.ndarray, optional
+            Evaluation time for the simulation. Needs to be passed as a 1D np.ndarray with two values.
+            If not provided, the last 5 days of the simulation will be assessed
         tempmodel : bool, optional
             If True, the temperature model dependencies are activated. Default is False
         activate : bool, optional
@@ -185,7 +189,9 @@ class BSM2Base:
             last_days = 5
             starttime = self.simtime[np.argmin(np.abs(self.simtime - (self.simtime[-1] - last_days)))]
             self.evaltime = np.array([starttime, self.simtime[-1]])
-
+        self.eval_idx = np.array(
+            [np.where(self.simtime <= self.evaltime[0])[0][-1], np.where(self.simtime <= self.evaltime[1])[0][-1]]
+        )
         self.evaluator = Evaluation(path_name + '/data/output_evaluation.csv')
 
         self.performance = PlantPerformance(pp_init.PP_PAR)
@@ -202,6 +208,7 @@ class BSM2Base:
         self.ys_r = np.zeros(21)
         self.ys_was = np.zeros(21)
         self.ys_of = np.zeros(21)
+        self.ys_tss_internal = np.zeros(settler1dinit.LAYER[1])
         self.yp_uf = np.zeros(21)
         self.yp_of = np.zeros(21)
         self.yp_internal = np.zeros(21)
@@ -267,12 +274,12 @@ class BSM2Base:
         self.iqi_all = np.zeros(len(self.simtime))
         self.eqi_all = np.zeros(len(self.simtime))
         self.oci_all = np.zeros(len(self.simtime))
-        self.perf_factors_all = np.zeros((len(self.simtime), 13))
+        self.perf_factors_all = np.zeros((len(self.simtime), 12))
         self.violation_all = np.zeros(len(self.simtime))
 
         self.y_out5_r[14] = asm1init.QINTR
 
-    def step(self, i: int):
+    def step(self, i: int, *args, **kwargs):
         """
         Simulates one time step of the BSM2 model.
 
@@ -291,7 +298,7 @@ class BSM2Base:
         # get influent data that is smaller than and closest to current time step
         y_in_timestep = self.y_in[np.where(self.data_time <= step)[0][-1], :]
 
-        iqi = self.performance.qi(y_in_timestep)[0]
+        iqi = self.performance.iqi(y_in_timestep)[0]
         self.iqi_all[i] = iqi
 
         yp_in_c, y_in_bp = self.input_splitter.output(y_in_timestep, (0, 0), reginit.QBYPASS)
@@ -311,14 +318,15 @@ class BSM2Base:
             self.y_out5, (self.y_out5[14] - asm1init.QINTR, asm1init.QINTR)
         )
 
-        self.ys_r, self.ys_was, self.ys_of, _, ys_tss_internal = self.settler.output(stepsize, step, ys_in)
+        self.ys_r, self.ys_was, self.ys_of, _, self.ys_tss_internal = self.settler.output(stepsize, step, ys_in)
 
         self.y_eff = self.combiner_effluent.output(y_plant_bp, y_as_bp_c_eff, self.ys_of[:21])
 
-        eqi = self.performance.qi(self.y_eff, eqi=True)[0]
+        eqi = self.performance.eqi(self.ys_of, y_plant_bp, y_as_bp_c_eff)[0]
         self.eqi_all[i] = eqi
 
         self.yt_uf, yt_of = self.thickener.output(self.ys_was)
+        # TODO: Lukas, please check if :21 is important for results. If not, remove.
         self.yt_sp_p, self.yt_sp_as = self.splitter_thickener.output(
             yt_of[:21], (1 - reginit.QTHICKENER2AS, reginit.QTHICKENER2AS)
         )
@@ -357,7 +365,7 @@ class BSM2Base:
             self.y_out3,
             self.y_out4,
             self.y_out5,
-            ys_tss_internal,
+            self.ys_tss_internal,
             self.yd_out,
             self.yst_out,
             self.yst_vol,
@@ -374,18 +382,16 @@ class BSM2Base:
             self.pe * 24,
             self.ae * 24,
             self.me * 24,
-            0,
             ydw_s_tss_flow,
             added_carbon_mass,
             self.heat_demand * 24,
             ch4_prod,
         )
         # These values are used to calculate the exact performance values at the end of the simulation
-        self.perf_factors_all[i] = [
+        self.perf_factors_all[i, :12] = [
             self.pe * 24,
             self.ae * 24,
             self.me * 24,
-            0,
             ydw_s_tss_flow,
             y_eff_tss_flow,
             tss_mass,
@@ -423,7 +429,7 @@ class BSM2Base:
         self.ys_r_all[i] = self.ys_r
         self.ys_was_all[i] = self.ys_was
         self.ys_of_all[i] = self.ys_of
-        self.ys_tss_internal_all[i] = ys_tss_internal
+        self.ys_tss_internal_all[i] = self.ys_tss_internal
         self.yp_uf_all[i] = self.yp_uf
         self.yp_of_all[i] = self.yp_of
         self.yt_uf_all[i] = self.yt_uf
@@ -467,7 +473,7 @@ class BSM2Base:
         while not stable:
             i += 1
             logger.debug('Stabilizing iteration %s', i)
-            self.step(s)
+            self.step(s, stabilized=False)
             check_vars = np.concatenate(
                 [
                     self.y_eff_all[s],
@@ -503,11 +509,8 @@ class BSM2Base:
         export : bool, optional
             If True, the data is exported. Default is True
         """
-        for i in range(len(self.simtime)):
+        for i, _ in enumerate(tqdm(self.simtime)):
             self.step(i)
-
-            if i % 1000 == 0:
-                logger.info('timestep: %s of %s\n', i, len(self.simtime))
 
             if self.evaltime[0] <= self.simtime[i] <= self.evaltime[1]:
                 self.evaluator.update_data(
@@ -586,12 +589,9 @@ class BSM2Base:
                 raise ValueError(err)
         comps = [comp_dict[c] for c in comp]
 
-        eval_idx = np.array(
-            [np.where(self.simtime <= self.evaltime[0])[0][-1], np.where(self.simtime <= self.evaltime[1])[0][-1]]
-        )
         violations = {}
         for i in range(len(comp)):
-            comp_eff = self.y_eff_all[eval_idx[0] : eval_idx[1], comps[i]]
+            comp_eff = self.y_eff_all[self.eval_idx[0] : self.eval_idx[1], comps[i]]
             violations[comp[i]] = np.sum(self.performance.violation_step(comp_eff, lim[i])) / 60 / 24
         return violations
 
@@ -631,33 +631,31 @@ class BSM2Base:
             The final oci value
         """
         # calculate the final performance values
-        eval_idx = np.array(
-            [np.where(self.simtime <= self.evaltime[0])[0][-1], np.where(self.simtime <= self.evaltime[1])[0][-1]]
-        )
-        num_eval_timesteps = eval_idx[1] - eval_idx[0]
 
-        iqi_eval = np.sum(self.iqi_all[eval_idx[0] : eval_idx[1]]) / num_eval_timesteps
-        eqi_eval = np.sum(self.eqi_all[eval_idx[0] : eval_idx[1]]) / num_eval_timesteps
+        num_eval_timesteps = self.eval_idx[1] - self.eval_idx[0]
 
-        oci_factors_eval = self.perf_factors_all[eval_idx[0] : eval_idx[1]]
+        iqi_eval = np.sum(self.iqi_all[self.eval_idx[0] : self.eval_idx[1]]) / num_eval_timesteps
+        eqi_eval = np.sum(self.eqi_all[self.eval_idx[0] : self.eval_idx[1]]) / num_eval_timesteps
+
+        oci_factors_eval = self.perf_factors_all[self.eval_idx[0] : self.eval_idx[1]]
         pumpingenergy = np.sum(oci_factors_eval[:, 0]) / num_eval_timesteps
         aerationenergy = np.sum(oci_factors_eval[:, 1]) / num_eval_timesteps
         mixingenergy = np.sum(oci_factors_eval[:, 2]) / num_eval_timesteps
-        tot_tss_mass = np.sum(oci_factors_eval[:, 4]) / num_eval_timesteps + (
-            oci_factors_eval[-1, 6] - oci_factors_eval[0, 6]
+        tot_tss_mass = np.sum(oci_factors_eval[:, 3]) / num_eval_timesteps + (
+            oci_factors_eval[-1, 5] - oci_factors_eval[0, 5]
         ) / (self.evaltime[-1] - self.evaltime[0])
-        tot_sludge_prod = (np.sum(oci_factors_eval[:, 5]) + np.sum(oci_factors_eval[:, 4])) / num_eval_timesteps + (
-            oci_factors_eval[-1, 6] - oci_factors_eval[0, 6]
+        tot_sludge_prod = (np.sum(oci_factors_eval[:, 4]) + np.sum(oci_factors_eval[:, 3])) / num_eval_timesteps + (
+            oci_factors_eval[-1, 5] - oci_factors_eval[0, 5]
         ) / (self.evaltime[-1] - self.evaltime[0])
-        carb_mass = np.sum(oci_factors_eval[:, 7]) / num_eval_timesteps
-        heat_demand = np.sum(oci_factors_eval[:, 8]) / num_eval_timesteps
-        ch4_prod = np.sum(oci_factors_eval[:, 9]) / num_eval_timesteps
-        h2_prod = np.sum(oci_factors_eval[:, 10]) / num_eval_timesteps
-        co2_prod = np.sum(oci_factors_eval[:, 11]) / num_eval_timesteps
-        q_gas = np.sum(oci_factors_eval[:, 12]) / num_eval_timesteps
+        carb_mass = np.sum(oci_factors_eval[:, 6]) / num_eval_timesteps
+        heat_demand = np.sum(oci_factors_eval[:, 7]) / num_eval_timesteps
+        ch4_prod = np.sum(oci_factors_eval[:, 8]) / num_eval_timesteps
+        h2_prod = np.sum(oci_factors_eval[:, 9]) / num_eval_timesteps
+        co2_prod = np.sum(oci_factors_eval[:, 10]) / num_eval_timesteps
+        q_gas = np.sum(oci_factors_eval[:, 11]) / num_eval_timesteps
 
         oci_eval = self.performance.oci(
-            pumpingenergy, aerationenergy, mixingenergy, 0, tot_tss_mass, carb_mass, heat_demand, ch4_prod
+            pumpingenergy, aerationenergy, mixingenergy, tot_tss_mass, carb_mass, heat_demand, ch4_prod
         )
 
         return (

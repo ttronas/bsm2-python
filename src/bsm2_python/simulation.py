@@ -12,6 +12,7 @@ The parameters 'tempmodel' and 'activate' can be set to 'True' if you want to ac
 """
 
 from bsm2_olem import BSM2OLEM
+from tqdm import tqdm
 
 from bsm2_python.log import logger
 
@@ -36,11 +37,8 @@ logger.info('Stabilize bsm2\n')
 bsm2.stabilize()
 
 logger.info('Start simulation\n')
-for i in range(total_steps):
+for i, _ in enumerate(tqdm(bsm2.simtime)):
     bsm2.step(i, stabilized=True)
-
-    if i % 1000 == 0:
-        logger.info('timestep: ' + str(i) + ' of ' + str(total_steps) + '\n')
 
     if i == total_steps - 1:
         bsm2.finish_evaluation()

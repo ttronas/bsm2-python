@@ -10,3 +10,6 @@ logging.basicConfig(
 logging.root.setLevel(logging.INFO)
 
 logger = logging.getLogger('')
+
+# TODO: write custom tqdm logger that writes the progress bar to the logger: https://github.com/tqdm/tqdm/issues/313
+# then, replace all tqdm calls with the custom tqdm-logger

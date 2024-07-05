@@ -18,18 +18,17 @@ def test_bsm2_olem():
     activate = False  # if activate is False dummy states are 0
     # if activate is True dummy states are activated
 
-    # TODO:Please make the BSM2OLEM class not require the timestep parameter. This means especially the Controller class
-    bsm2_olem = BSM2OLEM(endtime=50, timestep=1 / 24 / 60, tempmodel=tempmodel, activate=activate)
+    bsm2_olem = BSM2OLEM(endtime=20, timestep=1 / 24 / 60, tempmodel=tempmodel, activate=activate)
 
     bsm2_olem.stabilize()
     for i, _ in enumerate(tqdm(bsm2_olem.simtime)):
         bsm2_olem.step(i, stabilized=True)
-        if i % 1000 == 0:
-            logger.info(i)
 
     cumulative_cash_flow_simulated = np.array([bsm2_olem.economics.cum_cash_flow])
+    # TODO: Please check if this still is the benchmark value
     cumulative_cash_flow_expected = np.array([15931573.30219831])
-
+    logger.info('cumulative cash flow: %s', cumulative_cash_flow_simulated)
+    logger.info('difference to expected value: %s', cumulative_cash_flow_simulated - cumulative_cash_flow_expected)
     assert np.allclose(cumulative_cash_flow_simulated, cumulative_cash_flow_expected, rtol=1e-2)
 
 

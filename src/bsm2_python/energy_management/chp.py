@@ -157,6 +157,7 @@ class CHP(Module):
         np.ndarray
             Array with the electrical and thermal power produced by the CHP
             [el_power, th_power]
+            # TODO: Add units (same for Boiler and also get_consumption() method)! Is it kW?
         """
         threshold = 1e-5
         if load - self.minimum_load < -threshold:

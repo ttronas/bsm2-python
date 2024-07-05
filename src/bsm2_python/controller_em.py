@@ -50,23 +50,28 @@ class Controller:
             Methane object
         """
         self.simtime = simtime
+        # TODO: perhaps rewrite this to make it more clear to the user
         self.price_percentile = price_percentile
         self.klas_init = klas_init
         self.kla_reduction = kla_reduction
         self.s_nh_threshold = s_nh_threshold
         self.is_price_in_percentile: list[float] = []
         path_name = os.path.dirname(__file__)
+        # TODO: This needs to be more flexible. It should be possible to pass the path to the data files, but not forced
         with open(path_name + '/data/electricity_prices_2023.csv', encoding='utf-8-sig') as f:
             prices = []
+            price_times = []
             data = np.array(list(csv.reader(f, delimiter=','))).astype(np.float64)
             for price in data:
-                prices.append(price[0])
+                prices.append(price[1])
+                price_times.append(price[0])
             self.electricity_prices = np.array(prices).astype(np.float64)
+            self.price_times = np.array(price_times).astype(np.float64)
         self.biogas = biogas
         self.o2 = o2
         self.ch4 = ch4
 
-    def get_klas(self, step: int, s_nh_reactors: np.ndarray):
+    def get_klas(self, step: int, s_nh_eff: np.ndarray):
         """
         Calculates and returns the KLA values for the reactor compartments based on electricity prices and ammonia
         concentration.
@@ -75,9 +80,8 @@ class Controller:
         ----------
         step : int
             Current step of the simulation
-        s_nh_reactors : np.ndarray
-            Ammonia concentration in the effluent of the reactor compartments
-            [s_nh_reactor1, s_nh_reactor2, ...]
+        s_nh_eff : np.ndarray
+            Ammonia concentration in the plant effluent
 
         Returns
         -------
@@ -85,30 +89,54 @@ class Controller:
             KLA values for the reactor compartments
             [kla_reactor1, kla_reactor2, ...]
         """
-        step_day_start = np.argmin(np.abs(self.simtime - math.floor(self.simtime[step])))
-        step_day_end = np.argmin(np.abs(self.simtime - math.floor(self.simtime[step] + 1)))
+        # TODO: Rewrite this whole method to work properly. I screwed up the indexing and the logic is not clear.
+        step_day_start = np.where(self.simtime <= math.floor(self.simtime[step]))[0][-1]
+        price_step_day_start = np.where(self.price_times <= math.floor(self.simtime[step]))[0][-1]
+        if self.simtime[step] == 0:
+            step_day_end = np.where(self.simtime <= math.ceil(self.simtime[step + 1]))[0][-1] - 1
+            price_step_day_end = np.where(self.price_times <= math.ceil(self.simtime[step + 1]))[0][-1] - 1
+            step_in_day = np.where(self.simtime <= self.simtime[step])[0][-1] - step_day_start
+            price_step_in_day = np.where(self.price_times <= self.simtime[step])[0][-1] - price_step_day_start
+        else:
+            step_day_end = np.where(self.simtime <= math.ceil(self.simtime[step]))[0][-1] - 1
+            price_step_day_end = np.where(self.price_times <= math.ceil(self.simtime[step]))[0][-1] - 1
+            step_in_day = np.where(self.simtime <= self.simtime[step - 1])[0][-1] - step_day_start
+            price_step_in_day = np.where(self.price_times <= self.simtime[step - 1])[0][-1] - price_step_day_start
         steps_day = step_day_end - step_day_start
-        step_in_day = np.argmin(np.abs(self.simtime - self.simtime[step])) - step_day_start
+        price_steps_day = price_step_day_end - price_step_day_start
 
+        steps_first_day = np.argmin(np.abs(self.simtime - (self.simtime[0] + 1))) - 1
+        price_steps_first_day = np.argmin(np.abs(self.price_times - (self.simtime[0] + 1)))
         # in case of an incomplete day (day has less timesteps than first simulated day)
-        if steps_day < np.argmin(np.abs(self.simtime - (self.simtime[0] + 1))):
+        if steps_day < steps_first_day | price_steps_day < price_steps_first_day:
             return self.klas_init
+        # TODO: Lukas, this is just a rough patch and doesn't solve the problem.
+        # Without it, the sim crashes with the 1 min resolution after exactly 1 day.
+        # The key to the problem is that step_in_day sometimes is 1440, which is not a valid index for
+        # self.is_price_in_percentile. The same holds for price_step_in_day.
+        elif steps_day > np.argmin(np.abs(self.simtime - (self.simtime[0] + 1))):
+            steps_day = np.argmin(np.abs(self.simtime - (self.simtime[0] + 1)))
+        price_step_in_day = min(price_steps_first_day, price_step_in_day)
+        step_in_day = min(steps_day, step_in_day)
+        # end of rudimentary fix
 
         # get hours with the highest electricity prices at start of day
         if step_in_day == 0:
             self.is_price_in_percentile.clear()
-            electricity_prices_day = self.electricity_prices[step_day_start:step_day_end]
-            steps_in_percentile = round(steps_day * (1 - self.price_percentile))
+            electricity_prices_day = self.electricity_prices[price_step_day_start:price_step_day_end]
+            steps_in_percentile = round(price_steps_day * (1 - self.price_percentile))
             indices_percentile = np.argpartition(electricity_prices_day, -steps_in_percentile)[-steps_in_percentile:]
             for i, _ in enumerate(electricity_prices_day):
                 self.is_price_in_percentile.append(i in indices_percentile)
+            # add one more step to the end of the day to avoid index out of bounds
+            self.is_price_in_percentile.append(False)
 
         klas = np.zeros(len(self.klas_init))
-        for i, s_nh in enumerate(s_nh_reactors):
-            if self.s_nh_threshold > s_nh and self.is_price_in_percentile[step_in_day]:
-                klas[i] = self.klas_init[i] * self.kla_reduction
-            else:
-                klas[i] = self.klas_init[i]
+
+        if self.s_nh_threshold > s_nh_eff and self.is_price_in_percentile[price_step_in_day]:
+            klas = self.klas_init * self.kla_reduction
+        else:
+            klas = self.klas_init
 
         return klas
 

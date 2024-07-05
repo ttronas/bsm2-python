@@ -78,6 +78,7 @@ class Module:
 
     @property
     def products(self) -> np.ndarray:
+        # TODO: Write docstrings for properties
         return self._products
 
     @property

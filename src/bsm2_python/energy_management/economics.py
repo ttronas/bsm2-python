@@ -74,10 +74,13 @@ class Economics:
         self.cooler = cooler
         with open(path_name + '/../data/electricity_prices_2023.csv', encoding='utf-8-sig') as f:
             prices = []
+            price_times = []
             data = np.array(list(csv.reader(f, delimiter=','))).astype(np.float64)
             for price in data:
-                prices.append(price[0])
+                prices.append(price[1])
+                price_times.append(price[0])
             self.electricity_prices = np.array(prices).astype(np.float64)
+            self.price_times = np.array(price_times).astype(np.float64)
         self.cum_cash_flow = 0
 
     @staticmethod
@@ -246,6 +249,8 @@ class Economics:
         float
             The total capital expenditure for the timestep [€]
         """
+        if time_diff == 0:
+            return 0
         return self.get_debt_payment(time_diff)
 
     def get_total_opex(self, time_diff: float):
@@ -262,11 +267,14 @@ class Economics:
         float
             The total operational expenditure for the timestep [€]
         """
+        if time_diff == 0:
+            return 0
+
         return (
             self.get_maintenance_costs(time_diff) + self.get_insurance_costs(time_diff) + self.get_staff_cost(time_diff)
         )
 
-    def get_income(self, net_electricity_wwtp, step, time_diff):
+    def get_income(self, net_electricity_wwtp, simtime, idx):
         """
         Returns the income for the current timestep.
 
@@ -274,10 +282,10 @@ class Economics:
         ----------
         net_electricity_wwtp : float
             The electricity bought from the grid minus the electricity sold to the grid [kWh]
-        step : int
-            The current time step of the simulation loop
-        time_diff : float
-            The time difference between the timesteps [h]
+        simtime : np.ndarray
+            The simulation time array [h]
+        idx : int
+            The simulation time index
 
         Returns
         -------
@@ -285,14 +293,17 @@ class Economics:
             The income for the timestep [€]
         """
         income = 0
-        if net_electricity_wwtp < 0 and self.electricity_prices[step] > 0:
-            income = -net_electricity_wwtp * self.electricity_prices[step] * time_diff
-        elif net_electricity_wwtp > 0 and self.electricity_prices[step] < 0:
-            income = net_electricity_wwtp * -self.electricity_prices[step] * time_diff
+        time_diff = simtime[idx] if idx == 0 else simtime[idx] - simtime[idx - 1]
+
+        el_price_idx = np.argmin(np.abs(self.price_times - simtime[idx]))
+        if net_electricity_wwtp < 0 and self.electricity_prices[el_price_idx] > 0:
+            income = -net_electricity_wwtp * self.electricity_prices[el_price_idx] * time_diff
+        elif net_electricity_wwtp > 0 and self.electricity_prices[el_price_idx] < 0:
+            income = net_electricity_wwtp * -self.electricity_prices[el_price_idx] * time_diff
         self.cum_cash_flow += income
         return income
 
-    def get_expenditures(self, net_electricity_wwtp, step, time_diff):
+    def get_expenditures(self, net_electricity_wwtp, simtime, idx):
         """
         Returns the expenditures for the current timestep.
 
@@ -300,22 +311,24 @@ class Economics:
         ----------
         net_electricity_wwtp : float
             The electricity bought from the grid minus the electricity sold to the grid [kWh]
-        step : int
-            The current time step of the simulation loop
-        time_diff : float
-            The time difference between the timesteps [h]
+        simtime : np.ndarray
+            The simulation time array [h]
+        idx : int
+            The simulation time index
 
         Returns
         -------
         float
             The expenditures for the timestep [€]
         """
+        time_diff = simtime[idx] if idx == 0 else simtime[idx] - simtime[idx - 1]
+        el_price_idx = np.argmin(np.abs(self.price_times - simtime[idx]))
         expenditure_capex = self.get_total_capex(time_diff)
         expenditure_opex = self.get_total_opex(time_diff)
         expenditure_electricity = 0
-        if net_electricity_wwtp > 0 and self.electricity_prices[step] > 0:
-            expenditure_electricity = net_electricity_wwtp * self.electricity_prices[step] * time_diff
-        elif net_electricity_wwtp < 0 and self.electricity_prices[step] < 0:
-            expenditure_electricity = net_electricity_wwtp * self.electricity_prices[step] * time_diff
+        if net_electricity_wwtp > 0 and self.electricity_prices[el_price_idx] > 0:
+            expenditure_electricity = net_electricity_wwtp * self.electricity_prices[el_price_idx] * time_diff
+        elif net_electricity_wwtp < 0 and self.electricity_prices[el_price_idx] < 0:
+            expenditure_electricity = net_electricity_wwtp * self.electricity_prices[el_price_idx] * time_diff
         self.cum_cash_flow -= expenditure_capex + expenditure_opex + expenditure_electricity
         return expenditure_capex + expenditure_opex + expenditure_electricity
