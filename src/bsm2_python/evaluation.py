@@ -10,6 +10,14 @@ import numpy as np
 from bsm2_python.log import logger
 
 
+# TODO: I basically like this class. However, I would like it to be a little more convenient.
+# For example, you could create a DataStore class that, after being initialised with units and names, can store data.
+# The DataStore class could e.g. have an append() method, or a __repr__() method to get a nice string representation.
+# Further on, you could also have getters and setters for the data... Be creative!
+# You can then pass one or more DataStore objects to the Evaluation class
+# and it will give you aggregation and plotting methods.
+# This way, you have the procedure a little more atomic and flexible - at the moment it is very hard to get
+# the data back out of the Evaluation class if you do not want to export/plot it.
 class Evaluation:
     def __init__(self, filepath):
         """
@@ -80,6 +88,8 @@ class Evaluation:
                         line += ';;'
                 f.write(line + '\n')
         logger.info('Data exported to ' + self.filepath)
+
+    # TODO: Implement a get_data method to elegantly return the data stored in the vars_dicts list
 
     def plot_data(self):
         """

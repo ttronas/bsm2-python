@@ -210,7 +210,9 @@ class BSM2OLEM(BSM2Base):
 
             self.biogas_storage.update_outflow(biogas_net_outflow, self.timestep_hour[i])
 
-            self.prices_all[i] = np.where(self.controller.price_times <= self.simtime[i])[0][-1]
+            self.prices_all[i] = self.controller.electricity_prices[
+                np.where(self.controller.price_times <= self.simtime[i])[0][-1]
+            ]
             self.klas_all[i] = self.klas
             self.chps_electricity_all[i] = [chp.products[chp_init.ELECTRICITY] for chp in self.chps]
             self.chps_heat_all[i] = [chp.products[chp_init.HEAT] for chp in self.chps]
