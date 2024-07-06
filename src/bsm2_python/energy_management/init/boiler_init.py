@@ -11,7 +11,7 @@ INDICES_BIOGAS = np.arange(1)
 BIOGAS = INDICES_BIOGAS[0]
 
 
-MAX_POWER_1 = 842  # kW of gas
+MAX_POWER_1 = 720  # kW of gas uptake
 
 EFFICIENCY_RULES_1 = np.array(
     [

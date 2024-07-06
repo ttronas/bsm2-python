@@ -54,8 +54,8 @@ MINIMUM_LOAD_2 = 0.54
 STEPLESS_INTERVALS_1 = True
 STEPLESS_INTERVALS_2 = True
 
-MAX_POWER_1 = 475  # kW
-MAX_POWER_2 = 475  # kW
+MAX_POWER_1 = 610  # kW of gas uptake
+MAX_POWER_2 = 610  # kW of gas uptake
 
 # avg occurence [hours], duration [hours]
 FAILURE_RULES_1 = np.array([144, 12])

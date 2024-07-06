@@ -2,6 +2,7 @@
 Model file for bsm2 model with primary clarifier,
 5 asm1-reactors and a second clarifier, sludge thickener,
 adm1-fermenter and sludge storage in dynamic simulation without any controllers.
+This represents the base model of the BSM2 group of classes.
 """
 
 import csv
@@ -48,7 +49,7 @@ class BSM2Base:
         activate=False,
     ):
         """
-        Creates a BSM2Base object. Is a base class and resembles the BSM2 model without any controllers.
+        Creates a BSM2Base object. It is a base class and resembles the BSM2 model without any controllers.
 
         Parameters
         ----------
