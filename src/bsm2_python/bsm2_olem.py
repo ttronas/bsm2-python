@@ -146,6 +146,7 @@ class BSM2OLEM(BSM2Base):
         )
         self.contr_prices_all = np.zeros((len(self.simtime), 1))
         self.prices_all = np.zeros((len(self.simtime), 1))
+        self.income_all = np.zeros((len(self.simtime), 1))
         self.klas_all = np.zeros((len(self.simtime), len(self.klas)))
         self.chps_electricity_all = np.zeros((len(self.simtime), len(self.chps)))
         self.chps_heat_all = np.zeros((len(self.simtime), len(self.chps)))
@@ -229,7 +230,7 @@ class BSM2OLEM(BSM2Base):
             net_electricity = self.fermenter.electricity_demand - chp_production
 
             el_price_idx = np.argmin(np.abs(self.controller.price_times - self.simtime[i]))
-            self.economics.get_income(net_electricity, self.simtime, i)
+            self.income_all[i] = self.economics.get_income(net_electricity, self.simtime, i)
             self.economics.get_expenditures(net_electricity, self.simtime, i)
             # TODO: Instead of defining a tuple, you can as well create a own class for this.
             # This might be more user-friendly.
