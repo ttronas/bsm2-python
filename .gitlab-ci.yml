@@ -100,6 +100,6 @@ pages:
       - src/*
       - docs/*
   script:
-    - VERSION=$('curl -Ss --request GET --header "PRIVATE-TOKEN: ${API_TOKEN}" "https://gitlab.com/api/v4/projects/${PROJECT_ID}/repository/tags" | jq -r ".[0] | .name"')
+    - 'VERSION=$(curl -Ss --request GET --header "PRIVATE-TOKEN: ${API_TOKEN}" "https://gitlab.com/api/v4/projects/${PROJECT_ID}/repository/tags" | jq -r ".[0] | .name")'
     - test -z "$VERSION" && echo "no version tag found" && exit 1
     - hatch run docs:ci-build $VERSION
