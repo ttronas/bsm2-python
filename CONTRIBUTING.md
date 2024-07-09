@@ -193,6 +193,7 @@ in [pyproject.toml](pyproject.toml) for more commands as well as the package, bu
 [git]: https://git-scm.com
 [github web interface]: https://docs.github.com/en/github/managing-files-in-a-repository/managing-files-on-github/editing-files-in-your-repository
 [hatch]: https://hatch.pypa.io/latest/
+[mkdocs]: https://www.mkdocs.org/
 [other kinds of contributions]: https://opensource.guide/how-to-contribute
 [pre-commit]: https://pre-commit.com/
 [pipx]: https://pypa.github.io/pipx/
