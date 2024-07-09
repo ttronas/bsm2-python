@@ -3,10 +3,12 @@ variables:
   IMAGE_REG: gitlab.rrze.fau.de:4567
   IMAGE_NAME: evt/klaeffizient/bsm2-python
   IMAGE_TAG: latest
+  PROJECT_ID: 2465
 
 stages:
   - build
   - test
+  - deploy
 
 build_image:
   stage: build
@@ -65,3 +67,39 @@ run_tests:
       - pyproject.toml
   script:
     - hatch run test:cov
+
+run_doc_tests:
+  stage: test
+  image: ${IMAGE_REG}/${IMAGE_NAME}:${IMAGE_TAG}
+  tags:
+    - docker
+  rules:
+    - changes:
+      - makefile
+      - Dockerfile
+      - .gitlab-ci.yml
+      - pyproject.toml
+      - .devcontainer/devcontainer.json
+      - docs/*
+  script:
+    - hatch run docs:build-check
+
+
+pages:
+  stage: deploy
+  image: ${IMAGE_REG}/${IMAGE_NAME}:${IMAGE_TAG}
+  tags:
+    - docker
+  rules:
+    - changes:
+      - makefile
+      - Dockerfile
+      - .gitlab-ci.yml
+      - pyproject.toml
+      - .devcontainer/devcontainer.json
+      - src/*
+      - docs/*
+  script:
+    - VERSION=$(curl -Ss --request GET --header "PRIVATE-TOKEN: ${API_TOKEN}" "https://gitlab.com/api/v4/projects/${PROJECT_ID}/repository/tags" | jq -r '.[0] | .name')
+    - test -z "$VERSION" && echo "no version tag found" && exit 1
+    - hatch run docs:ci-build $VERSION
