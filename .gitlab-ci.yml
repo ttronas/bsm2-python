@@ -4,6 +4,8 @@ variables:
   IMAGE_NAME: evt/klaeffizient/bsm2-python
   IMAGE_TAG: latest
   PROJECT_ID: 2465
+  GIT_USER: bsm2_deploybot
+  GIT_EMAIL: bsm2-python@fau.de
 
 stages:
   - build
@@ -102,6 +104,8 @@ pages:
   script:
     - 'VERSION=$(curl -Ss --request GET "https://gitlab.rrze.fau.de/api/v4/projects/${PROJECT_ID}/repository/tags?private_token=${API_TOKEN}" | jq -r ".[0] | .name")'
     - test -z "$VERSION" && echo "no version tag found" && exit 1
+    - git config --global user.name "$GIT_USER"
+    - git config --global user.email "$GIT_EMAIL"
     - hatch run docs:ci-build $VERSION
     - mv site public
   artifacts:
