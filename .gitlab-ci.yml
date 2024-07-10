@@ -103,3 +103,7 @@ pages:
     - 'VERSION=$(curl -Ss --request GET "https://gitlab.rrze.fau.de/api/v4/projects/${PROJECT_ID}/repository/tags?private_token=${API_TOKEN}" | jq -r ".[0] | .name")'
     - test -z "$VERSION" && echo "no version tag found" && exit 1
     - hatch run docs:ci-build $VERSION
+    - mv site public
+  artifacts:
+    paths:
+    - public
