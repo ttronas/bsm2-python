@@ -19,6 +19,10 @@ from bsm2_python.gases.gases import GasMix
         ('maintenance_cost_per_hour', float64),
         ('mttf', float64),
         ('mttr', float64),
+        ('load_change_time', float64),
+        ('_remaining_load_change_time', float64),
+        ('_previous_load', float64),
+        ('_ready_to_change_load', boolean),
         ('_under_maintenance', boolean),
         ('_load', float64),
         # ============ Boiler ============
@@ -37,6 +41,7 @@ class Boiler(Module):
         max_gas_power_uptake: int,
         efficiency_rules: np.ndarray,
         minimum_load: float,
+        load_change_time: float,
         capex: int,
         biogas: GasMix,
         stepless_intervals: boolean,
@@ -53,6 +58,8 @@ class Boiler(Module):
             [[gas load state 1, eta_th1], [gas load state 2, eta_th2], ...]
         minimum_load : float
             Minimum load the boiler can operate at
+        load_change_time : float
+            Time it takes to change the load of the boiler [hours]
         capex : int
             Capital expenditure of the boiler
         biogas : GasMix
@@ -62,6 +69,7 @@ class Boiler(Module):
         self.max_gas_power_uptake = max_gas_power_uptake
         self.efficiency_rules = efficiency_rules
         self.minimum_load = minimum_load
+        self.load_change_time = load_change_time
         self.capex = capex
         self._products = np.array([0.0])
         self._consumption = np.array([0.0])

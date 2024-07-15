@@ -24,7 +24,6 @@ class Fermenter:
         self.opex_factor = opex_factor
         self.gas_production = 0.0
         self.heat_demand = 0.0
-        self.electricity_demand = 0.0
         self.p_h2 = 0.0
         self.p_ch4 = 0.6
         self.p_co2 = 0.4
@@ -36,7 +35,6 @@ class Fermenter:
         gas_production: int | float,
         gas_parameters: np.ndarray,
         heat_demand: int | float,
-        electricity_demand: int | float,
     ):
         """
         Update the fermenter with new values.
@@ -50,12 +48,9 @@ class Fermenter:
             [p_H2, p_CH4, p_CO2, P_gas]
         heat_demand : int | float
             The heat demand of the fermenter [kW]
-        electricity_demand : int | float
-            The electricity demand of the fermenter [kW]
         """
         self.gas_production = gas_production
         self.heat_demand = heat_demand
-        self.electricity_demand = electricity_demand
 
         self.p_h2 = gas_parameters[0]
         self.p_ch4 = gas_parameters[1]

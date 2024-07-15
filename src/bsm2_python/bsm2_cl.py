@@ -153,7 +153,6 @@ class BSM2CL(BSM2Base):
         self.kla3_a = aerationcontrolinit.KLA3GAIN * self.kla4_a
         self.kla5_a = aerationcontrolinit.KLA5GAIN * self.kla4_a
 
-        # TODO all dependant on self.simtime, changes in bsm2_cl from original value -> need to be re-initialized
         self.y_in_all = np.zeros((len(self.simtime), 21))
         self.y_eff_all = np.zeros((len(self.simtime), 21))
         self.y_in_bp_all = np.zeros((len(self.simtime), 21))

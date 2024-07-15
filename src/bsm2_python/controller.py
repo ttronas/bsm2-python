@@ -12,19 +12,17 @@ import numpy as np
 class Controller:
     def __init__(
         self,
-        simtime: np.ndarray,
         price_percentile: float,
         klas_init: np.ndarray,
         kla_reduction: float,
         s_nh_threshold: float,
+        elec_price_path: str = None
     ):
         """
         Creates a Controller object.
 
         Parameters
         ----------
-        simtime : np.ndarray
-            All time steps of the simulation in fraction of a day
         price_percentile : float
             Percentile of electricity prices used to adjust KLA values (aeration reduction at prices above the
             percentile)
@@ -35,15 +33,17 @@ class Controller:
         s_nh_threshold : float
             Maximum value of ammonia concentration in the effluent
         """
-        self.simtime = simtime
         self.price_percentile = price_percentile
         self.klas_init = klas_init
         self.kla_reduction = kla_reduction
         self.s_nh_threshold = s_nh_threshold
         self.is_price_in_percentile: list[float] = []
         path_name = os.path.dirname(__file__)
-        # TODO: This needs to be more flexible. It should be possible to pass the path to the data files, but not forced
-        with open(path_name + '/data/electricity_prices_2023.csv', encoding='utf-8-sig') as f:
+        if elec_price_path is None:
+            self.elec_price_path = path_name + '/data/electricity_prices_2023.csv'
+        else:
+            self.elec_price_path = elec_price_path
+        with open(self.elec_price_path, encoding='utf-8-sig') as f:
             prices = []
             price_times = []
             data = np.array(list(csv.reader(f, delimiter=','))).astype(np.float64)
@@ -53,18 +53,17 @@ class Controller:
             self.electricity_prices = np.array(prices).astype(np.float64)
             self.price_times = np.array(price_times).astype(np.float64)
 
-    def get_klas(self, step: int, s_nh_reactors: np.ndarray):
+    def get_klas(self, step_simtime: float, s_nh_eff: np.ndarray):
         """
         Calculates and returns the KLA values for the reactor compartments based on electricity prices and ammonia
         concentration.
 
         Parameters
         ----------
-        step : int
-            Current step of the simulation
-        s_nh_reactors : np.ndarray
-            Ammonia concentration in the effluent of the reactor compartments
-            [s_nh_reactor1, s_nh_reactor2, ...]
+        step_simtime : int
+            Current timestamp in the simtime of the simulation
+        s_nh_eff : float
+            Ammonia concentration in the plant effluent
 
         Returns
         -------
@@ -72,14 +71,12 @@ class Controller:
             KLA values for the reactor compartments
             [kla_reactor1, kla_reactor2, ...]
         """
-        step_day_start = np.argmin(np.abs(self.simtime - math.floor(self.simtime[step])))
-        step_day_end = np.argmin(np.abs(self.simtime - math.floor(self.simtime[step] + 1)))
+        # necessary to deal with floating point errors
+        eps = 1e-8
+        step_day_start = np.where(self.price_times - math.floor(step_simtime + eps) <= 0)[0][-1]
+        step_day_end = np.where(self.price_times - math.floor((step_simtime + eps + 1)) <= 0)[0][-1]
         steps_day = step_day_end - step_day_start
-        step_in_day = np.argmin(np.abs(self.simtime - self.simtime[step])) - step_day_start
-
-        # in case of an incomplete day (day has less timesteps than first simulated day)
-        if steps_day < np.argmin(np.abs(self.simtime - (self.simtime[0] + 1))):
-            return self.klas_init
+        step_in_day = np.where(self.price_times - (step_simtime + eps) <= 0)[0][-1] - step_day_start
 
         # get hours with the highest electricity prices at start of day
         if step_in_day == 0:
@@ -89,12 +86,12 @@ class Controller:
             indices_percentile = np.argpartition(electricity_prices_day, -steps_in_percentile)[-steps_in_percentile:]
             for i, _ in enumerate(electricity_prices_day):
                 self.is_price_in_percentile.append(i in indices_percentile)
+            # add one more step to the end of the day to avoid index out of bounds
+            self.is_price_in_percentile.append(False)
 
-        klas = np.zeros(len(self.klas_init))
-        for i, s_nh in enumerate(s_nh_reactors):
-            if self.s_nh_threshold > s_nh and self.is_price_in_percentile[step_in_day]:
-                klas[i] = self.klas_init[i] * self.kla_reduction
-            else:
-                klas[i] = self.klas_init[i]
+        if self.s_nh_threshold > s_nh_eff and self.is_price_in_percentile[step_in_day]:
+            klas = self.klas_init * self.kla_reduction
+        else:
+            klas = self.klas_init
 
         return klas

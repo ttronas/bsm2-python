@@ -18,6 +18,10 @@ from bsm2_python.energy_management.module import Module
         ('maintenance_cost_per_hour', float64),
         ('mttf', float64),
         ('mttr', float64),
+        ('load_change_time', float64),
+        ('_remaining_load_change_time', float64),
+        ('_previous_load', float64),
+        ('_ready_to_change_load', boolean),
         ('_under_maintenance', boolean),
         ('_load', float64),
         # ============ Flare ============

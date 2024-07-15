@@ -57,6 +57,10 @@ STEPLESS_INTERVALS_2 = True
 MAX_POWER_1 = 610  # kW of gas uptake
 MAX_POWER_2 = 610  # kW of gas uptake
 
+# time after changing the load until a new change can be made [hours]
+LOAD_CHANGE_TIME_1 = 1
+LOAD_CHANGE_TIME_2 = 1
+
 # avg occurence [hours], duration [hours]
 FAILURE_RULES_1 = np.array([144, 12])
 FAILURE_RULES_2 = np.array([124, 16])

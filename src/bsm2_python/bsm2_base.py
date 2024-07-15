@@ -321,15 +321,14 @@ class BSM2Base:
 
         self.ys_r, self.ys_was, self.ys_of, _, self.ys_tss_internal = self.settler.output(stepsize, step, ys_in)
 
-        self.y_eff = self.combiner_effluent.output(y_plant_bp, y_as_bp_c_eff, self.ys_of[:21])
+        self.y_eff = self.combiner_effluent.output(y_plant_bp, y_as_bp_c_eff, self.ys_of)
 
         eqi = self.performance.eqi(self.ys_of, y_plant_bp, y_as_bp_c_eff)[0]
         self.eqi_all[i] = eqi
 
         self.yt_uf, yt_of = self.thickener.output(self.ys_was)
-        # TODO: Lukas, please check if :21 is important for results. If not, remove.
         self.yt_sp_p, self.yt_sp_as = self.splitter_thickener.output(
-            yt_of[:21], (1 - reginit.QTHICKENER2AS, reginit.QTHICKENER2AS)
+            yt_of, (1 - reginit.QTHICKENER2AS, reginit.QTHICKENER2AS)
         )
 
         self.yd_in = self.combiner_adm1.output(self.yt_uf, self.yp_uf)
@@ -513,18 +512,18 @@ class BSM2Base:
         for i, _ in enumerate(tqdm(self.simtime)):
             self.step(i)
 
+            if i == 0:
+                self.evaluator.add_new_data('iqi', ['iqi'])
+                self.evaluator.add_new_data('eqi', ['eqi'])
+                self.evaluator.add_new_data('oci', ['oci'])
+                self.evaluator.add_new_data('oci_final', ['oci_final'])
             if self.evaltime[0] <= self.simtime[i] <= self.evaltime[1]:
-                self.evaluator.update_data(
-                    data1=(['iqi'], [''], [self.iqi_all[i]], float(self.simtime[i])),
-                    data2=(['eqi'], [''], [self.eqi_all[i]], float(self.simtime[i])),
-                    data3=(['oci'], [''], [self.oci_all[i]], float(self.simtime[i])),
-                )
+                self.evaluator.update_data('iqi', self.iqi_all[i], self.simtime[i])
+                self.evaluator.update_data('eqi', self.eqi_all[i], self.simtime[i])
+                self.evaluator.update_data('oci', self.oci_all[i], self.simtime[i])
 
         self.oci_final = self.get_final_performance()[-1]
-        self.evaluator.update_data(
-            data1=(['oci_final'], [''], [self.oci_final], float(self.endtime)),
-        )
-
+        self.evaluator.update_data('oci_final', self.oci_final, self.evaltime[1])
         self.finish_evaluation(plot=plot, export=export)
 
     def finish_evaluation(self, *, plot=True, export=True):

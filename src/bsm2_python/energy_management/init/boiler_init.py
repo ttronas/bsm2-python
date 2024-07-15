@@ -27,6 +27,9 @@ MINIMUM_LOAD_1 = 0.3
 # can run at any load between minimum_load and 1
 STEPLESS_INTERVALS_1 = True
 
+# time after changing the load until a new change can be made [hours]
+LOAD_CHANGE_TIME_1 = 1
+
 CAPEX_SP_1 = 68  # €/kW
 
 CAPEX_1 = CAPEX_SP_1 * MAX_POWER_1  # €

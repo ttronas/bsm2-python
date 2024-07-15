@@ -2,6 +2,7 @@
 Evaluation file to store, export and plot data.
 """
 
+import copy
 import math
 
 import matplotlib.pyplot as plt
@@ -10,14 +11,6 @@ import numpy as np
 from bsm2_python.log import logger
 
 
-# TODO: I basically like this class. However, I would like it to be a little more convenient.
-# For example, you could create a DataStore class that, after being initialised with units and names, can store data.
-# The DataStore class could e.g. have an append() method, or a __repr__() method to get a nice string representation.
-# Further on, you could also have getters and setters for the data... Be creative!
-# You can then pass one or more DataStore objects to the Evaluation class
-# and it will give you aggregation and plotting methods.
-# This way, you have the procedure a little more atomic and flexible - at the moment it is very hard to get
-# the data back out of the Evaluation class if you do not want to export/plot it.
 class Evaluation:
     def __init__(self, filepath):
         """
@@ -29,87 +22,286 @@ class Evaluation:
             Path to the file where the data will be exported.
         """
         self.filepath = filepath
-        self.vars_dicts = []
+        self.data_objects: list[DataObject] = []
 
-    def update_data(self, **kwargs):
+    def add_new_data(self, name: str, column_names: list[str], units: str or list[str] = None, *, export: bool = True,
+                     plot: bool = True):
         """
-        Takes any data of the right format and stores it as a dictionary in the vars_dicts list.
-        Data format always has to be a tuple of (list(str), list(str), list(float), float) representing names, units,
-        values and timestamp.
-        Multiple data tuples can be passed as keyword arguments at once.
-        An example of a data tuple would be:
-        data = (["a", "b"], ["m3", "kg"], [1.0, 2.0], 0.0)
+        Adds a new DataObject to the data_objects list.
+
+        Parameters
+        ----------
+        name : str
+            Name of the DataObject to be added
+        column_names : list[str]
+            Names of the columns in the DataObject
+        units : str or list[str], optional
+            Units of the columns in the DataObject, '-' at default, if only one unit is specified it is applied to all
+            columns
+        export : bool, optional
+            If True the data will be exported to the csv file, default is True
+        plot : bool, optional
+            If True the data will be plotted, default is True
         """
-        for _, args in kwargs.items():
-            if not (isinstance(args, tuple) and list(map(type, args)) == [list, list, list, float]):
-                raise TypeError(
-                    'args must be a tuple of (list(str), list(str), list(float), float) representing names,'
-                    'units, values and timestamp'
-                )
-            if not any(dictionary.get('names') == args[0] for dictionary in self.vars_dicts):
-                self.vars_dicts.append(
-                    {'names': args[0], 'unit': args[1], 'values': [args[2]], 'timestamps': [args[3]]}
-                )
-            else:
-                for dictionary in self.vars_dicts:
-                    if dictionary['names'] == args[0]:
-                        dictionary['values'].append(args[2])
-                        dictionary['timestamps'].append(args[3])
+        if any(data_object.name == name for data_object in self.data_objects):
+            logger.warning(f'Data object with name {name} already exists')
+            return
+        if units is not None and not isinstance(units, list):
+            units = [units] * len(column_names)
+        elif len(units) <= len(column_names):
+            units = [units[0]] * len(column_names)
+        self.data_objects.append(DataObject(name, column_names, units, export=export, plot=plot))
+        # TODO return data_object
+
+    def update_data(self, name: str, values: float or list[float] or np.ndarray, timestamp: float):
+        """
+        Updates the data stored in the DataObject with the specified name.
+
+        Parameters
+        ----------
+        name : str
+            Name of the DataObject whose data is to be updated
+        values : float or list[float] or np.ndarray
+            Values to be appended to the columns of the DataObject, if only one column exists a single value can be
+            used instead of a list
+        timestamp : float
+            Timestamp to be appended to the timestamps of the DataObject
+        """
+        if not any(data_object.name == name for data_object in self.data_objects):
+            logger.warning(f'No data object with name {name} found')
+            return
+        for data_object in self.data_objects:
+            if data_object.name == name:
+                if isinstance(values, np.ndarray):
+                    values = values.tolist()
+                if not isinstance(values, list):
+                    if len(data_object.column_names) != 1:
+                        logger.warning(f'Number of values does not match number of columns in data object {name}')
+                        return
+                    values = [values]
+                elif len(values) != len(data_object.column_names):
+                    logger.warning(f'Number of values does not match number of columns in data object {name}')
+                    return
+                data_object.append(values, timestamp)
+
+    def get_index(self, name: str, column_name: str):
+        """
+        Returns the index of the specified column in the DataObject with the specified name.
+
+        Parameters
+        ----------
+        name : str
+            Name of the DataObject whose column index is to be returned
+        column_name : str
+            Name of the column whose index is to be returned
+
+        Returns
+        -------
+        int
+            Index of the specified column
+        """
+        if not any(data_object.name == name for data_object in self.data_objects):
+            logger.warning(f'No data object with name {name} found')
+            return
+        for data_object in self.data_objects:
+            if data_object.name == name:
+                return data_object.get_index(column_name)
+
+    def get_timestamps(self, name: str):
+        """
+        Returns the timestamps stored in the DataObject with the specified name.
+
+        Parameters
+        ----------
+        name : str
+            Name of the DataObject whose timestamps are to be returned
+
+        Returns
+        -------
+        list[float]
+            Timestamps of the DataObject
+        """
+        if not any(data_object.name == name for data_object in self.data_objects):
+            logger.warning(f'No data object with name {name} found')
+            return
+        for data_object in self.data_objects:
+            if data_object.name == name:
+                return data_object.get_timestamps()
 
     def export_data(self):
         """
         Exports the data stored in the vars_dicts list to a csv file at the specified filepath.
         """
-        if not self.vars_dicts:
+        if not self.data_objects:
             logger.warning('No data to export')
             return
         with open(self.filepath, 'w', encoding='utf-8') as f:
             header = ''
-            for i, dictionary in enumerate(self.vars_dicts):
-                num_names = len(dictionary['names'])
+            for i, data_object in enumerate(self.data_objects):
+                if not data_object.export:
+                    continue
+                # add blank column between data objects
                 if i != 0:
                     header += ';'
+                # add name and timestamp
+                header += data_object.name + ';'
                 header += 'timestamp [d];'
-                for col in range(num_names):
-                    header += dictionary['names'][col] + ' [' + dictionary['unit'][col] + '];'
+                # add column names and units
+                for key, value in data_object.data_dict.items():
+                    header += key + ' [' + value['unit'] + '];'
             f.write(header + '\n')
-            num_rows = max(len(dictionary['values']) for dictionary in self.vars_dicts)
+            num_rows = max(data_object.num_timestamps for data_object in self.data_objects)
             for row in range(num_rows):
                 line = ''
-                for i, dictionary in enumerate(self.vars_dicts):
-                    if row < len(dictionary['values']):
-                        num_values = len(dictionary['values'][row])
-                        if i != 0:
-                            line += ';'
-                        line += str(dictionary['timestamps'][row]) + ';'
-                        for col in range(num_values):
-                            line += str(dictionary['values'][row][col]) + ';'
+                for i, data_object in enumerate(self.data_objects):
+                    if not data_object.export:
+                        continue
+                    # add blank column underneath data object name
+                    line += ';'
+                    # add blank column between data objects
+                    if i != 0:
+                        line += ';'
+                    # if current data object still has data write values to the line
+                    if row < data_object.num_timestamps:
+                        line += str(data_object.timestamps[row]) + ';'
+                        for _, value in data_object.data_dict.items():
+                            line += str(value['values'][row]) + ';'
+                    # if current data object has no data write empty columns to the line
                     else:
                         line += ';;'
+                        for _, _ in data_object.data_dict.items():
+                            line += ';;'
                 f.write(line + '\n')
         logger.info('Data exported to ' + self.filepath)
-
-    # TODO: Implement a get_data method to elegantly return the data stored in the vars_dicts list
 
     def plot_data(self):
         """
         Plots the data stored in the vars_dicts list.
         """
-        if not self.vars_dicts:
+        if not self.data_objects:
             logger.warning('No data to plot')
             return
-        for dictionary in self.vars_dicts:
-            num_data = len(dictionary['names'])
+        for data_object in self.data_objects:
+            if not data_object.plot:
+                continue
+            if data_object.num_timestamps <= 1:
+                logger.warning(f'Not enough data to plot for data object {data_object.name}')
+                return
+            num_data = data_object.num_columns
             cols = math.ceil(num_data / 4)
             rows = math.ceil(num_data / cols)
-            timestamps = np.array(dictionary['timestamps'])
-            values_list = np.array(dictionary['values'])
-            values_transposed = np.transpose(values_list)
+            timestamps = data_object.get_timestamps()
+            values_list = data_object.get_values()
             fig = plt.figure(1)
+            fig.suptitle(data_object.name)
             positions = range(1, num_data + 1)
             for i in range(num_data):
                 ax = fig.add_subplot(rows, cols, positions[i])
-                ax.plot(timestamps, values_transposed[i])
+                ax.plot(timestamps, values_list[i])
                 ax.set_xlabel('Timestamp [d]')
-                ax.set_ylabel(dictionary['names'][i] + ' [' + dictionary['unit'][i] + ']')
+                ax.set_ylabel(data_object.column_names[i] + ' [' + data_object.units[i] + ']')
             plt.show()
+
+
+class DataObject:
+    def __init__(self, name: str, column_names: list[str], units: list[str] = None, *, export: bool = True,
+                 plot: bool = True):
+        """
+        Creates a DataObject.
+
+        Parameters
+        ----------
+        name : str
+            Name of the data object
+        column_names : list[str]
+            Names of the columns in the data object
+        units : list[str], optional
+            Units of the columns in the data object, '-' at default
+        export : bool, optional
+            If True the data will be exported to the csv file, default is True
+        plot : bool, optional
+            If True the data will be plotted, default is True
+        """
+        self.name = name
+        self.column_names = column_names
+        if units is None:
+            self.units = ['-'] * len(column_names)
+        else:
+            self.units = units
+        self.export = export
+        self.plot = plot
+        self.data_dict = {}
+        for i, column_name in enumerate(column_names):
+            self.data_dict[column_name] = {'unit': self.units[i], 'values': []}
+        self.timestamps = []
+        self.num_columns = len(column_names)
+        self.num_timestamps = 0
+
+    def __repr__(self):
+        # TODO besser strukturieren, tabellarisch darstellen
+        repr_dict = copy.deepcopy(self.data_dict)
+        for key, value in repr_dict.items():
+            if len(value['values']) > 7:
+                value['values'] = value['values'][:3] + ['...'] + value['values'][-3:]
+        repr_timestamps = self.timestamps.copy()
+        if len(self.timestamps) > 7:
+            repr_timestamps = self.timestamps[:3] + ['...'] + self.timestamps[-3:]
+        return f'{self.name} {repr_dict} timestamps: {repr_timestamps}'
+
+    def append(self, values, timestamp):
+        """
+        Appends values and timestamp to the data object.
+
+        Parameters
+        ----------
+        values : list[float]
+            Values to be appended to the columns of the data object
+        timestamp : float
+            Timestamp to be appended to the timestamps of the data object
+        """
+        for i, column_name in enumerate(self.column_names):
+            self.data_dict[column_name]['values'].append(values[i])
+        self.timestamps.append(timestamp)
+        self.num_timestamps += 1
+
+    def get_values(self, column_name: str = None):
+        """
+        Returns the values stored in the data object.
+
+        Parameters
+        ----------
+        column_name : str, optional
+            Name of the column whose values are to be returned, if not specified all values are returned
+
+        Returns
+        -------
+        2D list
+            list over columns containing the values at each timestamp
+        """
+        if column_name is not None:
+            return [self.data_dict[column_name]['values']]
+        else:
+            values = [value['values'] for _, value in self.data_dict.items()]
+            return values
+
+    def get_index(self, column_name: str):
+        """
+        Returns the index of the specified column in the data object.
+
+        Parameters
+        ----------
+        column_name : str
+            Name of the column whose index is to be returned
+
+        Returns
+        -------
+        int
+            Index of the specified column
+        """
+        return self.column_names.index(column_name)
+
+    def get_timestamps(self):
+        """
+        Returns the timestamps stored in the data object.
+        """
+        return self.timestamps

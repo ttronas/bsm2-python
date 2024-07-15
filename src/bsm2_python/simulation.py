@@ -30,9 +30,9 @@ tempmodel = (
 activate = False  # if activate is False dummy states are 0
 # if activate is True dummy states are activated
 
-bsm2 = BSM2OLEM(endtime=endtime, tempmodel=tempmodel, activate=activate)
+bsm2 = BSM2OLEM(timestep=timestep, endtime=endtime, tempmodel=tempmodel, activate=activate)
 
-logger.info('Stabilize bsm2\n')
+# logger.info('Stabilize bsm2\n')
 
 bsm2.stabilize()
 

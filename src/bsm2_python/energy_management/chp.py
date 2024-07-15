@@ -19,6 +19,10 @@ from bsm2_python.gases.gases import GasMix
         ('maintenance_cost_per_hour', float64),
         ('mttf', float64),
         ('mttr', float64),
+        ('load_change_time', float64),
+        ('_remaining_load_change_time', float64),
+        ('_previous_load', float64),
+        ('_ready_to_change_load', boolean),
         ('_under_maintenance', boolean),
         ('_load', float64),
         # ============ CHP ============
@@ -40,6 +44,7 @@ class CHP(Module):
         minimum_load: float,
         mttf: int,
         mttr: int,
+        load_change_time: float,
         capex: int,
         biogas: GasMix,
         storage_rules: np.ndarray,
@@ -62,6 +67,8 @@ class CHP(Module):
             Mean time to failure (Time between two maintenances) [h]
         mttr : int
             Mean time to repair [h]
+        load_change_time : float
+            Time after changing the load until a new change can be made [hours]
         capex : int
             Capital expenditure of the CHP
         biogas : GasMix
@@ -78,6 +85,7 @@ class CHP(Module):
         self.minimum_load = minimum_load
         self.mttf = mttf
         self.mttr = mttr
+        self.load_change_time = load_change_time
         self._products = np.array([0.0, 0.0])
         self._consumption = np.array([0.0])
         self._load = 0.0

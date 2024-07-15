@@ -49,17 +49,6 @@ class PlantPerformance:
             BNKJ, BNO, BBOD5, PF_QINTR, PF_QR, PF_QW, PF_QPU, PF_QTU, PF_QDO, ME_AD_UNIT]
         """
         self.pp_par = pp_par
-        path_name = os.path.dirname(__file__)
-        # TODO: This needs to be more flexible. It should be possible to pass the path to the data files, but not forced
-        with open(path_name + '/../data/electricity_prices_2023.csv', encoding='utf-8-sig') as f:
-            prices = []
-            price_times = []
-            data = np.array(list(csv.reader(f, delimiter=','))).astype(np.float64)
-            for price in data:
-                prices.append(price[1])
-                price_times.append(price[0])
-            self.electricity_prices = np.array(prices).astype(np.float64)
-            self.price_times = np.array(price_times).astype(np.float64)
 
     @staticmethod
     def aerationenergy_step(kla, vol, sosat):

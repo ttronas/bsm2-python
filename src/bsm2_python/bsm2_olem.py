@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 import bsm2_python.bsm2.init.reginit_bsm2 as reginit
 from bsm2_python.bsm2_base import BSM2Base
-from bsm2_python.controller_em import Controller
+from bsm2_python.controller_em import ControllerEM
 from bsm2_python.energy_management.boiler import Boiler
 from bsm2_python.energy_management.chp import CHP
 from bsm2_python.energy_management.compressor import Compressor
@@ -64,7 +64,7 @@ class BSM2OLEM(BSM2Base):
         self.timestep_hour = np.dot(self.timestep, 24)
 
         # scenario 5, 75th percentile, 50% reduction when S_NH below 4g/m3
-        self.controller = Controller(self.simtime, 0.75, self.klas, 0.5, 4, BIOGAS, O2, CH4)
+        self.controller = ControllerEM(0.75, self.klas, 0.5, 4, BIOGAS, O2, CH4)
 
         self.fermenter = Fermenter(fermenter_init.CAPEX_SP, fermenter_init.OPEX_FACTOR, reginit.T_OP)
 
@@ -74,6 +74,7 @@ class BSM2OLEM(BSM2Base):
             chp_init.MINIMUM_LOAD_1,
             chp_init.FAILURE_RULES_1[0],
             chp_init.FAILURE_RULES_1[1],
+            chp_init.LOAD_CHANGE_TIME_1,
             chp_init.CAPEX_1,
             BIOGAS,
             chp_init.STORAGE_RULES_1,
@@ -85,6 +86,7 @@ class BSM2OLEM(BSM2Base):
             chp_init.MINIMUM_LOAD_2,
             chp_init.FAILURE_RULES_2[0],
             chp_init.FAILURE_RULES_2[1],
+            chp_init.LOAD_CHANGE_TIME_2,
             chp_init.CAPEX_2,
             BIOGAS,
             chp_init.STORAGE_RULES_2,
@@ -96,6 +98,7 @@ class BSM2OLEM(BSM2Base):
             boiler_init.MAX_POWER_1,
             boiler_init.EFFICIENCY_RULES_1,
             boiler_init.MINIMUM_LOAD_1,
+            boiler_init.LOAD_CHANGE_TIME_1,
             boiler_init.CAPEX_1,
             BIOGAS,
             boiler_init.STEPLESS_INTERVALS_1,
@@ -156,7 +159,7 @@ class BSM2OLEM(BSM2Base):
         self.biogas_vol_all = np.zeros((len(self.simtime), 1))
 
     def step(self, i: int, *, stabilized: bool = False):
-        self.klas = self.controller.get_klas(i, self.y_eff[SNH])
+        self.klas = self.controller.get_klas(self.simtime[i], self.y_eff[SNH])
 
         super().step(i)
 
@@ -169,7 +172,7 @@ class BSM2OLEM(BSM2Base):
             # alpha_sae = 2.5
             # oxygen_demand = ae * alpha_sae / O2.rho_norm  # kW * kgO2/kWh / kg/Nm3 = Nm3/h
 
-            self.fermenter.step(gas_production, gas_parameters, self.heat_demand, electricity_demand)
+            self.fermenter.step(gas_production, gas_parameters, self.heat_demand)
             biogas = self.biogas_storage.update_inflow(
                 self.fermenter.gas_production, self.fermenter.get_composition(), self.timestep_hour[i]
             )
@@ -226,31 +229,24 @@ class BSM2OLEM(BSM2Base):
             heat_production = np.sum([chp.products[chp_init.HEAT] for chp in self.chps]) + np.sum(
                 [boiler.products[boiler_init.HEAT] for boiler in self.boilers]
             )
-            # TODO: Please make this more clear. The fermenter doesn't need all of the electricity - ae, me and pe do!
-            net_electricity = self.fermenter.electricity_demand - chp_production
+
+            net_electricity = electricity_demand - chp_production
 
             el_price_idx = np.argmin(np.abs(self.controller.price_times - self.simtime[i]))
             self.income_all[i] = self.economics.get_income(net_electricity, self.simtime, i)
             self.economics.get_expenditures(net_electricity, self.simtime, i)
-            # TODO: Instead of defining a tuple, you can as well create a own class for this.
-            # This might be more user-friendly.
-            s_nh_data: tuple[list, list, list, float] = ([], [], [], float(self.simtime[i]))
-            s_nh_data[0].append('s_nh_eff')
-            s_nh_data[1].append('g/m3')
-            s_nh_data[2].append(self.y_eff[SNH])
-            if self.klas is not None:
-                kla_data: tuple[list, list, list, float] = ([], [], [], float(self.simtime[i]))
-                for j, kla in enumerate(self.klas):
-                    kla_data[0].append('kla' + str(j + 1))
-                    kla_data[1].append('1/d')
-                    kla_data[2].append(kla)
-            elec_data = (
-                ['demand', 'price'],
-                ['kW', '€/MWh'],
-                [self.fermenter.electricity_demand, self.controller.electricity_prices[el_price_idx]],
-                float(self.simtime[i]),
-            )
-            self.evaluator.update_data(data1=s_nh_data, data2=kla_data, data3=elec_data)
+
+            if i == 0:
+                self.evaluator.add_new_data('s_nh', ['s_nh_eff'], ['g/m3'])
+                self.evaluator.add_new_data('kla', ['kla1', 'kla2', 'kla3', 'kla4', 'kla5'], ['1/d'])
+                self.evaluator.add_new_data('electricity', ['demand', 'price'], ['kW', '€/MWh'])
+                self.evaluator.add_new_data('chp', ['chp1 load', 'chp2 load'], ['-'])
+            self.evaluator.update_data('s_nh', self.y_eff[SNH], self.simtime[i])
+            self.evaluator.update_data('kla', self.klas, self.simtime[i])
+            self.evaluator.update_data('electricity', [electricity_demand,
+                                                       self.controller.electricity_prices[el_price_idx]],
+                                       self.simtime[i])
+            self.evaluator.update_data('chp', [self.chps[0].load, self.chps[1].load], self.simtime[i])
 
             tss_mass = self.performance.tss_mass_bsm2(
                 self.yp_of,
@@ -386,14 +382,14 @@ class BSM2OLEM(BSM2Base):
         if dyn and simtime is not None:
             # TODO: it would be better to make this a custom method for bsm2_olem()
             # instead of the dyn and simtime arguments.
-            price_step_day_start = np.argmin(np.abs(self.performance.price_times - math.floor(simtime)))
-            price_step_day_end = np.argmin(np.abs(self.performance.price_times - math.floor(simtime + 1)))
-            price_steps_day = price_step_day_end - price_step_day_start
-            price_step_in_day = np.argmin(np.abs(self.performance.price_times - simtime)) - price_step_day_start
+            eps = 1e-8
+            step_day_start = np.where(self.controller.price_times - math.floor(simtime + eps) <= 0)[0][-1]
+            step_day_end = np.where(self.controller.price_times - math.floor((simtime + eps + 1)) <= 0)[0][-1]
+            step_in_day = np.where(self.controller.price_times - (simtime + eps) <= 0)[0][-1] - step_day_start
             daily_avg_price = np.mean(
-                self.performance.electricity_prices[price_step_day_start : price_step_day_start + price_steps_day]
+                self.controller.electricity_prices[step_day_start: step_day_end]
             )
-            cur_price = self.performance.electricity_prices[price_step_day_start + price_step_in_day]
+            cur_price = self.controller.electricity_prices[step_day_start + step_in_day]
             ae_cost *= cur_price / daily_avg_price
             me_cost *= cur_price / daily_avg_price
             pe_cost *= cur_price / daily_avg_price

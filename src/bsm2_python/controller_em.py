@@ -4,6 +4,7 @@ import os
 
 import numpy as np
 
+from bsm2_python.controller import Controller
 from bsm2_python.energy_management.boiler import Boiler
 from bsm2_python.energy_management.chp import CHP
 from bsm2_python.energy_management.cooler import Cooler
@@ -14,10 +15,9 @@ from bsm2_python.energy_management.storage import BiogasStorage
 from bsm2_python.gases.gases import Gas, GasMix
 
 
-class Controller:
+class ControllerEM(Controller):
     def __init__(
         self,
-        simtime: np.ndarray,
         price_percentile: float,
         klas_init: np.ndarray,
         kla_reduction: float,
@@ -31,8 +31,6 @@ class Controller:
 
         Parameters
         ----------
-        simtime : np.ndarray
-            All time steps of the simulation in fraction of a day
         price_percentile : float
             Percentile of electricity prices used to adjust KLA values (aeration reduction at prices above the
             percentile)
@@ -49,96 +47,15 @@ class Controller:
         ch4 : Gas
             Methane object
         """
-        self.simtime = simtime
-        # TODO: perhaps rewrite this to make it more clear to the user
-        self.price_percentile = price_percentile
-        self.klas_init = klas_init
-        self.kla_reduction = kla_reduction
-        self.s_nh_threshold = s_nh_threshold
-        self.is_price_in_percentile: list[float] = []
-        path_name = os.path.dirname(__file__)
-        # TODO: This needs to be more flexible. It should be possible to pass the path to the data files, but not forced
-        with open(path_name + '/data/electricity_prices_2023.csv', encoding='utf-8-sig') as f:
-            prices = []
-            price_times = []
-            data = np.array(list(csv.reader(f, delimiter=','))).astype(np.float64)
-            for price in data:
-                prices.append(price[1])
-                price_times.append(price[0])
-            self.electricity_prices = np.array(prices).astype(np.float64)
-            self.price_times = np.array(price_times).astype(np.float64)
+        super().__init__(
+            price_percentile=price_percentile,
+            klas_init=klas_init,
+            kla_reduction=kla_reduction,
+            s_nh_threshold=s_nh_threshold
+        )
         self.biogas = biogas
         self.o2 = o2
         self.ch4 = ch4
-
-    def get_klas(self, step: int, s_nh_eff: np.ndarray):
-        """
-        Calculates and returns the KLA values for the reactor compartments based on electricity prices and ammonia
-        concentration.
-
-        Parameters
-        ----------
-        step : int
-            Current step of the simulation
-        s_nh_eff : np.ndarray
-            Ammonia concentration in the plant effluent
-
-        Returns
-        -------
-        np.ndarray
-            KLA values for the reactor compartments
-            [kla_reactor1, kla_reactor2, ...]
-        """
-        # TODO: Rewrite this whole method to work properly. I screwed up the indexing and the logic is not clear.
-        step_day_start = np.where(self.simtime <= math.floor(self.simtime[step]))[0][-1]
-        price_step_day_start = np.where(self.price_times <= math.floor(self.simtime[step]))[0][-1]
-        if self.simtime[step] == 0:
-            step_day_end = np.where(self.simtime <= math.ceil(self.simtime[step + 1]))[0][-1] - 1
-            price_step_day_end = np.where(self.price_times <= math.ceil(self.simtime[step + 1]))[0][-1] - 1
-            step_in_day = np.where(self.simtime <= self.simtime[step])[0][-1] - step_day_start
-            price_step_in_day = np.where(self.price_times <= self.simtime[step])[0][-1] - price_step_day_start
-        else:
-            step_day_end = np.where(self.simtime <= math.ceil(self.simtime[step]))[0][-1] - 1
-            price_step_day_end = np.where(self.price_times <= math.ceil(self.simtime[step]))[0][-1] - 1
-            step_in_day = np.where(self.simtime <= self.simtime[step - 1])[0][-1] - step_day_start
-            price_step_in_day = np.where(self.price_times <= self.simtime[step - 1])[0][-1] - price_step_day_start
-        steps_day = step_day_end - step_day_start
-        price_steps_day = price_step_day_end - price_step_day_start
-
-        steps_first_day = np.argmin(np.abs(self.simtime - (self.simtime[0] + 1))) - 1
-        price_steps_first_day = np.argmin(np.abs(self.price_times - (self.simtime[0] + 1)))
-        # in case of an incomplete day (day has less timesteps than first simulated day)
-        if steps_day < steps_first_day | price_steps_day < price_steps_first_day:
-            return self.klas_init
-        # TODO: Lukas, this is just a rough patch and doesn't solve the problem.
-        # Without it, the sim crashes with the 1 min resolution after exactly 1 day.
-        # The key to the problem is that step_in_day sometimes is 1440, which is not a valid index for
-        # self.is_price_in_percentile. The same holds for price_step_in_day.
-        elif steps_day > np.argmin(np.abs(self.simtime - (self.simtime[0] + 1))):
-            steps_day = np.argmin(np.abs(self.simtime - (self.simtime[0] + 1)))
-        price_step_in_day = min(price_steps_first_day, price_step_in_day)
-        step_in_day = min(steps_day, step_in_day)
-        # end of rudimentary fix
-
-        # get hours with the highest electricity prices at start of day
-        if step_in_day == 0:
-            self.is_price_in_percentile.clear()
-            electricity_prices_day = self.electricity_prices[price_step_day_start:price_step_day_end]
-            steps_in_percentile = round(price_steps_day * (1 - self.price_percentile))
-            indices_percentile = np.argpartition(electricity_prices_day, -steps_in_percentile)[-steps_in_percentile:]
-            for i, _ in enumerate(electricity_prices_day):
-                self.is_price_in_percentile.append(i in indices_percentile)
-            # add one more step to the end of the day to avoid index out of bounds
-            self.is_price_in_percentile.append(False)
-
-        klas = np.zeros(len(self.klas_init))
-
-        if self.s_nh_threshold > s_nh_eff and self.is_price_in_percentile[price_step_in_day]:
-            klas = self.klas_init * self.kla_reduction
-        else:
-            klas = self.klas_init
-
-        return klas
 
     def control_gas_management(
         self,
@@ -211,6 +128,8 @@ class Controller:
         biogas_storage: BiogasStorage object
         """
         for chp in chps:
+            if not chp.ready_to_change_load:
+                continue
             # get rules for current chp, iterate over upper threshold, lower threshold
             for rule in chp.storage_rules:
                 # if rules are met set load and break loop
@@ -292,6 +211,8 @@ class Controller:
         """
         heat_demand = temperature_deficit * heat_net.mass_flow * (heat_net.cp / 3600)
         for boiler in boilers:
+            if not boiler.ready_to_change_load:
+                continue
             max_load_possible = min(biogas_storage_fill_level * self.biogas.h_u / boiler.max_gas_power_uptake, 1.0)
             load = boiler.calculate_load(heat_demand)
             if load <= max_load_possible:
