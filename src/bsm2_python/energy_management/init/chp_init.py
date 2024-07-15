@@ -15,18 +15,18 @@ STORAGE_RULES_1 = np.array(
     [
         # threshold, tendency, gas load
         # above 15% biogas storage fill level, tendency doesn't matter, full load
-        [0.15, 0, 1],
+        [0.50, 0, 1],
         # above 10% biogas storage fill level, tendency positive, 50% load
-        [0.1, 1, 0.54],
+        [0.35, 1, 0.54],
     ]
 )
 STORAGE_RULES_2 = np.array(
     [
         # threshold, tendency, gas load
         # above 15% biogas storage fill level, tendency doesn't matter, full load
-        [0.15, 0, 1],
+        [0.50, 0, 1],
         # above 10% biogas storage fill level, tendency positive, 50% load
-        [0.1, 1, 0.54],
+        [0.35, 1, 0.54],
     ]
 )
 
@@ -58,8 +58,8 @@ MAX_POWER_1 = 610  # kW of gas uptake
 MAX_POWER_2 = 610  # kW of gas uptake
 
 # time after changing the load until a new change can be made [hours]
-LOAD_CHANGE_TIME_1 = 1
-LOAD_CHANGE_TIME_2 = 1
+LOAD_CHANGE_TIME_1 = 6
+LOAD_CHANGE_TIME_2 = 6
 
 # avg occurence [hours], duration [hours]
 FAILURE_RULES_1 = np.array([144, 12])

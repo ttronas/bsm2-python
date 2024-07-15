@@ -12,7 +12,6 @@ The parameters 'tempmodel' and 'activate' can be set to 'True' if you want to ac
 """
 
 from bsm2_olem import BSM2OLEM
-from tqdm import tqdm
 
 from bsm2_python.log import logger
 

@@ -1,5 +1,6 @@
 import logging
 import sys
+
 import tqdm
 
 
@@ -37,4 +38,3 @@ logger = logging.getLogger('')
 #         logger.info("test")
 #     time.sleep(.1)
 #     pass
-

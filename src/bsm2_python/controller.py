@@ -16,7 +16,7 @@ class Controller:
         klas_init: np.ndarray,
         kla_reduction: float,
         s_nh_threshold: float,
-        elec_price_path: str = None
+        elec_price_path: str | None = None,
     ):
         """
         Creates a Controller object.
@@ -74,7 +74,7 @@ class Controller:
         # necessary to deal with floating point errors
         eps = 1e-8
         step_day_start = np.where(self.price_times - math.floor(step_simtime + eps) <= 0)[0][-1]
-        step_day_end = np.where(self.price_times - math.floor((step_simtime + eps + 1)) <= 0)[0][-1]
+        step_day_end = np.where(self.price_times - math.floor(step_simtime + eps + 1) <= 0)[0][-1]
         steps_day = step_day_end - step_day_start
         step_in_day = np.where(self.price_times - (step_simtime + eps) <= 0)[0][-1] - step_day_start
 

@@ -143,18 +143,6 @@ class Module:
         """
         return self._under_maintenance
 
-    @property
-    def ready_to_change_load(self) -> bool:
-        """
-        Return weather the module is ready to change load.
-
-        Returns
-        -------
-        bool
-            True if the module is ready to change load, False otherwise
-        """
-        return self._ready_to_change_load
-
     @under_maintenance.setter
     def under_maintenance(self, value: bool) -> None:
         """
@@ -166,6 +154,18 @@ class Module:
             Maintenance status of the module
         """
         self._under_maintenance = value
+
+    @property
+    def ready_to_change_load(self) -> bool:
+        """
+        Return weather the module is ready to change load.
+
+        Returns
+        -------
+        bool
+            True if the module is ready to change load, False otherwise
+        """
+        return self._ready_to_change_load
 
     @property
     def products(self) -> np.ndarray:

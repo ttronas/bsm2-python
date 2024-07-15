@@ -243,9 +243,9 @@ class BSM2OLEM(BSM2Base):
                 self.evaluator.add_new_data('chp', ['chp1 load', 'chp2 load'], ['-'])
             self.evaluator.update_data('s_nh', self.y_eff[SNH], self.simtime[i])
             self.evaluator.update_data('kla', self.klas, self.simtime[i])
-            self.evaluator.update_data('electricity', [electricity_demand,
-                                                       self.controller.electricity_prices[el_price_idx]],
-                                       self.simtime[i])
+            self.evaluator.update_data(
+                'electricity', [electricity_demand, self.controller.electricity_prices[el_price_idx]], self.simtime[i]
+            )
             self.evaluator.update_data('chp', [self.chps[0].load, self.chps[1].load], self.simtime[i])
 
             tss_mass = self.performance.tss_mass_bsm2(
@@ -384,11 +384,9 @@ class BSM2OLEM(BSM2Base):
             # instead of the dyn and simtime arguments.
             eps = 1e-8
             step_day_start = np.where(self.controller.price_times - math.floor(simtime + eps) <= 0)[0][-1]
-            step_day_end = np.where(self.controller.price_times - math.floor((simtime + eps + 1)) <= 0)[0][-1]
+            step_day_end = np.where(self.controller.price_times - math.floor(simtime + eps + 1) <= 0)[0][-1]
             step_in_day = np.where(self.controller.price_times - (simtime + eps) <= 0)[0][-1] - step_day_start
-            daily_avg_price = np.mean(
-                self.controller.electricity_prices[step_day_start: step_day_end]
-            )
+            daily_avg_price = np.mean(self.controller.electricity_prices[step_day_start:step_day_end])
             cur_price = self.controller.electricity_prices[step_day_start + step_in_day]
             ae_cost *= cur_price / daily_avg_price
             me_cost *= cur_price / daily_avg_price

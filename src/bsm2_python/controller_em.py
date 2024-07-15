@@ -1,7 +1,3 @@
-import csv
-import math
-import os
-
 import numpy as np
 
 from bsm2_python.controller import Controller
@@ -51,7 +47,7 @@ class ControllerEM(Controller):
             price_percentile=price_percentile,
             klas_init=klas_init,
             kla_reduction=kla_reduction,
-            s_nh_threshold=s_nh_threshold
+            s_nh_threshold=s_nh_threshold,
         )
         self.biogas = biogas
         self.o2 = o2

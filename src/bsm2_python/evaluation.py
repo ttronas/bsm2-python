@@ -23,8 +23,15 @@ class Evaluation:
         self.filepath = filepath
         self.data_objects: list[DataObject] = []
 
-    def add_new_data(self, name: str, column_names: str or list[str], units: str or list[str] = None, *,
-                     export: bool = True, plot: bool = True):
+    def add_new_data(
+        self,
+        name: str,
+        column_names: str | list[str],
+        units: str | list[str] | None = None,
+        *,
+        export: bool = True,
+        plot: bool = True,
+    ):
         """
         Adds a new DataObject to the data_objects list.
 
@@ -62,7 +69,7 @@ class Evaluation:
         self.data_objects.append(new_data_object)
         return new_data_object
 
-    def update_data(self, name: str, values: float or list[float] or np.ndarray, timestamp: float):
+    def update_data(self, name: str, values: float | list[float] | np.ndarray, timestamp: float):
         """
         Updates the data stored in the DataObject with the specified name.
 
@@ -83,7 +90,7 @@ class Evaluation:
             if data_object.name == name:
                 if isinstance(values, np.ndarray):
                     values = values.tolist()
-                if not isinstance(values, list):
+                if not isinstance(values, list) and not isinstance(values, np.ndarray):
                     if len(data_object.column_names) != 1:
                         logger.warning(f'Number of values does not match number of columns in data object {name}')
                         return
@@ -234,8 +241,15 @@ class Evaluation:
 
 
 class DataObject:
-    def __init__(self, name: str, column_names: list[str], units: list[str] = None, *, export: bool = True,
-                 plot: bool = True):
+    def __init__(
+        self,
+        name: str,
+        column_names: list[str],
+        units: list[str] | None = None,
+        *,
+        export: bool = True,
+        plot: bool = True,
+    ):
         """
         Creates a DataObject.
 
@@ -263,7 +277,7 @@ class DataObject:
         self.data_dict = {}
         for i, column_name in enumerate(column_names):
             self.data_dict[column_name] = {'unit': self.units[i], 'values': []}
-        self.timestamps = []
+        self.timestamps: list[float] = []
         self.num_columns = len(column_names)
         self.num_timestamps = 0
 
@@ -281,18 +295,20 @@ class DataObject:
         headers = ['timestamp [d]']
         for key, _ in self.data_dict.items():
             headers.append(key + ' [' + self.data_dict[key]['unit'] + ']')
-        num_chars = max(13, max(len(header) for header in headers))
+        num_chars = max(13, *(len(header) for header in headers))
         header_format = '{:>' + str(num_chars) + '}\t'
         value_format = '{:>' + str(num_chars) + '.5f}\t'
         for header in headers:
             output += header_format.format(header)
         i = 0
+        lim_i = 4
+        lim_ts = 9
         while i < self.num_timestamps:
-            if i == 4 and self.num_timestamps > 9:
+            if i == lim_i and self.num_timestamps > lim_ts:
                 output += '\n'
                 for _ in headers:
                     output += header_format.format('...')
-                i = self.num_timestamps - 4
+                i = self.num_timestamps - lim_i
                 continue
             output += '\n'
             values = [self.timestamps[i]]
@@ -319,7 +335,7 @@ class DataObject:
         self.timestamps.append(timestamp)
         self.num_timestamps += 1
 
-    def get_values(self, column_name: str = None):
+    def get_values(self, column_name: str | None = None):
         """
         Returns the values stored in the data object.
 
