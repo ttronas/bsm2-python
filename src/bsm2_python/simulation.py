@@ -32,15 +32,4 @@ activate = False  # if activate is False dummy states are 0
 
 bsm2 = BSM2OLEM(timestep=timestep, endtime=endtime, tempmodel=tempmodel, activate=activate)
 
-# logger.info('Stabilize bsm2\n')
-
-bsm2.stabilize()
-
-logger.info('Start simulation\n')
-for i, _ in enumerate(tqdm(bsm2.simtime)):
-    bsm2.step(i, stabilized=True)
-
-    if i == total_steps - 1:
-        bsm2.finish_evaluation()
-        logger.info('Simulation finished\n')
-        break
+bsm2.simulate()

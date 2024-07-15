@@ -2,7 +2,6 @@
 Evaluation file to store, export and plot data.
 """
 
-import copy
 import math
 
 import matplotlib.pyplot as plt
@@ -24,8 +23,8 @@ class Evaluation:
         self.filepath = filepath
         self.data_objects: list[DataObject] = []
 
-    def add_new_data(self, name: str, column_names: list[str], units: str or list[str] = None, *, export: bool = True,
-                     plot: bool = True):
+    def add_new_data(self, name: str, column_names: str or list[str], units: str or list[str] = None, *,
+                     export: bool = True, plot: bool = True):
         """
         Adds a new DataObject to the data_objects list.
 
@@ -33,7 +32,7 @@ class Evaluation:
         ----------
         name : str
             Name of the DataObject to be added
-        column_names : list[str]
+        column_names : str or list[str]
             Names of the columns in the DataObject
         units : str or list[str], optional
             Units of the columns in the DataObject, '-' at default, if only one unit is specified it is applied to all
@@ -42,16 +41,26 @@ class Evaluation:
             If True the data will be exported to the csv file, default is True
         plot : bool, optional
             If True the data will be plotted, default is True
+
+        Returns
+        -------
+        DataObject
+            DataObject that was added
         """
         if any(data_object.name == name for data_object in self.data_objects):
             logger.warning(f'Data object with name {name} already exists')
             return
-        if units is not None and not isinstance(units, list):
+        if not isinstance(column_names, list):
+            column_names = [column_names]
+        if units is None:
+            units = ['-'] * len(column_names)
+        elif units is not None and not isinstance(units, list):
             units = [units] * len(column_names)
         elif len(units) <= len(column_names):
             units = [units[0]] * len(column_names)
-        self.data_objects.append(DataObject(name, column_names, units, export=export, plot=plot))
-        # TODO return data_object
+        new_data_object = DataObject(name, column_names, units, export=export, plot=plot)
+        self.data_objects.append(new_data_object)
+        return new_data_object
 
     def update_data(self, name: str, values: float or list[float] or np.ndarray, timestamp: float):
         """
@@ -83,6 +92,27 @@ class Evaluation:
                     logger.warning(f'Number of values does not match number of columns in data object {name}')
                     return
                 data_object.append(values, timestamp)
+
+    def get_data(self, name: str):
+        """
+        Returns the DataObject with the specified name.
+
+        Parameters
+        ----------
+        name : str
+            Name of the DataObject to be returned
+
+        Returns
+        -------
+        DataObject
+            DataObject with the specified name
+        """
+        if not any(data_object.name == name for data_object in self.data_objects):
+            logger.warning(f'No data object with name {name} found')
+            return
+        for data_object in self.data_objects:
+            if data_object.name == name:
+                return data_object
 
     def get_index(self, name: str, column_name: str):
         """
@@ -238,15 +268,40 @@ class DataObject:
         self.num_timestamps = 0
 
     def __repr__(self):
-        # TODO besser strukturieren, tabellarisch darstellen
-        repr_dict = copy.deepcopy(self.data_dict)
-        for key, value in repr_dict.items():
-            if len(value['values']) > 7:
-                value['values'] = value['values'][:3] + ['...'] + value['values'][-3:]
-        repr_timestamps = self.timestamps.copy()
-        if len(self.timestamps) > 7:
-            repr_timestamps = self.timestamps[:3] + ['...'] + self.timestamps[-3:]
-        return f'{self.name} {repr_dict} timestamps: {repr_timestamps}'
+        """
+        Returns the string representation of the DataObject.
+        Formats data in columns with headers for each column.
+
+        Returns
+        -------
+        str
+            String representation of the DataObject
+        """
+        output = '\n' + self.name + ':\n'
+        headers = ['timestamp [d]']
+        for key, _ in self.data_dict.items():
+            headers.append(key + ' [' + self.data_dict[key]['unit'] + ']')
+        num_chars = max(13, max(len(header) for header in headers))
+        header_format = '{:>' + str(num_chars) + '}\t'
+        value_format = '{:>' + str(num_chars) + '.5f}\t'
+        for header in headers:
+            output += header_format.format(header)
+        i = 0
+        while i < self.num_timestamps:
+            if i == 4 and self.num_timestamps > 9:
+                output += '\n'
+                for _ in headers:
+                    output += header_format.format('...')
+                i = self.num_timestamps - 4
+                continue
+            output += '\n'
+            values = [self.timestamps[i]]
+            for _, value in self.data_dict.items():
+                values.append(value['values'][i])
+            for value in values:
+                output += value_format.format(value)
+            i += 1
+        return output + '\n'
 
     def append(self, values, timestamp):
         """

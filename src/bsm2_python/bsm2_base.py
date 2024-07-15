@@ -473,7 +473,7 @@ class BSM2Base:
         while not stable:
             i += 1
             logger.debug('Stabilizing iteration %s', i)
-            self.step(s, stabilized=False)
+            self.step(s)
             check_vars = np.concatenate(
                 [
                     self.y_eff_all[s],
@@ -513,10 +513,10 @@ class BSM2Base:
             self.step(i)
 
             if i == 0:
-                self.evaluator.add_new_data('iqi', ['iqi'])
-                self.evaluator.add_new_data('eqi', ['eqi'])
-                self.evaluator.add_new_data('oci', ['oci'])
-                self.evaluator.add_new_data('oci_final', ['oci_final'])
+                self.evaluator.add_new_data('iqi', 'iqi')
+                self.evaluator.add_new_data('eqi', 'eqi')
+                self.evaluator.add_new_data('oci', 'oci')
+                self.evaluator.add_new_data('oci_final', 'oci_final')
             if self.evaltime[0] <= self.simtime[i] <= self.evaltime[1]:
                 self.evaluator.update_data('iqi', self.iqi_all[i], self.simtime[i])
                 self.evaluator.update_data('eqi', self.eqi_all[i], self.simtime[i])
