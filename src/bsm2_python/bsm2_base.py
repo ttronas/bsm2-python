@@ -473,7 +473,7 @@ class BSM2Base:
         while not stable:
             i += 1
             logger.debug('Stabilizing iteration %s', i)
-            self.step(s)
+            self.step(s, stabilized=False)
             check_vars = np.concatenate(
                 [
                     self.y_eff_all[s],

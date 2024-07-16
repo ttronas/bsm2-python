@@ -157,6 +157,7 @@ class BSM2OLEM(BSM2Base):
         self.flare_gas_all = np.zeros((len(self.simtime), 1))
         self.cooler_cool_all = np.zeros((len(self.simtime), 1))
         self.biogas_vol_all = np.zeros((len(self.simtime), 1))
+        self.heat_net_temp_all = np.zeros((len(self.simtime), 1))
 
     def step(self, i: int, *, stabilized: bool = False):
         self.klas = self.controller.get_klas(self.simtime[i], self.y_eff[SNH])
@@ -224,6 +225,7 @@ class BSM2OLEM(BSM2Base):
             self.flare_gas_all[i] = self.flare.consumption[flare_init.BIOGAS]
             self.cooler_cool_all[i] = self.cooler.consumption[cooler_init.HEAT]
             self.biogas_vol_all[i] = self.biogas_storage.vol
+            self.heat_net_temp_all[i] = self.heat_net.temperature
 
             chp_production = np.sum([chp.products[chp_init.ELECTRICITY] for chp in self.chps])
             heat_production = np.sum([chp.products[chp_init.HEAT] for chp in self.chps]) + np.sum(
