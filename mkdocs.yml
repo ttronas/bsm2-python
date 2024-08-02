@@ -85,21 +85,29 @@ plugins:
       python:
         paths:
           - src
-        options:
-          docstring_style: google
-          docstring_options:
-            ignore_init_summary: yes
-          merge_init_into_class: yes
-          show_submodules: no
+        options:            # https://mkdocstrings.github.io/python/usage/#options-summary
+          # General
+          show_bases: false
           # Headings
+          heading_level: 1
           show_root_heading: true
           show_root_full_path: false
+          show_root_toc_entry: true
+          show_category_heading: false
+          show_symbol_type_heading: true
+          show_symbol_type_toc: true
+          # Members
+          show_submodules: no
+          show_labels: false
           # Docstrings
-          show_if_no_docstring: true
+          docstring_style: numpy
+          docstring_section_style: table
+          merge_init_into_class: true
+          show_if_no_docstring: false
           # Signatures/annotations
+          separate_signature: true
           show_signature_annotations: true
-          # Other
-          show_bases: false
+
 
 markdown_extensions:
   # Built-in
