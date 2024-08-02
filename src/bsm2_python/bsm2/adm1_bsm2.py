@@ -56,17 +56,32 @@ indices_components = np.arange(42)
 
 class ADM1Reactor:
     """
-    Class for ADM1 reactor
-    parameters:
-    yd0: np.ndarray
-        initial values for ADM1 differential equations. initial concentrations of 42 components
-        (26 ADM1 components, 9 other gas-related components, Q, T and 5 dummy states)
-    digesterpar: np.ndarray
-        digester parameters
-    interfacepar: np.ndarray
-        interface parameters
-    dim: np.ndarray
-        reactor dimensions
+    Class for ADM1 reactor parameters.
+
+    Attributes
+    ----------
+    yd0 :   np.ndarray
+        Initial values for ADM1 differential equations. Initial concentrations of 42 components
+            (26 ADM1 components, 9 other gas-related components, Q, T and 5 dummy states).
+    y_in1 : np.ndarray 
+        ?
+    digesterpar : np.ndarray 
+        Digester parameters.
+    interfacepar : np.ndarray 
+        Interface parameters.
+    dim : np.ndarray
+        Reactor dimensions.
+    t_op : float
+        ?
+    temperature : float
+        ?
+    yd_out : np.ndarray
+        ?
+
+    Methods
+    -------
+    outputs
+        Returns the solved differential equations based on ADM1 model
     """
 
     def __init__(self, yd0, digesterpar, interfacepar, dim):
@@ -84,6 +99,7 @@ class ADM1Reactor:
         Returns the solved differential equations based on ADM1 model
 
         Parameters
+        ----------
         timestep : float
             Time distance to integrate over
         step : float
@@ -95,6 +111,7 @@ class ADM1Reactor:
         t_op : float
             Operational temperature of digester.
             At the moment very rudimentary implementation! No heat losses / transfer embedded!
+
         Returns
         -------
         y_out2 : np.ndarray(35)
