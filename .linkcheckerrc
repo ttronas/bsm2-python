@@ -1,0 +1,8 @@
+[output]
+log=html
+
+[checking]
+threads=5
+
+[filtering]
+ignorewarnings=http-moved-permanent

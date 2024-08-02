@@ -2,7 +2,7 @@
 site_name: BSM2-Python
 site_description: A Python implementation of the Benchmark Simulation Model 2 (BSM2) plant layout according to the IWA standard.
 site_author: Jonas Miederer
-site_url: https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python
+site_url: https://bsm2-python-evt-klaeffizient-a1487fe7ab7d8b53e9093ea317383c33b8.pages.rrze.fau.de/
 copyright: 'Copyright &copy; Jonas Miederer 2024-present'
 
 # Repository
