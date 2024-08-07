@@ -106,7 +106,7 @@ plugins:
           show_if_no_docstring: false
           # Signatures/annotations
           separate_signature: true
-          show_signature_annotations: true
+          show_signature_annotations: false
 
 
 markdown_extensions:
