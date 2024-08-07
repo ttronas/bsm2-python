@@ -73,13 +73,15 @@ class ADM1Reactor:
     Attributes
     ----------
     y_in1 : np.ndarray(22)
-        ?
+        Initialization of concentrations for the 21 standard components
+         (13 ASM1 components, TSS, Q, T and 5 dummy states).
     t_op : float
-        ?
+        Initialization of operational temperature for the digester.
     temperature : float
-        ?
+        Initialization of temperature.
     yd_out : np.ndarray(51)
-        ?
+        Initialization of concentrations for the 51 components
+         (35 ADM1 components, 9 other gas-related components, Q, T and 5 dummy states).
     """
 
     def __init__(self, yd0, digesterpar, interfacepar, dim):

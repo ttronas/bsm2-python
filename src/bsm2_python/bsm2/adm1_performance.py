@@ -3,12 +3,17 @@ from bsm2.adm1_bsm2 import ADM1Reactor
 
 class ADM1Performance:
     """
-    ?
+    Class for ADM1 reactor performance.
 
+    Parameters
+    ----------
+    adm1_obj : 
+        ADM1Reactor instance.
+    
     Attributes
     ----------
     dim : np.ndarray
-        Reactor dimensions from ADM1Reactor.
+        Reactor dimensions.
     hydrogen_concentration : int
         Concentration of hydrogen.
     methane_concentration : int
