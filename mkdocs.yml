@@ -102,6 +102,8 @@ plugins:
           # Docstrings
           docstring_style: numpy
           docstring_section_style: table
+          docstring_options:
+            ignore_init_summary: true
           merge_init_into_class: true
           show_if_no_docstring: false
           # Signatures/annotations

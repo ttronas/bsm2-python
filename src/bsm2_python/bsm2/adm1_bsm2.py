@@ -58,24 +58,27 @@ class ADM1Reactor:
     """
     Class for ADM1 reactor parameters.
 
-    Attributes
+    Parameters
     ----------
-    yd0 :   np.ndarray
+    yd0 : np.ndarray
         Initial values for ADM1 differential equations. Initial concentrations of 42 components
          (26 ADM1 components, 9 other gas-related components, Q, T and 5 dummy states).
-    y_in1 : np.ndarray 
-        ?
     digesterpar : np.ndarray 
         Digester parameters.
     interfacepar : np.ndarray 
         Interface parameters.
     dim : np.ndarray
         Reactor dimensions.
+
+    Attributes
+    ----------
+    y_in1 : np.ndarray(22)
+        ?
     t_op : float
         ?
     temperature : float
         ?
-    yd_out : np.ndarray
+    yd_out : np.ndarray(51)
         ?
     """
 

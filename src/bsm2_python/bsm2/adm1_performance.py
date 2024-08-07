@@ -2,6 +2,20 @@ from bsm2.adm1_bsm2 import ADM1Reactor
 
 
 class ADM1Performance:
+    """
+    ?
+
+    Attributes
+    ----------
+    dim : np.ndarray
+        Reactor dimensions from ADM1Reactor.
+    hydrogen_concentration : int
+        Concentration of hydrogen.
+    methane_concentration : int
+        Concentration of methane.
+    carbon_dioxide_concentration : int
+        Concentration of carbon dioxide.
+    """
     def __init__(self, adm1_obj: ADM1Reactor):
         self.dim = adm1_obj.dim
         self.hydrogen_concentration = 0
@@ -11,7 +25,23 @@ class ADM1Performance:
     def energy_consumption(self, t_new, t_old, rho_h2o=997, cp_h2o=4182):
         """
         Energy needed to heat up the reactor from t_old to t_new.
-        Returns the energy consumption of the reactor in kW.
+         Returns the energy consumption of the reactor in kW.
+
+        Parameters
+        ----------
+        t_new : 
+            Reactor temperature, after heat up process.
+        t_old :
+            Reactor temperature, before heat up process.
+        rho_h2o : int
+            Density of water.
+        cp_h2o : int
+            Specific heat capacity of water.
+
+        Returns
+        -------
+        heat_in_kwh :
+            Supplied Heat for the reactor in kWh.
         """
         vol_reactor = self.dim[0]
         # Q = mcΔT
