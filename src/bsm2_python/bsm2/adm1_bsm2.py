@@ -62,7 +62,7 @@ class ADM1Reactor:
     ----------
     yd0 :   np.ndarray
         Initial values for ADM1 differential equations. Initial concentrations of 42 components
-            (26 ADM1 components, 9 other gas-related components, Q, T and 5 dummy states).
+         (26 ADM1 components, 9 other gas-related components, Q, T and 5 dummy states).
     y_in1 : np.ndarray 
         ?
     digesterpar : np.ndarray 
@@ -77,11 +77,6 @@ class ADM1Reactor:
         ?
     yd_out : np.ndarray
         ?
-
-    Methods
-    -------
-    outputs
-        Returns the solved differential equations based on ADM1 model
     """
 
     def __init__(self, yd0, digesterpar, interfacepar, dim):
@@ -96,43 +91,49 @@ class ADM1Reactor:
 
     def outputs(self, timestep, step, y_in1, t_op):
         """
-        Returns the solved differential equations based on ADM1 model
+        Returns the solved differential equations based on ADM1 model.
 
         Parameters
         ----------
         timestep : float
-            Time distance to integrate over
+            Time distance to integrate over.
         step : float
-            Current time
+            Current time.
         y_in1 : np.ndarray(21)
-            concentrations of the 21 standard components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            Concentrations of the 21 standard components
+             (13 ASM1 components, TSS, Q, T and 5 dummy states).
+            
             [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
              SD1, SD2, SD3, XD4, XD5]
         t_op : float
             Operational temperature of digester.
-            At the moment very rudimentary implementation! No heat losses / transfer embedded!
+             At the moment very rudimentary implementation! 
+            No heat losses / transfer embedded!
 
         Returns
         -------
         y_out2 : np.ndarray(35)
-            concentrations of the 35 components (26 ADM1 components, 9 other gas-related components)
+            Concentrations of the 35 components
+             (26 ADM1 components, 9 other gas-related components).
+             
             [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
              X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
-             Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D]
+            Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D]
         yd_out : np.ndarray(51)
-            concentrations of the 51 components
-            (35 ADM1 components, 9 other gas-related components, Q, T and 5 dummy states)
+            Concentrations of the 51 components
+             (35 ADM1 components, 9 other gas-related components, Q, T and 5 dummy states).
+             
             [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
              X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
-             Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D, pH, S_H_ion, S_hva, S_hbu,
+            Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D, pH, S_H_ion, S_hva, S_hbu,
              S_hpro, S_hac, S_hco3, S_CO2, S_nh3, S_NH4+, S_gas_h2, S_gas_ch4, S_gas_co2,
-             p_gas_h2, p_gas_ch4, p_gas_co2, P_gas, q_gas]
+            p_gas_h2, p_gas_ch4, p_gas_co2, P_gas, q_gas]
         y_out1 : np.ndarray(33)
-            concentrations of the 33 components
-            (21 ASM1 components, 9 other gas-related components, Q, T and 2 dummy states)
+            Concentrations of the 33 components
+             (21 ASM1 components, 9 other gas-related components, Q, T and 2 dummy states).
+            
             [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
-                SD1, SD2, SD3, XD4, XD5, pH, T_WW]
-
+             SD1, SD2, SD3, XD4, XD5, pH, T_WW]
         """
         self.t_op = t_op
         yd_out = np.zeros(51)
@@ -280,31 +281,33 @@ class ADM1Reactor:
 
 @jit(nopython=True, cache=True)
 def adm1equations(t, yd, yd_in, digesterpar, t_op, dim):
-    """Returns an array containing the differential equations based on ASM1
+    """
+    Returns an array containing the differential equations based on ASM1.
 
     Parameters
     ----------
     t : np.ndarray
-        Time interval for integration, needed for the solver
+        Time interval for integration, needed for the solver.
     yd : np.ndarray
-        Solution of the differential equations, needed for the solver
+        Solution of the differential equations, needed for the solver.
     yd_in : np.ndarray
         Reactor inlet concentrations of 42 components
-        (26 ADM1 components, 9 other gas-related components, Q, T and 5 dummy states)
+         (26 ADM1 components, 9 other gas-related components, Q, T and 5 dummy states).
+
         [S_SU, S_AA, S_FA, S_VA, S_BU, S_PRO, S_AC, S_H2, S_CH4, S_IC, S_IN, S_I, X_XC, X_CH, X_PR,
          X_LI, X_SU, X_AA, X_FA, X_C4, X_PRO, X_AC, X_H2, X_I, S_CAT, S_AN, S_HVA, S_HBU, S_HPRO, S_HAC,
-         S_HCO3, S_NH3, S_GAS_H2, S_GAS_CH4, S_GAS_CO2, Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D]
+        S_HCO3, S_NH3, S_GAS_H2, S_GAS_CH4, S_GAS_CO2, Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D]
     digesterpar : np.ndarray
-        Digester parameters
+        Digester parameters.
     t_op : float
-        Operating temperature
+        Operating temperature.
     dim : np.ndarray
-        Reactor dimensions
+        Reactor dimensions.
 
     Returns
     -------
     np.ndarray
-        Array containing the differential values dy of yd_in based on ADM1
+        Array containing the differential values dy of yd_in based on ADM1.
     """
     # u = yd_in
     # x = yd
@@ -676,7 +679,7 @@ def adm1equations(t, yd, yd_in, digesterpar, t_op, dim):
 @jit(nopython=True, cache=True)
 def asm2adm(y_in1, t_op, interfacepar):
     """
-    Converts ASM1 flows to ADM1 flows
+    Converts ASM1 flows to ADM1 flows.
     New version (no 3) of the ASM1 to ADM1 interface based on discussions
     within the IWA TG BSM community during 2002-2006. Now also including
     charge balancing and temperature dependency for applicable parameters.
@@ -685,28 +688,31 @@ def asm2adm(y_in1, t_op, interfacepar):
     Parameters
     ----------
     y_in1 : np.ndarray(22)
-        concentrations of the 21 standard components (13 ASM1 components, TSS, Q, T and 5 dummy states)
-        plus pH in the anaerobic digester
+        Concentrations of the 21 standard components
+         (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        plus pH in the anaerobic digester.
+        
         [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
          SD1, SD2, SD3, XD4, XD5, pH_adm]
     t_op : float
         TODO: Check if T_op is working properly (especially with changing temperature)
-        Temperature in K
-        If temperature control of AD is used then the operational temperature
+        Temperature in K.
+         If temperature control of AD is used then the operational temperature
         of the ADM1 should also be an input rather than a defined parameter.
-        Temperature in the ADM1 and the ASM1 to ADM1 and the ADM1 to ASM1
+         Temperature in the ADM1 and the ASM1 to ADM1 and the ADM1 to ASM1
         interfaces should be identical at every time instant.
     interfacepar : np.ndarray(23)
-        23 parameters needed for ASM1 to ADM1 interface
+        23 parameters needed for ASM1 to ADM1 interface.
 
     Returns
     -------
     y_out1 : np.ndarray(33)
-        output of 33 ADM1 components (26 ADM1 components, Q, T and 5 dummy states)
+        Output of 33 ADM1 components
+         (26 ADM1 components, Q, T and 5 dummy states).
+
         [S_SU, S_AA, S_FA, S_VA, S_BU, S_PRO, S_AC, S_H2, S_CH4, S_IC, S_IN, S_I, X_XC,
          X_CH, X_PR, X_LI, X_SU, X_AA, X_FA, X_C4, X_PRO, X_AC, X_H2, X_I, S_CAT, S_AN,
-         Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D]
-
+        Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D]
     """
     (
         codequiv,
@@ -1020,7 +1026,7 @@ def asm2adm(y_in1, t_op, interfacepar):
 @jit(nopython=True, cache=True)
 def adm2asm(y_in2, t_op, interfacepar):
     """
-    Converts ADM1 flows to ASM1 flows
+    Converts ADM1 flows to ASM1 flows.
     New version (no 3) of the ADM1 to ASM1 interface based on discussions
     within the IWA TG BSM community during 2002-2006. Now also including charge
     balancing and temperature dependency for applicable parameters.
@@ -1029,24 +1035,28 @@ def adm2asm(y_in2, t_op, interfacepar):
     Parameters
     ----------
     y_in2 : np.ndarray(35)
-        concentrations of the 33 ADM1 components (26 ADM1 components, Q, T and 5 dummy states)
-        plus pH in the anaerobic digester and wastewater temperature into the **ASM2ADM** interface
+        Concentrations of the 33 ADM1 components
+         (26 ADM1 components, Q, T and 5 dummy states)
+        plus pH in the anaerobic digester and wastewater temperature into the **ASM2ADM** interface.
+
         [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
-        X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
+         X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
         Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D, pH, T_WW]
     t_op : float
-        TODO: Check if T_op is working properly (especially with changing temperature)
-        If temperature control of AD is used then the operational temperature
+        TODO: Check if T_op is working properly (especially with changing temperature).
+         If temperature control of AD is used then the operational temperature
         of the ADM1 should also be an input rather than a defined parameter.
-        Temperature in the ADM1 and the ASM1 to ADM1 and the ADM1 to ASM1
+         Temperature in the ADM1 and the ASM1 to ADM1 and the ADM1 to ASM1
         interfaces should be identical at every time instant.
     interfacepar : np.ndarray(23)
-        23 parameters needed for ADM1 to ASM1 interface
+        23 parameters needed for ADM1 to ASM1 interface.
 
     Returns
     -------
     y_out2 : np.ndarray(21)
-        output of the 21 standard components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        Output of the 21 standard components 
+         (13 ASM1 components, TSS, Q, T and 5 dummy states).
+
         [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, T_WW,
          SD1, SD2, SD3, XD4, XD5]
     """
