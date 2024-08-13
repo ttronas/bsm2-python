@@ -1,20 +1,25 @@
 """
-ASM1:
+ASM1
+----
  IAWQ AS Model No 1 with temperature
  dependencies of the kinetic parameters. In addition to the ASM1 states, TSS
  and dummy states are included. Temperature dependency for
  oxygen saturation concentration and KLa has also been added in accordance
  with BSM2 documentation.
-Carboncombiner:
+
+Carboncombiner
+--------------
  Calculates the concentration and flow rate when adding an external
  carbon source flow rate to the general flow.
 
-Copyright (2006) ASM1 and Carboncombiner:
+Copyright (2006) ASM1 and Carboncombiner
+----------------------------------------
  Ulf Jeppsson
  Dept. Industrial Electrical Engineering and Automation (IEA), Lund University, Sweden
  https://www.lth.se/iea/
 
-Copyright (2024):
+Copyright (2024)
+----------------
  Maike Böhm, Jonas Miederer
  Chair of Energy Process Engineering (EVT), FAU Erlangen-Nuremberg, Germany
  https://www.evt.tf.fau.de/
@@ -30,34 +35,36 @@ SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, S
 
 @jit(nopython=True)
 def asm1equations(t, y, y_in, asm1par, kla, volume, tempmodel, activate):
-    """Returns an array containing the differential equations based on ASM1
+    """
+    Returns an array containing the differential equations based on ASM1.
 
     Parameters
     ----------
     t : np.ndarray
-        Time interval for integration, needed for the solver
+        Time interval for integration, needed for the solver.
     y : np.ndarray
-        Solution of the differential equations, needed for the solver
+        Solution of the differential equations, needed for the solver.
     y_in : np.ndarray
-        Reactor inlet concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        Reactor inlet concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states).
     asm1par : np.ndarray
+        24 parameters needed for ASM1 equations.
+
         [MU_H, K_S, K_OH, K_NO, B_H, MU_A, K_NH, K_OA, B_A, NY_G, K_A, K_H, K_X, NY_H,
-         Y_H, Y_A, F_P, I_XB, I_XP, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS]
-        24 parameters needed for ASM1 equations
+        Y_H, Y_A, F_P, I_XB, I_XP, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS]
     kla : int
-        Oxygen transfer coefficient in aerated reactors
+        Oxygen transfer coefficient in aerated reactors.
     volume : int
-        Volume of the reactor
+        Volume of the reactor.
     tempmodel : bool
         If true, mass balance for the wastewater temperature is used in process rates,
-        otherwise influent wastewater temperature is just passed through process reactors
+        otherwise influent wastewater temperature is just passed through process reactors.
     activate : bool
-            If true, dummy states are activated, otherwise dummy states are not activated
+        If true, dummy states are activated, otherwise dummy states are not activated.
 
     Returns
     -------
-    np.ndarray
-        Array containing the 21 differential equations based on ASM1 model
+    dy : np.ndarray
+        Array containing the 21 differential equations based on ASM1 model.
     """
 
     dy = np.zeros(21)
@@ -207,7 +214,8 @@ def asm1equations(t, y, y_in, asm1par, kla, volume, tempmodel, activate):
 
 @jit(nopython=True)
 def carbonaddition(y_in, carb, csourceconc):
-    """Returns the reactor inlet concentrations after adding an external carbon source
+    """
+    Returns the reactor inlet concentrations after adding an external carbon source.
 
     Parameters
     ----------
@@ -215,15 +223,15 @@ def carbonaddition(y_in, carb, csourceconc):
         Reactor inlet concentrations of the 21 components
         (13 ASM1 components, TSS, Q, T and 5 dummy states) before adding external carbon source.
     carb : float
-        external carbon flow rate for carbon addition to a reactor
+        External carbon flow rate for carbon addition to a reactor.
     csourceconc : float
-        external carbon source concentration
+        External carbon source concentration.
 
     Returns
     -------
-    np.ndarray
+    y_in : np.ndarray
         Array containing the reactor inlet concentrations of the 21 components
-        (13 ASM1 components, TSS, Q, T and 5 dummy states) after adding external carbon source
+        (13 ASM1 components, TSS, Q, T and 5 dummy states) after adding external carbon source.
     """
 
     y_in[SI] = (y_in[SI] * y_in[Q]) / (carb + y_in[Q])
@@ -237,6 +245,28 @@ def carbonaddition(y_in, carb, csourceconc):
 
 
 class ASM1reactor:
+    """
+    Parameters
+    ----------
+    kla : float
+        Oxygen transfer coefficient in aerated reactors.
+    volume : float
+        Volume of the reactor.
+    y0 : np.ndarray
+        Initial integration values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states).
+    asm1par : np.ndarray
+        24 parameters needed for ASM1 equations.
+    carb : float
+        External carbon flow rate for carbon addition to a reactor.
+    csourceconc : float
+        External carbon source concentration.
+    tempmodel : bool
+        If true, mass balance for the wastewater temperature is used in process rates,
+        otherwise influent wastewater temperature is just passed through process reactors.
+    activate : bool
+        If true, dummy states are activated, otherwise dummy states are not activated.
+    """
+    
     def __init__(
         self,
         kla: float,
@@ -249,27 +279,6 @@ class ASM1reactor:
         tempmodel: bool,
         activate: bool,
     ):
-        """
-        Parameters
-        ----------
-        kla : float
-            Oxygen transfer coefficient in aerated reactors
-        volume : float
-            Volume of the reactor
-        y0 : np.ndarray
-            Initial integration values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
-        asm1par : np.ndarray
-            24 parameters needed for ASM1 equations
-        carb : float
-            external carbon flow rate for carbon addition to a reactor
-        csourceconc : float
-            external carbon source concentration
-        tempmodel : bool
-            If true, mass balance for the wastewater temperature is used in process rates,
-            otherwise influent wastewater temperature is just passed through process reactors
-        activate : bool
-            If true, dummy states are activated, otherwise dummy states are not activated
-        """
 
         self.kla = kla
         self.volume = volume
@@ -281,22 +290,23 @@ class ASM1reactor:
         self.activate = activate
 
     def output(self, timestep: int | float, step: int | float, y_in: np.ndarray):
-        """Returns the solved differential equations based on ASM1 model
+        """
+        Returns the solved differential equations based on ASM1 model.
 
         Parameters
         ----------
-        timestep : int or float
-            Size of integration interval in days
-        step : int or float
-            Start time for integration interval in days
+        timestep : int, float
+            Size of integration interval in days.
+        step : int, float
+            Start time for integration interval in days.
         y_in : np.ndarray
-            Reactor inlet concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            Reactor inlet concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states).
 
         Returns
         -------
-        np.ndarray
+        y_out : np.ndarray
             Array containing the values of the 21 components
-            (13 ASM1 components, TSS, Q, T and 5 dummy states) at the current time step after the integration
+            (13 ASM1 components, TSS, Q, T and 5 dummy states) at the current time step after the integration.
         """
 
         t_eval = np.array([step, step + timestep])  # time interval for odeint
