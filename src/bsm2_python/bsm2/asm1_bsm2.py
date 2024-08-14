@@ -1,13 +1,13 @@
 """
 # Copyright 
-<h4>ASM1 and Carboncombiner (2006)</h4>
-Ulf Jeppsson
-Dept. Industrial Electrical Engineering and Automation (IEA), Lund University, Sweden
+<h4>Copyright ASM1 and Carboncombiner (2006)</h4>
+Ulf Jeppsson  
+Dept. Industrial Electrical Engineering and Automation (IEA), Lund University, Sweden  
 https://www.lth.se/iea/
 
-<h4>Python 3 porting (2024)</h4>
-Maike Böhm, Jonas Miederer
-Chair of Energy Process Engineering (EVT), FAU Erlangen-Nuremberg, Germany
+<h4>Copyright (2024)</h4>
+Maike Böhm, Jonas Miederer  
+Chair of Energy Process Engineering (EVT), FAU Erlangen-Nuremberg, Germany  
 https://www.evt.tf.fau.de/
 """
 
@@ -31,10 +31,10 @@ def asm1equations(t, y, y_in, asm1par, kla, volume, tempmodel, activate):
     y : np.ndarray
         Solution of the differential equations, needed for the solver.
     y_in : np.ndarray
-        Reactor inlet concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states).
+        Reactor inlet concentrations of the 21 components  
+        (13 ASM1 components, TSS, Q, T and 5 dummy states).
     asm1par : np.ndarray
-        24 parameters needed for ASM1 equations.
-
+        24 parameters needed for ASM1 equations. \n
         [MU_H, K_S, K_OH, K_NO, B_H, MU_A, K_NH, K_OA, B_A, NY_G, K_A, K_H, K_X, NY_H,
         Y_H, Y_A, F_P, I_XB, I_XP, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS]
     kla : int
@@ -207,7 +207,7 @@ def carbonaddition(y_in, carb, csourceconc):
     Parameters
     ----------
     y_in : np.ndarray
-        Reactor inlet concentrations of the 21 components
+        Reactor inlet concentrations of the 21 components  
         (13 ASM1 components, TSS, Q, T and 5 dummy states) before adding external carbon source.
     carb : float
         External carbon flow rate for carbon addition to a reactor.
@@ -217,7 +217,7 @@ def carbonaddition(y_in, carb, csourceconc):
     Returns
     -------
     y_in : np.ndarray
-        Array containing the reactor inlet concentrations of the 21 components
+        Array containing the reactor inlet concentrations of the 21 components  
         (13 ASM1 components, TSS, Q, T and 5 dummy states) after adding external carbon source.
     """
 
@@ -246,7 +246,8 @@ class ASM1reactor:
     volume : float
         Volume of the reactor.
     y0 : np.ndarray
-        Initial integration values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states).
+        Initial integration values of the 21 components  
+        (13 ASM1 components, TSS, Q, T and 5 dummy states).
     asm1par : np.ndarray
         24 parameters needed for ASM1 equations.
     carb : float
@@ -293,12 +294,13 @@ class ASM1reactor:
         step : int, float
             Start time for integration interval in days.
         y_in : np.ndarray
-            Reactor inlet concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states).
+            Reactor inlet concentrations of the 21 components  
+            (13 ASM1 components, TSS, Q, T and 5 dummy states).
 
         Returns
         -------
         y_out : np.ndarray
-            Array containing the values of the 21 components
+            Array containing the values of the 21 components  
             (13 ASM1 components, TSS, Q, T and 5 dummy states) at the current time step after the integration.
         """
 
