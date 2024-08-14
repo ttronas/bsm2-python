@@ -34,9 +34,9 @@ class ADM1Performance:
 
         Parameters
         ----------
-        t_new : int, float
+        t_new : int or float
             Reactor temperature, after heat up process.
-        t_old : int, float
+        t_old : int or float
             Reactor temperature, before heat up process.
         rho_h2o : int
             Density of water.
@@ -45,7 +45,7 @@ class ADM1Performance:
 
         Returns
         -------
-        heat_in_kwh : int, float
+        heat_in_kwh : int or float
             Supplied heat for the reactor in kWh.
         """
         vol_reactor = self.dim[0]
@@ -61,9 +61,9 @@ class ADM1Performance:
 
         Parameters
         ----------
-        heat_in_kwh : int, float
+        heat_in_kwh : int or float
             Supplied heat for the reactor in kWh.
-        t_old : int, float
+        t_old : int or float
             Reactor temperature, before heat up process.
         rho_h2o : int
             Density of water.
@@ -72,7 +72,7 @@ class ADM1Performance:
 
         Returns
         -------
-        t_new : int, float
+        t_new : int or float
             Reactor temperature, after heat up process.
         """
         vol_reactor = self.dim[0]

@@ -289,9 +289,9 @@ class ASM1reactor:
 
         Parameters
         ----------
-        timestep : int, float
+        timestep : int or float
             Size of integration interval in days.
-        step : int, float
+        step : int or float
             Start time for integration interval in days.
         y_in : np.ndarray
             Reactor inlet concentrations of the 21 components  

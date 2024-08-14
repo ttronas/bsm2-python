@@ -10,9 +10,9 @@ class OxygenSensor:
 
     Parameters
     ----------
-    min_so : int, float
+    min_so : int or float
         Lower measuring limit of the oxygen sensor
-    max_so : int, float
+    max_so : int or float
         Upper measuring limit of the oxygen sensor
     t_so : float
         Time constant of transfer function
@@ -35,15 +35,15 @@ class OxygenSensor:
         ----------
         so : np.ndarray
             Oxygen concentration from ASM1 model at every time step of the interval for the transfer function.
-        step : int, float
+        step : int or float
             Current time step of the simulation loop.
         controlnumber : int
             Number of the current oxygen measurement.
         noise_so : float
             Value for adding measurement noise.
-        transferfunction : int, float
+        transferfunction : int or float
             Interval for transfer function in min.
-        control : int, float
+        control : int or float
             Step of aeration control in min.
 
         Returns
@@ -92,23 +92,23 @@ class PIAeration:
 
     Parameters
     ----------
-    kla_min : int, float
+    kla_min : int or float
         Lower limit of the adjustable KLa value.
-    kla_max : int, float
+    kla_max : int or float
         Upper limit of the adjustable KLa value.
-    kso : int, float
+    kso : int or float
         Amplification constant for PI calculation.
     tiso : float
         Time constant of integral part.
     ttso : float
         Time constant for integration of 'antiwindup'.
-    soref : int, float
+    soref : int or float
         Set point for oxygen concentration.
-    klaoffset : int, float
+    klaoffset : int or float
         Controller output when the rest is turned off.
-    sointstate : int, float
+    sointstate : int or float
         Initial integration value for integration part.
-    soawstate : int, float
+    soawstate : int or float
         Initial integration value for 'antiwindup'.
     kla_lim : float
         Kla value after adjusting to upper and lower limit.
@@ -157,9 +157,9 @@ class PIAeration:
         ----------
         so_meas : float
             Measured oxygen concentration in the reactor compartment.
-        step : int, float
+        step : int or float
             Bottom boundary for integration interval in days.
-        timestep : int, float
+        timestep : int or float
             Size of integration interval in days.
 
         Returns
@@ -221,13 +221,13 @@ class KLaActuator:
         ----------
         kla : np.ndarray
             KLa value from PI control at every time step of the interval for the transfer function.
-        step : int, float
+        step : int or float
             Current time step of the simulation loop.
         controlnumber : int
             Number of the current aeration control.
-        transferfunction : int, float
+        transferfunction : int or float
             Interval for transfer function in min.
-        control : int, float
+        control : int or float
             Step of aeration control in min.
 
         Returns

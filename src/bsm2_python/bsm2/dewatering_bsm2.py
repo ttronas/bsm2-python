@@ -37,19 +37,19 @@ class Dewatering:
 
     Other Parameters
     ----------------
-    dewater_perc : int, float
+    dewater_perc : int or float
         Percentage of solids in the dewatered sludge.
-    TSS_removal_perc : int, float
+    TSS_removal_perc : int or float
         Percentage of total solids removed from the influent sludge.
-    X_I2TSS : int, float
+    X_I2TSS : int or float
         Ratio of inert particulate COD to TSS.
-    X_S2TSS : int, float
+    X_S2TSS : int or float
         Ratio of soluble COD to TSS.
-    X_BH2TSS : int, float
+    X_BH2TSS : int or float
         Ratio of heterotrophic biomass to TSS.
-    X_BA2TSS : int, float
+    X_BA2TSS : int or float
         Ratio of autotrophic biomass to TSS.
-    X_P2TSS : int, float
+    X_P2TSS : int or float
         Ratio of particulate phosphorus to TSS.
     """
 

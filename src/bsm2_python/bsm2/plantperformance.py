@@ -7,34 +7,37 @@ SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, S
 
 
 class PlantPerformance:
+    """
+    Creates a PlantPerformance object.
+    """
+
     def __init__(self):
-        """
-        Creates a PlantPerformance object.
-        """
+        pass
 
     # TODO: Make the function also callable from within the simulation loop (i.e. only for one timestep).
     # Currently, it is only callable after the simulation.
     @staticmethod
     def aerationenergy(kla, vol, sosat, sampleinterval, evaltime):
-        """Returns the aeration energy of the plant during the evaluation time
+        """
+        Returns the aeration energy of the plant during the evaluation time.
 
         Parameters
         ----------
         kla : np.ndarray
-            KLa values of all reactor compartments at every time step of the evaluation time
+            KLa values of all reactor compartments at every time step of the evaluation time.
         vol : np.ndarray
-            Volume of each reactor compartment
+            Volume of each reactor compartment.
         sosat : np.ndarray
-            Saturation concentration of Oxygen in each reactor compartment
+            Saturation concentration of oxygen in each reactor compartment.
         sampleinterval : int or float
-            Time step of the evaluation time in days
+            Time step of the evaluation time, in days.
         evaltime : np.ndarray
-            Starting and end point of the evaluation time in days
+            Starting and end point of the evaluation time, in days.
 
         Returns
         -------
-        float
-            Float value of the aeration energy during the evaluation time in kWh/d
+        ae : float
+            Float value of the aeration energy during the evaluation time, in kWh/d.
         """
 
         ae = sum(sum(sosat * vol * kla) * sampleinterval) / (1.8 * 1000 * (evaltime[1] - evaltime[0]))
@@ -44,23 +47,24 @@ class PlantPerformance:
     # Currently, it is only callable after the simulation.
     @staticmethod
     def pumpingenergy(flows, pumpfactor, sampleinterval, evaltime):
-        """Returns the pumping energy of the plant during the evaluation time
+        """
+        Returns the pumping energy of the plant during the evaluation time.
 
         Parameters
         ----------
         flows : np.ndarray
-            Values of Qintr, Qr and Qw at every time step of the evaluation time
+            Values of Qintr, Qr and Qw at every time step of the evaluation time.
         pumpfactor : np.ndarray
-            Weighting factor of each flow
+            Weighting factor of each flow.
         sampleinterval : int or float
-            Time step of the evaluation time in days
+            Time step of the evaluation time, in days.
         evaltime : np.ndarray
-            Starting and end point of the evaluation time in days
+            Starting and end point of the evaluation time, in days.
 
         Returns
         -------
-        float
-            Float value of the mixing energy during the evaluation time in kWh/d
+        pe : float
+            Float value of the mixing energy during the evaluation time, in kWh/d.
         """
 
         pe = sum(sum(flows * pumpfactor) * sampleinterval) / (evaltime[1] - evaltime[0])
@@ -70,23 +74,24 @@ class PlantPerformance:
     # Currently, it is only callable after the simulation.
     @staticmethod
     def mixingenergy(kla, vol, sampleinterval, evaltime):
-        """Returns the mixing energy of the plant during the evaluation time
+        """
+        Returns the mixing energy of the plant during the evaluation time.
 
         Parameters
         ----------
         kla : np.ndarray
-            KLa values of all reactor compartments at every time step of the evaluation time
+            KLa values of all reactor compartments at every time step of the evaluation time.
         vol : np.ndarray
-            Volume of each reactor compartment
+            Volume of each reactor compartment.
         sampleinterval : int or float
-            Time step of the evaluation time in days
+            Time step of the evaluation time, in days.
         evaltime : np.ndarray
-            Starting and end point of the evaluation time in days
+            Starting and end point of the evaluation time, in days.
 
         Returns
         -------
-        float
-            Float value of the aeration energy during the evaluation time in kWh/d
+        me : float
+            Float value of the aeration energy during the evaluation time, in kWh/d.
         """
 
         kla1, kla2, kla3, kla4, kla5 = kla
@@ -110,25 +115,26 @@ class PlantPerformance:
     # Currently, it is only callable after the simulation.
     @staticmethod
     def violation(arr_eff, limit, sampleinterval, evaltime):
-        """Returns the time in days and percentage of time in which a certain component is over the limit value during
-        the evaluation time
+        """
+        Returns the time in days and percentage of time in which a certain component is over the limit value during
+        the evaluation time.
 
         Parameters
         ----------
-        arr_eff: np.ndarray
-            Concentration of the component in the effluent at every time step of the evaluation time
-        limit: int or float
-            limit value of the component
+        arr_eff : np.ndarray
+            Concentration of the component in the effluent at every time step of the evaluation time.
+        limit : int or float
+            Limit value of the component.
         sampleinterval : int or float
-            Time step of the evaluation time in days
+            Time step of the evaluation time, in days.
         evaltime : np.ndarray
-            Starting and end point of the evaluation time in days
+            Starting and end point of the evaluation time, in days.
 
         Returns
         -------
-        np.ndarray
+        violationvalues : np.ndarray(2)
             Array containing the time in days and percentage of time in which
-            a certain component is over the limit value during the evaluation time
+            a certain component is over the limit value during the evaluation time.
         """
 
         violationvalues = np.zeros(2)
@@ -143,7 +149,7 @@ class PlantPerformance:
         """
         Takes an ASM1 array (single timestep or multiple timesteps) and returns
         advanced quantities of the effluent.
-        Currently supports the following components:
+        Currently supports the following components: \n
         - `kjeldahlN`: Kjeldahl nitrogen
         - `totalN`: Total nitrogen
         - `COD`: Chemical oxygen demand
@@ -152,9 +158,15 @@ class PlantPerformance:
         Parameters
         ----------
         arr_eff : np.ndarray((21, n))
-            Array in ASM1 format
+            Array in ASM1 format.
         components : Tuple[str] (optional)
-            Tuple of components to be calculated. Defaults to ('kjeldahlN', 'totalN', 'COD', 'BOD5')
+            Tuple of components to be calculated.
+            Defaults to (`kjeldahlN`, `totalN`, `COD`, `BOD5`).
+
+        Returns
+        -------
+        adv_eff : np.ndarray
+            Advanced quantities of the effluent.
         """
         if np.ndim(arr_eff) == 1:
             adv_eff = np.zeros((len(components), 1))
@@ -194,22 +206,22 @@ class PlantPerformance:
     @staticmethod
     def air_flow(kla, temp, vol, h):
         """
-        Calculates the air flow rate in each reactor compartment
+        Calculates the air flow rate in each reactor compartment.
 
         Parameters
         ----------
-        kla : float or np.ndarray
-            KLa values of each reactor compartment, in 1/d
-        temp : float or np.ndarray
-            Temperature in each reactor compartment, in °C
-        vol : float or np.ndarray
-            Volume of each reactor compartment, in m³
+        kla : float
+            KLa values of each reactor compartment, in 1/d.
+        temp : float
+            Temperature in each reactor compartment, in °C.
+        vol : float
+            Volume of each reactor compartment, in m³.
         h : float
-            Height of each reactor compartment, in m
+            Height of each reactor compartment, in m.
 
         Returns
         -------
-        np.ndarray
+        air_flow : float
             Air flow rate in each reactor compartment in m³/d
         """
         f_s_st = 1  # salinity aeration factor
