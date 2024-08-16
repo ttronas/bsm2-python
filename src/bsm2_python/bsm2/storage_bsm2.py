@@ -1,23 +1,14 @@
 """
-This implements a simple storage tank of variable volume with complete mix. No biological reactions.
-Dummy states are included. `tempmodel` defines how temperature changes in the input affect the liquid temperature.
-It also defines rules for a potential necessary bypass of the storage tank.
-`activate` used to activate dummy states.
-See documentation by Dr Marie-Noelle Pons.
+# Copyright
+<h4>Copyright (2006)</h4>
+Ulf Jeppsson  
+Dept. Industrial Electrical Engineering and Automation (IEA), Lund University, Sweden  
+https://www.lth.se/iea/
 
-If liquid volume > 90% of total volume then automatically bypass flow.
-If liquid volume < 10% of total volume then automatically input flow.
-Storage output and automatic bypass streams are joined in a Combiner afterwards.
-
-Copyright (2006):
- Ulf Jeppsson
- Dept. Industrial Electrical Engineering and Automation (IEA), Lund University, Sweden
- https://www.lth.se/iea/
-
-Copyright (2024):
- Jonas Miederer
- Chair of Energy Process Engineering (EVT), FAU Erlangen-Nuremberg, Germany
- https://www.evt.tf.fau.de/
+<h4>Copyright (2024)</h4>
+Jonas Miederer  
+Chair of Energy Process Engineering (EVT), FAU Erlangen-Nuremberg, Germany  
+https://www.evt.tf.fau.de/
 """
 
 import numpy as np
@@ -40,16 +31,17 @@ def storageequations(t, yst, yst_in1, tempmodel, activate):
     Parameters
     ----------
     t : np.ndarray
-        Time interval for integration, needed for the solver
+        Time interval for integration, needed for the solver.
     yst : np.ndarray
-        Solution of the differential equations, needed for the solver
+        Solution of the differential equations, needed for the solver.
     yst_in1 : np.ndarray
-        Storage tank influent concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        Storage tank influent concentrations of the 21 components  
+        (13 ASM1 components, TSS, Q, T and 5 dummy states).
     tempmodel : bool
         If true, mass balance for the wastewater temperature is used in process rates,
-        otherwise influent wastewater temperature is just passed through process reactors
+        otherwise influent wastewater temperature is just passed through process reactors.
     activate : bool
-        If true, dummy states are activated, otherwise dummy states are not activated
+        If true, dummy states are activated, otherwise dummy states are not activated.
     """
     # u = yst_in1
     # x = yst
@@ -73,20 +65,36 @@ def storageequations(t, yst, yst_in1, tempmodel, activate):
 
 
 class Storage:
+    """
+    This implements a simple storage tank of variable volume with complete mix. No biological reactions.
+    Dummy states are included. 
+    
+    `tempmodel` defines how temperature changes in the input affect the liquid temperature.
+    It also defines rules for a potential necessary bypass of the storage tank.
+
+    `activate` used to activate dummy states.  
+    See documentation by Dr Marie-Noelle Pons.
+
+    If liquid volume > 90% of total volume then automatically bypass flow.  
+    If liquid volume < 10% of total volume then automatically input flow.  
+    Storage output and automatic bypass streams are joined in a Combiner afterwards.
+
+    Parameters
+    ----------
+    volume : float
+        Volume of the primary clarifier.
+    yst0 : np.ndarray
+        Initial integration values of the 21 components  
+        (13 ASM1 components, TSS, Q, T and 5 dummy states).
+    tempmodel : bool
+        If true, mass balance for the wastewater temperature is used in process rates,
+        otherwise influent wastewater temperature is just passed through process reactors.
+    activate : bool
+        If true, dummy states are activated, otherwise dummy states are not activated.
+    """
+
     def __init__(self, volume, yst0, tempmodel, activate):
-        """
-        Parameters
-        ----------
-        volume : float
-            volume of the primary clarifier
-        yst0 : np.ndarray
-            Initial integration values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
-        tempmodel : bool
-            If true, mass balance for the wastewater temperature is used in process rates,
-            otherwise influent wastewater temperature is just passed through process reactors
-        activate : bool
-            If true, dummy states are activated, otherwise dummy states are not activated
-        """
+        
         self.curr_vol = yst0[VOL]
         self.max_vol = volume
         self.tempmodel = tempmodel
@@ -101,18 +109,20 @@ class Storage:
         Parameters
         ----------
         timestep : int or float
-            Size of integration interval in days
+            Size of integration interval, in days.
         step : int or float
-            Upper boundary for integration interval in days
+            Upper boundary for integration interval, in days.
         yst_in : np.ndarray
-            Storage tank influent concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            Storage tank influent concentrations of the 21 components  
+            (13 ASM1 components, TSS, Q, T and 5 dummy states).
         qstorage : float
-            Storage tank influent flow rate
+            Storage tank influent flow rate.
 
         Returns
         -------
         yst_out1 : np.ndarray
-            Storage tank effluent concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            Storage tank effluent concentrations of the 21 components  
+            (13 ASM1 components, TSS, Q, T and 5 dummy states).
         """
         yst_in1 = np.zeros(22)
         yst_bp = np.zeros(21)  # bypass
