@@ -81,7 +81,7 @@ class Fermenter:
         Parameters
         ----------
         gas_parameters : np.ndarray
-            The gas composition of the fermenter
+            The gas composition of the fermenter [bar, bar, bar, bar]
             [p_H2, p_CH4, p_CO2, P_gas]
         """
         self.p_gas = gas_parameters[3]

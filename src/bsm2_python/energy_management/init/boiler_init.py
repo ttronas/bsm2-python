@@ -28,6 +28,7 @@ MINIMUM_LOAD_1 = 0.3
 STEPLESS_INTERVALS_1 = True
 
 # time after changing the load until a new change can be made [hours]
+# if set too high can lead to violation of lower heat net threshold
 LOAD_CHANGE_TIME_1 = 1
 
 CAPEX_SP_1 = 68  # €/kW

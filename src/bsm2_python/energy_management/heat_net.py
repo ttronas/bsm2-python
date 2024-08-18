@@ -46,7 +46,7 @@ class HeatNet:
         Parameters
         ----------
         heat: float
-            heat input in kW
+            heat input [kW]
         """
         self.temperature += heat / (self.mass_flow * (self.cp / 3600))
 
@@ -58,12 +58,12 @@ class HeatNet:
         Parameters
         ----------
         new_temperature: float
-            temperature in °C
+            temperature [°C]
 
         Returns
         -------
         float
-            heat output in kW
+            heat output [kW]
         """
         return self.mass_flow * (self.cp / 3600) * (new_temperature - self.temperature)
 
@@ -75,14 +75,14 @@ class HeatNet:
         Parameters
         ----------
         heat: float
-            heat input in kW
+            heat input [kW]
         temperature_old: float
-            initial temperature in °C
+            initial temperature [°C]
 
         Returns
         -------
         float
-            new temperature in °C
+            new temperature [°C]
         """
         temperature_new = temperature_old + heat / (self.mass_flow * (self.cp / 3600))
         return temperature_new

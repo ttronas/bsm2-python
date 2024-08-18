@@ -1,4 +1,4 @@
-from bsm2.adm1_bsm2 import ADM1Reactor
+from bsm2_python.bsm2.adm1_bsm2 import ADM1Reactor
 
 
 class ADM1Performance:

@@ -25,13 +25,13 @@ class Controller:
         ----------
         price_percentile : float
             Percentile of electricity prices used to adjust KLA values (aeration reduction at prices above the
-            percentile)
+            percentile, e.g. 0.9 -> aerate less when electricity prices are in the top 10%)
         klas_init : np.ndarray
-            Initial KLA values for the reactor compartments
+            Initial KLA values for the reactor compartments [1/d]
         kla_reduction : float
             Reduction factor for KLA values
         s_nh_threshold : float
-            Maximum value of ammonia concentration in the effluent
+            Maximum value of ammonia concentration in the effluent [g/m3]
         """
         self.price_percentile = price_percentile
         self.klas_init = klas_init
@@ -63,12 +63,12 @@ class Controller:
         step_simtime : int
             Current timestamp in the simtime of the simulation
         s_nh_eff : float
-            Ammonia concentration in the plant effluent
+            Ammonia concentration in the plant effluent [g/m3]
 
         Returns
         -------
         np.ndarray
-            KLA values for the reactor compartments
+            KLA values for the reactor compartments [1/d]
             [kla_reactor1, kla_reactor2, ...]
         """
         # necessary to deal with floating point errors

@@ -242,13 +242,11 @@ class BSM2OLEM(BSM2Base):
                 self.evaluator.add_new_data('s_nh', ['s_nh_eff'], ['g/m3'])
                 self.evaluator.add_new_data('kla', ['kla1', 'kla2', 'kla3', 'kla4', 'kla5'], ['1/d'])
                 self.evaluator.add_new_data('electricity', ['demand', 'price'], ['kW', '€/MWh'])
-                self.evaluator.add_new_data('chp', ['chp1 load', 'chp2 load'], ['-'])
             self.evaluator.update_data('s_nh', self.y_eff[SNH], self.simtime[i])
             self.evaluator.update_data('kla', self.klas, self.simtime[i])
             self.evaluator.update_data(
                 'electricity', [electricity_demand, self.controller.electricity_prices[el_price_idx]], self.simtime[i]
             )
-            self.evaluator.update_data('chp', [self.chps[0].load, self.chps[1].load], self.simtime[i])
 
             tss_mass = self.performance.tss_mass_bsm2(
                 self.yp_of,
@@ -272,7 +270,7 @@ class BSM2OLEM(BSM2Base):
             ch4_prod, h2_prod, co2_prod, q_gas = self.performance.gas_production(self.yd_out, reginit.T_OP)
             # This calculates an approximate oci value for each time step,
             # neglecting changes in the tss mass inside the whole plant
-            self.oci_all[i] = self.oci(
+            self.oci_all[i] = self.oci_dynamic(
                 self.pe * 24,
                 self.ae * 24,
                 self.me * 24,
@@ -282,7 +280,6 @@ class BSM2OLEM(BSM2Base):
                 self.heat_demand * 24,
                 heat_production * 24,
                 simtime=self.simtime[i],
-                dyn=True,
             )
             # These values are used to calculate the exact performance values at the end of the simulation
             self.perf_factors_all[i] = [
@@ -307,20 +304,20 @@ class BSM2OLEM(BSM2Base):
         Simulates the plant.
         """
         self.stabilize()
+        self.evaluator.add_new_data('oci', ['oci'], [''])
+        self.evaluator.add_new_data('oci_final', ['oci_final'], [''])
+        self.evaluator.add_new_data('iqi', ['iqi'], [''])
+        self.evaluator.add_new_data('eqi', ['eqi'], [''])
         for i, _ in enumerate(tqdm(self.simtime)):
             self.step(i, stabilized=True)
 
             if self.evaltime[0] <= self.simtime[i] <= self.evaltime[1]:
-                self.evaluator.update_data(
-                    data1=(['iqi'], [''], [self.iqi_all[i]], float(self.simtime[i])),
-                    data2=(['eqi'], [''], [self.eqi_all[i]], float(self.simtime[i])),
-                    data3=(['oci'], [''], [self.oci_all[i]], float(self.simtime[i])),
-                )
+                self.evaluator.update_data('oci', [self.oci_all[i]], self.simtime[i])
+                self.evaluator.update_data('iqi', [self.iqi_all[i]], self.simtime[i])
+                self.evaluator.update_data('eqi', [self.eqi_all[i]], self.simtime[i])
 
         self.oci_final = self.get_final_performance()[-1]
-        self.evaluator.update_data(
-            data1=(['oci_final'], [''], [self.oci_final], float(self.endtime)),
-        )
+        self.evaluator.update_data('oci_final', [self.oci_final], self.evaltime[1])
 
         self.finish_evaluation()
 
@@ -338,9 +335,48 @@ class BSM2OLEM(BSM2Base):
 
         return gas_production, gas_parameters
 
-    def oci(self, pe, ae, me, eg, tss, cm, hd, hp, *, simtime=None, dyn=False):
+    @staticmethod
+    def oci(pe, ae, me, eg, tss, cm, hd, hp):
         """
-        Calculates the operational cost index of the plant
+        Calculates the operational cost index of the plant.
+
+        Parameters
+        ----------
+        pe : float
+            The pumping energy of the plant / kWh/d
+        ae : float
+            The aeration energy of the plant / kWh/d
+        me : float
+            The mixing energy of the plant / kWh/d
+        eg : float
+            The electricity generation of the plant / kWh/d
+        tss : float
+            The total suspended solids production of the plant / kg/d
+        cm : float
+            The added carbon mass of the plant / kg/d
+        hd : float
+            The heating demand of the sludge / kWh/d
+        hp : float
+            The heat production of the plant / kWh/d
+
+        Returns
+        -------
+        float
+            The operational cost index of the plant
+        """
+        tss_cost = 3 * tss
+        ae_cost = ae
+        me_cost = me
+        pe_cost = pe
+        eg_income = eg
+        cm_cost = 3 * cm
+        hd_cost = hd
+        hp_income = hp
+        return tss_cost + ae_cost + me_cost + pe_cost - eg_income + cm_cost + np.maximum(0, hd_cost - hp_income)
+
+    def oci_dynamic(self, pe, ae, me, eg, tss, cm, hd, hp, simtime):
+        """
+        Calculates the operational cost index of the plant while considering the dynamic electricity prices.
 
         Parameters
         ----------
@@ -362,17 +398,12 @@ class BSM2OLEM(BSM2Base):
             The heat production of the plant / kWh/d
         simtime : float | None
             The current time step. Only needed if dyn is True. Defaults to None. / d
-        dyn : bool
-            If True, calculates the OCI with varying power prices. Defaults to False.
 
         Returns
         -------
         float
             The operational cost index of the plant
         """
-        if simtime is None and dyn:
-            err = 'simtime must be provided if dyn is True'
-            raise ValueError(err)
         tss_cost = 3 * tss
         ae_cost = ae
         me_cost = me
@@ -381,19 +412,16 @@ class BSM2OLEM(BSM2Base):
         cm_cost = 3 * cm
         hd_cost = hd
         hp_income = hp
-        if dyn and simtime is not None:
-            # TODO: it would be better to make this a custom method for bsm2_olem()
-            # instead of the dyn and simtime arguments.
-            eps = 1e-8
-            step_day_start = np.where(self.controller.price_times - math.floor(simtime + eps) <= 0)[0][-1]
-            step_day_end = np.where(self.controller.price_times - math.floor(simtime + eps + 1) <= 0)[0][-1]
-            step_in_day = np.where(self.controller.price_times - (simtime + eps) <= 0)[0][-1] - step_day_start
-            daily_avg_price = np.mean(self.controller.electricity_prices[step_day_start:step_day_end])
-            cur_price = self.controller.electricity_prices[step_day_start + step_in_day]
-            ae_cost *= cur_price / daily_avg_price
-            me_cost *= cur_price / daily_avg_price
-            pe_cost *= cur_price / daily_avg_price
-            eg_income *= cur_price / daily_avg_price
+        eps = 1e-8
+        step_day_start = np.where(self.controller.price_times - math.floor(simtime + eps) <= 0)[0][-1]
+        step_day_end = np.where(self.controller.price_times - math.floor(simtime + eps + 1) <= 0)[0][-1]
+        step_in_day = np.where(self.controller.price_times - (simtime + eps) <= 0)[0][-1] - step_day_start
+        daily_avg_price = np.mean(self.controller.electricity_prices[step_day_start:step_day_end])
+        cur_price = self.controller.electricity_prices[step_day_start + step_in_day]
+        ae_cost *= cur_price / daily_avg_price
+        me_cost *= cur_price / daily_avg_price
+        pe_cost *= cur_price / daily_avg_price
+        eg_income *= cur_price / daily_avg_price
         return tss_cost + ae_cost + me_cost + pe_cost - eg_income + cm_cost + np.maximum(0, hd_cost - hp_income)
 
     def get_final_performance(self):
