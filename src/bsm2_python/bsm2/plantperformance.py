@@ -160,7 +160,7 @@ class PlantPerformance:
         arr_eff : np.ndarray((21, n))
             Array in ASM1 format.
         components : Tuple[str] (optional)
-            Tuple of components to be calculated.
+            Tuple of components to be calculated.  
             Defaults to (`kjeldahlN`, `totalN`, `COD`, `BOD5`).
 
         Returns
