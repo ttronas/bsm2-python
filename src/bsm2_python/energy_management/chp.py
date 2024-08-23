@@ -139,7 +139,7 @@ class CHP(Module):
         Returns
         -------
         np.ndarray
-            Gas consumption of the CHP at the given load
+            Gas consumption of the CHP at the given load [Nm³/h]
             [biogas consumption]
         """
         threshold = 1e-5
@@ -163,9 +163,8 @@ class CHP(Module):
         Returns
         -------
         np.ndarray
-            Array with the electrical and thermal power produced by the CHP
+            Array with the electrical and thermal power produced by the CHP [kW, kW]
             [el_power, th_power]
-            # TODO: Add units (same for Boiler and also get_consumption() method)! Is it kW?
         """
         threshold = 1e-5
         if load - self.minimum_load < -threshold:
@@ -185,7 +184,8 @@ class CHP(Module):
         Returns
         -------
         np.ndarray
-            Gas consumption of the CHP at the current load
+            Gas consumption of the CHP at the current load [Nm³/h]
+            [biogas consumption]
         """
         return self.get_consumption(self._load)
 
@@ -196,7 +196,8 @@ class CHP(Module):
         Returns
         -------
         np.ndarray
-            Products of the CHP at the current load
+            Products of the CHP at the current load [kW, kW]
+            [el_power, th_power]
         """
         return self.get_products(self._load)
 
@@ -207,7 +208,7 @@ class CHP(Module):
         Returns
         -------
         float
-            Duration of the maintenance
+            Duration of the maintenance [hours]
         """
         return self.mttr
 

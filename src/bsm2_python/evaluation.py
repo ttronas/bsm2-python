@@ -223,7 +223,7 @@ class Evaluation:
                 continue
             if data_object.num_timestamps <= 1:
                 logger.warning(f'Not enough data to plot for data object {data_object.name}')
-                return
+                continue
             num_data = data_object.num_columns
             cols = math.ceil(num_data / 4)
             rows = math.ceil(num_data / cols)

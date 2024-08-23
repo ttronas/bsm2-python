@@ -115,7 +115,7 @@ class Boiler(Module):
         Returns
         -------
         np.ndarray
-            Gas consumption of the boiler at the given load
+            Gas consumption of the boiler at the given load [Nm³/h]
             [biogas consumption]
         """
         threshold = 1e-5
@@ -139,7 +139,7 @@ class Boiler(Module):
         Returns
         -------
         np.ndarray
-            Products of the boiler at the given load
+            Products of the boiler at the given load [kW]
             [heat]
         """
         threshold = 1e-5
@@ -159,7 +159,7 @@ class Boiler(Module):
         Returns
         -------
         np.ndarray
-            Gas consumption of the boiler at the current load
+            Gas consumption of the boiler at the current load [Nm³/h]
             [biogas consumption]
         """
         return self.get_consumption(self._load)
@@ -171,7 +171,7 @@ class Boiler(Module):
         Returns
         -------
         np.ndarray
-            Products of the boiler at the current load
+            Products of the boiler at the current load [kW]
             [heat]
         """
         return self.get_products(self._load)

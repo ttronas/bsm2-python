@@ -222,7 +222,7 @@ class Module:
         Parameters
         ----------
         time_delta : float
-            time difference in hours
+            time difference [hours]
         """
         self._remaining_load_change_time = max(self._remaining_load_change_time - time_delta, 0)
 
@@ -268,7 +268,7 @@ class Module:
         Parameters
         ----------
         time_delta : float
-            time difference in hours
+            time difference [hours]
         """
         self.remaining_maintenance_time -= time_delta
 
@@ -308,7 +308,7 @@ class Module:
         Parameters
         ----------
         time_delta : float
-            time difference in hours
+            time difference [hours]
         """
         self.global_time += time_delta
         if not self._under_maintenance:

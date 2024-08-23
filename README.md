@@ -5,10 +5,10 @@ A description of BSM2 can be found [here](https://iwaponline.com/ebooks/book-pdf
 
 ## To-Do:
 - [ ] Nick: Write docs!
-- [ ] Lukas: Mind the TODOs in the code and fix them. Afterwards, you can delete them.
-- [ ] Lukas: Please double-check the CHP production - the values seem pretty high
-- [ ] Lukas: Clean up files you don't use anymore :)
-- [ ] Lukas: Please go through files and consistently add units to outputs and inputs.
+- [x] Lukas: Mind the TODOs in the code and fix them. Afterwards, you can delete them. (Fixed all TODOs I know how to fix, two bsm TODOs still open)
+- [x] Lukas: Please double-check the CHP production - the values seem pretty high (Correct values for given biogas consumption)
+- [x] Lukas: Clean up files you don't use anymore :) (Already using all files)
+- [x] Lukas: Please go through files and consistently add units to outputs and inputs. Done for energy management, not sure what to do with bsm2 files.
 
 ## Installation
 To run the project, build it yourself via `hatch build`.

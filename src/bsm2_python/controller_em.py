@@ -29,13 +29,13 @@ class ControllerEM(Controller):
         ----------
         price_percentile : float
             Percentile of electricity prices used to adjust KLA values (aeration reduction at prices above the
-            percentile)
+            percentile, e.g. 0.9 -> aerate less when electricity prices are in the top 10%)
         klas_init : np.ndarray
-            Initial KLA values for the reactor compartments
+            Initial KLA values for the reactor compartments [1/d]
         kla_reduction : float
             Reduction factor for KLA values
         s_nh_threshold : float
-            Maximum value of ammonia concentration in the effluent
+            Maximum value of ammonia concentration in the effluent [g/m3]
         biogas : GasMix
             Biogas object
         o2 : Gas
@@ -70,7 +70,7 @@ class ControllerEM(Controller):
         Parameters
         ----------
         time_diff : float
-            Length of current timestep, h
+            Length of current timestep [h]
         chps : List of CHP objects
         boilers : List of boiler objects
         biogas_storage : BiogasStorage object
@@ -92,16 +92,11 @@ class ControllerEM(Controller):
             biogas_storage.vol, fermenter.gas_production, biogas_consumption_chps, time_diff
         )
 
-        # reset boilers and coolers
-        for boiler in boilers:
-            boiler.load = 0
-        cooler.load = 0
-        if temperature_after_chps < heat_net.lower_threshold:
-            temperature_deficit = heat_net.lower_threshold - temperature_after_chps
-            self.calculate_load_boilers(temperature_deficit, heat_net, boilers, biogas_storage_after_chps)
-        elif temperature_after_chps > heat_net.upper_threshold:
-            temperature_surplus = temperature_after_chps - heat_net.upper_threshold
-            self.calculate_load_cooler(temperature_surplus, heat_net, cooler)
+        temperature_deficit = max(heat_net.lower_threshold - temperature_after_chps, 0)
+        self.calculate_load_boilers(temperature_deficit, heat_net, boilers, biogas_storage_after_chps)
+
+        temperature_surplus = max(temperature_after_chps - heat_net.upper_threshold, 0)
+        self.calculate_load_cooler(temperature_surplus, heat_net, cooler)
 
         biogas_consumption_boiler = 0.0
         for boiler in boilers:
@@ -147,12 +142,12 @@ class ControllerEM(Controller):
         ----------
         chps: list of CHP objects
         heat_demand: float
-            heat demand of the fermenter, kW
+            heat demand of the fermenter [kW]
 
         Returns
         -------
         float
-            temperature of heat net after using heat from chps, °C
+            temperature of heat net after using heat from chps [°C]
         """
         chps_heat = 0
         for chp in chps:
@@ -169,18 +164,18 @@ class ControllerEM(Controller):
         Parameters
         ----------
         fill_level: float
-            fill level of biogas storage at start of current timestep, Nm^3
+            fill level of biogas storage at start of current timestep [Nm^3]
         inflow: float
-            inflow of biogas in current timestep, Nm^3/h
+            inflow of biogas in current timestep [Nm^3/h]
         outflow: float
-            outflow of biogas in current timestep, Nm^3/h
+            outflow of biogas in current timestep [Nm^3/h]
         time_diff: float
-            length of current timestep, 1/4 h
+            length of current timestep [h]
 
         Returns
         -------
         float
-            fill level of biogas storage at end of current timestep, Nm^3
+            fill level of biogas storage at end of current timestep [Nm^3]
         """
         biogas_storage_vol_prog = fill_level + (inflow - outflow) * time_diff
 
@@ -196,21 +191,25 @@ class ControllerEM(Controller):
         ----------
         temperature_deficit: float
             temperature deficit of the heat net after supplying heat for the fermenter
-            and using heat from chps, K
+            and using heat from chps [K]
         heat_net: HeatNet
             heat network object
         boilers: List
             list of Boiler objects
         biogas_storage_fill_level: float
             fill level of biogas storage after supplying biogas for the
-            chps and using receiving biogas from the fermenter, Nm^3
+            chps and using receiving biogas from the fermenter [Nm^3]
         """
         heat_demand = temperature_deficit * heat_net.mass_flow * (heat_net.cp / 3600)
         for boiler in boilers:
-            if not boiler.ready_to_change_load:
-                continue
             max_load_possible = min(biogas_storage_fill_level * self.biogas.h_u / boiler.max_gas_power_uptake, 1.0)
             load = boiler.calculate_load(heat_demand)
+            current_load = boiler.load
+            # only check changes from on to off/off to on
+            supposed_to_change = (load == 0 and current_load > 0) or (load > 0 and current_load == 0)
+            # boiler can't change on/off status if not ready to change load, however partial load level can change
+            if supposed_to_change and not boiler.ready_to_change_load:
+                continue
             if load <= max_load_possible:
                 boiler.load = load
             elif max_load_possible >= boiler.minimum_load:
@@ -230,7 +229,7 @@ class ControllerEM(Controller):
 
         Parameters
         temperature_surplus: float
-            temperature surplus of the heat net after supplying heat for the fermenter and using heat from chps, K
+            temperature surplus of the heat net after supplying heat for the fermenter and using heat from chps [K]
         heat_net: HeatNet
             heat network object
         cooler: Cooler
@@ -249,9 +248,9 @@ class ControllerEM(Controller):
         Parameters
         ----------
         biogas_storeage_max_vol: float
-            maximum volume of biogas storage, Nm^3
+            maximum volume of biogas storage [Nm^3]
         biogas_storage_vol_prog: float
-            prognosis of fill level of biogas storage at end of current timestep, Nm^3
+            prognosis of fill level of biogas storage at end of current timestep [Nm^3]
         flare: Flare
             flare object
         """
