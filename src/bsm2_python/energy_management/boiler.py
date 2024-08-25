@@ -44,7 +44,7 @@ class Boiler(Module):
         load_change_time: float,
         capex: int,
         biogas: GasMix,
-        stepless_intervals: boolean,
+        stepless_intervals: bool,
     ):
         """
         A class that represents a boiler.

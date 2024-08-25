@@ -101,7 +101,7 @@ class BSM2OLEM(BSM2Base):
             boiler_init.LOAD_CHANGE_TIME_1,
             boiler_init.CAPEX_1,
             BIOGAS,
-            boiler_init.STEPLESS_INTERVALS_1,
+            stepless_intervals=boiler_init.STEPLESS_INTERVALS_1,
         )
         self.boilers = [boiler1]
 
@@ -182,6 +182,7 @@ class BSM2OLEM(BSM2Base):
                 chp.biogas = biogas
             for boiler in self.boilers:
                 boiler.biogas = biogas
+            self.compressor.load = self.compressor.calculate_load(self.fermenter.gas_production)
 
             self.controller.control_gas_management(
                 self.timestep_hour[i],
