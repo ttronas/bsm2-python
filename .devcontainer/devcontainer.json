@@ -12,7 +12,8 @@
 				"ms-python.debugpy",
 				"ms-toolsai.jupyter",
 				"streetsidesoftware.code-spell-checker",
-				"streetsidesoftware.code-spell-checker-german"
+				"streetsidesoftware.code-spell-checker-german",
+				"mhutchie.git-graph"
 			],
 			"settings": {"cSpell.language": "en,de,en-GB",
 			"python.defaultInterpreterPath": "${env:PATH_TO_TEST_ENV}"

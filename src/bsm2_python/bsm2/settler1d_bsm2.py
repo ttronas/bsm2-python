@@ -25,6 +25,8 @@ import numpy as np
 from numba import jit
 from scipy.integrate import odeint
 
+from bsm2_python.bsm2.module import Module
+
 indices_components = np.arange(21)
 SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = indices_components
 
@@ -251,7 +253,53 @@ def settlerequations(t, ys, ys_in, sedpar, dim, layer, q_r, q_w, tempmodel, mode
 
 
 @jit(nopython=True)
-def get_outputs(ys_int, ys_in, nooflayers, tempmodel, q_r, q_w, dim, asm1par, sedpar):
+def get_output(ys_int, ys_in, nooflayers, tempmodel, q_r, q_w, dim, asm1par, sedpar):
+    """
+    Returns the return, waste and effluent concentrations of the settler model
+
+    Parameters
+    ----------
+    ys_int : np.ndarray
+        Solution of the differential equations, needed for the solver
+        Values for the 12 components (without Q and particulates) for each layer, sorted by components
+    ys_in : np.ndarray
+        Settler inlet concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+    nooflayers : int
+        Number of layers in the settler
+    tempmodel : bool
+        If true, differential equation for the wastewater temperature is used,
+        otherwise influent wastewater temperature is just passed through the settler
+    q_r : int
+        Return sludge flow rate
+    q_w : int
+        flow rate of waste sludge
+    dim : np.ndarray
+        Dimensions of the settler, area and height
+    asm1par : np.ndarray
+        ASM1 parameters
+    sedpar : np.ndarray
+        6 parameters needed for settler equations
+
+    Returns
+    -------
+    (np.ndarray, np.ndarray, np.ndarray, float, np.ndarray)
+            Tuple containing three arrays and a float:
+                ys_ret: Array containing the values of the 21 components
+                (13 ASM1 components, TSS, Q, T and 5 dummy states)
+                in the underflow (bottom layer of settler) at the current time step
+                after the integration - return sludge
+                ys_was: Array containing the values of the 21 components
+                (13 ASM1 components, TSS, Q, T and 5 dummy states)
+                in the underflow (bottom layer of settler) at the current time step
+                after the integration - waste sludge
+                ys_eff: Array containing the values of the 21 components
+                (13 ASM1 components, TSS, Q, T and 5 dummy states)
+                in the effluent (top layer of settler) and 4 additional parameters
+                (Kjeldahl N, total N, total COD, BOD5 concentration)
+                at the current time step after the integration - effluent
+                sludge_height: Float containing the continuous signal of sludge blanket level
+                ys_tss_internal: Array containing the internal TSS states of the settler
+    """
     ys_ret = np.zeros(21)
     ys_was = np.zeros(21)
     ys_eff = np.zeros(21)
@@ -325,6 +373,11 @@ def get_outputs(ys_int, ys_in, nooflayers, tempmodel, q_r, q_w, dim, asm1par, se
 
     ys_eff[Q] = ys_in[Q] - q_w - q_r
 
+    # internal TSS states, for plant performance only
+    ys_tss_internal = np.zeros(nooflayers)
+    for i in range(nooflayers):
+        ys_tss_internal[i] = ys_int[7 * nooflayers + i]
+
     # continuous signal of sludge blanket level
     no_sludge_layer = np.where(ys_int[7 * nooflayers : 8 * nooflayers] < sedpar[6])[0]
     # if all layers surpass threshold, sludge level is full.
@@ -343,10 +396,10 @@ def get_outputs(ys_int, ys_in, nooflayers, tempmodel, q_r, q_w, dim, asm1par, se
             ys_int[8 * nooflayers - 1 - sludge_level] + ys_int[8 * nooflayers - 2 - sludge_level]
         ) / (ys_int[8 * nooflayers - sludge_level] - ys_int[8 * nooflayers - 2 - sludge_level])
 
-    return ys_ret, ys_was, ys_eff, sludge_height
+    return ys_ret, ys_was, ys_eff, sludge_height, ys_tss_internal
 
 
-class Settler:
+class Settler(Module):
     def __init__(self, dim, layer, q_r, q_w, ys0, sedpar, asm1par, tempmodel, modeltype):
         """
         Parameters
@@ -388,7 +441,7 @@ class Settler:
             err = 'Model type not implemented yet. Choose modeltype = 0'
             raise NotImplementedError(err)
 
-    def outputs(self, timestep, step, ys_in):
+    def output(self, timestep, step, ys_in):
         """Returns the solved differential equations of settling model.
 
         Parameters
@@ -402,7 +455,7 @@ class Settler:
 
         Returns
         -------
-        (np.ndarray, np.ndarray, np.ndarray, float)
+        (np.ndarray, np.ndarray, np.ndarray, float, np.ndarray)
             Tuple containing three arrays and a float:
                 ys_ret: Array containing the values of the 21 components
                 (13 ASM1 components, TSS, Q, T and 5 dummy states)
@@ -418,6 +471,7 @@ class Settler:
                 (Kjeldahl N, total N, total COD, BOD5 concentration)
                 at the current time step after the integration - effluent
                 sludge_height: Float containing the continuous signal of sludge blanket level
+                ys_tss_internal: Array containing the internal TSS states of the settler
         """
 
         nooflayers = self.layer[1]
@@ -434,8 +488,8 @@ class Settler:
         ys_int = odes[1]
         self.ys0 = ys_int
 
-        ys_ret, ys_was, ys_eff, sludge_height = get_outputs(
+        ys_ret, ys_was, ys_eff, sludge_height, ys_tss_internal = get_output(
             ys_int, ys_in, nooflayers, self.tempmodel, self.q_r, self.q_w, self.dim, self.asm1par, self.sedpar
         )
 
-        return ys_ret, ys_was, ys_eff, sludge_height
+        return ys_ret, ys_was, ys_eff, sludge_height, ys_tss_internal

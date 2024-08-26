@@ -3,13 +3,13 @@ The test case is based on the BSM2 Benchmark Simulation Model No. 2 (BSM2) and d
 But it runs the BSM2 model with dynamic influent data.
 """
 
-import logging
 import time
 
 import numpy as np
 from tqdm import tqdm
 
-from bsm2_python.bsm2.bsm2_ol import BSM2OL
+from bsm2_python.bsm2_ol import BSM2OL
+from bsm2_python.log import logger
 
 
 def test_bsm2_ol():
@@ -19,8 +19,8 @@ def test_bsm2_ol():
         bsm2_ol.step(idx)
     stop = time.perf_counter()
 
-    logging.info('Dynamic open loop simulation completed after: %s seconds', stop - start)
-    logging.info('Effluent at t = %s d: \n%s', bsm2_ol.endtime, bsm2_ol.y_eff_all[-1, :])
+    logger.info('Dynamic open loop simulation completed after: %s seconds', stop - start)
+    logger.info('Effluent at t = %s d: \n%s', bsm2_ol.endtime, bsm2_ol.y_eff_all[-1, :])
 
     # Values from 50 days dynamic simulation in Matlab (bsm2_ol_test.slx):
     y_eff_matlab = np.array(
@@ -49,7 +49,7 @@ def test_bsm2_ol():
         ]
     )
 
-    logging.info('Effluent difference to MatLab solution: %s\n', y_eff_matlab - bsm2_ol.y_eff_all[-1, :])
+    logger.info('Effluent difference to MatLab solution: \n%s', y_eff_matlab - bsm2_ol.y_eff_all[-1, :])
 
     assert np.allclose(bsm2_ol.y_eff_all[-1, :], y_eff_matlab, rtol=3e-1, atol=1e0)
 

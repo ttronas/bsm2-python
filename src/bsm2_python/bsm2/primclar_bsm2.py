@@ -21,6 +21,8 @@ import numpy as np
 from numba import jit
 from scipy.integrate import odeint
 
+from bsm2_python.bsm2.module import Module
+
 indices_components = np.arange(21)
 SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = indices_components
 
@@ -66,7 +68,7 @@ def primclarequations(t, yp, yp_in, p_par, volume, tempmodel):
     return dyp
 
 
-class PrimaryClarifier:
+class PrimaryClarifier(Module):
     def __init__(self, volume, yp0, p_par, asm1par, x_vector, tempmodel, activate):
         """
         This is an implementation of the Otterpohl/Freund primary clarifier model.
@@ -103,7 +105,7 @@ class PrimaryClarifier:
         self.tempmodel = tempmodel
         self.activate = activate
 
-    def outputs(self, timestep, step, yp_in):
+    def output(self, timestep, step, yp_in):
         """
         Returns the overflow and underflow concentrations from a
         primary clarifier at the current time step.
@@ -126,6 +128,10 @@ class PrimaryClarifier:
         yp_of : np.ndarray
             primary clarifier overflow (effluent) concentrations of the 21 components
             (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        yp_internal : np.ndarray
+            primary clarifier internal (basically influent) concentrations of the 21 components
+            (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            Only for evaluation purposes
         """
         # f_corr, f_X, t_m, f_PS = p_par
         # y = yp_uf, yp_of
@@ -134,6 +140,7 @@ class PrimaryClarifier:
 
         yp_uf = np.zeros(21)
         yp_of = np.zeros(21)
+        yp_internal = np.zeros(21)
 
         if not self.tempmodel:
             self.yp0[15] = yp_in[15]
@@ -159,19 +166,13 @@ class PrimaryClarifier:
         nx = max(0, min(100, nx))  # nX is between 0 and 100
 
         ff = 1 - self.x_vector * nx / 100
+
         # ASM1 state outputs effluent
         yp_of[0:13] = ff[0:13] * yp_int[0:13]
         yp_of[yp_of < 0.0] = 0.0
         # dummy state outputs effluent
         yp_of[16:21] = ff[16:21] * yp_int[16:21]
         yp_of[yp_of < 0.0] = 0.0
-
-        # ASM1 state outputs underflow
-        yp_uf[0:13] = ((1 - ff[0:13]) * e + ff[0:13]) * yp_int[0:13]
-        yp_uf[yp_uf < 0.0] = 0.0
-        # dummy state outputs underflow
-        yp_uf[16:21] = ((1 - ff[16:21]) * e + ff[16:21]) * yp_int[16:21]
-        yp_uf[yp_uf < 0.0] = 0.0
 
         # TSS output effluent
         yp_of[TSS] = (
@@ -182,6 +183,13 @@ class PrimaryClarifier:
             + self.asm1par[23] * yp_of[XP]
         )
 
+        # ASM1 state outputs underflow
+        yp_uf[0:13] = ((1 - ff[0:13]) * e + ff[0:13]) * yp_int[0:13]
+        yp_uf[yp_uf < 0.0] = 0.0
+        # dummy state outputs underflow
+        yp_uf[16:21] = ((1 - ff[16:21]) * e + ff[16:21]) * yp_int[16:21]
+        yp_uf[yp_uf < 0.0] = 0.0
+
         # TSS output underflow
         yp_uf[TSS] = (
             self.asm1par[19] * yp_uf[XI]
@@ -191,15 +199,35 @@ class PrimaryClarifier:
             + self.asm1par[23] * yp_uf[XP]
         )
 
+        # only for plant performance!
+        # ASM1 state outputs internal
+        yp_internal[0:13] = yp_int[0:13]
+
+        # dummy state outputs internal
+        yp_internal[16:21] = yp_int[16:21]
+        yp_internal[yp_internal < 0.0] = 0.0
+
+        # TSS output internal
+        yp_internal[TSS] = (
+            self.asm1par[19] * yp_in[XI]
+            + self.asm1par[20] * yp_in[XS]
+            + self.asm1par[21] * yp_in[XBH]
+            + self.asm1par[22] * yp_in[XBA]
+            + self.asm1par[23] * yp_in[XP]
+        )
+
         # Flow rates
         yp_of[Q] = yp_in[Q] - qu  # flow rate in effluent
         yp_uf[Q] = qu  # flow rate in underflow
+        yp_internal[Q] = yp_in[Q]
 
         if not self.tempmodel:
             yp_of[TEMP] = yp_in[TEMP]
             yp_uf[TEMP] = yp_in[TEMP]
+            yp_internal[TEMP] = yp_in[TEMP]
         else:
             yp_of[TEMP] = yp_int[TEMP]
             yp_uf[TEMP] = yp_int[TEMP]
+            yp_internal[TEMP] = yp_int[TEMP]
 
-        return yp_uf, yp_of
+        return yp_uf, yp_of, yp_internal
