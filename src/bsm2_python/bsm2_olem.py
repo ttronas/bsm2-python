@@ -201,6 +201,8 @@ class BSM2OLEM(BSM2Base):
             self.cooler.step(self.timestep_hour[i])
             self.compressor.step(self.timestep_hour[i])
 
+            # TODO: Lukas, the heat net is encountering serious trouble at some point during the simulation
+            # The temperature is falling to -20 °C. Please fix this - perhaps we have to rescale some component?
             self.heat_net.update_temperature(
                 np.sum([boiler.products[boiler_init.HEAT] * self.timestep_hour[i] for boiler in self.boilers])
                 + np.sum([chp.products[chp_init.HEAT] * self.timestep_hour[i] for chp in self.chps])
