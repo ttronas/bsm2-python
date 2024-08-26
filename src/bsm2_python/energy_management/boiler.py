@@ -44,6 +44,7 @@ class Boiler(Module):
         load_change_time: float,
         capex: int,
         biogas: GasMix,
+        *,
         stepless_intervals: bool,
     ):
         """
