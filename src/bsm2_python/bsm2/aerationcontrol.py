@@ -11,13 +11,13 @@ class OxygenSensor:
     Parameters
     ----------
     min_so : int or float
-        Lower measuring limit of the oxygen sensor
+        Lower measuring limit of the oxygen sensor.
     max_so : int or float
-        Upper measuring limit of the oxygen sensor
-    t_so : float
-        Time constant of transfer function
-    std_so : float
-        Standard deviation for adding measurement noise
+        Upper measuring limit of the oxygen sensor.
+    t_so : int or float
+        Time constant of transfer function.
+    std_so : int or float
+        Standard deviation for adding measurement noise.
     """
     def __init__(self, min_so: float, max_so: float, t_so: float, std_so: float):
         self.min_so = min_so

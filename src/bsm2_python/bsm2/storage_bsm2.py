@@ -109,9 +109,9 @@ class Storage:
         Parameters
         ----------
         timestep : int or float
-            Size of integration interval, in days.
+            Size of integration interval [days].
         step : int or float
-            Upper boundary for integration interval, in days.
+            Upper boundary for integration interval [days].
         yst_in : np.ndarray
             Storage tank influent concentrations of the 21 components  
             (13 ASM1 components, TSS, Q, T and 5 dummy states).

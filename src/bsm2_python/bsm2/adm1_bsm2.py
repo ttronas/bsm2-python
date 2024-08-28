@@ -78,7 +78,7 @@ class ADM1Reactor:
     t_op : float
         Operational temperature for the digester.
     temperature : float
-        Temperature of ...?
+        TODO: What is this for?
     yd_out : np.ndarray(51)
         Concentrations for the 51 components  
         (35 ADM1 components, 9 other gas-related components, Q, T and 5 dummy states).
@@ -683,7 +683,7 @@ def asm2adm(y_in1, t_op, interfacepar):
     New version (no 3) of the ASM1 to ADM1 interface based on discussions
     within the IWA TG BSM community during 2002-2006. Now also including
     charge balancing and temperature dependency for applicable parameters.
-    Model parameters are defined in adm1init_bsm2.m
+    Model parameters are defined in `adm1init_bsm2.py`.
 
     Parameters
     ----------
@@ -1028,7 +1028,7 @@ def adm2asm(y_in2, t_op, interfacepar):
     New version (no 3) of the ADM1 to ASM1 interface based on discussions
     within the IWA TG BSM community during 2002-2006. Now also including charge
     balancing and temperature dependency for applicable parameters.
-    Model parameters are defined in adm1init_bsm2.m
+    Model parameters are defined in `adm1init_bsm2.py`.
 
     Parameters
     ----------

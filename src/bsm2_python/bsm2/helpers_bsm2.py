@@ -125,8 +125,8 @@ def reduce_asm1(asm1_arr, reduce_to=('SI', 'SS', 'XI', 'XS', 'XBH', 'SNH', 'SND'
     ----------
     asm1_arr : np.ndarray(21)
         ASM1 array to be reduced. Needs to contain all ASM1 components: \n
-        ["SI", "SS", "XI", "XS", "XBH", "XBA", "XP", "SO", "SNO", "SNH","SND",  
-         "XND", "SALK", "TSS", "Q", "TEMP", "SD1", "SD2", "SD3", "XD4", "XD5"]
+        [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND,  
+         XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5]
     reduce_to : Tuple(str)
         Components to be included in the reduced array. Defaults to all changing components in BSM2 influent file.
 
@@ -190,7 +190,7 @@ def expand_asm1(
         Reduced ASM1 array to be expanded.
     red_components : Tuple(str)
         Components in the reduced array. Defaults to all changing components in BSM2 influent file: \n
-        ["SI", "SS", "XI", "XS", "XBH", "SNH", "SND", "XND", "TSS", "Q", "TEMP"]
+        [SI, SS, XI, XS, XBH, SNH, SND, XND, TSS, Q, TEMP]
     expand_by : Dict(str:int)
         Components to be added to the reduced array.
         Defaults to all non-changing components in BSM2 influent file and their default values: \n

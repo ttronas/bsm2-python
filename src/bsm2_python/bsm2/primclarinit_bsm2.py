@@ -1,4 +1,6 @@
-"""Initialisation file for the primary clarifier"""
+"""
+Initialisation file for the primary clarifier.
+"""
 
 import numpy as np
 

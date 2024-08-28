@@ -399,9 +399,9 @@ class Settler:
         Parameters
         ----------
         timestep : int or float
-            Size of integration interval, in days.
+            Size of integration interval [days].
         step : int or float
-            Upper boundary for integration interval, in days.
+            Upper boundary for integration interval [days].
         ys_in : np.ndarray
             Settler inlet concentrations of the 21 components  
             (13 ASM1 components, TSS, Q, T and 5 dummy states).
@@ -413,16 +413,16 @@ class Settler:
             - ys_ret: Array containing the values of the 21 components  
             (13 ASM1 components, TSS, Q, T and 5 dummy states)
             in the underflow (bottom layer of settler) at the current time step
-            after the integration - return sludge.
+            after the integration - return sludge. \n
             - ys_was: Array containing the values of the 21 components  
             (13 ASM1 components, TSS, Q, T and 5 dummy states)
             in the underflow (bottom layer of settler) at the current time step
-            after the integration - waste sludge.
+            after the integration - waste sludge. \n
             - ys_eff: Array containing the values of the 21 components  
             (13 ASM1 components, TSS, Q, T and 5 dummy states)
             in the effluent (top layer of settler) and 4 additional parameters
             (Kjeldahl N, total N, total COD, BOD5 concentration)
-            at the current time step after the integration - effluent.
+            at the current time step after the integration - effluent. \n
             - sludge_height: Float containing the continuous signal of sludge blanket level.
         """
 

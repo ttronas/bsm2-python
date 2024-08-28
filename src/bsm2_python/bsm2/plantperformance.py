@@ -11,9 +11,6 @@ class PlantPerformance:
     Creates a PlantPerformance object.
     """
 
-    def __init__(self):
-        pass
-
     # TODO: Make the function also callable from within the simulation loop (i.e. only for one timestep).
     # Currently, it is only callable after the simulation.
     @staticmethod
@@ -30,14 +27,14 @@ class PlantPerformance:
         sosat : np.ndarray
             Saturation concentration of oxygen in each reactor compartment.
         sampleinterval : int or float
-            Time step of the evaluation time, in days.
+            Time step of the evaluation time [days].
         evaltime : np.ndarray
-            Starting and end point of the evaluation time, in days.
+            Starting and end point of the evaluation time [days].
 
         Returns
         -------
         ae : float
-            Float value of the aeration energy during the evaluation time, in kWh/d.
+            Float value of the aeration energy during the evaluation time [kWh/d].
         """
 
         ae = sum(sum(sosat * vol * kla) * sampleinterval) / (1.8 * 1000 * (evaltime[1] - evaltime[0]))
@@ -57,14 +54,14 @@ class PlantPerformance:
         pumpfactor : np.ndarray
             Weighting factor of each flow.
         sampleinterval : int or float
-            Time step of the evaluation time, in days.
+            Time step of the evaluation time [days].
         evaltime : np.ndarray
-            Starting and end point of the evaluation time, in days.
+            Starting and end point of the evaluation time [days].
 
         Returns
         -------
         pe : float
-            Float value of the mixing energy during the evaluation time, in kWh/d.
+            Float value of the mixing energy during the evaluation time [kWh/d].
         """
 
         pe = sum(sum(flows * pumpfactor) * sampleinterval) / (evaltime[1] - evaltime[0])
@@ -84,14 +81,14 @@ class PlantPerformance:
         vol : np.ndarray
             Volume of each reactor compartment.
         sampleinterval : int or float
-            Time step of the evaluation time, in days.
+            Time step of the evaluation time [days].
         evaltime : np.ndarray
-            Starting and end point of the evaluation time, in days.
+            Starting and end point of the evaluation time [days].
 
         Returns
         -------
         me : float
-            Float value of the aeration energy during the evaluation time, in kWh/d.
+            Float value of the aeration energy during the evaluation time [kWh/d].
         """
 
         kla1, kla2, kla3, kla4, kla5 = kla
@@ -126,14 +123,14 @@ class PlantPerformance:
         limit : int or float
             Limit value of the component.
         sampleinterval : int or float
-            Time step of the evaluation time, in days.
+            Time step of the evaluation time [days].
         evaltime : np.ndarray
-            Starting and end point of the evaluation time, in days.
+            Starting and end point of the evaluation time [days].
 
         Returns
         -------
         violationvalues : np.ndarray(2)
-            Array containing the time in days and percentage of time in which
+            Array containing the time [days] and percentage of time in which
             a certain component is over the limit value during the evaluation time.
         """
 
@@ -211,18 +208,18 @@ class PlantPerformance:
         Parameters
         ----------
         kla : float
-            KLa values of each reactor compartment, in 1/d.
+            KLa values of each reactor compartment [1/d].
         temp : float
-            Temperature in each reactor compartment, in °C.
+            Temperature in each reactor compartment [°C].
         vol : float
-            Volume of each reactor compartment, in m³.
+            Volume of each reactor compartment [m³].
         h : float
-            Height of each reactor compartment, in m.
+            Height of each reactor compartment [m].
 
         Returns
         -------
         air_flow : float
-            Air flow rate in each reactor compartment in m³/d
+            Air flow rate in each reactor compartment [m³/d].
         """
         f_s_st = 1  # salinity aeration factor
         kla_20 = kla * 1.024 ** (20 - temp)
