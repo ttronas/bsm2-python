@@ -21,12 +21,14 @@ import numpy as np
 from numba import float64
 from numba.experimental import jitclass
 
+from bsm2_python.bsm2.module import Module
+
 indices_components = np.arange(21)
 SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = indices_components
 
 
 @jitclass(spec=[('t_par', float64[:])])
-class Thickener:
+class Thickener(Module):
     def __init__(self, t_par):
         """
         Calculates the overflow and underflow concentrations
@@ -50,7 +52,7 @@ class Thickener:
         """
         self.t_par = t_par
 
-    def outputs(self, yt_in):
+    def output(self, yt_in):
         """
         Returns the overflow and underflow concentrations from an 'ideal' thickener unit.
 
