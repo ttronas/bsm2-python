@@ -20,7 +20,7 @@ nav:
     - Contributing: contributing.md
     - Documentation: documentation.md
   # defer to gen-files + literate-nav
-  - Reference: reference/bsm2_python/
+  - Code Reference: reference/
 
 # Configuration
 docs_dir: docs
@@ -58,7 +58,7 @@ theme:
     - navigation.instant
 
 watch:
-- src/bsm2_python
+- src
 
 # Extensions
 plugins:
