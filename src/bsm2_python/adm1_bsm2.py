@@ -56,7 +56,7 @@ indices_components = np.arange(42)
 
 class ADM1Reactor:
     """
-    Class for ADM1 reactor parameters.
+    Class for ADM1 (Anerobic Digestion Model No. 1) reactor parameters.
 
     Parameters
     ----------

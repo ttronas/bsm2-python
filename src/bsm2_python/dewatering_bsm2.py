@@ -1,15 +1,12 @@
-"""
-# Copyright
-<h4>Copyright (2006)</h4>
-Ulf Jeppsson  
-Dept. Industrial Electrical Engineering and Automation (IEA), Lund University, Sweden  
-https://www.lth.se/iea/
+# Copyright (2006)
+# Ulf Jeppsson  
+# Dept. Industrial Electrical Engineering and Automation (IEA), Lund University, Sweden  
+# https://www.lth.se/iea/
 
-<h4>Copyright (2024)</h4>
-Jonas Miederer  
-Chair of Energy Process Engineering (EVT), FAU Erlangen-Nuremberg, Germany  
-https://www.evt.tf.fau.de/
-"""
+# Copyright (2024)
+# Jonas Miederer  
+# Chair of Energy Process Engineering (EVT), FAU Erlangen-Nuremberg, Germany  
+# https://www.evt.tf.fau.de/
 
 import numpy as np
 from numba import float64
