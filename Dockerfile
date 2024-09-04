@@ -18,6 +18,9 @@ RUN hatch run python -V
 RUN hatch run test:python -V
 RUN hatch run docs:python -V
 RUN hatch run lint:python -V
+# additionally, we need libcairo2 for the docs
+RUN apt update
+RUN apt install libcairo2-dev -y
 # get path to python executable from hatch env find test
 RUN echo "PATH_TO_TEST_ENV=$(hatch env find test)/bin/python" >> /root/.bashrc
 # for mkdocs, cairo needs to be installed

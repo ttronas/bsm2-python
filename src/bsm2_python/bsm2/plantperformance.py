@@ -36,36 +36,37 @@ SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, S
 
 
 class PlantPerformance:
-    def __init__(self, pp_par):
-        """
-        Creates a PlantPerformance object.
+    """
+    Creates a PlantPerformance object.
 
-        Parameters
-        ----------
-        pp_par : np.ndarray
-            Plant performance parameters
-            [TOTALCODEMAX, TOTALNEMAX, SNHEMAX, TSSEMAX, BOD5EMAX, BSS, BCOD,
-            BNKJ, BNO, BBOD5, PF_QINTR, PF_QR, PF_QW, PF_QPU, PF_QTU, PF_QDO, ME_AD_UNIT]
-        """
+    Parameters
+    ----------
+    pp_par : np.ndarray
+        Plant performance parameters. \n
+        [TOTALCODEMAX, TOTALNEMAX, SNHEMAX, TSSEMAX, BOD5EMAX, BSS, BCOD,
+        BNKJ, BNO, BBOD5, PF_QINTR, PF_QR, PF_QW, PF_QPU, PF_QTU, PF_QDO, ME_AD_UNIT]
+    """
+    def __init__(self, pp_par):
         self.pp_par = pp_par
 
     @staticmethod
     def aerationenergy_step(kla, vol, sosat):
-        """Returns the aeration energy of the plant during the evaluation time
+        """
+        Returns the aeration energy of the plant during the evaluation time.
 
         Parameters
         ----------
         kla : np.ndarray
-            KLa values of all reactor compartments at every time step of the evaluation time
+            KLa values of all reactor compartments at every time step of the evaluation time.
         vol : np.ndarray
-            Volume of each reactor compartment
+            Volume of each reactor compartment.
         sosat : np.ndarray
-            Saturation concentration of Oxygen in each reactor compartment
+            Saturation concentration of oxygen in each reactor compartment.
 
         Returns
         -------
-        float
-            Float value of the aeration energy during the evaluation time in kW
+        aerationenergy : float
+            Float value of the aeration energy during the evaluation time [kW].
         """
 
         aerationenergy = sum(sosat * vol * kla) / (1.8 * 1000) / 24
@@ -73,19 +74,20 @@ class PlantPerformance:
 
     @staticmethod
     def pumpingenergy_step(flows, pumpfactor):
-        """Returns the pumping energy of the plant during the evaluation time
+        """
+        Returns the pumping energy of the plant during the evaluation time.
 
         Parameters
         ----------
         flows : np.ndarray
-            Values of Qintr, Qr and Qw at every time step of the evaluation time
+            Values of Qintr, Qr and Qw at every time step of the evaluation time.
         pumpfactor : np.ndarray
-            Weighting factor of each flow
+            Weighting factor of each flow.
 
         Returns
         -------
-        float
-            Float value of the mixing energy during the evaluation time in kW
+        pe : float
+            Float value of the mixing energy during the evaluation time [kW].
         """
 
         # sum of relevant flows * their pumpfactors in kWh/d, divided by 24 to get kW
@@ -94,21 +96,24 @@ class PlantPerformance:
 
     @staticmethod
     def mixingenergy_step(kla, vol, me_ad):
-        """Returns the mixing energy of the plant during the evaluation time
+        """
+        Returns the mixing energy of the plant during the evaluation time.
 
         Parameters
         ----------
         kla : np.ndarray
-            KLa values of all reactor compartments at every time step of the evaluation time
+            KLa values of all reactor compartments at every time step of the evaluation time.
         vol : np.ndarray
-            Volume of each reactor compartment, including the AD unit
+            Volume of each reactor compartment, including the AD unit.
         me_ad : float
-            Mixing energy factor for the AD unit in kW/m3
+            Mixing energy factor for the AD unit [kW/m³].
+
         Returns
         -------
-        float
-            Float value of the aeration energy during the evaluation time in kW
+        me : float
+            Float value of the aeration energy during the evaluation time [kW].
         """
+
         lim = 20
         me_asm = 0.005 * sum((kla[i] < lim) * vol[i] for i in range(len(kla)))
         me_adm = me_ad * vol[5]
@@ -116,21 +121,22 @@ class PlantPerformance:
         return me
 
     def violation_step(self, arr_eff, limit):
-        """Returns the time in days and percentage of time in which a certain component is over the limit value during
-        the evaluation time
+        """
+        Returns the time in days and percentage of time in which a certain component is over the limit value
+        during the evaluation time.
 
         Parameters
         ----------
         arr_eff: np.ndarray
-            Concentration of the component in the effluent at every time step of the evaluation time
+            Concentration of the component in the effluent at every time step of the evaluation time.
         limit: int or float
-            limit value of the component. Must have the same unit as the component
+            Limit value of the component. Must have the same unit as the component.
 
         Returns
         -------
-        np.ndarray
-            Array containing the time in days and a boolean if a certain component
-            is over the limit value during the evaluation time
+        violationvalues : np.ndarray
+            Array containing the time [days] and a boolean if a certain component
+            is over the limit value during the evaluation time.
         """
         arr_eff = self._reshape_if_float(arr_eff)
         # True if the component is over the limit value:
@@ -144,7 +150,7 @@ class PlantPerformance:
         """
         Takes an ASM1 array (single timestep or multiple timesteps) and returns
         advanced quantities of the effluent.
-        Currently supports the following components:
+        Currently supports the following components: \n
         - `kjeldahlN`: Kjeldahl nitrogen
         - `totalN`: Total nitrogen
         - `COD`: Chemical oxygen demand
@@ -153,10 +159,17 @@ class PlantPerformance:
         Parameters
         ----------
         arr_eff : np.ndarray((,21) | (n, 21))
-            Array in ASM1 format
+            Array in ASM1 format.
         components : List[str] (optional)
-            List of components to be calculated. Defaults to ['kjeldahlN', 'totalN', 'COD', 'BOD5e', 'X_TSS']
+            List of components to be calculated.  
+            Defaults to ['kjeldahlN', 'totalN', 'COD', 'BOD5e', 'X_TSS']
+        
+        Returns
+        -------
+        adv_eff : np.ndarray
+            Advanced quantities of the effluent.
         """
+
         arr_eff = self._reshape_if_1d(arr_eff)
         adv_eff = np.zeros((arr_eff.shape[0], len(components)))
 
@@ -207,17 +220,19 @@ class PlantPerformance:
         return adv_eff
 
     def iqi(self, y_in):
-        """Returns the influent quality index (IQI)
+        """
+        Returns the influent quality index (IQI).
 
         Parameters
         ----------
-        y_in: np.ndarray(21) | np.ndarray(n, 21)
-            Array containing the values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        y_in : np.ndarray(21) or np.ndarray(n, 21)
+            Array containing the values of the 21 components  
+            (13 ASM1 components, TSS, Q, T and 5 dummy states).
 
         Returns
         -------
-        iqi: int | float | np.ndarray
-            the value of the influent quality index of the stream
+        iqi : int or float or np.ndarray
+            The value of the influent quality index of the stream.
         """
 
         y_in = self._reshape_if_1d(y_in)
@@ -239,24 +254,24 @@ class PlantPerformance:
 
     def eqi(self, ys_of, y_plant_bp, y_as_bp_c_eff):
         """
-        Returns the effluent quality index (EQI)
+        Returns the effluent quality index (EQI).
 
         Parameters
         ----------
-        ys_of: np.ndarray(21) | np.ndarray(n, 21)
+        ys_of : np.ndarray(21) or np.ndarray(n, 21)
             Array containing the values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
-            after the fifth ASM reactor
-        y_plant_bp: np.ndarray(21) | np.ndarray(n, 21)
+            after the fifth ASM reactor.
+        y_plant_bp : np.ndarray(21) or np.ndarray(n, 21)
             Array containing the values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
-            after the plant bypass
-        y_as_bp_c_eff: np.ndarray(21) | np.ndarray(n, 21)
+            after the plant bypass.
+        y_as_bp_c_eff : np.ndarray(21) or np.ndarray(n, 21)
             Array containing the values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
-            after the ASM bypass
+            after the ASM bypass.
 
         Returns
         -------
-        eqi: int | float | np.ndarray
-            the value of the effluent quality index of the stream
+        eqi : int or float or np.ndarray
+            The value of the effluent quality index of the stream.
         """
 
         ys_of = self._reshape_if_1d(ys_of)
@@ -308,14 +323,14 @@ class PlantPerformance:
         Parameters
         ----------
         y_out : np.ndarray
-            The effluent of the reactor
+            The effluent of the reactor.
         vol : np.ndarray
-            The volume of the reactor / m^3
+            The volume of the reactor [m³].
 
         Returns
         -------
-        np.ndarray
-            The TSS mass / kg
+        tss_mass : np.ndarray
+            The TSS mass [kg].
         """
         y_out = self._reshape_if_1d(y_out)
 
@@ -330,13 +345,14 @@ class PlantPerformance:
         Parameters
         ----------
         y_out : np.ndarray
-            The effluent of the reactor
+            The effluent of the reactor.
 
         Returns
         -------
-        np.ndarray
-            The TSS flow / kg/d
+        tss_flow : np.ndarray
+            The TSS flow [kg/d].
         """
+
         y_out = self._reshape_if_1d(y_out)
         tss_flow = sum(y_out[:, TSS] * y_out[:, Q]) / 1000  # kg/d
 
@@ -358,43 +374,43 @@ class PlantPerformance:
         yst_vol,
     ):
         """
-        Calculates the sludge production of the BSM2 plant setup
+        Calculates the sludge production of the BSM2 plant setup.
 
         Parameters
         ----------
         yp_of : np.ndarray
-            primary clarifier overflow (effluent) concentrations of the 21 components
-            (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            Primary clarifier overflow (effluent) concentrations of the 21 components  
+            (13 ASM1 components, TSS, Q, T and 5 dummy states).
         yp_uf : np.ndarray
-            primary clarifier underflow (sludge) concentrations of the 21 components
-            (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            Primary clarifier underflow (sludge) concentrations of the 21 components  
+            (13 ASM1 components, TSS, Q, T and 5 dummy states).
         yp_internal : np.ndarray
-            primary clarifier internal (basically influent) concentrations of the 21 components
-            (13 ASM1 components, TSS, Q, T and 5 dummy states)
-            Only for evaluation purposes
+            Primary clarifier internal (basically influent) concentrations of the 21 components  
+            (13 ASM1 components, TSS, Q, T and 5 dummy states).
+            Only for evaluation purposes.
         y_out1 : np.ndarray
-            concentrations of the 21 components after the first ASM reactor
+            Concentrations of the 21 components after the first ASM reactor.
         y_out2 : np.ndarray
-            concentrations of the 21 components after the second ASM reactor
+            Concentrations of the 21 components after the second ASM reactor.
         y_out3 : np.ndarray
-            concentrations of the 21 components after the third ASM reactor
+            Concentrations of the 21 components after the third ASM reactor.
         y_out4 : np.ndarray
-            concentrations of the 21 components after the fourth ASM reactor
+            Concentrations of the 21 components after the fourth ASM reactor.
         y_out5 : np.ndarray
-            concentrations of the 21 components after the fifth ASM reactor
+            Concentrations of the 21 components after the fifth ASM reactor.
         ys_tss_internal: np.ndarray
-            TSS concentrations of the internals of the settler
+            TSS concentrations of the internals of the settler.
         yd_out : np.ndarray
-            concentrations of the 51 components and gas phase parameters after the digester
+            Concentrations of the 51 components and gas phase parameters after the digester.
         yst_out : np.ndarray
-            concentrations of the 21 components in the effluent of the storage tank
+            Concentrations of the 21 components in the effluent of the storage tank.
         yst_vol : np.ndarray
-            volume of the storage tank
+            Volume of the storage tank.
 
         Returns
         -------
-        np.ndarray
-            sludge production in kg/d
+        tss_mass = np.ndarray
+            Sludge production [kg/d].
         """
 
         # reshape if 1D for all input streams
@@ -440,16 +456,17 @@ class PlantPerformance:
 
         Parameters
         ----------
-        carb : float | np.ndarray
-            The carbon flow added to the system / m^3/d
+        carb : float or np.ndarray
+            The carbon flow added to the system [m³/d].
         concentration : np.ndarray
-            The concentration of the carbon flow / mgCOD/L
+            The concentration of the carbon flow [mgCOD/L].
 
         Returns
         -------
-        np.ndarray
-            The added carbon mass / kgCOD/d
+        carbon_mass : np.ndarray
+            The added carbon mass [kgCOD/d].
         """
+
         # if carb is a np.ndarray, sum the rows
         if isinstance(carb, np.ndarray) and carb.ndim == 1:
             carb = np.sum(carb)
@@ -460,34 +477,34 @@ class PlantPerformance:
 
     def gas_production(self, yd_out, t_op, p_atm=1.0130):
         """
-        Calculates the gas production of the digester
+        Calculates the gas production of the digester.
 
         Parameters
         ----------
         yd_out : np.ndarray
-            concentrations of 51 ADM1 components and
-            gas phase parameters after the digester
+            Concentrations of 51 ADM1 components and gas phase parameters after the digester. \n
             [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
-             X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
-             Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D, pH, S_H_ion, S_hva, S_hbu,
-             S_hpro, S_hac, S_hco3, S_CO2, S_nh3, S_NH4+, S_gas_h2, S_gas_ch4, S_gas_co2,
-             p_gas_h2, p_gas_ch4, p_gas_co2, P_gas, q_gas]
+            X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
+            Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D, pH, S_H_ion, S_hva, S_hbu,
+            S_hpro, S_hac, S_hco3, S_CO2, S_nh3, S_NH4+, S_gas_h2, S_gas_ch4, S_gas_co2,
+            p_gas_h2, p_gas_ch4, p_gas_co2, P_gas, q_gas]
         p_atm : float
-            The atmospheric pressure / bar
+            The atmospheric pressure [bar].
         t_op : np.ndarray
-            The operating temperature / K
+            The operating temperature [K].
 
         Returns
         -------
-        np.ndarray
-            methane production / kg/d
-        np.ndarray
-            hydrogen production / kg/d
-        np.ndarray
-            carbon dioxide production / kg/d
-        np.ndarray
-            total gas flow rate / m^3/d
+        ch4 : np.ndarray
+            Methane production [kg/d].
+        h2 : np.ndarray
+            Hydrogen production [kg/d].
+        co2 : np.ndarray
+            Carbon dioxide production [kg/d].
+        q_gas : np.ndarray
+            Total gas flow rate [m³/d].
         """
+
         r = 0.0831  # kJ/(mol*K)
         yd_out = self._reshape_if_1d(yd_out)
         # bar/bar * bar * g/mol / (kJ/mol) * m^3/d = kg/d
@@ -503,20 +520,22 @@ class PlantPerformance:
 
     def heat_demand_step(self, y_in, t_op):
         """
-        Calculates the heating demand of the sludge flow
+        Calculates the heating demand of the sludge flow.
 
         Parameters
         ----------
         y_in : np.ndarray(21)
-            concentrations of the 21 standard components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            Concentrations of the 21 standard components  
+            (13 ASM1 components, TSS, Q, T and 5 dummy states). \n
             [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
-             SD1, SD2, SD3, XD4, XD5]
+            SD1, SD2, SD3, XD4, XD5]
         t_op : np.ndarray
-            The operating temperature of the reactor
+            The operating temperature of the reactor.
+
         Returns
         -------
-        np.ndarray
-            The heating demand / kW
+        heat_demand : np.ndarray
+            The heating demand [kW].
         """
         rho = H2O.rho_l  # kg/m^3 (density of water)
         cp = H2O.cp_l  # kJ/kg*K (specific heat capacity of water)
@@ -529,29 +548,29 @@ class PlantPerformance:
     @staticmethod
     def oci(pe, ae, me, tss, cm, he, mp):
         """
-        Calculates the operational cost index of the plant
+        Calculates the operational cost index of the plant.
 
         Parameters
         ----------
         pe : float
-            The pumping energy of the plant / kWh/d
+            The pumping energy of the plant [kWh/d].
         ae : float
-            The aeration energy of the plant / kWh/d
+            The aeration energy of the plant [kWh/d].
         me : float
-            The mixing energy of the plant / kWh/d
+            The mixing energy of the plant [kWh/d].
         tss : float
-            The total suspended solids production of the plant / kg/d
+            The total suspended solids production of the plant [kg/d].
         cm : float
-            The added carbon mass of the plant / kg/d
+            The added carbon mass of the plant [kg/d].
         he : float
-            The heating demand of the plant / kWh/d
+            The heating demand of the plant [kWh/d].
         mp : float
-            The methane production of the plant / kg/d
+            The methane production of the plant [kg/d].
 
         Returns
         -------
         float
-            The operational cost index of the plant
+            The operational cost index of the plant.
         """
         tss_cost = 3 * tss
         ae_cost = ae

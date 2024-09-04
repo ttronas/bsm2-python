@@ -5,22 +5,21 @@ from scipy.integrate import odeint
 
 
 class OxygenSensor:
+    """
+    Class for measuring oxygen concentration in a reactor compartment.
+
+    Parameters
+    ----------
+    min_so : int or float
+        Lower measuring limit of the oxygen sensor.
+    max_so : int or float
+        Upper measuring limit of the oxygen sensor.
+    t_so : int or float
+        Time constant of transfer function.
+    std_so : int or float
+        Standard deviation for adding measurement noise.
+    """
     def __init__(self, min_so: float, max_so: float, t_so: float, std_so: float):
-        """
-        Parameters:
-        ----------
-        min_so : int or float
-            Lower measuring limit of the oxygen sensor
-
-        max_so : int or float
-            Upper measuring limit of the oxygen sensor
-
-        t_so : float
-            Time constant of transfer function
-
-        std_so : float
-            Standard deviation for adding measurement noise
-        """
         self.min_so = min_so
         self.max_so = max_so
         self.t_so = t_so
@@ -29,27 +28,28 @@ class OxygenSensor:
     def measure_so(
         self, so: np.ndarray, step: float, controlnumber: int, noise_so: float, transferfunction: float, control: float
     ) -> float:
-        """Returns the measured oxygen concentration in a reactor compartment
+        """
+        Returns the measured oxygen concentration in a reactor compartment.
 
         Parameters
         ----------
         so : np.ndarray
-            Oxygen concentration from ASM1 model at every time step of the interval for the transfer function
+            Oxygen concentration from ASM1 model at every time step of the interval for the transfer function.
         step : int or float
-            Current time step of the simulation loop
+            Current time step of the simulation loop.
         controlnumber : int
-            Number of the current oxygen measurement
+            Number of the current oxygen measurement.
         noise_so : float
-            Value for adding measurement noise
+            Value for adding measurement noise.
         transferfunction : int or float
-            Interval for transfer function in min
+            Interval for transfer function in min.
         control : int or float
-            step of aeration control in min
+            Step of aeration control in min.
 
         Returns
         -------
-        float
-            Float value of the measured oxygen concentration in the reactor compartment
+        so_meas : float
+            Float value of the measured oxygen concentration in the reactor compartment.
         """
 
         num_so = [1]
@@ -87,6 +87,37 @@ def function_aw(t, y, kla_lim, kla_calc, ttso):
 
 
 class PIAeration:
+    """
+    Class for a PI controller to adjust aeration in reactor compartments.
+
+    Parameters
+    ----------
+    kla_min : int or float
+        Lower limit of the adjustable KLa value.
+    kla_max : int or float
+        Upper limit of the adjustable KLa value.
+    kso : int or float
+        Amplification constant for PI calculation.
+    tiso : float
+        Time constant of integral part.
+    ttso : float
+        Time constant for integration of 'antiwindup'.
+    soref : int or float
+        Set point for oxygen concentration.
+    klaoffset : int or float
+        Controller output when the rest is turned off.
+    sointstate : int or float
+        Initial integration value for integration part.
+    soawstate : int or float
+        Initial integration value for 'antiwindup'.
+    kla_lim : float
+        Kla value after adjusting to upper and lower limit.
+    kla_calc : float
+        Kla value calculated from PI control.
+    use_antiwindup : bool
+        If True, antiwindup is used in the PI control. Strongly recommended.
+    """
+
     def __init__(
         self,
         kla_min: float,
@@ -103,35 +134,7 @@ class PIAeration:
         *,
         use_antiwindup: bool,
     ):
-        """
-        Parameters:
-        ----------
-        kla_min : int or float
-            Lower limit of the adjustable KLa value
-        kla_max : int or float
-            Upper limit of the adjustable KLa value
-        kso : int or float
-            Amplification constant for PI calculation
-        tiso : float
-            Time constant of integral part
-        ttso : float
-            Time constant for integration of 'antiwindup'
-        soref : int or float
-            set point for oxygen concentration
-        klaoffset : int or float
-            Controller output when the rest is turned off
-        sointstate : int or float
-            Initial integration value for integration part
-        soawstate : int or float
-            Initial integration value for 'antiwindup'
-        kla_lim : float
-            Kla value after adjusting to upper and lower limit
-        kla_calc : float
-            Kla value calculated from PI control
-        use_antiwindup : bool
-            If True, antiwindup is used in the PI control. Strongly recommended
-        """
-
+        
         self.kla_min = kla_min
         self.kla_max = kla_max
         self.kso = kso
@@ -146,24 +149,25 @@ class PIAeration:
         self.use_antiwindup = use_antiwindup
 
     def output(self, so_meas: float, step: float, timestep: float) -> float:
-        """Returns the KLa value determined by the PI control to adjust the oxygen concentration to the set point in
-        the reactor compartment
+        """
+        Returns the KLa value determined by the PI control to adjust the oxygen concentration to the set point in
+        the reactor compartment.
 
         Parameters
         ----------
         so_meas : float
-            Measured oxygen concentration in the reactor compartment
+            Measured oxygen concentration in the reactor compartment.
         step : int or float
-            Bottom boundary for integration interval in days
+            Bottom boundary for integration interval in days.
         timestep : int or float
-            Size of integration interval in days
+            Size of integration interval in days.
 
         Returns
         -------
-        float
+        kla : float
             Float value of the KLa value determined by the PI control
             to adjust the oxygen concentration to the set point
-            in the reactor compartment
+            in the reactor compartment.
         """
 
         error_so = (self.soref - so_meas) * self.kso
@@ -195,38 +199,41 @@ class PIAeration:
 
 
 class KLaActuator:
-    def __init__(self, t_kla: float):
-        """
-        Parameters
-        ----------
-        t_kla : float
-            Time constant of transfer function
-        """
+    """
+    Class for a real actuator for the reactor compartments.
 
+    Parameters
+    ----------
+    t_kla : float
+        Time constant of transfer function.
+    """
+
+    def __init__(self, t_kla: float):
         self.t_kla = t_kla
 
     def real_actuator(
         self, kla: np.ndarray, step: float, controlnumber: int, transferfunction: float, control: float
     ) -> float:
-        """Returns the delayed KLa value for the reactor compartment
+        """
+        Returns the delayed KLa value for the reactor compartment.
 
         Parameters
         ----------
         kla : np.ndarray
-            KLa value from PI control at every time step of the interval for the transfer function
+            KLa value from PI control at every time step of the interval for the transfer function.
         step : int or float
-            Current time step of the simulation loop
+            Current time step of the simulation loop.
         controlnumber : int
-            Number of the current aeration control
+            Number of the current aeration control.
         transferfunction : int or float
-            Interval for transfer function in min
+            Interval for transfer function in min.
         control : int or float
-            step of aeration control in min
+            Step of aeration control in min.
 
         Returns
         -------
-        float
-            Float value of the delayed KLa value for the reactor compartment
+        kla : float
+            Float value of the delayed KLa value for the reactor compartment.
         """
 
         num_kla = [1]
