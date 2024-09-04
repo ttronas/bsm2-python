@@ -1,7 +1,8 @@
-"""
-Initialisation file for all states and parameters related to the aeration control system in reactor 3 to 5.
+"""Initialisation file for all states and parameters related to the aeration control system in reactor 3 to 5
+
 All parameters and specifications are based on BSM1 model.
-This file will be executed when running `asm1runss_ac.py`, `asm1run_ac.py`, `asm1runss_ps.py` or `asm1run_ps.py`.
+
+This file will be executed when running asm1runss_ac.py, asm1run_ac.py, asm1runss_ps.py or asm1run_ps.py.
 """
 
 import bsm2_python.bsm2.init.asm1init_bsm2 as asm1init

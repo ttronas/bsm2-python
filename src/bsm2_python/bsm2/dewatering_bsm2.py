@@ -1,12 +1,22 @@
-# Copyright (2006)
-# Ulf Jeppsson  
-# Dept. Industrial Electrical Engineering and Automation (IEA), Lund University, Sweden  
-# https://www.lth.se/iea/
+"""
+ Calculates the water and sludge stream concentrations
+ from an 'ideal' dewatering unit based on a fixed percentage of solids in
+ the dewatered sludge. A defined amount of total solids are removed from
+ the influent sludge stream and goes into the stream of dewatered sludge
+ and the remaining will leave with the reject water phase.
+ Soluble concentrations are not affected.
+ Temperature is also handled ideally, i.e. T(out)=T(in).
 
-# Copyright (2024)
-# Jonas Miederer  
-# Chair of Energy Process Engineering (EVT), FAU Erlangen-Nuremberg, Germany  
-# https://www.evt.tf.fau.de/
+Copyright (2006):
+ Ulf Jeppsson
+ Dept. Industrial Electrical Engineering and Automation (IEA), Lund University, Sweden
+ https://www.lth.se/iea/
+
+Copyright (2024):
+ Jonas Miederer
+ Chair of Energy Process Engineering (EVT), FAU Erlangen-Nuremberg, Germany
+ https://www.evt.tf.fau.de/
+"""
 
 import numpy as np
 from numba import float64
@@ -20,40 +30,27 @@ SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, S
 
 @jitclass(spec=[('dw_par', float64[:])])
 class Dewatering(Module):
-    """
-    Calculates the water and sludge stream concentrations from an 'ideal'
-    dewatering unit based on a fixed percentage of solids in the dewatered sludge.
-    A defined amount of total solids are removed from the influent sludge stream
-    and goes into the stream of dewatered sludge and the remaining will leave with
-    the reject water phase. Soluble concentrations are not affected.
-    Temperature is also handled ideally, i.e. T(out)=T(in).
-
-    Parameters
-    ----------
-    dw_par : np.ndarray
-        Array containing all necessary parameters. \n
-        [dewater_perc, TSS_removal_perc, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS]
-
-    Other Parameters
-    ----------------
-    dewater_perc : int or float
-        Percentage of solids in the dewatered sludge.
-    TSS_removal_perc : int or float
-        Percentage of total solids removed from the influent sludge.
-    X_I2TSS : int or float
-        Ratio of inert particulate COD to TSS.
-    X_S2TSS : int or float
-        Ratio of soluble COD to TSS.
-    X_BH2TSS : int or float
-        Ratio of heterotrophic biomass to TSS.
-    X_BA2TSS : int or float
-        Ratio of autotrophic biomass to TSS.
-    X_P2TSS : int or float
-        Ratio of particulate phosphorus to TSS.
-    """
-
     def __init__(self, dw_par):
-        
+        """
+        Calculates the water and sludge stream concentrations from an 'ideal'
+        dewatering unit based on a fixed percentage of solids in the dewatered sludge.
+        A defined amount of total solids are removed from the influent sludge stream
+        and goes into the stream of dewatered sludge and the remaining will leave with
+        the reject water phase. Soluble concentrations are not affected.
+        Temperature is also handled ideally, i.e. T(out)=T(in).
+
+        Parameters
+        ----------
+        dw_par : np.ndarray
+            [dewater_perc, TSS_removal_perc, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS]
+            dewater_perc: percentage of solids in the dewatered sludge
+            TSS_removal_perc: percentage of total solids removed from the influent sludge
+            X_I2TSS: ratio of inert particulate COD to TSS
+            X_S2TSS: ratio of soluble COD to TSS
+            X_BH2TSS: ratio of heterotrophic biomass to TSS
+            X_BA2TSS: ratio of autotrophic biomass to TSS
+            X_P2TSS: ratio of particulate phosphorus to TSS
+        """
         self.dw_par = dw_par
 
     def output(self, ydw_in):
@@ -63,17 +60,14 @@ class Dewatering(Module):
         Parameters
         ----------
         ydw_in : np.ndarray
-            Dewatering inlet concentrations of the 21 components  
-            (13 ASM1 components, TSS, Q, T and 5 dummy states).
+            dewatering inlet concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
 
         Returns
         -------
         ydw_s : np.ndarray
-            Dewatering sludge concentrations of the 21 components  
-            (13 ASM1 components, TSS, Q, T and 5 dummy states).
+            dewatering sludge concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
         ydw_r : np.ndarray
-            Dewatering reject concentrations of the 21 components  
-            (13 ASM1 components, TSS, Q, T and 5 dummy states).
+            dewatering reject concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
         """
         # dewater_perc, TSS_removal_perc, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS = dw_par
         # y = ydw_s, ydw_r

@@ -1,9 +1,3 @@
-"""
-File for BSM2 (**Benchmark Simulation Model No. 2**) with primary clarifier,
-5 asm1-reactors and a second clarifier, sludge thickener,
-adm1-fermenter and sludge storage in dynamic simulation with sensor, controller and actuators.
-"""
-
 import csv
 import os
 
@@ -18,41 +12,6 @@ path_name = os.path.dirname(__file__)
 
 
 class BSM2CL(BSM2Base):
-    """
-    Creates a BSM2CL object.
-
-    Parameters
-    ----------
-    data_in : np.ndarray (optional)
-        Influent data. Has to be a 2D array. First column is time in days, the rest are 21 components
-        (13 ASM1 components, TSS, Q, T and 5 dummy states).  
-        If not provided, the influent data from BSM2 is used.
-    timestep : float (optional)
-        Timestep for the simulation in days.  
-        If not provided, the timestep is calculated from the influent data.
-    endtime : float (optional)
-        Endtime for the simulation in days.  
-        If not provided, the endtime is the last time step in the influent data.
-    use_noise : int (optional)
-        - If 0, no noise is added to the sensor data.
-        - If 1, a noise file is used to add noise to the sensor data.  
-          If so, a noise_file has to be provided. Needs to have at least 2 columns: time and noise data.
-        - If 2, a random number generator is used to add noise to the sensor data. Seed is used from noise_seed. \n
-        Default is 1.
-    noise_in : str (optional)
-        Noise data. Needs to be provided if use_noise is 1.  
-        If not provided, the default noise file is used.
-    noise_seed : int (optional)
-        Seed for the random number generator.  
-        Default is 1.
-    tempmodel : bool (optional)
-        If True, the temperature model dependencies are activated.  
-        Default is False.
-    activate : bool (optional)
-        If True, the dummy states are activated.  
-        Default is False.
-    """
-
     def __init__(
         self,
         data_in=None,
@@ -66,6 +25,34 @@ class BSM2CL(BSM2Base):
         tempmodel=False,
         activate=False,
     ):
+        """
+        Creates a BSM2CL object.
+
+        Parameters
+        ----------
+        data_in : np.ndarray, optional
+            Influent data. Has to be a 2D array. First column is time in days, the rest are 21 components
+            (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            If not provided, the influent data from BSM2 is used
+        timestep : float, optional
+            Timestep for the simulation in days. If not provided, the timestep is calculated from the influent data
+        endtime : float, optional
+            Endtime for the simulation in days. If not provided, the endtime is the last time step in the influent data
+        use_noise : int, optional
+            If 0, no noise is added to the sensor data.
+            If 1, a noise file is used to add noise to the sensor data.
+                  If so, a noise_file has to be provided. Needs to have at least 2 columns: time and noise data
+            If 2, a random number generator is used to add noise to the sensor data. Seed is used from noise_seed.
+            Default is 1
+        noise_in : str, optional
+            Noise data. Needs to be provided if use_noise is 1. If not provided, the default noise file is used
+        noise_seed : int, optional
+            Seed for the random number generator. Default is 1
+        tempmodel : bool, optional
+            If True, the temperature model dependencies are activated. Default is False
+        activate : bool, optional
+            If True, the dummy states are activated. Default is False
+        """
 
         super().__init__(
             data_in=data_in,
@@ -194,7 +181,7 @@ class BSM2CL(BSM2Base):
         Parameters
         ----------
         i : int
-            Index of the current time step.
+            Index of the current time step
         """
         self.klas = np.array([0, 0, self.kla3_a, self.kla4_a, self.kla5_a])
         step: float = self.simtime[i]

@@ -32,12 +32,7 @@ for path in sorted(Path('src').rglob('*.py')):
     with mkdocs_gen_files.open(full_doc_path, 'w') as fd:
         ident = '.'.join(parts)
         fd.write(f'::: {ident}')
-        for part in parts:
-            if "init" in part:
-                fd.write("""
-                    options:
-                        show_if_no_docstring: true""")
-            
+
     mkdocs_gen_files.set_edit_path(full_doc_path, path)
 
 with mkdocs_gen_files.open('reference/SUMMARY.md', 'w') as nav_file:

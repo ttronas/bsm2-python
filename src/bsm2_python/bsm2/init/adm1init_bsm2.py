@@ -1,5 +1,5 @@
 """
-This file initiates parameter values and sets initial conditions for the model implementation of `adm1_bsm2.py`.
+This file initiates parameter values and sets initial conditions for the model implementation of adm1_bsm2.py.
 Note that some of the parameter values deviate from the values given in the ADM1-STR (Batstone et al., 2002).
 The state values are based on BSM2 technical report.
 """

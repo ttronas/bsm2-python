@@ -282,8 +282,7 @@ MKDOCS_CONFIG = "mkdocs.yml"
 [tool.hatch.envs.docs.scripts]
 build = "mkdocs build --config-file {env:MKDOCS_CONFIG} --clean --strict {args}"
 serve = "mkdocs serve --config-file {env:MKDOCS_CONFIG} --dev-addr localhost:8000 {args}"
-ci-build = ["mike deploy --config-file {env:MKDOCS_CONFIG} --update-aliases {args}",
-            "mike set-default --config-file {env:MKDOCS_CONFIG} {args}"]
+ci-build = "mike deploy --config-file {env:MKDOCS_CONFIG} --update-aliases {args}"
 # --ignore-url=None since the SUMMARY.md file leaves a <toc>None</toc> in sitemap.xml
 validate = "linkchecker --config .linkcheckerrc --ignore-url=/reference --ignore-url=None site"
 # https://github.com/linkchecker/linkchecker/issues/678
