@@ -526,6 +526,45 @@ class PlantPerformance:
         heat_demand = flow / 86400 * rho * cp * t  # m^3/d / s/d * kg/m^3 * kJ/kg*K * K = kW
         return heat_demand
 
+    def get_t_op(self, heat, yd_in, yd_out, vol_fermenter):
+        """
+        Calculates the operating temperature of the reactor based on the heat input
+
+        Parameters
+        ----------
+        heat : float
+            The heat input to the reactor / kW
+        yd_in : np.ndarray
+            concentrations of 51 ADM1 components and
+            gas phase parameters before the digester
+            [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
+             X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
+             Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D, pH, S_H_ion, S_hva, S_hbu,
+             S_hpro, S_hac, S_hco3, S_CO2, S_nh3, S_NH4+, S_gas_h2, S_gas_ch4, S_gas_co2,
+             p_gas_h2, p_gas_ch4, p_gas_co2, P_gas, q_gas]
+        yd_out : np.ndarray
+            concentrations of 51 ADM1 components and
+            gas phase parameters after the digester
+        vol_fermenter : float
+            The volume of the fermenter / m^3
+
+        Returns
+        -------
+        np.ndarray
+            The operating temperature of the reactor / K
+        """
+        yd_in = self._reshape_if_1d(yd_in)
+        # kJ/(m^3*K) * m^3 * K = kW
+        cp_fermenter = 4.2  # kJ/(m^3*K)
+        temp_fermenter = 35  # old_temp
+        heat_fermenter = temp_fermenter * vol_fermenter * cp_fermenter  # kJ
+        heat_outflow = temp_fermenter * yd_out[Q] * cp_fermenter  # kJ
+        heat_inflow = heat  # kJ
+        current_heat = heat_fermenter + heat_inflow - heat_outflow  # kJ
+        t_op = current_heat / (vol_fermenter * cp_fermenter)
+
+        return t_op
+
     @staticmethod
     def oci(pe, ae, me, tss, cm, he, mp):
         """
