@@ -5,31 +5,97 @@ A description of BSM2 can be found [here](https://iwaponline.com/ebooks/book-pdf
 
 ## To-Do:
 - [ ] Nick: Write docs!
-- [x] Lukas: Mind the TODOs in the code and fix them. Afterwards, you can delete them. (Fixed all TODOs I know how to fix, two bsm TODOs still open)
-- [x] Lukas: Please double-check the CHP production - the values seem pretty high (Correct values for given biogas consumption)
-- [x] Lukas: Clean up files you don't use anymore :) (Already using all files)
-- [x] Lukas: Please go through files and consistently add units to outputs and inputs. Done for energy management, not sure what to do with bsm2 files.
 
 ## Installation
-To run the project, build it yourself via `hatch build`.
-See the [Contribution Guide](CONTRIBUTING.md) for more details on how to install `hatch`.
+### Easy way
+To run the project, install the latest release via pypi:
+`pip install bsm2_python`
+### Build from source
+If you want the bleeding edge version from the repo, build it yourself via `hatch build`.
+See the [Contribution Guide](CONTRIBUTING.md) for more details on how to install `hatch` (or simply use the [Docker image](#docker)).
 Then you can install it to arbitrary environments via `pip install dist/bsm2_python<version-hash>.whl`
-You could then do:
+
+## Quickstart
+### Run default model
+You could then use the following convenience function:
+```python
+from bsm2_python import BSM2OL
+
+# initialise the BSM2 Open Loop model
+bsm2_ol = BSM2OL()
+
+# run the simulation
+bsm2_ol.simulate()
+
+```
+This will run the BSM2 Open Loop model for the default 609 days of simulation time.
+It will then plot IQI, EQI and OCI values for the effluent over the last few days of simulation.
+Further, relevant data will be saved to `data/output_evaluation.csv` for further analysis.
+
+### Run with custom aeration
+You can also run the BSM2 models with your own aeration control - this example selects a random kla value for each reactor every timestep.
+The final performance is then saved in the `oci` variable:
 ```python
 import numpy as np
-from tqdm import tqdm
 from bsm2_python import BSM2OL
+from tqdm import tqdm
+
 
 bsm2_ol = BSM2OL()
 
+# The kla values to choose from
+select_klas = np.array([0, 60, 120, 180, 240])
+
 for idx, _ in enumerate(tqdm(bsm2_ol.simtime)):
-    klas = np.concatenate((np.zeros((2,)), np.random.choice([0, 60, 120], 3)))
+    # select random klas for all five ASM1 reactors
+    klas = np.random.choice(select_klas, 5)
+
+    # make a step in the simulation with the specified kla values
     bsm2_ol.step(idx, klas)
 
-print(bsm2_ol.y_eff_all)
-```
-This will print out the results of the BSM2 Open Loop model for a random aeration control strategy over 609 days of simulation.
 
+oci = bsm2_ol.get_final_performance()[-1]
+```
+
+### Run Closed Loop simulation with custom DO setpoint
+You can also run the BSM2 Closed Loop model with your own dissolved oxygen (SO4) setpoints.
+Please note: The Closed Loop model runs with a resolution of 1 minute for the sake of sensor stability, so it might take a while to run the simulation.
+```python
+from bsm2_python import BSM2CL
+from tqdm import tqdm
+
+
+bsm2_cl = BSM2CL()
+
+# The custom DO setpoint for the BSM2 default aeration control
+so4_ref = 1.5
+
+for idx, _ in enumerate(tqdm(bsm2_cl.simtime)):
+    bsm2_cl.step(idx, so4_ref)
+
+# get the final performance of the plant
+oci = bsm2_cl.get_final_performance()[-1]
+
+```
+
+### Run with energy management model
+We introduced a simple energy management model (including CHPs, Boilers, Flares and a small techno-economic analysis) that can be used to simulate the energy consumption and production of the plant.
+```python
+from bsm2_python import BSM2OLEM
+
+bsm2_olem = BSM2OLEM()
+
+bsm2_olem.simulate()
+
+# get the cumulated cash flow of the plant
+cash_flow = bsm2_olem.economics.cum_cash_flow
+```
+
+### And much more...
+You can also implement your own plant layout. Lots of classes are available to choose from. See the [Documentation](docs/) for more information.
+The [`tests`](tests/) folder contains a lot of examples on how to use the plant layouts.
+
+## Docker
 There is also a fully functional Docker image available in the [GitLab Container Registry](gitlab.rrze.fau.de:4567/evt/klaeffizient/bsm2-python).
 It is a dev container and can be used to run the tests and do active development.
 
@@ -96,6 +162,15 @@ This project is licensed under [BSD 3 Clause](LICENSE.txt).
 ## Project status
 As we are maintaining this repo in our free time, don't expect rapid development. However, if any Issues are popping up, we will try to fix them in time.
 
-
 [KLÄFFIZIENT]: https://www.evt.tf.fau.de/forschung/schwerpunktekarl/ag-energiesysteme/bmwi-projekt-klaeffizient/
 [BMWK]: http://bmwk.de/
+
+## Citation
+If you use this package in your research, please cite it as follows:
+```
+@article{miederer2024bsm2python,
+    title={Energy Management Model for Wastewater Treatment Plants},
+    author={Jonas Miederer and Lukas Meier and Nora Elhaus and Simon Markthaler and J{\"u}rgen Karl},
+    journal={Journal of Energy Conversion and Management},
+    year={2024}
+}

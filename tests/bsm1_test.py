@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 import bsm2_python.bsm2.init.asm1init_bsm1 as asm1init
 import bsm2_python.bsm2.init.settler1dinit_bsm2 as settler1dinit
-from bsm2_python.bsm2.asm1_bsm2 import ASM1reactor
+from bsm2_python.bsm2.asm1_bsm2 import ASM1Reactor
 from bsm2_python.bsm2.helpers_bsm2 import Combiner, Splitter
 from bsm2_python.bsm2.settler1d_bsm2 import Settler
 from bsm2_python.log import logger
@@ -26,7 +26,7 @@ activate = False  # if False dummy states are 0
 def test_bsm1():
     # definition of the reactors:
     combiner = Combiner()
-    reactor1 = ASM1reactor(
+    reactor1 = ASM1Reactor(
         asm1init.KLA1,
         asm1init.VOL1,
         asm1init.YINIT1,
@@ -36,7 +36,7 @@ def test_bsm1():
         tempmodel=tempmodel,
         activate=activate,
     )
-    reactor2 = ASM1reactor(
+    reactor2 = ASM1Reactor(
         asm1init.KLA2,
         asm1init.VOL2,
         asm1init.YINIT2,
@@ -46,7 +46,7 @@ def test_bsm1():
         tempmodel=tempmodel,
         activate=activate,
     )
-    reactor3 = ASM1reactor(
+    reactor3 = ASM1Reactor(
         asm1init.KLA3,
         asm1init.VOL3,
         asm1init.YINIT3,
@@ -56,7 +56,7 @@ def test_bsm1():
         tempmodel=tempmodel,
         activate=activate,
     )
-    reactor4 = ASM1reactor(
+    reactor4 = ASM1Reactor(
         asm1init.KLA4,
         asm1init.VOL4,
         asm1init.YINIT4,
@@ -66,7 +66,7 @@ def test_bsm1():
         tempmodel=tempmodel,
         activate=activate,
     )
-    reactor5 = ASM1reactor(
+    reactor5 = ASM1Reactor(
         asm1init.KLA5,
         asm1init.VOL5,
         asm1init.YINIT5,
@@ -76,7 +76,7 @@ def test_bsm1():
         tempmodel=tempmodel,
         activate=activate,
     )
-    reactor5 = ASM1reactor(
+    reactor5 = ASM1Reactor(
         asm1init.KLA5,
         asm1init.VOL5,
         asm1init.YINIT5,
@@ -199,7 +199,7 @@ test_bsm1()
 def test_bsm1_ol():
     # definition of the reactors:
     combiner = Combiner()
-    reactor1 = ASM1reactor(
+    reactor1 = ASM1Reactor(
         asm1init.KLA1,
         asm1init.VOL1,
         asm1init.YINIT1,
@@ -209,7 +209,7 @@ def test_bsm1_ol():
         tempmodel=tempmodel,
         activate=activate,
     )
-    reactor2 = ASM1reactor(
+    reactor2 = ASM1Reactor(
         asm1init.KLA2,
         asm1init.VOL2,
         asm1init.YINIT2,
@@ -219,7 +219,7 @@ def test_bsm1_ol():
         tempmodel=tempmodel,
         activate=activate,
     )
-    reactor3 = ASM1reactor(
+    reactor3 = ASM1Reactor(
         asm1init.KLA3,
         asm1init.VOL3,
         asm1init.YINIT3,
@@ -229,7 +229,7 @@ def test_bsm1_ol():
         tempmodel=tempmodel,
         activate=activate,
     )
-    reactor4 = ASM1reactor(
+    reactor4 = ASM1Reactor(
         asm1init.KLA4,
         asm1init.VOL4,
         asm1init.YINIT4,
@@ -239,7 +239,7 @@ def test_bsm1_ol():
         tempmodel=tempmodel,
         activate=activate,
     )
-    reactor5 = ASM1reactor(
+    reactor5 = ASM1Reactor(
         asm1init.KLA5,
         asm1init.VOL5,
         asm1init.YINIT5,
@@ -249,7 +249,7 @@ def test_bsm1_ol():
         tempmodel=tempmodel,
         activate=activate,
     )
-    reactor5 = ASM1reactor(
+    reactor5 = ASM1Reactor(
         asm1init.KLA5,
         asm1init.VOL5,
         asm1init.YINIT5,

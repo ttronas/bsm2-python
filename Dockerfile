@@ -22,4 +22,3 @@ RUN hatch run lint:python -V
 RUN echo "PATH_TO_TEST_ENV=$(hatch env find test)/bin/python" >> /root/.bashrc
 # for mkdocs, cairo needs to be installed
 RUN apt update && apt install -y libcairo2-dev
-EXPOSE 8000

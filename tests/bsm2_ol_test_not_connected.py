@@ -21,7 +21,7 @@ import bsm2_python.bsm2.init.settler1dinit_bsm2 as settler1dinit
 import bsm2_python.bsm2.init.storageinit_bsm2 as storageinit
 import bsm2_python.bsm2.init.thickenerinit_bsm2 as thickenerinit
 from bsm2_python.bsm2.adm1_bsm2 import ADM1Reactor
-from bsm2_python.bsm2.asm1_bsm2 import ASM1reactor
+from bsm2_python.bsm2.asm1_bsm2 import ASM1Reactor
 from bsm2_python.bsm2.dewatering_bsm2 import Dewatering
 from bsm2_python.bsm2.helpers_bsm2 import Combiner, Splitter
 from bsm2_python.bsm2.primclar_bsm2 import PrimaryClarifier
@@ -57,7 +57,7 @@ def test_bsm2_ol_not_connected():
     combiner_primclar_post = Combiner()
     bypass_reactor = Splitter()
     combiner_reactor = Combiner()
-    reactor1 = ASM1reactor(
+    reactor1 = ASM1Reactor(
         reginit.KLA1,
         asm1init.VOL1,
         asm1init.YINIT1,
@@ -67,7 +67,7 @@ def test_bsm2_ol_not_connected():
         tempmodel=tempmodel,
         activate=activate,
     )
-    reactor2 = ASM1reactor(
+    reactor2 = ASM1Reactor(
         reginit.KLA2,
         asm1init.VOL2,
         asm1init.YINIT2,
@@ -77,7 +77,7 @@ def test_bsm2_ol_not_connected():
         tempmodel=tempmodel,
         activate=activate,
     )
-    reactor3 = ASM1reactor(
+    reactor3 = ASM1Reactor(
         reginit.KLA3,
         asm1init.VOL3,
         asm1init.YINIT3,
@@ -87,7 +87,7 @@ def test_bsm2_ol_not_connected():
         tempmodel=tempmodel,
         activate=activate,
     )
-    reactor4 = ASM1reactor(
+    reactor4 = ASM1Reactor(
         reginit.KLA4,
         asm1init.VOL4,
         asm1init.YINIT4,
@@ -97,7 +97,7 @@ def test_bsm2_ol_not_connected():
         tempmodel=tempmodel,
         activate=activate,
     )
-    reactor5 = ASM1reactor(
+    reactor5 = ASM1Reactor(
         reginit.KLA5,
         asm1init.VOL5,
         asm1init.YINIT5,

@@ -238,7 +238,7 @@ def carbonaddition(y_in, carb, csourceconc):
     return y_in
 
 
-class ASM1reactor(Module):
+class ASM1Reactor(Module):
     def __init__(
         self,
         kla: float,

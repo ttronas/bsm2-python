@@ -7,6 +7,7 @@ from bsm2_python.bsm2 import aerationcontrol
 from bsm2_python.bsm2.init import aerationcontrolinit
 from bsm2_python.bsm2.init import asm1init_bsm2 as asm1init
 from bsm2_python.bsm2_base import BSM2Base
+from bsm2_python.log import logger
 
 path_name = os.path.dirname(__file__)
 
@@ -15,7 +16,7 @@ class BSM2CL(BSM2Base):
     def __init__(
         self,
         data_in=None,
-        timestep=None,
+        timestep=1 / 60 / 24,
         endtime=None,
         evaltime=None,
         use_noise=1,
@@ -35,7 +36,8 @@ class BSM2CL(BSM2Base):
             (13 ASM1 components, TSS, Q, T and 5 dummy states)
             If not provided, the influent data from BSM2 is used
         timestep : float, optional
-            Timestep for the simulation in days. If not provided, the timestep is calculated from the influent data
+            Timestep for the simulation in days. If not provided, the timestep is set to 1 minute.
+            Please note: due to sensor sensitivity, the timestep should not be larger than 1 minute.
         endtime : float, optional
             Endtime for the simulation in days. If not provided, the endtime is the last time step in the influent data
         use_noise : int, optional
@@ -53,6 +55,11 @@ class BSM2CL(BSM2Base):
         activate : bool, optional
             If True, the dummy states are activated. Default is False
         """
+        if timestep is not None and timestep > 1 / 60 / 24:
+            logger.warning(
+                'Timestep should not be larger than 1 minute due to sensor sensitivity. \
+                           Will continue with provided timestep, but most probably fail.'
+            )
 
         super().__init__(
             data_in=data_in,
@@ -174,7 +181,7 @@ class BSM2CL(BSM2Base):
         self.oci_factors_all = np.zeros((len(self.simtime), 8))
         self.violation_all = np.zeros(len(self.simtime))
 
-    def step(self, i: int):
+    def step(self, i: int, so4ref: float | None = None):
         """
         Simulates one time step of the BSM2 model.
 
@@ -183,10 +190,13 @@ class BSM2CL(BSM2Base):
         i : int
             Index of the current time step
         """
+        if so4ref is None:
+            self.aerationcontrol4.soref = aerationcontrolinit.SO4REF
+        else:
+            self.aerationcontrol4.soref = so4ref
+
         self.klas = np.array([0, 0, self.kla3_a, self.kla4_a, self.kla5_a])
         step: float = self.simtime[i]
-
-        super().step(i)
 
         if (self.numberstep - 1) % (int(self.control[i] / self.timestep_integration[i])) == 0:
             # get index of noise that is smaller than and closest to current time step within a small tolerance
@@ -210,3 +220,5 @@ class BSM2CL(BSM2Base):
             self.kla4[0 : self.max_transfer_per_control] = self.kla4[1 : (self.max_transfer_per_control + 1)]
 
             self.controlnumber += 1
+
+        super().step(i)

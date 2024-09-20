@@ -21,7 +21,7 @@ import bsm2_python.bsm2.init.settler1dinit_bsm2 as settler1dinit
 import bsm2_python.bsm2.init.storageinit_bsm2 as storageinit
 import bsm2_python.bsm2.init.thickenerinit_bsm2 as thickenerinit
 from bsm2_python.bsm2.adm1_bsm2 import ADM1Reactor
-from bsm2_python.bsm2.asm1_bsm2 import ASM1reactor
+from bsm2_python.bsm2.asm1_bsm2 import ASM1Reactor
 from bsm2_python.bsm2.dewatering_bsm2 import Dewatering
 from bsm2_python.bsm2.helpers_bsm2 import Combiner, Splitter
 from bsm2_python.bsm2.plantperformance import PlantPerformance
@@ -86,7 +86,7 @@ class BSM2Base:
         self.combiner_primclar_post = Combiner()
         self.bypass_reactor = Splitter()
         self.combiner_reactor = Combiner()
-        self.reactor1 = ASM1reactor(
+        self.reactor1 = ASM1Reactor(
             reginit.KLA1,
             asm1init.VOL1,
             asm1init.YINIT1,
@@ -96,7 +96,7 @@ class BSM2Base:
             tempmodel=tempmodel,
             activate=activate,
         )
-        self.reactor2 = ASM1reactor(
+        self.reactor2 = ASM1Reactor(
             reginit.KLA2,
             asm1init.VOL2,
             asm1init.YINIT2,
@@ -106,7 +106,7 @@ class BSM2Base:
             tempmodel=tempmodel,
             activate=activate,
         )
-        self.reactor3 = ASM1reactor(
+        self.reactor3 = ASM1Reactor(
             reginit.KLA3,
             asm1init.VOL3,
             asm1init.YINIT3,
@@ -116,7 +116,7 @@ class BSM2Base:
             tempmodel=tempmodel,
             activate=activate,
         )
-        self.reactor4 = ASM1reactor(
+        self.reactor4 = ASM1Reactor(
             reginit.KLA4,
             asm1init.VOL4,
             asm1init.YINIT4,
@@ -126,7 +126,7 @@ class BSM2Base:
             tempmodel=tempmodel,
             activate=activate,
         )
-        self.reactor5 = ASM1reactor(
+        self.reactor5 = ASM1Reactor(
             reginit.KLA5,
             asm1init.VOL5,
             asm1init.YINIT5,

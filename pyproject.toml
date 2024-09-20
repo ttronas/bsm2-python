@@ -13,31 +13,38 @@ readme = "README.md"
 requires-python = ">=3.10"# only license identifier from https://spdx.org/licenses/ are allowed
 license = { text = "BSD-3-Clause"}
 # keywords for easier look-up on PyPI
-keywords = ["system dynamics", "wastewater treatment plant", "simulation"]
+keywords = ["system dynamics", "wastewater treatment plant", "simulation", "benchmark simulation model 2", "bsm2"]
 authors = [
-    { name = "Jonas Miederer", email = "jonas.miederer@fau.de" },
+    { name = "Jonas Miederer", email = "jonas.miederer@fau.de"},
 ]
 # options under https://pypi.org/classifiers/
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 4 - Beta",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: Implementation :: CPython",
+    "Framework :: Hatch",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
+    "Natural Language :: English",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Hydrology",
+
 ]
 # direct dependencies of this package, installed when users `pip install bsm2-python` later.
 dependencies = [
+    "matplotlib",
     "numba",
     "numpy",
     "scipy",
     "tqdm",
 ]
-dynamic = ["version"]
 
-[project.scripts]
-# Use `fibonacci` as command-line script, comment or remove this section if not needed.
-fibonacci = "bsm2_python.skeleton:app"
+dynamic = ["version"]
 
 [project.urls]
 # important URLs for this project
@@ -68,6 +75,16 @@ packages = ["src/bsm2_python"]
 [tool.hatch.build.targets.sdist]
 exclude = [
     "/.github",
+    "/.gitlab",
+    "/.cache",
+    "/.vscode",
+    "/.pytest_cache",
+    "/.mypy_cache",
+    "/.local",
+    "/.devcontainer",
+    "/notebooks",
+    "/docs",
+    "/tests",
 ]
 
 ##################
@@ -219,6 +236,7 @@ ban-relative-imports = "all"
 python = "3.10"
 post-install-commands = ["pre-commit install"]
 dependencies = [
+    "matplotlib",
     "numba",
     "numpy",
     "scipy",

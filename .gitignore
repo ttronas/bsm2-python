@@ -122,3 +122,6 @@ slprj
 
 # Local data
 .local
+
+# PYPI Token
+.pypirc
