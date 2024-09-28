@@ -113,7 +113,7 @@ class ADM1Reactor(Module):
             SD1, SD2, SD3, XD4, XD5]
         t_op : float
             Operational temperature of digester.
-            At the moment very rudimentary implementation! 
+            At the moment very rudimentary implementation!
             No heat losses / transfer embedded!
 
         Returns
@@ -138,7 +138,7 @@ class ADM1Reactor(Module):
             X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
             Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D]
         """
-    
+
         self.t_op = t_op
         yd_out = np.zeros(51)
 
@@ -1028,7 +1028,7 @@ def asm2adm(y_in1, t_op, interfacepar):
 @jit(nopython=True, cache=True)
 def adm2asm(y_in2, t_op, interfacepar):
     """Converts ADM1 flows to ASM1 flows.
-    
+
     New version (no 3) of the ADM1 to ASM1 interface based on discussions
     within the IWA TG BSM community during 2002-2006. Now also including charge
     balancing and temperature dependency for applicable parameters.

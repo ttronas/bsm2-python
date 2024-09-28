@@ -229,7 +229,7 @@ def carbonaddition(y_in, carb, csourceconc):
 
 class ASM1Reactor(Module):
     """IAWQ ASM1 (Activated Sludge Model No. 1) with temperature dependencies of the kinetic parameters.
-    
+
     In addition to the ASM1 states, TSS and dummy states are included.
     Temperature dependency for oxygen saturation concentration and KLa has
     also been added in accordance with BSM2 documentation.

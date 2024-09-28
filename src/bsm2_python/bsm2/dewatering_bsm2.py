@@ -33,7 +33,7 @@ class Dewatering(Module):
     dw_par : np.ndarray
         Array containing dewatering parameters. \n
         [dewater_perc, TSS_removal_perc, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS]
-    
+
     Other Parameters
     ----------------
     dewater_perc : int or float
@@ -51,7 +51,7 @@ class Dewatering(Module):
     X_P2TSS : int or float
         Ratio of particulate phosphorus to TSS.
     """
-    
+
     def __init__(self, dw_par):
         self.dw_par = dw_par
 
@@ -73,7 +73,7 @@ class Dewatering(Module):
             Dewatering reject concentrations of the 21 components <br>
             (13 ASM1 components, TSS, Q, T and 5 dummy states).
         """
-        
+
         # dewater_perc, TSS_removal_perc, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS = dw_par
         # y = ydw_s, ydw_r
         # u = ydw_in

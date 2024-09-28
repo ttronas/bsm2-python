@@ -80,7 +80,7 @@ class ADM1Performance:
 
     def biogas_productions(self, hydrogen_concentration, methane_concentration, carbon_dioxide_concentration):
         """Returns the total biogas production [kWh] from the ADM1 reactor based on the last output.
-        
+
         Parameters
         ----------
         hydrogen_concentration : int or float
