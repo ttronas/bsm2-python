@@ -21,7 +21,7 @@ nav:
     - Contributing: contributing.md
     - Documentation: documentation.md
   # defer to gen-files + literate-nav
-  - Source Code Documentation: reference/bsm2_python/
+  - Source Code Documentation: reference/
 
 # Configuration
 docs_dir: docs
