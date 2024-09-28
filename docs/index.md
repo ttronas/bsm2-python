@@ -2,7 +2,7 @@
 
 A Python implementation of the Benchmark Simulation Model 2 (BSM2) plant layout according to the IWA standard.
 
-## Navigation
+<h2> Navigation </h2>
 
 Documentation for specific `MAJOR.MINOR` versions can be chosen by using the dropdown on the top of every page.
 The `dev` version reflects changes that have not yet been released. Shortcuts can be used for navigation, i.e.
