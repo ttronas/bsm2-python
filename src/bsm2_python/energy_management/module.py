@@ -4,18 +4,18 @@ import numpy as np
 
 
 class Module:
+    """A class that represents a generic gas management module.
+
+    Contains the step method that is called in each time step.
+
+    Children classes should implement the following methods: \n
+    - check_failure
+    - produce
+    - consume
+    - calculate_maintenance_time
+    """
+
     def __init__(self) -> None:
-        """
-        A class that represents a generic gas management module.
-        Contains the step method that is called in each time step.
-
-        Children classes should implement the following methods:
-        - check_failure
-        - produce
-        - consume
-        - calculate_maintenance_time
-
-        """
         self.global_time: float = 0.0
         self._runtime: float = 0.0
         self._remaining_maintenance_time: float = 0.0
@@ -35,81 +35,80 @@ class Module:
 
     @property
     def runtime(self) -> float:
-        """
-        Return the runtime of the module.
+        """Return the runtime of the module.
 
         Returns
         -------
         float
-            Runtime of the module [hours]
+            Runtime of the module [hours].
         """
+
         return self._runtime
 
     @property
     def load(self) -> float:
-        """
-        Return the load of the module.
+        """Return the load of the module.
 
         Returns
         -------
         float
-            Load of the module
+            Load of the module.
         """
+
         return self._load
 
     @load.setter
     def load(self, value: float) -> None:
-        """
-        Sets the load of the module.
+        """Sets the load of the module.
 
         Parameters
         ----------
         value : float
-            Load of the module
+            Load of the module.
         """
+
         self._load = value
 
     @property
     def total_maintenance_time(self) -> float:
-        """
-        Return the total maintenance time of the module.
+        """Return the total maintenance time of the module.
 
         Returns
         -------
         float
-            Total maintenance time of the module [hours]
+            Total maintenance time of the module [hours].
         """
+
         return self._total_maintenance_time
 
     @total_maintenance_time.setter
     def total_maintenance_time(self, value: float) -> None:
-        """
-        Sets the total maintenance time of the module.
+        """Sets the total maintenance time of the module.
 
         Parameters
         ----------
         value : float
-            Total maintenance time of the module [hours]
+            Total maintenance time of the module [hours].
         """
+
         self._total_maintenance_time = value
 
     @property
     def remaining_maintenance_time(self) -> float:
-        """
-        Return the remaining maintenance time of the module.
+        """Return the remaining maintenance time of the module.
 
         Returns
         -------
         float
-            Remaining maintenance time of the module [hours]
+            Remaining maintenance time of the module [hours].
         """
+
         return self._remaining_maintenance_time
 
     @remaining_maintenance_time.setter
     def remaining_maintenance_time(self, value: float) -> None:
-        """
-        Sets the remaining maintenance time and the maintenance status of the module.
-        """
+        """Sets the remaining maintenance time and the maintenance status of the module."""
+
         self._remaining_maintenance_time = value
         if self._remaining_maintenance_time <= 0:
             self._remaining_maintenance_time = 0
@@ -121,178 +120,183 @@ class Module:
 
     @property
     def time_since_last_maintenance(self) -> float:
-        """
-        Return the time since the last maintenance of the module.
+        """Return the time since the last maintenance of the module.
 
         Returns
         -------
         float
-            Time since the last maintenance of the module [hours]
+            Time since the last maintenance of the module [hours].
         """
+
         return self._time_since_last_maintenance
 
     @property
     def under_maintenance(self) -> bool:
-        """
-        Return the maintenance status of the module.
+        """Return the maintenance status of the module.
 
         Returns
         -------
         bool
-            True if the module is under maintenance, False otherwise
+            - True: If the module is under maintenance.
+            - False: Otherwise.
         """
+
         return self._under_maintenance
 
     @under_maintenance.setter
     def under_maintenance(self, value: bool) -> None:
-        """
-        Sets maintenance status of the module.
+        """Sets maintenance status of the module.
 
         Parameters
         ----------
         value : bool
-            Maintenance status of the module
+            Maintenance status of the module.
         """
+
         self._under_maintenance = value
 
     @property
     def ready_to_change_load(self) -> bool:
-        """
-        Return weather the module is ready to change load.
+        """Return weather the module is ready to change load.
 
         Returns
         -------
         bool
-            True if the module is ready to change load, False otherwise
+            - True: If the module is ready to change load.
+            - False: Otherwise.
         """
+
         return self._ready_to_change_load
 
     @property
     def products(self) -> np.ndarray:
-        """
-        Returns the products of the module.
+        """Returns the products of the module.
 
         Returns
         -------
         np.ndarray
-            Products of the module
+            Products of the module. \n
             [products]
         """
+
         return self._products
 
     @property
     def consumption(self) -> np.ndarray:
-        """
-        Returns the consumption of the module.
+        """Returns the consumption of the module.
 
         Returns
         -------
         np.ndarray
-            Consumption of the module
+            Consumption of the module. \n
             [consumption]
         """
+
         return self._consumption
 
     def check_failure(self):
-        """
-        Checks if the module has failed.
+        """Checks if the module has failed.
 
         Returns
         -------
         bool
-            True if the module has failed, False otherwise
+            - True: If the module has failed.
+            - False: Otherwise.
         """
+
         raise NotImplementedError('The check_failure method must be implemented by the child class.')
 
     def check_load_change(self):
-        """
-        Checks if the module has changed its load in the previous timestep.
+        """Checks if the module has changed its load in the previous timestep.
 
         Returns
         -------
         bool
-            True if the module has been shut down, False otherwise
+            - True: If the module has been shut down.
+            - False: Otherwise.
         """
+
         return self._load != self._previous_load
 
     def reduce_remaining_load_change_time(self, time_delta: float):
-        """
-        Reduces the remaining load change time based on the time delta.
+        """Reduces the remaining load change time based on the time delta.
 
         Parameters
         ----------
         time_delta : float
-            time difference [hours]
+            Time difference [hours].
         """
+
         self._remaining_load_change_time = max(self._remaining_load_change_time - time_delta, 0)
 
     def check_ready_for_load_change(self):
-        """
-        Checks if the module is ready to change load.
+        """Checks if the module is ready to change load.
 
         Returns
         -------
         bool
-            True if the module is ready to change load, False otherwise
+            - True: If the module is ready to change load.
+            - False: Otherwise.
         """
+
         return self._remaining_load_change_time <= 0
 
     def produce(self) -> np.ndarray:
-        """
-        Produces energy based on the load and time delta.
+        """Produces energy based on the load and time delta.
 
         Returns
         -------
         np.ndarray
-            Production of the module at the current load
+            Production of the module at the current load. \n
             [production]
         """
+
         raise NotImplementedError('The produce method must be implemented by the child class.')
 
     def consume(self) -> np.ndarray:
-        """
-        Consumes energy based on the load and time delta.
+        """Consumes energy based on the load and time delta.
 
         Returns
         -------
         np.ndarray
-            Consumption of the module at the current load
+            Consumption of the module at the current load. \n
             [consumption]
         """
+
         raise NotImplementedError('The consume method must be implemented by the child class.')
 
     def maintain(self, time_delta: float):
-        """
-        Maintains the module based on the time delta.
+        """Maintains the module based on the time delta.
 
         Parameters
         ----------
         time_delta : float
-            time difference [hours]
+            Time difference [hours].
         """
+
         self.remaining_maintenance_time -= time_delta
 
     def calculate_maintenance_time(self) -> float:
-        """
-        Calculates the maintenance time of the module.
+        """Calculates the maintenance time of the module.
 
         Returns
         -------
         float
-            Time it takes to maintain the module
+            Time it takes to maintain the module.
         """
+
         raise NotImplementedError('The calculate_maintenance_time method must be implemented by the child class.')
 
     def report_status(self) -> np.ndarray:
-        """
-        Reports the status of the module.
+        """Reports the status of the module.
 
         Returns
         -------
         np.ndarray
-            Status of the module
+            Status of the module. \n
             [load, remaining maintenance time, products, consumption]
         """
+
         status = [
             self.load,
             self._remaining_maintenance_time,
@@ -302,14 +306,14 @@ class Module:
         return np.array(status)
 
     def step(self, time_delta: float):
-        """
-        Updates the module based on the load and time delta.
+        """Updates the module based on the load and time delta.
 
         Parameters
         ----------
         time_delta : float
-            time difference [hours]
+            Time difference [hours].
         """
+
         self.global_time += time_delta
         if not self._under_maintenance:
             if self.check_failure():

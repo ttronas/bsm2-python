@@ -31,19 +31,19 @@ from bsm2_python.energy_management.module import Module
     ]
 )
 class Flare(Module):
-    def __init__(self, capex: int, max_gas_uptake: int, threshold: float):
-        """
-        A class that represents a flare.
+    """A class that represents a flare.
 
-        Parameters
-        ----------
-        capex : int
-            Capital expenditure of the flare
-        max_gas_uptake : int
-            Maximum gas the flare can process [Nm³/h]
-        threshold : float
-            The threshold at which the flare starts to operate
-        """
+    Parameters
+    ----------
+    capex : int
+        Capital expenditure of the flare.
+    max_gas_uptake : int
+        Maximum gas the flare can process [Nm³/h].
+    threshold : float
+        The threshold at which the flare starts to operate.
+    """
+
+    def __init__(self, capex: int, max_gas_uptake: int, threshold: float):
         self.capex = capex
         self.max_gas_uptake = max_gas_uptake
         self.threshold = threshold
@@ -52,14 +52,14 @@ class Flare(Module):
         self._load = 0.0
 
     def calculate_load(self, gas_surplus: float) -> float:
-        """
-        Calculates the load of the flare depending on the gas surplus.
+        """Calculates the load of the flare depending on the gas surplus.
 
         Parameters
         ----------
         gas_surplus : float
-            The gas surplus that the flare has to process [Nm³/h]
+            The gas surplus that the flare has to process [Nm³/h].
         """
+
         if gas_surplus == 0.0:
             return 0.0
         elif gas_surplus > self.max_gas_uptake:
@@ -69,36 +69,36 @@ class Flare(Module):
 
     @staticmethod
     def produce() -> np.ndarray:
+        """Returns the production of the flare.
+        Flare does not produce anything, only here to satisfy the `Module` interface.
         """
-        Returns the production of the flare.
-        (Flare does not produce anything, only here to satisfy the Module interface)
-        """
+
         return np.array([0.0])
 
     def consume(self) -> np.ndarray:
-        """
-        Returns the consumption of the flare at the current load.
+        """Returns the consumption of the flare at the current load.
 
         Returns
         -------
         np.ndarray
-            consumption of the flare [kW]
+            Consumption of the flare [kW]. \n
             [biogas]
         """
+
         return np.array([self._load * self.max_gas_uptake])
 
     @staticmethod
     def calculate_maintenance_time() -> float:
-        """
-        Returns the maintenance time of the flare.
+        """Returns the maintenance time of the flare. <br>
         (Currently not implemented)
         """
+
         return 0.0
 
     @staticmethod
     def check_failure() -> bool:
-        """
-        Returns if the flare has failed.
+        """Returns if the flare has failed. <br>
         (Currently not implemented)
         """
+
         return False
