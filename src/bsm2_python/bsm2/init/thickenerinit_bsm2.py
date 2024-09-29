@@ -1,6 +1,6 @@
 """Initialisation file for all states and parameters related to the Thickener.
 
-All parameters and specifications are based on BSM2 model. <br>
+All parameters and specifications are based on BSM2 model.
 This file will be executed when running `bsm2runss.py`.
 """
 

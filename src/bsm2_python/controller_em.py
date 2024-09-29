@@ -70,19 +70,19 @@ class ControllerEM(Controller):
         ----------
         time_diff : float
             Length of current timestep [h].
-        chps : list
+        chps : list[CHP]
             List of CHP objects.
-        boilers : list
+        boilers : list[Boiler]
             List of boiler objects.
-        biogas_storage : object
+        biogas_storage : BiogasStorage
             BiogasStorage object.
-        cooler : object
+        cooler : Cooler
             Cooler object.
-        flare : object
+        flare : Flare
             Flare object.
-        heat_net : object
+        heat_net : HeatNet
             HeatNet object.
-        fermenter : object
+        fermenter : Fermenter
             Fermenter object.
         """
 
@@ -121,9 +121,9 @@ class ControllerEM(Controller):
 
         Parameters
         ----------
-        chps : list
+        chps : list[CHP]
             List of CHP objects.
-        biogas_storage : object
+        biogas_storage : BiogasStorage
             BiogasStorage object.
         """
 
@@ -149,7 +149,7 @@ class ControllerEM(Controller):
 
         Parameters
         ----------
-        chps : list
+        chps : list[CHP]
             List of CHP objects.
         heat_demand : float
             Heat demand of the fermenter [kW].
@@ -201,9 +201,9 @@ class ControllerEM(Controller):
         ----------
         temperature_deficit : float
             Temperature deficit of the heat net after supplying heat for the fermenter and using heat from chps [K].
-        heat_net : object
+        heat_net : HeatNet
             Heat network object.
-        boilers : list
+        boilers : list[Boiler]
             List of Boiler objects.
         biogas_storage_fill_level : float
             Fill level of biogas storage after supplying biogas for the
@@ -240,9 +240,9 @@ class ControllerEM(Controller):
         ----------
         temperature_surplus : float
             Temperature surplus of the heat net after supplying heat for the fermenter and using heat from chps [K].
-        heat_net : object
+        heat_net : HeatNet
             Heat network object.
-        cooler : object
+        cooler : Cooler
             Cooler object.
         """
 
@@ -262,7 +262,7 @@ class ControllerEM(Controller):
             Maximum volume of biogas storage [Nm³].
         biogas_storage_vol_prog : float
             Prognosis of fill level of biogas storage at end of current timestep [Nm³].
-        flare : object
+        flare : Flare
             Flare object.
         """
 

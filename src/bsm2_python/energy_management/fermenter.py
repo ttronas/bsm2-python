@@ -43,8 +43,12 @@ class Fermenter:
         gas_production : int or float
             The gas production of the fermenter [Nm³/h].
         gas_parameters : np.ndarray
-            The gas composition of the fermenter. \n
-            [p_H2, p_CH4, p_CO2, P_gas]
+            Array that contains the gas pressure of the fermenter gas. <br>
+            [p_H2, p_CH4, p_CO2, P_gas] \n
+            - p_H2: Pressure fraction of hydrogen [bar].
+            - p_CH4: Pressure fraction of methane [bar].
+            - p_CO2: Pressure fraction of carbon dioxide [bar].
+            - P_gas: Total pressure of the gas [bar].
         heat_demand : int or float
             The heat demand of the fermenter [kW].
         """
@@ -63,8 +67,13 @@ class Fermenter:
         Returns
         -------
         np.ndarray
-            The gas composition of the fermenter. \n
-            [ch4_frac, co2_frac, h2_frac, h2o_frac, n2_frac]
+            Array that contains the gas composition of the fermenter gas. <br>
+            [ch4_frac, co2_frac, h2_frac, h2o_frac, n2_frac] \n
+            - ch4_frac: Gas fraction of methane.
+            - co2_frac: Gas fraction of carbon dioxide.
+            - h2_frac: Gas fraction of hydrogen.
+            - h2o_frac: Gas fraction of water.
+            - n2_frac: Gas fraction of nitrogen.
         """
 
         ch4_frac = self.p_ch4 / self.p_gas
@@ -80,8 +89,12 @@ class Fermenter:
         Parameters
         ----------
         gas_parameters : np.ndarray
-            The gas composition of the fermenter [bar, bar, bar, bar]. \n
-            [p_H2, p_CH4, p_CO2, P_gas]
+            Array that contains the gas pressure of the fermenter gas. <br>
+            [p_H2, p_CH4, p_CO2, P_gas] \n
+            - p_H2: Pressure fraction of hydrogen [bar].
+            - p_CH4: Pressure fraction of methane [bar].
+            - p_CO2: Pressure fraction of carbon dioxide [bar].
+            - P_gas: Total pressure of the gas [bar].
         """
 
         self.p_gas = gas_parameters[3]

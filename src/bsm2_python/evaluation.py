@@ -379,7 +379,7 @@ class DataObject:
         Returns
         -------
         int or float
-        Timestamps stored in the data object.
+            Timestamps stored in the data object.
         """
 
         return self.timestamps

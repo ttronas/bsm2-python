@@ -79,6 +79,7 @@ class PrimaryClarifier(Module):
         Initial integration values of the 21 components <br>
         (13 ASM1 components, TSS, Q, T and 5 dummy states).
     p_par : np.ndarray
+        Array with four parameters for primary clarifier: <br>
         [f_corr, f_X, t_m, f_PS] \n
         - f_corr: Efficiency correction for primary clarifier.
         - f_X: CODpart/CODtot ratio.

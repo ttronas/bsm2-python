@@ -19,7 +19,7 @@ class BSM2CL(BSM2Base):
     ----------
     data_in : np.ndarray (optional)
         Influent data. Has to be a 2D array. <br>
-        First column is time [days], the rest are 21 components <br>
+        First column is time [days], the rest are 21 components
         (13 ASM1 components, TSS, Q, T and 5 dummy states). <br>
         If not provided, the influent data from BSM2 is used.
     timestep : float (optional)

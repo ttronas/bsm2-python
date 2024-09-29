@@ -70,15 +70,16 @@ class Splitter(Module):
         ----------
         in1 : np.ndarray(21)
             ASM1 array to be split.
-        splitratio : Tuple(float)
-            Split ratio for each component. Ideally sums up to 1
-            (except if sp_type=2, then no split ratio is needed and flow is split into two flows).
+        splitratio : tuple(float)
+            Split ratio for each component. <br>
+            Ideally sums up to 1 (except if sp_type=2, then no split ratio is
+            needed and flow is split into two flows).
         qthreshold : float
             Threshold value for type 2 splitter.
 
         Returns
         -------
-        outs : Tuple(np.ndarray(21))
+        outs : tuple(np.ndarray(21))
             ASM1 arrays with split volume flows. Tuple of length of splitratio.
         """
 
@@ -123,7 +124,7 @@ def reduce_asm1(asm1_arr, reduce_to=('SI', 'SS', 'XI', 'XS', 'XBH', 'SNH', 'SND'
         ASM1 array to be reduced. Needs to contain all ASM1 components: \n
         [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND,
         XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5]
-    reduce_to : Tuple(str)
+    reduce_to : tuple(str)
         Components to be included in the reduced array. Defaults to all changing components in BSM2 influent file.
 
     Returns
@@ -184,10 +185,10 @@ def expand_asm1(
     ----------
     red_arr : np.ndarray
         Reduced ASM1 array to be expanded.
-    red_components : Tuple(str)
+    red_components : tuple(str)
         Components in the reduced array. Defaults to all changing components in BSM2 influent file: \n
         [SI, SS, XI, XS, XBH, SNH, SND, XND, TSS, Q, TEMP]
-    expand_by : Dict(str:int)
+    expand_by : dict(str:int)
         Components to be added to the reduced array. <br>
         Defaults to all non-changing components in BSM2 influent file and their default values: \n
         {"XBA": 0, "XP": 0, "SO": 0, "SNO": 0, "SALK": 7, "SD1": 0, "SD2": 0, "SD3": 0, "XD4": 0, "XD5": 0}

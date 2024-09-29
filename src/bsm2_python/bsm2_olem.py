@@ -37,7 +37,7 @@ class BSM2OLEM(BSM2Base):
     ----------
     data_in : np.ndarray (optional)
         Influent data. Has to be a 2D array. <br>
-        First column is time in days, the rest are 21 components <br>
+        First column is time in days, the rest are 21 components
         (13 ASM1 components, TSS, Q, T and 5 dummy states). <br>
         If not provided, the influent data from BSM2 is used.
     timestep : float (optional)
@@ -334,8 +334,14 @@ class BSM2OLEM(BSM2Base):
         -------
         gas_production : float
             Gas production of the plant [Nm³/h].
-        gas_parameters : float
-            Gas parameters of the plant [bar, bar, bar, bar, bar].
+        gas_parameters : np.ndarray
+            Array that contains five gas parameters of the produced gas. <br>
+            [p_H2, p_CH4, p_CO2, P_gas, q_gas] \n
+            - p_H2: Pressure fracture of hydrogen [bar].
+            - p_CH4: Pressure fracture of methane [bar].
+            - p_CO2: Pressure fracture of carbon dioxide [bar].
+            - P_gas: Total pressure of the gas mixture [bar].
+            - q_gas: Gas production of the plant [Nm³/d].
         """
 
         gas_production = self.yd_out[-1] / 24  # Nm3/d -> Nm3/h
@@ -403,7 +409,7 @@ class BSM2OLEM(BSM2Base):
             The heating demand of the sludge [kWh/d].
         hp : float
             The heat production of the plant [kWh/d].
-        simtime : float or None
+        simtime : float or none
             The current time step [d]. <br>
             Only needed if dyn is True. <br>
             Defaults to None.

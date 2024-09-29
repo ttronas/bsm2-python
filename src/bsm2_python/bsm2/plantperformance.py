@@ -130,7 +130,7 @@ class PlantPerformance:
 
         Returns
         -------
-        violationvalues[0] : int or float
+        int or float
             Array containing the time [days] and a boolean if a certain component
             is over the limit value during the evaluation time.
         """
@@ -157,7 +157,7 @@ class PlantPerformance:
         ----------
         arr_eff : np.ndarray(21) or np.ndarray(n, 21)
             Array in ASM1 format.
-        components : List[str] (optional)
+        components : list[str] (optional)
             List of components to be calculated.
             Defaults to ['kjeldahlN', 'totalN', 'COD', 'BOD5e', 'X_TSS']
         """
@@ -217,7 +217,7 @@ class PlantPerformance:
         Parameters
         ----------
         y_in : np.ndarray(21) or np.ndarray(n, 21)
-            Array containing the values of the 21 components <br>
+            Array containing the values of the 21 components
             (13 ASM1 components, TSS, Q, T and 5 dummy states).
 
         Returns
@@ -249,13 +249,13 @@ class PlantPerformance:
         Parameters
         ----------
         ys_of : np.ndarray(21) or np.ndarray(n, 21)
-            Array containing the values of the 21 components <br>
+            Array containing the values of the 21 components
             (13 ASM1 components, TSS, Q, T and 5 dummy states) after the fifth ASM reactor.
         y_plant_bp : np.ndarray(21) or np.ndarray(n, 21)
-            Array containing the values of the 21 components <br>
+            Array containing the values of the 21 components
             (13 ASM1 components, TSS, Q, T and 5 dummy states) after the plant bypass.
         y_as_bp_c_eff : np.ndarray(21) or np.ndarray(n, 21)
-            Array containing the values of the 21 components <br>
+            Array containing the values of the 21 components
             (13 ASM1 components, TSS, Q, T and 5 dummy states) after the ASM bypass.
 
         Returns
@@ -446,12 +446,12 @@ class PlantPerformance:
         carb : float or np.ndarray
             The carbon flow added to the system [m³/d].
         concentration : np.ndarray
-            The concentration of the carbon flow [mg(COD)/l].
+            The concentration of the carbon flow [mg_COD/l].
 
         Returns
         -------
         carbon_mass : np.ndarray
-            The added carbon mass [kg(COD)/d].
+            The added carbon mass [kg_COD/d].
         """
         # if carb is a np.ndarray, sum the rows
         if isinstance(carb, np.ndarray) and carb.ndim == 1:

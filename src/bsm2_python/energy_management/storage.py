@@ -40,8 +40,13 @@ class BiogasStorage:
     biogas : GasMix
         Mixture of gas. Contains fractions of each gas.
     gas_composition : np.ndarray
-        Initial gas composition of the storage. \n
-        [ch4_frac, co2_frac, h2_frac, h2o_frac, n2_frac]
+        Initial gas composition of the storage. <br>
+        [ch4_frac, co2_frac, h2_frac, h2o_frac, n2_frac]  \n
+        - ch4_frac: Mixture fraction of methane.
+        - co2_frac: Mixture fraction of carbon dioxide.
+        - h2_frac: Mixture fraction of hydrogen.
+        - h2o_frac: Mixture fraction of water.
+        - n2_frac: Mixture fraction of nitrogen.
     """
 
     def __init__(
@@ -78,8 +83,13 @@ class BiogasStorage:
         gas_flow_in : int or float
             The gas flow that is coming into the storage [Nm³/h].
         gas_flow_in_composition : np.ndarray
-            The gas composition of the incoming gas. \n
-            [ch4_frac, co2_frac, h2_frac, h2o_frac, n2_frac]
+            The gas composition of the incoming gas. <br>
+            [ch4_frac, co2_frac, h2_frac, h2o_frac, n2_frac] \n
+            - ch4_frac: Mixture fraction of methane.
+            - co2_frac: Mixture fraction of carbon dioxide.
+            - h2_frac:  Mixture fraction of hydrogen.
+            - h2o_frac: Mixture fraction of water.
+            - n2_frac: Mixture fraction of nitrogen.
         time_diff : int or float
             The time difference since the last update [h].
 

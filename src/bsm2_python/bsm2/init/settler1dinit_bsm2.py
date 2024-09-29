@@ -1,6 +1,6 @@
 """Initialisation file for all states and parameters related to the secondary clarifier.
 
-All parameters and specifications are based on BSM1 model. <br>
+All parameters and specifications are based on BSM1 model.
 This file will be executed when running `asm1runss.py` or `asm1run.py`.
 """
 

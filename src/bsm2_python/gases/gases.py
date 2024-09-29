@@ -175,21 +175,36 @@ class GasMix:
         Parameters
         ----------
         gas1_comp : np.ndarray
-            Composition of gas 1. \n
-            [ch4_frac, co2_frac, h2_frac, h2o_frac, n2_frac]
+            Composition of gas 1. <br>
+            [ch4_frac, co2_frac, h2_frac, h2o_frac, n2_frac] \n
+            - ch4_frac: Mixture fraction of methane.
+            - co2_frac: Mixture fraction of carbon dioxide.
+            - h2_frac: Mixture fraction of hydrogen.
+            - h2o_frac: Mixture fraction of water.
+            - n2_frac: Mixture fraction of nitrogen.
         gas1_vol : float
             Volume of gas 1.
         gas2_comp : np.ndarray
-            Composition of gas 2. \n
-            [ch4_frac, co2_frac, h2_frac, h2o_frac, n2_frac]
+            Composition of gas 2. <br>
+            [ch4_frac, co2_frac, h2_frac, h2o_frac, n2_frac] \n
+            - ch4_frac: Mixture fraction of methane.
+            - co2_frac: Mixture fraction of carbon dioxide.
+            - h2_frac: Mixture fraction of hydrogen.
+            - h2o_frac: Mixture fraction of water.
+            - n2_frac: Mixture fraction of nitrogen.
         gas2_vol : float
             Volume of gas 2.
 
         Returns
         -------
         np.ndarray
-            New composition of the gas mixture. \n
-            [ch4_frac, co2_frac, h2_frac, h2o_frac, n2_frac]
+            New composition of the gas mixture. <br>
+            [ch4_frac, co2_frac, h2_frac, h2o_frac, n2_frac] \n
+            - ch4_frac: Mixture fraction of methane.
+            - co2_frac: Mixture fraction of carbon dioxide.
+            - h2_frac: Mixture fraction of hydrogen.
+            - h2o_frac: Mixture fraction of water.
+            - n2_frac: Mixture fraction of nitrogen.
         """
 
         # if a composition is changed, the heating value as well as the total fraction is recalculated

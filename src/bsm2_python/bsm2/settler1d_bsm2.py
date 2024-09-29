@@ -272,7 +272,7 @@ def get_output(ys_int, ys_in, nooflayers, tempmodel, q_r, q_w, dim, asm1par, sed
 
     Returns
     -------
-    Tuple
+    tuple
             Tuple containing four arrays and a float: <br>
             (np.ndarray, np.ndarray, np.ndarray, float, np.ndarray) \n
             - ys_ret: Array containing the values of the 21 components
@@ -459,7 +459,7 @@ class Settler(Module):
 
         Returns
         -------
-        Tuple
+        tuple
             Tuple containing four arrays and a float: <br>
             (np.ndarray, np.ndarray, np.ndarray, float, np.ndarray) \n
             - ys_ret: Array containing the values of the 21 components
