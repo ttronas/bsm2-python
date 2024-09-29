@@ -393,7 +393,7 @@ def get_output(ys_int, ys_in, nooflayers, tempmodel, q_r, q_w, dim, asm1par, sed
 
 class Settler(Module):
     """This is a implementation defining a n-layer settler model.
-    
+
     Can simulate n, 1 or 0 layers for the solubles by using `modeltype` = 0, 1 or 2 (currently only 0 implemented).
     Darko Vrecko, March 2005
 
@@ -428,7 +428,7 @@ class Settler(Module):
         - 1: For GSP-X implementation (1 layer for solubles) <br> (not implemented yet).
         - 2: For old WEST implementation (0 layers for solubles) <br> (not implemented yet).
     """
-    
+
     def __init__(self, dim, layer, q_r, q_w, ys0, sedpar, asm1par, tempmodel, modeltype):
         self.dim = dim
         self.layer = layer

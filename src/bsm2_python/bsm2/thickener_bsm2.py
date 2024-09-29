@@ -40,13 +40,13 @@ class Thickener(Module):
         self.t_par = t_par
 
     def output(self, yt_in):
-        """Returns the overflow and underflow concentrations from an 'ideal' thickener unit 
-        based on a fixed percentage of sludge in the underflow flow. 
+        """Returns the overflow and underflow concentrations from an 'ideal' thickener unit
+        based on a fixed percentage of sludge in the underflow flow.
 
-        A defined amount of total solids are removed from the water stream and goes into 
-        the sludge stream and the remaining will leave with the water phase. 
+        A defined amount of total solids are removed from the water stream and goes into
+        the sludge stream and the remaining will leave with the water phase.
 
-        Soluble concentrations are not affected. 
+        Soluble concentrations are not affected.
         Temperature is also handled ideally, i.e. T(out)=T(in).
 
         Parameters

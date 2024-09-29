@@ -94,7 +94,7 @@ class PrimaryClarifier(Module):
     activate : bool
         If true, dummy states are activated, otherwise dummy states are not activated.
     """
-    
+
     def __init__(self, volume, yp0, p_par, asm1par, x_vector, tempmodel, activate):
         self.volume = volume
         self.yp0 = yp0

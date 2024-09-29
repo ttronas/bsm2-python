@@ -63,8 +63,8 @@ def storageequations(t, yst, yst_in1, tempmodel, activate):
 
 
 class Storage(Module):
-    """This implements a simple storage tank of variable volume with complete mix. 
-    
+    """This implements a simple storage tank of variable volume with complete mix.
+
     No biological reactions. Dummy states are included.
 
     `tempmodel` defines how temperature changes in the input affect the liquid temperature.
@@ -89,7 +89,7 @@ class Storage(Module):
     activate : bool
         If true, dummy states are activated, otherwise dummy states are not activated.
     """
-        
+
     def __init__(self, volume, yst0, tempmodel, activate):
         self.curr_vol = yst0[VOL]
         self.max_vol = volume
@@ -121,7 +121,7 @@ class Storage(Module):
         curr_vol : float
             Current volume of the storage tank.
         """
-        
+
         yst_in1 = np.zeros(22)
         yst_bp = np.zeros(21)  # bypass
 
