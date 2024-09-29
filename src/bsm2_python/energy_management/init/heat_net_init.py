@@ -1,5 +1,4 @@
-"""
-This file initiates parameter values and sets initial conditions for the model implementation of heat_net.py.
+"""This file initiates parameter values and sets initial conditions for the model implementation of `heat_net.py`.
 """
 
 import numpy as np

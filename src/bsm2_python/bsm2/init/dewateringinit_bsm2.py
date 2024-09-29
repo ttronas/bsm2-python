@@ -1,8 +1,7 @@
-"""Initialisation file for all states and parameters related to the Dewatering
+"""Initialisation file for all states and parameters related to the Dewatering.
 
-All parameters and specifications are based on BSM2 model.
-
-This file will be executed when running bsm2runss.py.
+All parameters and specifications are based on BSM2 model. <br>
+This file will be executed when running `bsm2runss.py`.
 """
 
 import numpy as np
