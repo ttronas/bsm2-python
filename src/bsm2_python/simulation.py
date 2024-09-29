@@ -1,9 +1,8 @@
-"""
+"""This script will run the plant in an open loop simulation (no control) with dynamic input data.
+
 Execution file for bsm2 model with primary clarifier,
 5 asm1-reactors and a second clarifier, sludge thickener,
-adm1-fermenter and sludge storage in steady state simulation
-
-This script will run the plant in an open loop simulation (no control) with dynamic input data.
+adm1-fermenter and sludge storage in steady state simulation.
 
 This script requires that the packages from requirements.txt are installed
 within the Python environment you are running this script.

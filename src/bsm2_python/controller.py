@@ -1,6 +1,4 @@
-"""
-Adjusts KLA values based on electricity prices and ammonia concentration in the effluent
-"""
+"""Adjusts KLA values based on electricity prices and ammonia concentration in the effluent."""
 
 import csv
 import math
@@ -10,6 +8,21 @@ import numpy as np
 
 
 class Controller:
+    """Creates a Controller object.
+
+    Parameters
+    ----------
+    price_percentile : float
+        Percentile of electricity prices used to adjust KLA values (aeration reduction at prices above the
+        percentile, e.g. 0.9 -> aerate less when electricity prices are in the top 10%).
+    klas_init : np.ndarray
+        Initial KLA values for the reactor compartments [1/d].
+    kla_reduction : float
+        Reduction factor for KLA values.
+    s_nh_threshold : float
+        Maximum value of ammonia concentration in the effluent [g/m³].
+    """
+
     def __init__(
         self,
         price_percentile: float,
@@ -18,21 +31,6 @@ class Controller:
         s_nh_threshold: float,
         elec_price_path: str | None = None,
     ):
-        """
-        Creates a Controller object.
-
-        Parameters
-        ----------
-        price_percentile : float
-            Percentile of electricity prices used to adjust KLA values (aeration reduction at prices above the
-            percentile, e.g. 0.9 -> aerate less when electricity prices are in the top 10%)
-        klas_init : np.ndarray
-            Initial KLA values for the reactor compartments [1/d]
-        kla_reduction : float
-            Reduction factor for KLA values
-        s_nh_threshold : float
-            Maximum value of ammonia concentration in the effluent [g/m3]
-        """
         self.price_percentile = price_percentile
         self.klas_init = klas_init
         self.kla_reduction = kla_reduction
@@ -54,23 +52,22 @@ class Controller:
             self.price_times = np.array(price_times).astype(np.float64)
 
     def get_klas(self, step_simtime: float, s_nh_eff: np.ndarray):
-        """
-        Calculates and returns the KLA values for the reactor compartments based on electricity prices and ammonia
-        concentration.
+        """Returns the KLA values for the reactor compartments based on electricity prices and ammonia concentration.
 
         Parameters
         ----------
         step_simtime : int
-            Current timestamp in the simtime of the simulation
+            Current timestamp in the simtime of the simulation.
         s_nh_eff : float
-            Ammonia concentration in the plant effluent [g/m3]
+            Ammonia concentration in the plant effluent [g/m³].
 
         Returns
         -------
         np.ndarray
-            KLA values for the reactor compartments [1/d]
+            KLA values for the reactor compartments [1/d]. \n
             [kla_reactor1, kla_reactor2, ...]
         """
+
         # necessary to deal with floating point errors
         eps = 1e-8
         step_day_start = np.where(self.price_times - math.floor(step_simtime + eps) <= 0)[0][-1]

@@ -12,6 +12,27 @@ from bsm2_python.gases.gases import Gas, GasMix
 
 
 class ControllerEM(Controller):
+    """Creates a Controller object.
+
+    Parameters
+    ----------
+    price_percentile : float
+        Percentile of electricity prices used to adjust KLA values (aeration reduction at prices above the
+        percentile, e.g. 0.9 -> aerate less when electricity prices are in the top 10%).
+    klas_init : np.ndarray
+        Initial KLA values for the reactor compartments [1/d].
+    kla_reduction : float
+        Reduction factor for KLA values.
+    s_nh_threshold : float
+        Maximum value of ammonia concentration in the effluent [g/m³].
+    biogas : GasMix
+        Biogas object.
+    o2 : Gas
+        Oxygen object.
+    ch4 : Gas
+        Methane object.
+    """
+
     def __init__(
         self,
         price_percentile: float,
@@ -22,27 +43,6 @@ class ControllerEM(Controller):
         o2: Gas,
         ch4: Gas,
     ):
-        """
-        Creates a Controller object.
-
-        Parameters
-        ----------
-        price_percentile : float
-            Percentile of electricity prices used to adjust KLA values (aeration reduction at prices above the
-            percentile, e.g. 0.9 -> aerate less when electricity prices are in the top 10%)
-        klas_init : np.ndarray
-            Initial KLA values for the reactor compartments [1/d]
-        kla_reduction : float
-            Reduction factor for KLA values
-        s_nh_threshold : float
-            Maximum value of ammonia concentration in the effluent [g/m3]
-        biogas : GasMix
-            Biogas object
-        o2 : Gas
-            Oxygen object
-        ch4 : Gas
-            Methane object
-        """
         super().__init__(
             price_percentile=price_percentile,
             klas_init=klas_init,
@@ -64,21 +64,28 @@ class ControllerEM(Controller):
         heat_net: HeatNet,
         fermenter: Fermenter,
     ):
-        """
-        Set loads for all gas management modules for current timestep.
+        """Set loads for all gas management modules for current timestep.
 
         Parameters
         ----------
         time_diff : float
-            Length of current timestep [h]
-        chps : List of CHP objects
-        boilers : List of boiler objects
-        biogas_storage : BiogasStorage object
-        cooler : Cooler object
-        flare : Flare object
-        heat_net : HeatNet object
-        fermenter : Fermenter object
+            Length of current timestep [h].
+        chps : list
+            List of CHP objects.
+        boilers : list
+            List of boiler objects.
+        biogas_storage : object
+            BiogasStorage object.
+        cooler : object
+            Cooler object.
+        flare : object
+            Flare object.
+        heat_net : object
+            HeatNet object.
+        fermenter : object
+            Fermenter object.
         """
+
         # calculate loads for chps, electrolyzer, methanation
         self.calculate_load_chps(chps, biogas_storage)
 
@@ -109,15 +116,17 @@ class ControllerEM(Controller):
 
     @staticmethod
     def calculate_load_chps(chps: list[CHP], biogas_storage: BiogasStorage):
-        """
-        Set loads for all chps by comparing fill level of biogas storage
+        """Set loads for all chps by comparing fill level of biogas storage
         with chp thresholds set in chp_gas_storage_rules.
 
         Parameters
         ----------
-        chps: list of CHP objects
-        biogas_storage: BiogasStorage object
+        chps : list
+            List of CHP objects.
+        biogas_storage : object
+            BiogasStorage object.
         """
+
         for chp in chps:
             if not chp.ready_to_change_load:
                 continue
@@ -135,20 +144,22 @@ class ControllerEM(Controller):
 
     @staticmethod
     def calculate_temperature_after_chps(heat_net: HeatNet, chps: list[CHP], heat_demand: float):
-        """
-        Calculate the new temperature of the heat net after supplying heat for the fermenter and using heat from chps.
+        """Calculate the new temperature of the heat net after supplying heat for the fermenter
+        and using heat from chps.
 
         Parameters
         ----------
-        chps: list of CHP objects
-        heat_demand: float
-            heat demand of the fermenter [kW]
+        chps : list
+            List of CHP objects.
+        heat_demand : float
+            Heat demand of the fermenter [kW].
 
         Returns
         -------
         float
-            temperature of heat net after using heat from chps [°C]
+            Temperature of heat net after using heat from chps [°C].
         """
+
         chps_heat = 0
         for chp in chps:
             chps_heat += chp.get_products(chp.load)[1]
@@ -158,25 +169,25 @@ class ControllerEM(Controller):
 
     @staticmethod
     def predict_biogas_storage_vol(fill_level, inflow, outflow, time_diff: float):
-        """
-        Predict the biogas storage volume at the end of the current timestep.
+        """Predict the biogas storage volume at the end of the current timestep.
 
         Parameters
         ----------
-        fill_level: float
-            fill level of biogas storage at start of current timestep [Nm^3]
-        inflow: float
-            inflow of biogas in current timestep [Nm^3/h]
-        outflow: float
-            outflow of biogas in current timestep [Nm^3/h]
-        time_diff: float
-            length of current timestep [h]
+        fill_level : float
+            Fill level of biogas storage at start of current timestep [Nm³].
+        inflow : float
+            Inflow of biogas in current timestep [Nm³/h].
+        outflow : float
+            Outflow of biogas in current timestep [Nm³/h].
+        time_diff : float
+            Length of current timestep [h].
 
         Returns
         -------
-        float
-            fill level of biogas storage at end of current timestep [Nm^3]
+        biogas_storage_vol_prog : float
+            Fill level of biogas storage at end of current timestep [Nm³].
         """
+
         biogas_storage_vol_prog = fill_level + (inflow - outflow) * time_diff
 
         return biogas_storage_vol_prog
@@ -184,22 +195,21 @@ class ControllerEM(Controller):
     def calculate_load_boilers(
         self, temperature_deficit: float, heat_net: HeatNet, boilers: list[Boiler], biogas_storage_fill_level: float
     ):
-        """
-        Calculate the load of the boilers.
+        """Calculate the load of the boilers.
 
         Parameters
         ----------
-        temperature_deficit: float
-            temperature deficit of the heat net after supplying heat for the fermenter
-            and using heat from chps [K]
-        heat_net: HeatNet
-            heat network object
-        boilers: List
-            list of Boiler objects
-        biogas_storage_fill_level: float
-            fill level of biogas storage after supplying biogas for the
-            chps and using receiving biogas from the fermenter [Nm^3]
+        temperature_deficit : float
+            Temperature deficit of the heat net after supplying heat for the fermenter and using heat from chps [K].
+        heat_net : object
+            Heat network object.
+        boilers : list
+            List of Boiler objects.
+        biogas_storage_fill_level : float
+            Fill level of biogas storage after supplying biogas for the
+            chps and using receiving biogas from the fermenter [Nm³].
         """
+
         heat_demand = temperature_deficit * heat_net.mass_flow * (heat_net.cp / 3600)
         for boiler in boilers:
             max_load_possible = min(biogas_storage_fill_level * self.biogas.h_u / boiler.max_gas_power_uptake, 1.0)
@@ -224,36 +234,38 @@ class ControllerEM(Controller):
 
     @staticmethod
     def calculate_load_cooler(temperature_surplus: float, heat_net: HeatNet, cooler: Cooler):
-        """
-        Calculate the load of the cooler.
+        """Calculate the load of the cooler.
 
         Parameters
-        temperature_surplus: float
-            temperature surplus of the heat net after supplying heat for the fermenter and using heat from chps [K]
-        heat_net: HeatNet
-            heat network object
-        cooler: Cooler
-            cooler object
+        ----------
+        temperature_surplus : float
+            Temperature surplus of the heat net after supplying heat for the fermenter and using heat from chps [K].
+        heat_net : object
+            Heat network object.
+        cooler : object
+            Cooler object.
         """
+
         excess_heat = temperature_surplus * heat_net.mass_flow * (heat_net.cp / 3600)
         cooler.load = cooler.calculate_load(excess_heat)
 
     @staticmethod
     def calculate_load_flare(biogas_storeage_max_vol: float, biogas_storage_vol_prog: float, flare: Flare):
-        """
-        Calculate the load of the flare.
+        """Calculate the load of the flare.
+
         Calculate fill level of biogas storage at end of current timestep,
         adjust flare load if fill level above threshold.
 
         Parameters
         ----------
-        biogas_storeage_max_vol: float
-            maximum volume of biogas storage [Nm^3]
-        biogas_storage_vol_prog: float
-            prognosis of fill level of biogas storage at end of current timestep [Nm^3]
-        flare: Flare
-            flare object
+        biogas_storeage_max_vol : float
+            Maximum volume of biogas storage [Nm³].
+        biogas_storage_vol_prog : float
+            Prognosis of fill level of biogas storage at end of current timestep [Nm³].
+        flare : object
+            Flare object.
         """
+
         flare_threshold = flare.threshold * biogas_storeage_max_vol
         if biogas_storage_vol_prog >= flare_threshold:
             flare.load = flare.calculate_load(biogas_storage_vol_prog - flare_threshold)
