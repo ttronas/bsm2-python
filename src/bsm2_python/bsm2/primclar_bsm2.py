@@ -1,21 +1,12 @@
-"""
- The implementation is to a large extent based on an implementation of the
- Otterpohl/Freund model by Dr Jens Alex, IFAK, Magdeburg.
- In addition to ASM1 states, the clarifier will also pass on `TSS`, `Q`, `TEMP` and 5 dummy
- states to effluent and underflow.
- If `tempmodel` == True, T(out) is a first-order equation based on the
- heat content of the influent, the reactor and outflow.
+# Copyright (2006)
+# Ulf Jeppsson
+# Dept. Industrial Electrical Engineering and Automation (IEA), Lund University, Sweden
+# https://www.lth.se/iea/
 
-Copyright (2006):
- Ulf Jeppsson
- Dept. Industrial Electrical Engineering and Automation (IEA), Lund University, Sweden
- https://www.lth.se/iea/
-
-Copyright (2024):
- Jonas Miederer
- Chair of Energy Process Engineering (EVT), FAU Erlangen-Nuremberg, Germany
- https://www.evt.tf.fau.de/
-"""
+# Copyright (2024)
+# Jonas Miederer
+# Chair of Energy Process Engineering (EVT), FAU Erlangen-Nuremberg, Germany
+# https://www.evt.tf.fau.de/
 
 import numpy as np
 from numba import jit
@@ -29,26 +20,26 @@ SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, S
 
 @jit(nopython=True)
 def primclarequations(t, yp, yp_in, p_par, volume, tempmodel):
-    """
-    Returns an array containing the differential equations for the primary clarifier.
+    """Returns an array containing the differential equations for the primary clarifier.
 
     Parameters
     ----------
     t : np.ndarray
-        Time interval for integration, needed for the solver
+        Time interval for integration, needed for the solver.
     yp : np.ndarray
-        Solution of the differential equations, needed for the solver
+        Solution of the differential equations, needed for the solver.
     yp_in : np.ndarray
-        Primary clarifier influent concentrations of the 21 components
-        (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        Primary clarifier influent concentrations of the 21 components <br>
+        (13 ASM1 components, TSS, Q, T and 5 dummy states).
     p_par : np.ndarray
-        primary clarifier parameters
+        Primary clarifier parameters.
     volume : float
-        volume of the primary clarifier
+        Volume of the primary clarifier.
     tempmodel : bool
         If true, mass balance for the wastewater temperature is used in process rates,
-        otherwise influent wastewater temperature is just passed through process reactors
+        otherwise influent wastewater temperature is just passed through process reactors.
     """
+
     # u = yp_in
     # x = yp
     # dx = dyp
@@ -69,34 +60,42 @@ def primclarequations(t, yp, yp_in, p_par, volume, tempmodel):
 
 
 class PrimaryClarifier(Module):
-    def __init__(self, volume, yp0, p_par, asm1par, x_vector, tempmodel, activate):
-        """
-        This is an implementation of the Otterpohl/Freund primary clarifier model.
-        The implementation is to a large extent based on an implementation of the
-        Otterpohl/Freund model by Dr. Jens Alex, IFAK, Magdeburg.
+    """This is an implementation of the Otterpohl/Freund primary clarifier model.
 
-        Parameters
-        ----------
-        volume : float
-            volume of the primary clarifier
-        yp0 : np.ndarray
-            Initial integration values of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
-        p_par : np.ndarray
-            [f_corr, f_X, t_m, f_PS]
-            f_corr: efficiency correction for primary clarifier
-            f_X: CODpart/CODtot ratio
-            t_m: smoothing time constant for qm calculation
-            f_PS: ratio of primary sludge flow rate to the influent flow
-        asm1par : np.ndarray
-            ASM1 parameters
-        x_vector : np.ndarray
-            primary clarifier state vector
-        tempmodel : bool
-            If true, first-order equation based on the heat content of the influent, the reactor and outflow is solved,
-            otherwise influent wastewater temperature is just passed through process reactors
-        activate : bool
-            If true, dummy states are activated, otherwise dummy states are not activated
-        """
+    The implementation is to a large extent based on an implementation of the
+    Otterpohl/Freund model by Dr. Jens Alex, IFAK, Magdeburg.
+
+    In addition to ASM1 states, the clarifier will also pass on `TSS`, `Q`, `TEMP` and
+    5 dummy states to effluent and underflow.
+
+    If `tempmodel` == True, T(out) is a first-order equation based on the
+    heat content of the influent, the reactor and outflow.
+
+    Parameters
+    ----------
+    volume : float
+        Volume of the primary clarifier.
+    yp0 : np.ndarray
+        Initial integration values of the 21 components <br>
+        (13 ASM1 components, TSS, Q, T and 5 dummy states).
+    p_par : np.ndarray
+        [f_corr, f_X, t_m, f_PS] \n
+        - f_corr: Efficiency correction for primary clarifier.
+        - f_X: CODpart/CODtot ratio.
+        - t_m: Smoothing time constant for qm calculation.
+        - f_PS: Ratio of primary sludge flow rate to the influent flow.
+    asm1par : np.ndarray
+        ASM1 parameters.
+    x_vector : np.ndarray
+        Primary clarifier state vector.
+    tempmodel : bool
+        If true, first-order equation based on the heat content of the influent, the reactor and outflow is solved,
+        otherwise influent wastewater temperature is just passed through process reactors.
+    activate : bool
+        If true, dummy states are activated, otherwise dummy states are not activated.
+    """
+    
+    def __init__(self, volume, yp0, p_par, asm1par, x_vector, tempmodel, activate):
         self.volume = volume
         self.yp0 = yp0
         self.p_par = p_par
@@ -106,33 +105,33 @@ class PrimaryClarifier(Module):
         self.activate = activate
 
     def output(self, timestep, step, yp_in):
-        """
-        Returns the overflow and underflow concentrations from a
+        """Returns the overflow and underflow concentrations from a
         primary clarifier at the current time step.
 
         Parameters
         ----------
         timestep : float
-            current time step
+            Current time step.
         step : float
-            current time
+            Current time.
         yp_in : np.ndarray
-            primary clarifier influent concentrations of the 21 components
-            (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            Primary clarifier influent concentrations of the 21 components <br>
+            (13 ASM1 components, TSS, Q, T and 5 dummy states).
 
         Returns
         -------
         yp_uf : np.ndarray
-            primary clarifier underflow (sludge) concentrations of the 21 components
-            (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            Primary clarifier underflow (sludge) concentrations of the 21 components <br>
+            (13 ASM1 components, TSS, Q, T and 5 dummy states).
         yp_of : np.ndarray
-            primary clarifier overflow (effluent) concentrations of the 21 components
-            (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            Primary clarifier overflow (effluent) concentrations of the 21 components <br>
+            (13 ASM1 components, TSS, Q, T and 5 dummy states).
         yp_internal : np.ndarray
-            primary clarifier internal (basically influent) concentrations of the 21 components
-            (13 ASM1 components, TSS, Q, T and 5 dummy states)
-            Only for evaluation purposes
+            Primary clarifier internal (basically influent) concentrations of the 21 components
+            (13 ASM1 components, TSS, Q, T and 5 dummy states). <br>
+            Only for evaluation purposes.
         """
+
         # f_corr, f_X, t_m, f_PS = p_par
         # y = yp_uf, yp_of
         # u = yp_int

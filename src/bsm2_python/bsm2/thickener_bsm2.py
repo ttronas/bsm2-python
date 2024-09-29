@@ -1,21 +1,12 @@
-"""
-This calculates the overflow and underflow concentrations
-from an 'ideal' thickener unit based on a fixed percentage of sludge in
-the underflow flow. A defined amount of total solids are removed from
-the water stream and goes into the sludge stream and the remaining will
-leave with the water phase. Soluble concentrations are not affected.
-Temperature is also handled ideally, i.e. T(out)=T(in).
+# Copyright (2006)
+#  Ulf Jeppsson
+#  Dept. Industrial Electrical Engineering and Automation (IEA), Lund University, Sweden
+#  https://www.lth.se/iea/
 
-Copyright (2006):
- Ulf Jeppsson
- Dept. Industrial Electrical Engineering and Automation (IEA), Lund University, Sweden
- https://www.lth.se/iea/
-
-Copyright (2024):
- Jonas Miederer
- Chair of Energy Process Engineering (EVT), FAU Erlangen-Nuremberg, Germany
- https://www.evt.tf.fau.de/
-"""
+# Copyright (2024)
+#  Jonas Miederer
+#  Chair of Energy Process Engineering (EVT), FAU Erlangen-Nuremberg, Germany
+#  https://www.evt.tf.fau.de/
 
 import numpy as np
 from numba import float64
@@ -29,46 +20,52 @@ SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, S
 
 @jitclass(spec=[('t_par', float64[:])])
 class Thickener(Module):
+    """This implements an 'ideal' thickener unit.
+
+    Parameters
+    ----------
+    t_par : np.ndarray(7)
+        Array containing seven parameters: <br>
+        [thickener_perc, TSS_removal_perc, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS] \n
+        - thickener_perc: Percentage of sludge in the underflow flow.
+        - TSS_removal_perc: Percentage of total solids removed from the water phase.
+        - X_I2TSS: Ratio of inert particulate COD to TSS.
+        - X_S2TSS: Ratio of soluble COD to TSS.
+        - X_BH2TSS: Ratio of heterotrophic biomass to TSS.
+        - X_BA2TSS: Ratio of autotrophic biomass to TSS.
+        - X_P2TSS: Ratio of particulate phosphorus to TSS.
+    """
+
     def __init__(self, t_par):
-        """
-        Calculates the overflow and underflow concentrations
-        from an 'ideal' thickener unit based on a fixed percentage of sludge in
-        the underflow flow. A defined amount of total solids are removed from
-        the water stream and goes into the sludge stream and the remaining will
-        leave with the water phase. Soluble concentrations are not affected.
+        self.t_par = t_par
+
+    def output(self, yt_in):
+        """Returns the overflow and underflow concentrations from an 'ideal' thickener unit 
+        based on a fixed percentage of sludge in the underflow flow. 
+
+        A defined amount of total solids are removed from the water stream and goes into 
+        the sludge stream and the remaining will leave with the water phase. 
+
+        Soluble concentrations are not affected. 
         Temperature is also handled ideally, i.e. T(out)=T(in).
 
         Parameters
         ----------
-        t_par : np.ndarray(7)
-            [thickener_perc, TSS_removal_perc, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS]
-            thickener_perc: percentage of sludge in the underflow flow
-            TSS_removal_perc: percentage of total solids removed from the water phase
-            X_I2TSS: ratio of inert particulate COD to TSS
-            X_S2TSS: ratio of soluble COD to TSS
-            X_BH2TSS: ratio of heterotrophic biomass to TSS
-            X_BA2TSS: ratio of autotrophic biomass to TSS
-            X_P2TSS: ratio of particulate phosphorus to TSS
-        """
-        self.t_par = t_par
-
-    def output(self, yt_in):
-        """
-        Returns the overflow and underflow concentrations from an 'ideal' thickener unit.
-
-        Parameters
-        ----------
         yt_in : np.ndarray
-            thickener inlet concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            Thickener inlet concentrations of the 21 components <br>
+            (13 ASM1 components, TSS, Q, T and 5 dummy states).
 
         Returns
         -------
         yt_uf : np.ndarray
-            thickener underflow concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            Thickener underflow concentrations of the 21 components <br>
+            (13 ASM1 components, TSS, Q, T and 5 dummy states).
         yt_of : np.ndarray
-            thickener overflow concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
-            at the current time step
+            Thickener overflow concentrations of the 21 components <br>
+            (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            at the current time step.
         """
+
         # thickener_perc, TSS_removal_perc, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS = t_par
         # y = yt_uf, yt_of
         # u = yt_in
