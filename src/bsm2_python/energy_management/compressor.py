@@ -142,5 +142,5 @@ class Compressor(Module):
         """Returns if the compressor has failed. <br>
         (Currently not implemented)
         """
-        
+
         return False
