@@ -1,5 +1,4 @@
-"""This file initiates parameter values and sets initial conditions for the model implementation of `storage.py`.
-"""
+"""This file initiates parameter values and sets initial conditions for the model implementation of `storage.py`."""
 
 MAX_VOL = 1500  # m^3
 

@@ -1,5 +1,4 @@
-"""Initialisation file for all states and parameters related to the plant performance.
-"""
+"""Initialisation file for all states and parameters related to the plant performance."""
 
 import numpy as np
 
