@@ -37,6 +37,34 @@ from bsm2_python.gases.gases import GasMix
     ]
 )
 class CHP(Module):
+    """A class that represents a combined heat and power unit.
+
+    Parameters
+    ----------
+    max_gas_power_uptake : int
+        Maximum power of gas the CHP can process [kW].
+    efficiency_rules : np.ndarray
+        A 2D array with the efficiency rules of the CHP showing efficiency at different loads. \n
+        [[gas load state 1, eta_el1, eta_th1], [gas load state 2, eta_el2, eta_th2], ...]
+    minimum_load : float
+        Minimum load the CHP can operate at.
+    mttf : int
+        Mean time to failure (Time between two maintenances) [h].
+    mttr : int
+        Mean time to repair [h].
+    load_change_time : float
+        Time after changing the load until a new change can be made [hours].
+    capex : int
+        Capital expenditure of the CHP.
+    biogas : GasMix
+        Mixture of gas. Contains fractions of each gas.
+    storage_rules : np.ndarray
+        A 2D array with the storage rules of the CHP showing the gas load at different fill levels. \n
+        [[threshold1, tendency1, gas load1], [threshold2, tendency2, gas load2], ...]
+    stepless_intervals : boolean
+        Describes whether the CHP can operate at any load between minimum_load and 1.
+    """
+
     def __init__(
         self,
         max_gas_power_uptake: int,
@@ -51,33 +79,6 @@ class CHP(Module):
         *,
         stepless_intervals: bool,
     ):
-        """
-        A class that represents a combined heat and power unit.
-
-        Parameters
-        ----------
-        max_gas_power_uptake : int
-            Maximum power of gas the CHP can process [kW]
-        efficiency_rules : np.ndarray
-            A 2D array with the efficiency rules of the CHP showing efficiency at different loads
-            [[gas load state 1, eta_el1, eta_th1], [gas load state 2, eta_el2, eta_th2], ...]
-        minimum_load : float
-            Minimum load the CHP can operate at
-        mttf : int
-            Mean time to failure (Time between two maintenances) [h]
-        mttr : int
-            Mean time to repair [h]
-        load_change_time : float
-            Time after changing the load until a new change can be made [hours]
-        capex : int
-            Capital expenditure of the CHP
-        biogas : GasMix
-        storage_rules : np.ndarray
-            A 2D array with the storage rules of the CHP showing the gas load at different fill levels
-            [[threshold1, tendency1, gas load1], [threshold2, tendency2, gas load2], ...]
-        stepless_intervals : boolean
-            Describes whether the CHP can operate at any load between minimum_load and 1
-        """
         self.max_gas_power_uptake = max_gas_power_uptake
         self.efficiency_rules = efficiency_rules
         self.storage_rules = storage_rules
@@ -102,20 +103,20 @@ class CHP(Module):
         )
 
     def get_efficiencies(self, load: float):
-        """
-        Returns the efficiency of the CHP at a certain load.
+        """Returns the efficiency of the CHP at a certain load.
 
         Parameters
         ----------
         load : float
-            Load of the CHP
+            Load of the CHP.
 
         Returns
         -------
         np.ndarray
-            Array with the electrical and thermal efficiency of the CHP
+            Array with the electrical and thermal efficiency of the CHP. \n
             [eta_el, eta_th]
         """
+
         threshold = 1e-5
         if load - self.minimum_load < -threshold:
             if load > threshold:
@@ -128,20 +129,20 @@ class CHP(Module):
             return np.array([self.efficiency_rules[closest_rule, 1], self.efficiency_rules[closest_rule, 2]])
 
     def get_consumption(self, load: float):
-        """
-        Returns the consumption of the CHP at a certain load.
+        """Returns the consumption of the CHP at a certain load.
 
         Parameters
         ----------
         load : float
-            Load of the CHP
+            Load of the CHP.
 
         Returns
         -------
         np.ndarray
-            Gas consumption of the CHP at the given load [Nm³/h]
+            Gas consumption of the CHP at the given load [Nm³/h]. \n
             [biogas consumption]
         """
+
         threshold = 1e-5
         if load - self.minimum_load < -threshold:
             if load > threshold:
@@ -152,20 +153,20 @@ class CHP(Module):
             return np.array([self.max_gas_power_uptake * load / self.biogas.h_u])
 
     def get_products(self, load: float):
-        """
-        Returns the products of the CHP at a certain load.
+        """Returns the products of the CHP at a certain load.
 
         Parameters
         ----------
         load : float
-            Load of the CHP
+            Load of the CHP.
 
         Returns
         -------
         np.ndarray
-            Array with the electrical and thermal power produced by the CHP [kW, kW]
+            Array with the electrical and thermal power produced by the CHP [kW, kW]. \n
             [el_power, th_power]
         """
+
         threshold = 1e-5
         if load - self.minimum_load < -threshold:
             if load > threshold:
@@ -178,49 +179,50 @@ class CHP(Module):
             return np.array([el_power, th_power])
 
     def consume(self) -> np.ndarray:
-        """
-        Returns the consumption of the CHP at the current load.
+        """Returns the consumption of the CHP at the current load.
 
         Returns
         -------
         np.ndarray
-            Gas consumption of the CHP at the current load [Nm³/h]
+            Gas consumption of the CHP at the current load [Nm³/h]. \n
             [biogas consumption]
         """
+
         return self.get_consumption(self._load)
 
     def produce(self) -> np.ndarray:
-        """
-        Returns the products of the CHP at the current load.
+        """Returns the products of the CHP at the current load.
 
         Returns
         -------
         np.ndarray
-            Products of the CHP at the current load [kW, kW]
+            Products of the CHP at the current load [kW, kW]. \n
             [el_power, th_power]
         """
+
         return self.get_products(self._load)
 
     def calculate_maintenance_time(self) -> float:
-        """
-        Returns the duration of the maintenance.
+        """Returns the duration of the maintenance.
 
         Returns
         -------
         float
-            Duration of the maintenance [hours]
+            Duration of the maintenance [hours].
         """
+
         return self.mttr
 
     def check_failure(self) -> bool:
-        """
-        Returns whether the CHP goes into maintenance or not.
+        """Returns whether the CHP goes into maintenance or not.
 
         Returns
         -------
         bool
-            True if the CHP goes into maintenance, False otherwise
+            - True: If the CHP goes into maintenance.
+            - False: Otherwise.
         """
+
         if self.time_since_last_maintenance > 0:
             return self.time_since_last_maintenance >= self.mttf
         else:

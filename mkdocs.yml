@@ -17,9 +17,11 @@ nav:
     - Changelog: changelog.md
     - License: license.md
     - Authors: authors.md
+    - Copyright: copyright.md
     - Contributing: contributing.md
+    - Documentation: documentation.md
   # defer to gen-files + literate-nav
-  - Reference: reference/bsm2_python/
+  - Source Code Documentation: reference/
 
 # Configuration
 docs_dir: docs
@@ -50,11 +52,12 @@ theme:
         icon: material/lightbulb # material/weather-sunny
         name: Switch to dark mode
   features:
-    - navigation.sections
     - navigation.tabs
-#    - navigation.expand
     - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
     - navigation.instant
+    - navigation.top
 
 watch:
 - src/bsm2_python
@@ -84,21 +87,30 @@ plugins:
       python:
         paths:
           - src
-        options:
-          docstring_style: google
-          docstring_options:
-            ignore_init_summary: yes
-          merge_init_into_class: yes
-          show_submodules: no
+        options:    # https://mkdocstrings.github.io/python/usage/#options-summary
+          # General
+          show_bases: false
           # Headings
+          heading_level: 1
           show_root_heading: true
           show_root_full_path: false
+          show_root_toc_entry: true
+          show_category_heading: false
+          show_symbol_type_heading: true
+          show_symbol_type_toc: true
+          # Members
+          show_submodules: false
+          show_labels: false
           # Docstrings
-          show_if_no_docstring: true
+          docstring_style: numpy
+          docstring_section_style: table
+          docstring_options:
+            ignore_init_summary: true
+          merge_init_into_class: true
+          show_if_no_docstring: false # Show the object heading even if it has no docstring (shows all)
           # Signatures/annotations
-          show_signature_annotations: true
-          # Other
-          show_bases: false
+          separate_signature: true
+          show_signature_annotations: false
 
 markdown_extensions:
   # Built-in

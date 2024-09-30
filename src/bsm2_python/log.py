@@ -7,17 +7,18 @@ from tqdm import tqdm
 
 class TqdmLoggingHandler(logging.Handler):
     def __init__(self, level=logging.INFO, *, tqdm_level_is_lower=False):
-        """
-        A logging handler that writes log messages to tqdm.
+        """A logging handler that writes log messages to tqdm.
 
         Parameters
         ----------
-        level : int, optional
-            The log level for this handler. Default is logging.INFO
-        tqdm_level_is_lower : bool, optional
-            If True, the progress bar is not shown when the log level is higher than the tqdm log level.
-            Default is False
+        level : int (optional)
+            The log level for this handler. <br>
+            Default is logging.INFO.
+        tqdm_level_is_lower : bool (optional)
+            If True, the progress bar is not shown when the log level is higher than the tqdm log level. <br>
+            Default is False.
         """
+
         super().__init__(level)
         if tqdm_level_is_lower:
             tqdm.__init__ = partialmethod(tqdm.__init__, disable=True)

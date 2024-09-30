@@ -23,6 +23,32 @@ from bsm2_python.gases.gases import GasMix
     ]
 )
 class BiogasStorage:
+    """A class that represents a gas storage.
+
+    Parameters
+    ----------
+    max_vol : int
+        Maximum volume of the storage [Nm³].
+    p_store : int
+        Pressure of the storage [bar].
+    vol_init : int
+        Initial volume of the storage [Nm³].
+    capex_sp : int
+        Capital expenditure per volume of the storage [€/Nm³].
+    opex_factor : int
+        Operational expenditure factor [1/h].
+    biogas : GasMix
+        Mixture of gas. Contains fractions of each gas.
+    gas_composition : np.ndarray
+        Initial gas composition of the storage. <br>
+        [ch4_frac, co2_frac, h2_frac, h2o_frac, n2_frac]  \n
+        - ch4_frac: Mixture fraction of methane.
+        - co2_frac: Mixture fraction of carbon dioxide.
+        - h2_frac: Mixture fraction of hydrogen.
+        - h2o_frac: Mixture fraction of water.
+        - n2_frac: Mixture fraction of nitrogen.
+    """
+
     def __init__(
         self,
         max_vol: int | float,
@@ -33,26 +59,6 @@ class BiogasStorage:
         biogas: GasMix,
         gas_composition: np.ndarray,
     ):
-        """
-        A class that represents a gas storage.
-
-        Parameters
-        ----------
-        max_vol : int
-            Maximum volume of the storage [Nm³]
-        p_store : int
-            Pressure of the storage [bar]
-        vol_init : int
-            Initial volume of the storage [Nm³]
-        capex_sp : int
-            Capital expenditure per volume of the storage [€/Nm³]
-        opex_factor : int
-            Operational expenditure factor [h^-1]
-        biogas : GasMix
-        gas_composition : np.ndarray
-            Initial gas composition of the storage
-            [ch4_frac, co2_frac, h2_frac, h2o_frac, n2_frac]
-        """
         self.tendency = 0.0
         self.max_vol = max_vol
         self.vol = vol_init
@@ -68,47 +74,54 @@ class BiogasStorage:
         self.gas_composition = gas_composition
 
     def update_inflow(self, gas_flow_in: int | float, gas_flow_in_composition: np.ndarray, time_diff: int | float):
-        """
-        Updates the gas composition and volume of the storage with only the inflow.
+        """Updates the gas composition and volume of the storage with only the inflow.
+
         Volume can at first be higher than the maximum volume.
 
         Parameters
         ----------
-        gas_flow_in : int | float
-            The gas flow that is coming into the storage [Nm³/h]
+        gas_flow_in : int or float
+            The gas flow that is coming into the storage [Nm³/h].
         gas_flow_in_composition : np.ndarray
-            The gas composition of the incoming gas
-            [ch4_frac, co2_frac, h2_frac, h2o_frac, n2_frac]
-        time_diff : int | float
-            The time difference since the last update [h]
+            The gas composition of the incoming gas. <br>
+            [ch4_frac, co2_frac, h2_frac, h2o_frac, n2_frac] \n
+            - ch4_frac: Mixture fraction of methane.
+            - co2_frac: Mixture fraction of carbon dioxide.
+            - h2_frac:  Mixture fraction of hydrogen.
+            - h2o_frac: Mixture fraction of water.
+            - n2_frac: Mixture fraction of nitrogen.
+        time_diff : int or float
+            The time difference since the last update [h].
 
         Returns
         -------
         GasMix
-            The biogas object with the updated gas composition
+            The biogas object with the updated gas composition.
         """
+
         self.gas_composition = self.biogas.mix(self.gas_composition, self.vol, gas_flow_in_composition, gas_flow_in)
         self.vol += gas_flow_in * time_diff
 
         return self.biogas
 
     def update_outflow(self, gas_flow_out: int | float, time_diff: int | float):
-        """
-        Updates the gas composition and volume of the storage with only the outflow.
+        """Updates the gas composition and volume of the storage with only the outflow.
+
         Maximum volume is now considered.
 
         Parameters
         ----------
-        gas_flow_out : int | float
-            The gas flow that is coming out of the storage [Nm³/h]
-        time_diff : int | float
-            The time difference since the last update [h]
+        gas_flow_out : int or float
+            The gas flow that is coming out of the storage [Nm³/h].
+        time_diff : int or float
+            The time difference since the last update [h].
 
         Returns
         -------
-        tuple
-            The surplus and deficiency of the storage, respectively [Nm³]
+        Tuple
+            The surplus and deficiency of the storage, respectively [Nm³].
         """
+
         self.vol -= gas_flow_out * time_diff
 
         if self.vol > self.max_vol:

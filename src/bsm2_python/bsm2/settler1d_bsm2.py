@@ -1,25 +1,12 @@
-"""
-This is a implementation defining a n-layer settler model.
-can simulate n, 1 or 0 layers for the solubles by using `modeltype` = 0, 1 or 2 (currently only 0 implemented)
-Darko Vrecko, March 2005
+# Copyright (2006)
+# Ulf Jeppsson
+# Dept. Industrial Electrical Engineering and Automation (IEA), Lund University, Sweden
+# https://www.lth.se/iea/
 
-Correction to the functionality of `tempmodel`
-Krist V. Gernaey, 02 May 2005
-
-Activation of dummy states via parameter `activate` = 1 (otherwise 0)
-
-Sludge blanket level output added august 2011
-
-Copyright (2006):
- Ulf Jeppsson
- Dept. Industrial Electrical Engineering and Automation (IEA), Lund University, Sweden
- https://www.lth.se/iea/
-
-Copyright (2024):
- Jonas Miederer
- Chair of Energy Process Engineering (EVT), FAU Erlangen-Nuremberg, Germany
- https://www.evt.tf.fau.de/
-"""
+# Copyright (2024)
+# Jonas Miederer
+# Chair of Energy Process Engineering (EVT), FAU Erlangen-Nuremberg, Germany
+# https://www.evt.tf.fau.de/
 
 import numpy as np
 from numba import jit
@@ -34,38 +21,41 @@ SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, S
 @jit(nopython=True)
 def settlerequations(t, ys, ys_in, sedpar, dim, layer, q_r, q_w, tempmodel, modeltype):
     """Returns an array containing the differential equations of a non-reactive sedimentation tank
-    with variable number of layers (default model is 10 layers), which is compatible with ASM1 model
+    with variable number of layers (default model is 10 layers), which is compatible with ASM1 model.
 
     Parameters
     ----------
     t : np.ndarray
-        Time interval for integration, needed for the solver
+        Time interval for integration, needed for the solver.
     ys : np.ndarray
-        Solution of the differential equations, needed for the solver
+        Solution of the differential equations, needed for the solver.
     ys_in : np.ndarray
-        Settler inlet concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        Settler inlet concentrations of the 21 components <br>
+        (13 ASM1 components, TSS, Q, T and 5 dummy states).
     sedpar : np.ndarray
-        6 parameters needed for settler equations
+        6 parameters needed for settler equations.
     dim : np.ndarray
-        Dimensions of the settler, area and height
+        Dimensions of the settler, area and height.
     layer : np.ndarray
-        Feedlayer and number of layers in the settler
+        Feedlayer and number of layers in the settler.
     q_r : int
-        Return sludge flow rate
+        Return sludge flow rate.
     q_w : int
-        flow rate of waste sludge
+        Flow rate of waste sludge.
     tempmodel : bool
         If true, differential equation for the wastewater temperature is used,
-        otherwise influent wastewater temperature is just passed through the settler
+        otherwise influent wastewater temperature is just passed through the settler.
     modeltype : int
-        0 for IWA/COST Benchmark (with nooflayers for solubles)
-        1 for GSP-X implementation (1 layer for solubles) (not implemented yet)
-        2 for old WEST implementation (0 layers for solubles) (not implemented yet)
+        - 0: For IWA/COST Benchmark (with nooflayers for solubles).
+        - 1: For GSP-X implementation (1 layer for solubles) <br> (not implemented yet).
+        - 2: For old WEST implementation (0 layers for solubles) <br> (not implemented yet).
+
     Returns
     -------
-    np.ndarray
-        Array containing the differential equations of settling model with certain number of layers
+    dys : np.ndarray
+        Array containing the differential equations of settling model with certain number of layers.
     """
+
     if modeltype != 0:
         # TODO: implement modeltype 1 and 2
         err = 'Modeltypes 1 and 2 not implemented yet'
@@ -254,52 +244,54 @@ def settlerequations(t, ys, ys_in, sedpar, dim, layer, q_r, q_w, tempmodel, mode
 
 @jit(nopython=True)
 def get_output(ys_int, ys_in, nooflayers, tempmodel, q_r, q_w, dim, asm1par, sedpar):
-    """
-    Returns the return, waste and effluent concentrations of the settler model
+    """Returns the return, waste and effluent concentrations of the settler model.
 
     Parameters
     ----------
     ys_int : np.ndarray
-        Solution of the differential equations, needed for the solver
-        Values for the 12 components (without Q and particulates) for each layer, sorted by components
+        Solution of the differential equations, needed for the solver.
+        Values for the 12 components (without Q and particulates) for each layer, sorted by components.
     ys_in : np.ndarray
-        Settler inlet concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        Settler inlet concentrations of the 21 components <br>
+        (13 ASM1 components, TSS, Q, T and 5 dummy states).
     nooflayers : int
-        Number of layers in the settler
+        Number of layers in the settler.
     tempmodel : bool
         If true, differential equation for the wastewater temperature is used,
-        otherwise influent wastewater temperature is just passed through the settler
+        otherwise influent wastewater temperature is just passed through the settler.
     q_r : int
-        Return sludge flow rate
+        Return sludge flow rate.
     q_w : int
-        flow rate of waste sludge
+        Flow rate of waste sludge.
     dim : np.ndarray
-        Dimensions of the settler, area and height
+        Dimensions of the settler, area and height.
     asm1par : np.ndarray
-        ASM1 parameters
+        ASM1 parameters.
     sedpar : np.ndarray
-        6 parameters needed for settler equations
+        6 parameters needed for settler equations.
 
     Returns
     -------
-    (np.ndarray, np.ndarray, np.ndarray, float, np.ndarray)
-            Tuple containing three arrays and a float:
-                ys_ret: Array containing the values of the 21 components
+    tuple
+            Tuple containing four arrays and a float: <br>
+            (np.ndarray, np.ndarray, np.ndarray, float, np.ndarray) \n
+            - ys_ret: Array containing the values of the 21 components
                 (13 ASM1 components, TSS, Q, T and 5 dummy states)
                 in the underflow (bottom layer of settler) at the current time step
-                after the integration - return sludge
-                ys_was: Array containing the values of the 21 components
+                after the integration - **return sludge**.
+            - ys_was: Array containing the values of the 21 components
                 (13 ASM1 components, TSS, Q, T and 5 dummy states)
                 in the underflow (bottom layer of settler) at the current time step
-                after the integration - waste sludge
-                ys_eff: Array containing the values of the 21 components
+                after the integration - **waste sludge**.
+            - ys_eff: Array containing the values of the 21 components
                 (13 ASM1 components, TSS, Q, T and 5 dummy states)
                 in the effluent (top layer of settler) and 4 additional parameters
                 (Kjeldahl N, total N, total COD, BOD5 concentration)
-                at the current time step after the integration - effluent
-                sludge_height: Float containing the continuous signal of sludge blanket level
-                ys_tss_internal: Array containing the internal TSS states of the settler
+                at the current time step after the integration - **effluent**.
+            - sludge_height: Float containing the continuous signal of sludge blanket level.
+            - ys_tss_internal: Array containing the internal TSS states of the settler.
     """
+
     ys_ret = np.zeros(21)
     ys_was = np.zeros(21)
     ys_eff = np.zeros(21)
@@ -400,33 +392,44 @@ def get_output(ys_int, ys_in, nooflayers, tempmodel, q_r, q_w, dim, asm1par, sed
 
 
 class Settler(Module):
-    def __init__(self, dim, layer, q_r, q_w, ys0, sedpar, asm1par, tempmodel, modeltype):
-        """
-        Parameters
-        ----------
-        dim : np.ndarray
-            Dimensions of the settler, area and height
-        layer : np.ndarray
-            Feedlayer and number of layers in the settler
-        q_r : int
-            Return sludge flow rate
-        q_w : int
-            Flow rate of waste sludge
-        ys0 : np.ndarray
-            Initial values for the 12 components (without Q and particulates) for each layer, sorted by components
-        sedpar : np.ndarray
-            6 parameters needed for settler equations
-        asm1par : np.ndarray
-            24 parameters needed for ASM1 equations
-        tempmodel : bool
-            If true, differential equation for the wastewater temperature is used,
-            otherwise influent wastewater temperature is just passed through the settler
-        modeltype : int
-            0 for IWA/COST Benchmark (with nooflayers for solubles)
-            1 for GSP-X implementation (1 layer for solubles) (not implemented yet)
-            2 for old WEST implementation (0 layers for solubles) (not implemented yet)
-        """
+    """This is a implementation defining a n-layer settler model.
 
+    Can simulate n, 1 or 0 layers for the solubles by using `modeltype` = 0, 1 or 2 (currently only 0 implemented).
+    Darko Vrecko, March 2005
+
+    Correction to the functionality of `tempmodel`.
+    Krist V. Gernaey, 02 May 2005
+
+    Activation of dummy states via parameter `activate` = 1 (otherwise 0).
+
+    Sludge blanket level output added august 2011.
+
+    Parameters
+    ----------
+    dim : np.ndarray
+        Dimensions of the settler, area and height.
+    layer : np.ndarray
+        Feedlayer and number of layers in the settler.
+    q_r : int
+        Return sludge flow rate.
+    q_w : int
+        Flow rate of waste sludge.
+    ys0 : np.ndarray
+        Initial values for the 12 components (without Q and particulates) for each layer, sorted by components.
+    sedpar : np.ndarray
+        6 parameters needed for settler equations.
+    asm1par : np.ndarray
+        24 parameters needed for ASM1 equations.
+    tempmodel : bool
+        If true, differential equation for the wastewater temperature is used,
+        otherwise influent wastewater temperature is just passed through the settler.
+    modeltype : int
+        - 0: For IWA/COST Benchmark (with nooflayers for solubles).
+        - 1: For GSP-X implementation (1 layer for solubles) <br> (not implemented yet).
+        - 2: For old WEST implementation (0 layers for solubles) <br> (not implemented yet).
+    """
+
+    def __init__(self, dim, layer, q_r, q_w, ys0, sedpar, asm1par, tempmodel, modeltype):
         self.dim = dim
         self.layer = layer
         self.q_r = q_r
@@ -447,31 +450,33 @@ class Settler(Module):
         Parameters
         ----------
         timestep : int or float
-            Size of integration interval in days
+            Size of integration interval [days].
         step : int or float
-            Upper boundary for integration interval in days
+            Upper boundary for integration interval [days].
         ys_in : np.ndarray
-            Settler inlet concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            Settler inlet concentrations of the 21 components <br>
+            (13 ASM1 components, TSS, Q, T and 5 dummy states).
 
         Returns
         -------
-        (np.ndarray, np.ndarray, np.ndarray, float, np.ndarray)
-            Tuple containing three arrays and a float:
-                ys_ret: Array containing the values of the 21 components
-                (13 ASM1 components, TSS, Q, T and 5 dummy states)
-                in the underflow (bottom layer of settler) at the current time step
-                after the integration - return sludge
-                ys_was: Array containing the values of the 21 components
-                (13 ASM1 components, TSS, Q, T and 5 dummy states)
-                in the underflow (bottom layer of settler) at the current time step
-                after the integration - waste sludge
-                ys_eff: Array containing the values of the 21 components
-                (13 ASM1 components, TSS, Q, T and 5 dummy states)
-                in the effluent (top layer of settler) and 4 additional parameters
-                (Kjeldahl N, total N, total COD, BOD5 concentration)
-                at the current time step after the integration - effluent
-                sludge_height: Float containing the continuous signal of sludge blanket level
-                ys_tss_internal: Array containing the internal TSS states of the settler
+        tuple
+            Tuple containing four arrays and a float: <br>
+            (np.ndarray, np.ndarray, np.ndarray, float, np.ndarray) \n
+            - ys_ret: Array containing the values of the 21 components
+              (13 ASM1 components, TSS, Q, T and 5 dummy states)
+              in the underflow (bottom layer of settler) at the current time step
+              after the integration - **return sludge**.
+            - ys_was: Array containing the values of the 21 components
+              (13 ASM1 components, TSS, Q, T and 5 dummy states)
+              in the underflow (bottom layer of settler) at the current time step
+              after the integration - **waste sludge**.
+            - ys_eff: Array containing the values of the 21 components
+              (13 ASM1 components, TSS, Q, T and 5 dummy states)
+              in the effluent (top layer of settler) and 4 additional parameters
+              (Kjeldahl N, total N, total COD, BOD5 concentration)
+              at the current time step after the integration - **effluent**.
+            - sludge_height: Float containing the continuous signal of sludge blanket level.
+            - ys_tss_internal: Array containing the internal TSS states of the settler.
         """
 
         nooflayers = self.layer[1]

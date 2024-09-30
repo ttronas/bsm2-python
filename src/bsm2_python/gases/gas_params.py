@@ -2,9 +2,7 @@ from typing import ClassVar
 
 
 class GasParams:
-    """
-    Class containing the physical properties of gases used in the model.
-    """
+    """Class containing the physical properties of gases used in the model."""
 
     O2: ClassVar[dict] = {
         'mole': 0.032,  # kg/mol

@@ -10,27 +10,26 @@ from bsm2_python.bsm2.module import Module
 
 @jitclass
 class Combiner(Module):
+    """Combines multiple arrays in ASM1 format into one array in ASM1 format."""
+
     def __init__(self):
-        """
-        Combines multiple arrays in ASM1 format into one array in ASM1 format.
-        """
         pass
 
     @staticmethod
     def output(*args):
-        """
-        Combines multiple arrays in ASM1 format into one array in ASM1 format.
+        """Combines multiple arrays in ASM1 format into one array in ASM1 format.
 
         Parameters
         ----------
-        *args : np.ndarray[21]
-            ASM1 arrays to be combined
+        *args : np.ndarray(21)
+            ASM1 arrays to be combined.
 
         Returns
         -------
-        out : np.ndarray[21]
-            ASM1 array with combined values
+        out : np.ndarray(21)
+            ASM1 array with combined values.
         """
+
         out = np.zeros(21)
         if args[0][14] == 0:  # if no flow in first array, search for first array with flow
             start_idx = len(args)
@@ -50,39 +49,40 @@ class Combiner(Module):
 
 @jitclass(spec=(('sp_type', int32),))
 class Splitter(Module):
-    def __init__(self, sp_type=1):
-        """
-        Splits an array in ASM1 format into multiple arrays in ASM1 format.
+    """Splits an array in ASM1 format into multiple arrays in ASM1 format.
 
-        Parameters
-        ----------
-        type : int
-            type of splitter (1 or 2)
-            1: split ratio is specified in splitratio parameter (default)
-            2: split ratio is not specified, but a threshold value is specified in qthreshold parameter
-               everything above qthreshold is split into the second flow
-        """
+    Parameters
+    ----------
+    sp_type : int
+        Type of splitter (1 or 2) \n
+        - 1: Split ratio is specified in splitratio parameter (default).
+        - 2: Split ratio is not specified, but a threshold value is specified in qthreshold parameter
+                everything above qthreshold is split into the second flow.
+    """
+
+    def __init__(self, sp_type=1):
         self.sp_type = sp_type
 
     def output(self, in1, splitratio=(0.0, 0.0), qthreshold=0):
-        """
-        Splits an array in ASM1 format into multiple arrays in ASM1 format.
+        """Splits an array in ASM1 format into multiple arrays in ASM1 format.
 
         Parameters
         ----------
-        in : np.ndarray[21]
-            ASM1 array to be split
-        splitratio : Tuple(float)
-            split ratio for each component. Ideally sums up to 1
-            (except if sp_type=2, then no split ratio is needed and flow is split into two flows)
+        in1 : np.ndarray(21)
+            ASM1 array to be split.
+        splitratio : tuple(float)
+            Split ratio for each component. <br>
+            Ideally sums up to 1 (except if sp_type=2, then no split ratio is
+            needed and flow is split into two flows).
         qthreshold : float
-            threshold value for type 2 splitter
+            Threshold value for type 2 splitter.
 
         Returns
         -------
-        outs : Tuple(np.ndarray[21])
-            ASM1 arrays with split volume flows. Tuple of length of splitratio
+        outs : tuple(np.ndarray(21))
+            ASM1 arrays with split volume flows. Tuple of length of splitratio.
         """
+
         outs = List()
         if in1[14] == 0:  # if no flow, all split flows are 0
             for _ in range(len(splitratio)):
@@ -116,23 +116,23 @@ class Splitter(Module):
 
 
 def reduce_asm1(asm1_arr, reduce_to=('SI', 'SS', 'XI', 'XS', 'XBH', 'SNH', 'SND', 'XND', 'TSS', 'Q', 'TEMP')):
-    """
-    Reduces ASM1 array to selected components.
+    """Reduces ASM1 array to selected components.
 
     Parameters
     ----------
-    asm1_arr : np.ndarray[21]
-        ASM1 array to be reduced. Needs to contain all ASM1 components:
-        ["SI", "SS", "XI", "XS", "XBH", "XBA", "XP", "SO", "SNO", "SNH","SND",
-         "XND", "SALK", "TSS", "Q", "TEMP", "SD1", "SD2", "SD3", "XD4", "XD5"]
-    reduce_to : Tuple(str)
-        components to be included in the reduced array. Defaults to all changing components in BSM2 influent file.
+    asm1_arr : np.ndarray(21)
+        ASM1 array to be reduced. Needs to contain all ASM1 components: \n
+        [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND,
+        XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5]
+    reduce_to : tuple(str)
+        Components to be included in the reduced array. Defaults to all changing components in BSM2 influent file.
 
     Returns
     -------
     out : np.ndarray
-        reduced ASM1 array
+        Reduced ASM1 array.
     """
+
     asm1_components = (
         'SI',
         'SS',
@@ -179,26 +179,26 @@ def expand_asm1(
     red_components=('SI', 'SS', 'XI', 'XS', 'XBH', 'SNH', 'SND', 'XND', 'TSS', 'Q', 'TEMP'),
     expand_by=None,
 ):
-    """
-    Expands reduced ASM1 array to full ASM1 array.
+    """Expands reduced ASM1 array to full ASM1 array.
 
     Parameters
     ----------
     red_arr : np.ndarray
-        reduced ASM1 array to be expanded.
-    red_components : Tuple(str)
-        components in the reduced array. Defaults to all changing components in BSM2 influent file:
-        ["SI", "SS", "XI", "XS", "XBH", "SNH", "SND", "XND", "TSS", "Q", "TEMP"]
-    expand_by : Dict(str:int)
-        components to be added to the reduced array.
-        Defaults to all non-changing components in BSM2 influent file and their default values:
+        Reduced ASM1 array to be expanded.
+    red_components : tuple(str)
+        Components in the reduced array. Defaults to all changing components in BSM2 influent file: \n
+        [SI, SS, XI, XS, XBH, SNH, SND, XND, TSS, Q, TEMP]
+    expand_by : dict(str:int)
+        Components to be added to the reduced array. <br>
+        Defaults to all non-changing components in BSM2 influent file and their default values: \n
         {"XBA": 0, "XP": 0, "SO": 0, "SNO": 0, "SALK": 7, "SD1": 0, "SD2": 0, "SD3": 0, "XD4": 0, "XD5": 0}
 
     Returns
     -------
     out : np.ndarray[21]
-        expanded ASM1 array
+        Expanded ASM1 array.
     """
+
     if expand_by is None:
         expand_by = {'XBA': 0, 'XP': 0, 'SO': 0, 'SNO': 0, 'SALK': 7, 'SD1': 0, 'SD2': 0, 'SD3': 0, 'XD4': 0, 'XD5': 0}
 

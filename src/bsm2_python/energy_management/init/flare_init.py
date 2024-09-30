@@ -1,6 +1,4 @@
-"""
-This file initiates parameter values and sets initial conditions for the model implementation of chp.py.
-"""
+"""This file initiates parameter values and sets initial conditions for the model implementation of `chp.py`."""
 
 import numpy as np
 

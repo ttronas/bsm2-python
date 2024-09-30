@@ -1,6 +1,4 @@
-"""
-Evaluation file to store, export and plot data.
-"""
+"""Evaluation file to store, export and plot data."""
 
 import math
 
@@ -11,15 +9,15 @@ from bsm2_python.log import logger
 
 
 class Evaluation:
-    def __init__(self, filepath):
-        """
-        Creates an Evaluation object.
+    """Creates an evaluation object.
 
-        Parameters
-        ----------
-        filepath : str
-            Path to the file where the data will be exported.
-        """
+    Parameters
+    ----------
+    filepath : str
+        Path to the file where the data will be exported.
+    """
+
+    def __init__(self, filepath):
         self.filepath = filepath
         self.data_objects: list[DataObject] = []
 
@@ -32,28 +30,30 @@ class Evaluation:
         export: bool = True,
         plot: bool = True,
     ):
-        """
-        Adds a new DataObject to the data_objects list.
+        """Adds a new DataObject to the data_objects list.
 
         Parameters
         ----------
         name : str
-            Name of the DataObject to be added
+            Name of the DataObject to be added.
         column_names : str or list[str]
-            Names of the columns in the DataObject
-        units : str or list[str], optional
+            Names of the columns in the DataObject.
+        units : str or list[str] (optional)
             Units of the columns in the DataObject, '-' at default, if only one unit is specified it is applied to all
-            columns
-        export : bool, optional
-            If True the data will be exported to the csv file, default is True
-        plot : bool, optional
-            If True the data will be plotted, default is True
+            columns.
+        export : bool (optional)
+            If True the data will be exported to the csv file. <br>
+            Default is True.
+        plot : bool (optional)
+            If True the data will be plotted. <br>
+            Default is True.
 
         Returns
         -------
         DataObject
-            DataObject that was added
+            DataObject that was added.
         """
+
         if any(data_object.name == name for data_object in self.data_objects):
             logger.warning(f'Data object with name {name} already exists')
             return
@@ -70,19 +70,19 @@ class Evaluation:
         return new_data_object
 
     def update_data(self, name: str, values: float | list[float] | np.ndarray, timestamp: float):
-        """
-        Updates the data stored in the DataObject with the specified name.
+        """Updates the data stored in the DataObject with the specified name.
 
         Parameters
         ----------
         name : str
-            Name of the DataObject whose data is to be updated
+            Name of the DataObject whose data is to be updated.
         values : float or list[float] or np.ndarray
             Values to be appended to the columns of the DataObject, if only one column exists a single value can be
-            used instead of a list
+            used instead of a list.
         timestamp : float
-            Timestamp to be appended to the timestamps of the DataObject
+            Timestamp to be appended to the timestamps of the DataObject.
         """
+
         if not any(data_object.name == name for data_object in self.data_objects):
             logger.warning(f'No data object with name {name} found')
             return
@@ -101,19 +101,19 @@ class Evaluation:
                 data_object.append(values, timestamp)
 
     def get_data(self, name: str):
-        """
-        Returns the DataObject with the specified name.
+        """Returns the DataObject with the specified name.
 
         Parameters
         ----------
         name : str
-            Name of the DataObject to be returned
+            Name of the DataObject to be returned.
 
         Returns
         -------
         DataObject
-            DataObject with the specified name
+            DataObject with the specified name.
         """
+
         if not any(data_object.name == name for data_object in self.data_objects):
             logger.warning(f'No data object with name {name} found')
             return
@@ -122,21 +122,21 @@ class Evaluation:
                 return data_object
 
     def get_index(self, name: str, column_name: str):
-        """
-        Returns the index of the specified column in the DataObject with the specified name.
+        """Returns the index of the specified column in the DataObject with the specified name.
 
         Parameters
         ----------
         name : str
-            Name of the DataObject whose column index is to be returned
+            Name of the DataObject whose column index is to be returned.
         column_name : str
-            Name of the column whose index is to be returned
+            Name of the column whose index is to be returned.
 
         Returns
         -------
         int
-            Index of the specified column
+            Index of the specified column.
         """
+
         if not any(data_object.name == name for data_object in self.data_objects):
             logger.warning(f'No data object with name {name} found')
             return
@@ -145,19 +145,19 @@ class Evaluation:
                 return data_object.get_index(column_name)
 
     def get_timestamps(self, name: str):
-        """
-        Returns the timestamps stored in the DataObject with the specified name.
+        """Returns the timestamps stored in the DataObject with the specified name.
 
         Parameters
         ----------
         name : str
-            Name of the DataObject whose timestamps are to be returned
+            Name of the DataObject whose timestamps are to be returned.
 
         Returns
         -------
         list[float]
-            Timestamps of the DataObject
+            Timestamps of the DataObject.
         """
+
         if not any(data_object.name == name for data_object in self.data_objects):
             logger.warning(f'No data object with name {name} found')
             return
@@ -166,9 +166,8 @@ class Evaluation:
                 return data_object.get_timestamps()
 
     def export_data(self):
-        """
-        Exports the data stored in the vars_dicts list to a csv file at the specified filepath.
-        """
+        """Exports the data stored in the vars_dicts list to a csv file at the specified filepath."""
+
         if not self.data_objects:
             logger.warning('No data to export')
             return
@@ -212,9 +211,8 @@ class Evaluation:
         logger.info('Data exported to ' + self.filepath)
 
     def plot_data(self):
-        """
-        Plots the data stored in the vars_dicts list.
-        """
+        """Plots the data stored in the vars_dicts list."""
+
         if not self.data_objects:
             logger.warning('No data to plot')
             return
@@ -256,16 +254,19 @@ class DataObject:
         Parameters
         ----------
         name : str
-            Name of the data object
+            Name of the data object.
         column_names : list[str]
-            Names of the columns in the data object
-        units : list[str], optional
-            Units of the columns in the data object, '-' at default
-        export : bool, optional
-            If True the data will be exported to the csv file, default is True
-        plot : bool, optional
-            If True the data will be plotted, default is True
+            Names of the columns in the data object.
+        units : list[str] (optional)
+            Units of the columns in the data object, '-' at default.
+        export : bool (optional)
+            If True the data will be exported to the csv file. <br>
+            Default is True.
+        plot : bool (optional)
+            If True the data will be plotted. <br>
+            Default is True.
         """
+
         self.name = name
         self.column_names = column_names
         if units is None:
@@ -282,15 +283,16 @@ class DataObject:
         self.num_timestamps = 0
 
     def __repr__(self):
-        """
-        Returns the string representation of the DataObject.
+        """Returns the string representation of the DataObject.
+
         Formats data in columns with headers for each column.
 
         Returns
         -------
         str
-            String representation of the DataObject
+            String representation of the DataObject.
         """
+
         output = '\n' + self.name + ':\n'
         headers = ['timestamp [d]']
         for key, _ in self.data_dict.items():
@@ -320,35 +322,35 @@ class DataObject:
         return output + '\n'
 
     def append(self, values, timestamp):
-        """
-        Appends values and timestamp to the data object.
+        """Appends values and timestamp to the data object.
 
         Parameters
         ----------
         values : list[float]
-            Values to be appended to the columns of the data object
+            Values to be appended to the columns of the data object.
         timestamp : float
-            Timestamp to be appended to the timestamps of the data object
+            Timestamp to be appended to the timestamps of the data object.
         """
+
         for i, column_name in enumerate(self.column_names):
             self.data_dict[column_name]['values'].append(values[i])
         self.timestamps.append(timestamp)
         self.num_timestamps += 1
 
     def get_values(self, column_name: str | None = None):
-        """
-        Returns the values stored in the data object.
+        """Returns the values stored in the data object.
 
         Parameters
         ----------
-        column_name : str, optional
-            Name of the column whose values are to be returned, if not specified all values are returned
+        column_name : str (optional)
+            Name of the column whose values are to be returned, if not specified all values are returned.
 
         Returns
         -------
         2D list
-            list over columns containing the values at each timestamp
+            List over columns containing the values at each timestamp.
         """
+
         if column_name is not None:
             return [self.data_dict[column_name]['values']]
         else:
@@ -356,23 +358,28 @@ class DataObject:
             return values
 
     def get_index(self, column_name: str):
-        """
-        Returns the index of the specified column in the data object.
+        """Returns the index of the specified column in the data object.
 
         Parameters
         ----------
         column_name : str
-            Name of the column whose index is to be returned
+            Name of the column whose index is to be returned.
 
         Returns
         -------
         int
-            Index of the specified column
+            Index of the specified column.
         """
+
         return self.column_names.index(column_name)
 
     def get_timestamps(self):
+        """Returns the timestamps stored in the data object.
+
+        Returns
+        -------
+        int or float
+            Timestamps stored in the data object.
         """
-        Returns the timestamps stored in the data object.
-        """
+
         return self.timestamps

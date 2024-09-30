@@ -1,8 +1,8 @@
-"""
+"""This represents the base model of the BSM2 group of classes.
+
 Model file for bsm2 model with primary clarifier,
 5 asm1-reactors and a second clarifier, sludge thickener,
 adm1-fermenter and sludge storage in dynamic simulation without any controllers.
-This represents the base model of the BSM2 group of classes.
 """
 
 import csv
@@ -38,6 +38,32 @@ SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, S
 
 
 class BSM2Base:
+    """Creates a BSM2Base object. It is a base class and resembles the BSM2 model without any controllers.
+
+    Parameters
+    ----------
+    data_in : np.ndarray (optional)
+        Influent data. Has to be a 2D array. <br>
+        First column is time [days], the rest are 21 components
+        (13 ASM1 components, TSS, Q, T and 5 dummy states). <br>
+        If not provided, the influent data from BSM2 is used.
+    timestep : float (optional)
+        Timestep for the simulation [days]. <br>
+        If not provided, the timestep is calculated from the influent data.
+    endtime : float (optional)
+        Endtime for the simulation [days]. <br>
+        If not provided, the endtime is the last time step in the influent data.
+    evaltime : np.ndarray (optional)
+        Evaluation time for the simulation. Needs to be passed as a 1D np.ndarray with two values. <br>
+        If not provided, the last 5 days of the simulation will be assessed.
+    tempmodel : bool (optional)
+        If True, the temperature model dependencies are activated. <br>
+        Default is False.
+    activate : bool (optional)
+        If True, the dummy states are activated. <br>
+        Default is False.
+    """
+
     def __init__(
         self,
         data_in=None,
@@ -48,28 +74,6 @@ class BSM2Base:
         tempmodel=False,
         activate=False,
     ):
-        """
-        Creates a BSM2Base object. It is a base class and resembles the BSM2 model without any controllers.
-
-        Parameters
-        ----------
-        data_in : np.ndarray, optional
-            Influent data. Has to be a 2D array. First column is time in days, the rest are 21 components
-            (13 ASM1 components, TSS, Q, T and 5 dummy states)
-            If not provided, the influent data from BSM2 is used
-        timestep : float, optional
-            Timestep for the simulation in days. If not provided, the timestep is calculated from the influent data
-        endtime : float, optional
-            Endtime for the simulation in days. If not provided, the endtime is the last time step in the influent data
-        evaltime : np.ndarray, optional
-            Evaluation time for the simulation. Needs to be passed as a 1D np.ndarray with two values.
-            If not provided, the last 5 days of the simulation will be assessed
-        tempmodel : bool, optional
-            If True, the temperature model dependencies are activated. Default is False
-        activate : bool, optional
-            If True, the dummy states are activated. Default is False
-        """
-
         # definition of the objects:
         self.input_splitter = Splitter(sp_type=2)
         self.bypass_plant = Splitter()
@@ -281,13 +285,12 @@ class BSM2Base:
         self.y_out5_r[14] = asm1init.QINTR
 
     def step(self, i: int, *args, **kwargs):
-        """
-        Simulates one time step of the BSM2 model.
+        """Simulates one time step of the BSM2 model.
 
         Parameters
         ----------
         i : int
-            Index of the current time step
+            Index of the current time step.
         """
 
         # timestep = timesteps[i]
@@ -441,14 +444,15 @@ class BSM2Base:
         self.yp_internal_all[i] = self.yp_internal
 
     def stabilize(self, atol: float = 1e-3):
-        """
-        Stabilizes the plant.
+        """Stabilizes the plant.
 
         Parameters
         ----------
-        atol : float, optional
-            Absolute tolerance for the stabilization. Default is 1e-3
+        atol : float (optional)
+            Absolute tolerance for the stabilization. <br>
+            Default is 1e-3.
         """
+
         stable = False
         i = 0
         s = 0  # index of the timestep to call repeatedly until stabilization
@@ -499,16 +503,18 @@ class BSM2Base:
         return stable
 
     def simulate(self, *, plot=True, export=True):
-        """
-        Simulates the plant.
+        """Simulates the plant.
 
         Parameters
         ----------
-        plot : bool, optional
-            If True, the data is plotted. Default is True
-        export : bool, optional
-            If True, the data is exported. Default is True
+        plot : bool (optional)
+            If True, the data is plotted. <br>
+            Default is True.
+        export : bool (optional)
+            If True, the data is exported. <br>
+            Default is True.
         """
+
         for i, _ in enumerate(tqdm(self.simtime)):
             self.step(i)
 
@@ -527,37 +533,41 @@ class BSM2Base:
         self.finish_evaluation(plot=plot, export=export)
 
     def finish_evaluation(self, *, plot=True, export=True):
-        """
-        Finishes the evaluation of the plant.
+        """Finishes the evaluation of the plant.
 
         Parameters
         ----------
-        plot : bool, optional
-            If True, the data is plotted. Default is True
-        export : bool, optional
-            If True, the data is exported. Default is True
+        plot : bool (optional)
+            If True, the data is plotted. <br>
+            Default is True.
+        export : bool (optional)
+            If True, the data is exported. <br>
+            Default is True.
         """
+
         if plot:
             self.evaluator.plot_data()
         if export:
             self.evaluator.export_data()
 
     def get_violations(self, comp: tuple = ('SNH',), lim: tuple = (4,)):
-        """
-        Returns the violations of the given components within the evaluation interval.
+        """Returns the violations of the given components within the evaluation interval.
 
         Parameters
         ----------
-        comp : tuple of str, optional
-            List of components to check for violations. Default is ('SNH')
-        lim : tuple of float, optional
-            List of limits for the components. Default is (4)
+        comp : tuple(str) (optional)
+            List of components to check for violations. <br>
+            Default is ('SNH').
+        lim : tuple(float) (optional)
+            List of limits for the components. <br>
+            Default is (4).
 
         Returns
         -------
         violations : dict
-            Dictionary with the components as keys and the violations/day as values
+            Dictionary with the components as keys and the violations/day as values.
         """
+
         comp_dict = {
             'SI': 0,
             'SS': 1,
@@ -596,40 +606,40 @@ class BSM2Base:
         return violations
 
     def get_final_performance(self):
-        """
-        Returns the final performance values for evaluation period.
+        """Returns the final performance values for evaluation period.
 
         Returns
         -------
         iqi_eval : float
-            The final iqi value / kg/d
+            The final iqi value [kg/d].
         eqi_eval : float
-            The final eqi value / kg/d
+            The final eqi value [kg/d].
         tot_sludge_prod : float
-            The total sludge production / kg/d
+            The total sludge production [kg/d].
         tot_tss_mass : float
-            The total tss mass / kg/d
+            The total tss mass [kg/d].
         carb_mass : float
-            The carbon mass / kg_COD/d
+            The carbon mass [kg_COD/d].
         ch4_prod : float
-            The methane production / kg_CH4/d
+            The methane production [kg_CH4/d].
         h2_prod : float
-            The hydrogen production / kg_H2/d
+            The hydrogen production [kg_H2/d].
         co2_prod : float
-            The carbon dioxide production / kg_CO2/d
+            The carbon dioxide production [kg_CO2/d].
         q_gas : float
-            The total gas production / m3/d
+            The total gas production [m³/d].
         heat_demand : float
-            The heat demand / kWh/d
+            The heat demand [kWh/d].
         mixingenergy : float
-            The mixing energy / kWh/d
+            The mixing energy [kWh/d].
         pumpingenergy : float
-            The pumping energy / kWh/d
+            The pumping energy [kWh/d].
         aerationenergy : float
-            The aeration energy / kWh/d
+            The aeration energy [kWh/d].
         oci_eval : float
-            The final oci value
+            The final oci value.
         """
+
         # calculate the final performance values
 
         num_eval_timesteps = self.eval_idx[1] - self.eval_idx[0]

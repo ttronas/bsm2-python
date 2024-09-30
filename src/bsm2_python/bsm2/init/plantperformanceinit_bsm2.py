@@ -1,3 +1,5 @@
+"""Initialisation file for all states and parameters related to the plant performance."""
+
 import numpy as np
 
 # Effluent pollutant concentration discharge limits
