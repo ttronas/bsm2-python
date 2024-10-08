@@ -41,6 +41,7 @@ KLA4_MAX = 360
 KSO4 = 25  # Amplification, 500 in BSM1 book
 TISO4 = 0.002  # I-part time constant (d = 2.88 min)), integral time constant, 0.001 in BSM1 book
 TTSO4 = 0.001  # Antiwindup time constant (d), tracking time constant, 0.0002 in BSM1 book
+TDSO4 = 0  # as it is a PI controller, the Differential term is set to 0
 SO4INTSTATE = -321.7493546935257
 SO4AWSTATE = 379.05091041032915
 SO4REF = 2  # setpoint for controller, mg (-COD)/l
