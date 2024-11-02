@@ -40,15 +40,15 @@ theme:
   palette:
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: indigo
-      accent: indigo
+      primary: teal
+      accent: green
       toggle:
         icon: material/lightbulb-outline # material/weather-night
         name: Switch to light mode
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: indigo
-      accent: indigo
+      primary: teal
+      accent: green
       toggle:
         icon: material/lightbulb # material/weather-sunny
         name: Switch to dark mode
@@ -56,7 +56,7 @@ theme:
     - navigation.tabs
     - navigation.tabs.sticky
     - navigation.sections
-    - navigation.expand
+    # - navigation.expand
     - navigation.instant
     - navigation.top
 
