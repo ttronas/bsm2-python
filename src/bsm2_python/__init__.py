@@ -1,4 +1,23 @@
-""" """
+"""This is the source code folder (bsm2_python) of the Benchmark Simulation Model No. 2 in Python.
+
+This folder contains sub folders that include source code from different projects:
+
+- **BSM2 project folders**: bsm2
+- **Kläffizient project folders**: data, energy_management, gases
+
+The following shows the folder structure for the source code:
+
+<pre>
+src/
+└── bsm2_python/
+    ├── bsm2/
+    │   └── init
+    ├── data
+    ├── energy_management/
+    │   └── init
+    └── gases
+</pre>
+"""
 
 from importlib.metadata import PackageNotFoundError, version
 
