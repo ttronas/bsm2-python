@@ -29,10 +29,11 @@ site_dir: site
 theme:
   name: material
   language: en
-  favicon: assets/images/favicon.svg
+  favicon: assets/images/favicon.ico
+  logo: assets/images/favicon.ico
   icon:
     repo: fontawesome/brands/github-alt
-    logo: fontawesome/solid/egg
+    # logo: fontawesome/solid/egg
   font:
     text: Roboto
     code: Roboto Mono
