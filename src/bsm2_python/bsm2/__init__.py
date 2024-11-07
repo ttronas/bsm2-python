@@ -1,12 +1,21 @@
 """
 <pre>
 src/
-└── bsm2_python/ 
-    ├── <span style="color:#4cae4f">bsm2</span>/               (BSM2)
-    │   └── init
-    ├── data                (BSM2 & Kläff)
-    ├── energy_management/  (Kläff)
-    │   └── init
-    └── gases               (Kläff)
+└─── bsm2_python/
+     |      └─ Root folder of the project code
+     │         Contains pre-defined plant layouts and controllers
+     ├── <span style="color:#4cae4f">bsm2</span>/
+     │   │  └─ All modules for the BSM2 plant layouts
+     │   └─── init
+     │        └─ Initialisation files for the BSM2 plant layouts
+     ├── data
+     │   └─ Standard datasets for influent data
+     │      and sensor noise
+     ├── energy_management/
+     │   │  └─ Modules for the energy management side of the BSM2 plant
+     │   └─── init
+     │        └─ Initialisation files for the gas management side
+     └── gases
+         └─ Modules for the physical properties of the gases
 </pre>
 """
