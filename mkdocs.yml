@@ -20,6 +20,7 @@ nav:
     - Copyright: copyright.md
     - Contributing: contributing.md
     - Documentation: documentation.md
+    - Installation: installation.md
   # defer to gen-files + literate-nav
   - Source Code Documentation: reference/
 
