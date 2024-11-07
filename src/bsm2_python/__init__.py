@@ -1,21 +1,17 @@
-"""This is the source code folder (bsm2_python) of the Benchmark Simulation Model No. 2 in Python.
+"""This is the source code folder of the Benchmark Simulation Model No. 2 in Python. <br>
+The sub folders include source code from both the BSM2 and Kläffizient project.
 
-This folder contains sub folders that include source code from different projects:
-
-- **BSM2 project folders**: bsm2
-- **Kläffizient project folders**: data, energy_management, gases
-
-The following shows the folder structure for the source code:
+The following graph shows the folder structure for the source code:
 
 <pre>
 src/
-└── bsm2_python/
-    ├── bsm2/
+└── <span style="color:#4cae4f">bsm2_python</span>/ 
+    ├── bsm2/               (BSM2)
     │   └── init
-    ├── data
-    ├── energy_management/
+    ├── data                (BSM2 & Kläff)
+    ├── energy_management/  (Kläff)
     │   └── init
-    └── gases
+    └── gases               (Kläff)
 </pre>
 """
 
