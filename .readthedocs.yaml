@@ -13,5 +13,19 @@ python:
   install:
     - method: pip
       path: .
-      extra_requirements:
-        - docs
+    - requirements:
+        - mkdocs~=1.5
+        - mkdocs-material[imaging]~=9.4
+        - mkdocs-include-markdown-plugin
+        - mkdocs-gen-files
+        - mkdocs-literate-nav
+        - mkdocs-minify-plugin~=0.5
+        - mkdocs-section-index
+        - mkdocs-git-revision-date-localized-plugin~=1.1
+        - mkdocstrings[python]
+        - mkdocs-redirects~=1.2
+        - mkdocs-glightbox~=0.3.0
+        - mike~=2.0.0
+        - pymdown-extensions~=10.5
+        - pygments~=2.13
+        - linkchecker~=10.3

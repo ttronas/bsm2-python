@@ -292,7 +292,7 @@ dependencies = [
     "pygments~=2.13",
     # Validation
     "linkchecker~=10.3",
-    ]
+]
 [tool.hatch.envs.docs.env-vars]
 SOURCE_DATE_EPOCH = "1580601600"
 PYTHONUNBUFFERED = "1"
