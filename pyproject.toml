@@ -273,6 +273,8 @@ debug =  "cov --no-cov -s --pdb --pdbcls=IPython.core.debugger:Pdb {args}"
 # Docs environment
 [tool.hatch.envs.docs]
 dependencies = [
+    # Don't forget to update the version in the
+    #docs/requirements.txt file if changes are made here
     "mkdocs~=1.5",
     "mkdocs-material[imaging]~=9.4",
     # Plugins

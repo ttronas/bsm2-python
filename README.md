@@ -1,15 +1,20 @@
 # BSM2-Python
 
-A Python implementation of the Benchmark Simulation Model 2 (BSM2) plant layout according to the [IWA](http://iwa-mia.org/) standard.
-A description of BSM2 can be found [here](https://iwaponline.com/ebooks/book-pdf/650794/wio9781780401171.pdf).
+[![pipeline status](https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python/badges/main/pipeline.svg)](https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python/-/commits/main)
+[![coverage report](https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python/badges/main/coverage.svg)](https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python/-/commits/main)
+[![PyPI version](https://badge.fury.io/py/bsm2-python.svg)](https://badge.fury.io/py/bsm2-python)
+![PyPI Downloads](https://static.pepy.tech/badge/bsm2-python)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5555555.svg)](https://doi.org/10.5281/zenodo.5555555)
 
-## To-Do:
-- [ ] Nick: Write docs!
+![BSM2 with Energy Management in Python](img/bsm2em_python.drawio.svg)
+
+A Python implementation of the Benchmark Simulation Model 2 (BSM2) plant layout according to the [IWA](http://iwa-mia.org/) standard.
+A technical description of BSM2 can be found [here](https://iwaponline.com/ebooks/book-pdf/650794/wio9781780401171.pdf).
 
 ## Installation
 ### Easy way
-To run the project, install the latest release via pypi:
-`pip install bsm2_python`
+To run the project, install the latest release via PyPI:
+`pip install bsm2-python`
 ### Build from source
 If you want the bleeding edge version from the repo, build it yourself via `hatch build`.
 See the [Contribution Guide](CONTRIBUTING.md) for more details on how to install `hatch` (or simply use the [Docker image](#docker)).
@@ -95,9 +100,10 @@ cash_flow = bsm2_olem.economics.cum_cash_flow
 You can also implement your own plant layout. Lots of classes are available to choose from. See the [Documentation](docs/) for more information.
 The [`tests`](tests/) folder contains a lot of examples on how to use the plant layouts.
 
-## Docker
-There is also a fully functional Docker image available in the [GitLab Container Registry](gitlab.rrze.fau.de:4567/evt/klaeffizient/bsm2-python).
-It is a dev container and can be used to run the tests and do active development.
+## Dev container
+There is also a fully functional Dev Container image available for development.
+Just open the repo in VSCode and install the Remote Containers extension.
+Then, open the repo in a container and you are ready to go.
 
 ## Project structure
 The project is structured as follows:
@@ -129,12 +135,13 @@ bsm2-python
          └─Reference files for validation purposes
 ```
 ## Usage
-At the moment, you can choose between four different configurations of the plant:
+At the moment, you can choose between 3 different ready-to-use configurations of the plant:
 1. BSM2OL: BSM2 without any control (dynamic or static influent data - you choose)
 2. BSM2CL: BSM2 with aeration control in tanks 3-5
-3. and a custom plant setup with completely free configurable setup. with aeration control in tank 3, 4 and 5
+3. BSM2OLEM: BSM2OL with energy management model and a default gas management.
+You can as well create your own plant layout. Just use the classes in the `bsm2` folder and mix them as you like.
 
-The results are saved inside the objects and can be accessed via calling the attribute names. For the plant effluent, just call `bsm2.y_eff_all`.
+The results of the pre-made configurations are saved inside the objects and can be accessed via calling the attribute names. For the plant effluent, just call `bsm2.y_eff_all`.
 With `tempmodel` and `activate`, differential equations for temperature dependency and additional components can be added.
 If you want to create your own plant layout, use the `bsm2_xx.py` files as template. Put your own parameters and values in separate `init` files.
 
@@ -145,16 +152,17 @@ If you find any issues inside the repo, don't hesitate to raise an Issue.
 
 ## Roadmap
 In the future, this repo will be extended by the following features:
+- [ ] Graphical User Interface for easy plant setup and parameter setting
 - [ ] Faster computation through Rust-based backend
 - [ ] Support of more experimental tools, e.g. photovoltaics, methanation or electrolysis
 
 
 ## Authors and acknowledgment
-Thanks to Maike Böhm for first implementing the ASM in Python in her Masters Thesis.
-Thanks as well to Lukas Meier for implementing the Gas management side of the BSM2 plant.
+Thanks to Maike Böhm for first implementing the Activated Sludge Models in Python in her Masters Thesis.
+Thanks as well to Lukas Meier for implementing the Gas management side of the BSM2 plant and Nick Salomon for prettifying the documentation.
 
 
-The development of this package was done in the context of the [KLÄFFIZIENT] project. The project is funded by the German Federal Ministry for Economic Affairs and Climate Action ([BMWK]) and is part of the 7th Energy Research Program of the Federal Government.
+The development of this package was done in the context of the [KLÄFFIZIENT] and [KLÄFFIZIENTER] projects. Both are funded by the German Federal Ministry for Economic Affairs and Climate Action ([BMWK]) and are part of the 7th and 8th Energy Research Program of the Federal Government.
 
 ## License
 This project is licensed under [BSD 3 Clause](LICENSE.txt).
@@ -162,7 +170,9 @@ This project is licensed under [BSD 3 Clause](LICENSE.txt).
 ## Project status
 As we are maintaining this repo in our free time, don't expect rapid development. However, if any Issues are popping up, we will try to fix them in time.
 
-[KLÄFFIZIENT]: https://www.evt.tf.fau.de/forschung/schwerpunktekarl/ag-energiesysteme/bmwi-projekt-klaeffizient/
+[KLÄFFIZIENT]: https://www.evt.tf.fau.eu/startseite-des-lehrstuhls-fur-energieverfahrenstechnik/research/research-topics-prof-karl/ag-energiesysteme/bmwi-project-klaffizient/
+[KLÄFFIZIENTER]: https://www.evt.tf.fau.eu/startseite-des-lehrstuhls-fur-energieverfahrenstechnik/research/research-topics-prof-karl/ag-energiesysteme/bmwk-project-klaffizienter/
+
 [BMWK]: http://bmwk.de/
 
 ## Citation

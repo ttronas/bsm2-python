@@ -41,14 +41,14 @@ This means that the docs are kept in the same repository as the project code, an
 that any documentation update is done in the same way was a code contribution.
 
 !!! tip
-      Please notice that the [GitHub web interface] provides a quick way for
+      Please notice that the web interface provides a quick way for
       proposing changes. While this mechanism can  be tricky for normal code contributions,
       it works perfectly fine for contributing to the docs, and can be quite handy.
 
       If you are interested in trying this method out, please navigate to
       the `docs` folder in the source [repository], find which file you
       would like to propose changes and click in the little pencil icon at the
-      top, to open [GitHub's code editor]. Once you finish editing the file,
+      top, to open the code editor. Once you finish editing the file,
       please write a message in the form at the bottom of the page describing
       which changes have you made and what are the motivations behind them and
       submit your proposal.
@@ -77,7 +77,7 @@ Install the correct Python Version (3.10 - 3. 12) that works with the dependenci
 
 ### Install Git
 
-Git is used as the Version Control System for this project, to track and manage changes to the file system. 
+Git is used as the Version Control System for this project, to track and manage changes to the file system.
 If Git is new to you, you can read [this](https://git-scm.com/book/en/v2/Getting-Started-What-is-Git%3F) Git guide.
 
  - To install Git download and run the windows installer on [this]((https://git-scm.com/downloads)) website.
@@ -192,7 +192,7 @@ You can install the project in two ways:
 
    and start making changes. Never work on the main branch!
 
-2. Start your work on this branch. Don't forget to add [docstrings] in [Google style]
+2. Start your work on this branch. Don't forget to add [docstrings] in [Numpy style]
    to new functions, modules and classes, especially if they are part of public APIs.
 
 3. Add yourself to the list of contributors in `AUTHORS.md`.
@@ -266,12 +266,11 @@ in [pyproject.toml](pyproject.toml) for more commands as well as the package, bu
 [docstrings]: https://peps.python.org/pep-0257/
 [flake8]: https://flake8.pycqa.org/en/stable/
 [git]: https://git-scm.com
-[github web interface]: https://docs.github.com/en/github/managing-files-in-a-repository/managing-files-on-github/editing-files-in-your-repository
 [hatch]: https://hatch.pypa.io/latest/
 [other kinds of contributions]: https://opensource.guide/how-to-contribute
 [pre-commit]: https://pre-commit.com/
 [pipx]: https://pypa.github.io/pipx/
 [python software foundation's code of conduct]: https://www.python.org/psf/conduct/
-[Google style]: https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
+[Numpy style]: https://numpydoc.readthedocs.io/en/latest/format.html
 [guide created by FreeCodeCamp]: https://github.com/FreeCodeCamp/how-to-contribute-to-open-source
 [VSCode]: https://code.visualstudio.com/
