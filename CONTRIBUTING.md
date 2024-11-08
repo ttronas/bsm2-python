@@ -65,19 +65,94 @@ Before you work on any non-trivial code contribution it's best to first create
 a report in the [issue tracker] to start a discussion on the subject.
 This often provides additional considerations and avoids unnecessary work.
 
+### Set up your Integrated Development Environment (IDE)
+
+Before you can get started you have to install an IDE such as [VSCode](https://code.visualstudio.com/) or [PyCharm](https://www.jetbrains.com/de-de/pycharm/) on your device. Since most of the setup instructions are for VSCode, this IDE is recommended if you are new to programming.
+
+### Install Python
+
+Install the correct Python Version (3.10 - 3. 12) that works with the dependencies of the project.
+
+ - To install Python 3.12 download and run the windows installer on [this](https://www.python.org/downloads/release/python-3120/) website.
+
+### Install Git
+
+Git is used as the Version Control System for this project, to track and manage changes to the file system. 
+If Git is new to you, you can read [this](https://git-scm.com/book/en/v2/Getting-Started-What-is-Git%3F) Git guide.
+
+ - To install Git download and run the windows installer on [this]((https://git-scm.com/downloads)) website.
+
+After installation is finished, you have to configure your Git username and email using the following commands in the Git Bash console:
+
+```console
+$ git config --global user.name "Emma Paris"
+$ git config --global user.email "eparis@atlassian.com"
+```
+
+After Git is installed and configured you have to add the GitLab Workflow extension to your IDE:
+
+- Open up VSCode
+- Select "Extentions" on the left side
+- Search for the "GitLab Workflow" extention and install it
+
+### Register on GitLab
+
+- Create a user account on [GitLab](https://gitlab.rrze.fau.de/users/sign_in) if you do not already have one.
+
+### Authenticate your IDE with GitLab
+
+To authenticate your IDE to have permission to GitLab you have to create a personal access token:
+
+- Sign in on GitLab
+
+- On the left sidebar, select your avatar
+
+- Select **Edit profile**
+
+- On the left sidebar, select **Access tokens**
+
+- Select on the **Add new token** button
+
+- Enter a name and expiry date for the token
+
+- Select the desired scopes (preferably all)
+
+- Select **Create personal access token**
+
+- Select **Copy personal access token**
+
+Now open VSCode:
+
+- Press Ctrl+Shift+P
+
+- Search for **GitLab: Authenticate**
+
+- Enter https://gitlab.rrze.fau.de
+
+- Select **Enter an existing token**
+
+- Enter the copied personal access token with Ctrl+V
+
 ### Clone the repository
 
-1. Create a user account on GitHub if you do not already have one.
+- Go to the BSM2-Python repository on [GitLab](https://gitlab.rrze.fau.de/users/sign_in)
 
-2. Fork the project [repository]: click on the *Fork* button near the top of the
-   page. This creates a copy of the code under your account on GitHub.
+- Select the **Code** button and on copy the link from **Clone with SSH**
 
-3. Clone this copy to your local disk:
+Open VSCode:
 
-   ```console
-   git clone git@github.com:YourLogin/bsm2-python.git
-   cd bsm2-python
-   ```
+- Press Ctrl+Shift+P
+
+- Select **Git: Clone**
+
+- Select **Clone from GitLab**
+
+- Select as Repository name **evt/klaeffizient/bsm2_python**
+
+- Enter the copied URL (from step with Clone with SSH) with Ctrl+V
+
+- Select a folder directory in which the project is to be saved
+
 ### Install the project
 
 You can install the project in two ways:

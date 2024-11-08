@@ -1,4 +1,26 @@
-""" """
+"""This is the source code folder of the Benchmark Simulation Model No. 2 in Python. <br>
+The source code is structured as follows:
+
+<pre>
+src/
+└─── <span style="color:#4cae4f">bsm2_python</span>/
+     |      └─ Root folder of the project code
+     │         Contains pre-defined plant layouts and controllers
+     ├── bsm2/
+     │   │  └─ All modules for the BSM2 plant layouts
+     │   └─── init
+     │        └─ Initialisation files for the BSM2 plant layouts
+     ├── data
+     │   └─ Standard datasets for influent data
+     │      and sensor noise
+     ├── energy_management/
+     │   │  └─ Modules for the energy management side of the BSM2 plant
+     │   └─── init
+     │        └─ Initialisation files for the gas management side
+     └── gases
+         └─ Modules for the physical properties of the gases
+</pre>
+"""
 
 from importlib.metadata import PackageNotFoundError, version
 

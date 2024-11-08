@@ -2,7 +2,7 @@
 site_name: BSM2-Python
 site_description: A Python implementation of the Benchmark Simulation Model 2 (BSM2) plant layout according to the IWA standard.
 site_author: Jonas Miederer
-site_url: https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python
+site_url: https://bsm2-python.readthedocs.io
 copyright: 'Copyright &copy; Jonas Miederer 2024-present'
 
 # Repository
@@ -20,6 +20,7 @@ nav:
     - Copyright: copyright.md
     - Contributing: contributing.md
     - Documentation: documentation.md
+    - Installation: installation.md
   # defer to gen-files + literate-nav
   - Source Code Documentation: reference/
 
@@ -29,34 +30,22 @@ site_dir: site
 theme:
   name: material
   language: en
-  favicon: assets/images/favicon.svg
-  icon:
-    repo: fontawesome/brands/github-alt
-    logo: fontawesome/solid/egg
-  font:
-    text: Roboto
-    code: Roboto Mono
   palette:
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      primary: indigo
-      accent: indigo
+    - scheme: slate
+      primary: teal
+      accent: green
       toggle:
-        icon: material/lightbulb-outline # material/weather-night
+        icon: material/lightbulb-outline
         name: Switch to light mode
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: indigo
-      accent: indigo
+    - scheme: default
+      primary: teal
+      accent: green
       toggle:
-        icon: material/lightbulb # material/weather-sunny
+        icon: material/lightbulb
         name: Switch to dark mode
   features:
     - navigation.tabs
-    - navigation.tabs.sticky
     - navigation.sections
-    - navigation.expand
-    - navigation.instant
     - navigation.top
 
 watch:
@@ -64,53 +53,46 @@ watch:
 
 # Extensions
 plugins:
-  # Built-in
-  search: {}
-  autorefs: {}
-  social: {}
-  # Extra
-  include-markdown: {}
-  glightbox: {}
-  minify:
-    minify_html: true
-  mike:
-    alias_type: copy
-  gen-files:
-    scripts:
-      - docs/scripts/gen_ref_nav.py
-  literate-nav:
-    nav_file: SUMMARY.md
-  section-index: {}
-  mkdocstrings:
-    default_handler: python
-    handlers:
-      python:
-        paths:
-          - src
-        options:    # https://mkdocstrings.github.io/python/usage/#options-summary
-          # General
-          show_bases: false
-          # Headings
-          heading_level: 1
-          show_root_heading: true
-          show_root_full_path: false
-          show_root_toc_entry: true
-          show_category_heading: false
-          show_symbol_type_heading: true
-          show_symbol_type_toc: true
-          # Members
-          show_submodules: false
-          show_labels: false
-          # Docstrings
-          docstring_style: numpy
-          docstring_section_style: table
-          docstring_options:
-            ignore_init_summary: true
-          merge_init_into_class: true
-          show_if_no_docstring: false # Show the object heading even if it has no docstring (shows all)
-          # Signatures/annotations
-          separate_signature: true
-          show_signature_annotations: false
+  - search
+  - autorefs
+  - glightbox
+  - include-markdown
+  - gen-files:
+      scripts:
+        - docs/scripts/gen_ref_nav.py
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - section-index
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths:
+            - src
+          options:
+            # General
+            show_bases: false
+            # Headings
+            heading_level: 1
+            show_root_heading: true
+            show_root_full_path: false
+            show_root_toc_entry: true
+            show_category_heading: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            # Members
+            show_submodules: false
+            show_labels: false
+            # Docstrings
+            docstring_style: numpy
+            docstring_section_style: table
+            docstring_options:
+              ignore_init_summary: true
+            merge_init_into_class: true
+            show_if_no_docstring: false # Show the object heading even if it has no docstring (shows all)
+            # Signatures/annotations
+            separate_signature: true
+            show_signature_annotations: false
 
 markdown_extensions:
   # Built-in
@@ -166,15 +148,6 @@ markdown_extensions:
   - pymdownx.tilde:
 
 extra:
-  version:
-    provider: mike
   social:
-    - icon: fontawesome/brands/github-alt
+    - icon: fontawesome/brands/gitlab
       link: https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python
-  #  - icon: fontawesome/solid/blog
-  #    link: https://....
-  #  - icon: fontawesome/brands/linkedin
-  #    link: https://www.linkedin.com/in/xxxxxx/
-  # analytics:
-  #   provider: google
-  #   property: G-XXXXXXXX
