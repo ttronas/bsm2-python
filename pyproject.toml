@@ -48,8 +48,7 @@ dynamic = ["version"]
 
 [project.urls]
 # important URLs for this project
-# ToDo: Modify according to your needs!
-Documentation = "https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python"
+Documentation = "https://bsm2-python.readthedocs.io/"
 Source = "https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python"
 # Tracker = "https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python/issues"
 # Sponsor = "https://github.com/sponsors/ttronas"

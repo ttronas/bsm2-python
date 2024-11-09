@@ -6,7 +6,7 @@
 ![PyPI Downloads](https://static.pepy.tech/badge/bsm2-python)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5555555.svg)](https://doi.org/10.5281/zenodo.5555555)
 
-![BSM2 with Energy Management in Python](img/bsm2em_python.drawio.svg)
+![BSM2 with Energy Management in Python](https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python/-/raw/main/img/bsm2em_python.drawio.svg)
 
 A Python implementation of the Benchmark Simulation Model 2 (BSM2) plant layout according to the [IWA](http://iwa-mia.org/) standard.
 A technical description of BSM2 can be found [here](https://iwaponline.com/ebooks/book-pdf/650794/wio9781780401171.pdf).
