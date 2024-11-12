@@ -3,7 +3,7 @@ site_name: BSM2-Python
 site_description: A Python implementation of the Benchmark Simulation Model 2 (BSM2) plant layout according to the IWA standard.
 site_author: Jonas Miederer
 site_url: https://bsm2-python.readthedocs.io
-copyright: 'Copyright &copy; Jonas Miederer 2024-present'
+copyright: 'Copyright &copy; 2024-present, BSM2-Python Developers'
 
 # Repository
 repo_name: bsm2-python
@@ -12,15 +12,15 @@ edit_uri: blob/master/docs
 
 # Navigation
 nav:
-  - Home:
-    - About: index.md
+  - Home: 
+    - Overview: index.md
     - Changelog: changelog.md
-    - License: license.md
     - Authors: authors.md
     - Copyright: copyright.md
-    - Contributing: contributing.md
-    - Documentation: documentation.md
-    - Installation: installation.md
+    - License: license.md
+  - Install: install.md
+  - User guide: user_guide.md
+  - Contribute: contribute.md
   # defer to gen-files + literate-nav
   - Source Code Documentation: reference/
 
@@ -30,6 +30,8 @@ site_dir: site
 theme:
   name: material
   language: en
+  favicon: assets/images/favicon.ico
+  logo: assets/images/logo.svg
   palette:
     - scheme: slate
       primary: teal
@@ -99,6 +101,7 @@ markdown_extensions:
   - markdown.extensions.abbr:
   - markdown.extensions.admonition:
   - markdown.extensions.attr_list:
+  - markdown.extensions.md_in_html:
   - markdown.extensions.footnotes:
   - markdown.extensions.meta:
   - markdown.extensions.tables:
