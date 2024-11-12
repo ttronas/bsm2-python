@@ -1,6 +1,6 @@
 # Copyright
 
-Copyright is reserved for the following source code:
+<!-- Copyright is reserved for the following source code:
 
 - `adm1_bsm2.py`
 - `adm1_performance.py`
@@ -24,14 +24,14 @@ Copyright is reserved for the following source code:
 - `storage_bsm2.py`
 - `storageinit_bsm2.py`
 - `thickener_bsm2.py`
-- `thickenerinit_bsm2.py`
+- `thickenerinit_bsm2.py` -->
 
-<h2> Copyright (2006) </h2>
+<h2> Copyright 2006 - 2024 </h2>
 Ulf Jeppsson <br>
 Dept. Industrial Electrical Engineering and Automation (IEA), Lund University, Sweden <br>
 https://www.lth.se/iea/
 
-<h2> Copyright (2024) </h2>
-Maike Böhm, Jonas Miederer <br>
+<h2> Copyright 2024 - present </h2>
+Jonas Miederer, Maike Böhm, Lukas Meier, Nick Salomon <br>
 Chair of Energy Process Engineering (EVT), FAU Erlangen-Nuremberg, Germany <br>
 https://www.evt.tf.fau.de/
