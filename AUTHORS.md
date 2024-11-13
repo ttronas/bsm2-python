@@ -1,6 +1,6 @@
 # Contributors
 
 * [Jonas Miederer](https://github.com/ttronas)
-* [Maike Böhm]()
-* [Lukas Meier]()
-* [Nick Salomon]()
+* [Maike Böhm](authors)
+* [Lukas Meier](authors)
+* [Nick Salomon](authors)
