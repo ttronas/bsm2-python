@@ -12,7 +12,7 @@ edit_uri: blob/master/docs
 
 # Navigation
 nav:
-  - Home: 
+  - Home:
     - Overview: index.md
     - Changelog: changelog.md
     - Authors: authors.md
@@ -32,6 +32,11 @@ theme:
   language: en
   favicon: assets/images/favicon.ico
   logo: assets/images/logo.svg
+  icon:
+    repo: fontawesome/brands/github-alt
+  font:
+    text: Roboto Flex
+    code: Roboto Mono
   palette:
     - scheme: slate
       primary: teal
@@ -49,6 +54,7 @@ theme:
     - navigation.tabs
     - navigation.sections
     - navigation.top
+    - navigation.instant
 
 watch:
 - src/bsm2_python
