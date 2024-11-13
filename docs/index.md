@@ -8,33 +8,36 @@ A Python implementation of the Benchmark Simulation Model 2 (BSM2) plant layout 
 
     ---
 
-    Install [`BSM2-Python`](#) with [`pip`](#) and get up
-    and running in minutes
+    Install `BSM2-Python` with `pip` and get up
+    and running in minutes.
+    <br>
+    <br>
 
-    [:octicons-arrow-right-24: Getting started](#)
+    [:octicons-arrow-right-24: Install BSM2-Python](Install)
 
--   :fontawesome-brands-markdown:{ .lg .middle } __User guide__
-
-    ---
-
-    Learn how to get started and to set up your own BSM2-Python project
-
-    [:octicons-arrow-right-24: Reference](#)
-
--   :material-format-font:{ .lg .middle } __Contribute__
+-   :material-book-open-variant:{ .lg .middle } __User guide__
 
     ---
 
-    Help us to improve [`BSM2-Python`](#) by ...
+    Learn how to get started with the `User Guide` and to set up your own BSM2-Python project.
 
-    [:octicons-arrow-right-24: Customization](#)
+    [:octicons-arrow-right-24: Getting started](User_guide)
 
--   :material-scale-balance:{ .lg .middle } __Source Code Documentation__
+-   :material-puzzle-plus-outline:{ .lg .middle } __Contribute__
 
     ---
 
-    Material for MkDocs is licensed under MIT and available on [GitHub]
+    Want to add codebase, documentation or improve BSM2-Python?
+    The `Contribute Guide` will help you doing that.
 
-    [:octicons-arrow-right-24: License](#)
+    [:octicons-arrow-right-24: Contribute](Contribute)
+
+-   :material-book-information-variant:{ .lg .middle } __Documentation__
+
+    ---
+
+    The `Source Code Documentation` provides in-depth information about the codebase of BSM2-Python.
+
+    [:octicons-arrow-right-24: Documentation](reference/bsm2_python)
 
 </div>

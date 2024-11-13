@@ -22,7 +22,7 @@ nav:
   - User guide: user_guide.md
   - Contribute: contribute.md
   # defer to gen-files + literate-nav
-  - Source Code Documentation: reference/
+  - Source code documentation: reference/
 
 # Configuration
 docs_dir: docs
