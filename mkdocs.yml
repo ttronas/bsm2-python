@@ -33,7 +33,7 @@ theme:
   favicon: assets/images/favicon.ico
   logo: assets/images/logo.svg
   icon:
-    repo: fontawesome/brands/github-alt
+    repo: fontawesome/brands/gitlab
   font:
     text: Roboto Flex
     code: Roboto Mono
