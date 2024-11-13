@@ -2,9 +2,42 @@
 
 A Python implementation of the Benchmark Simulation Model 2 (BSM2) plant layout according to the IWA standard.
 
-<h2> Navigation </h2>
+<div class="grid cards" markdown>
 
-Documentation for specific `MAJOR.MINOR` versions can be chosen by using the dropdown on the top of every page.
-The `dev` version reflects changes that have not yet been released. Shortcuts can be used for navigation, i.e.
-<kbd>,</kbd>/<kbd>p</kbd> and <kbd>.</kbd>/<kbd>n</kbd> for previous and next page, respectively, as well as
-<kbd>/</kbd>/<kbd>s</kbd> for searching.
+-   :material-clock-fast:{ .lg .middle } __Quick install__
+
+    ---
+
+    Install `BSM2-Python` with `pip` and get up
+    and running in minutes.
+    <br>
+    <br>
+
+    [:octicons-arrow-right-24: Install BSM2-Python](Install)
+
+-   :material-book-open-variant:{ .lg .middle } __User guide__
+
+    ---
+
+    Learn how to get started with the `User Guide` and to set up your own BSM2-Python project.
+
+    [:octicons-arrow-right-24: Getting started](User_guide)
+
+-   :material-puzzle-plus-outline:{ .lg .middle } __Contribute__
+
+    ---
+
+    Want to add codebase, documentation or improve BSM2-Python?
+    The `Contribute Guide` will help you doing that.
+
+    [:octicons-arrow-right-24: Contribute](Contribute)
+
+-   :material-book-information-variant:{ .lg .middle } __Documentation__
+
+    ---
+
+    The `Source Code Documentation` provides in-depth information about the codebase of BSM2-Python.
+
+    [:octicons-arrow-right-24: Documentation](reference/bsm2_python)
+
+</div>

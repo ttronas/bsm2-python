@@ -5,7 +5,7 @@ Welcome to the contributor guide of BSM2-Python.
 This document focuses on getting any potential contributor familiarized with
 the development processes, but [other kinds of contributions] are also appreciated.
 
-If you are new to using [git] or have never collaborated in a project previously,
+If you are new to using [Git] or have never collaborated in a project previously,
 please have a look at [contribution-guide.org]. Other resources are also
 listed in the excellent [guide created by FreeCodeCamp].
 
@@ -13,6 +13,14 @@ Please notice, all users and contributors are expected to be **open,
 considerate, reasonable, and respectful**. When in doubt,
 [Python Software Foundation's Code of Conduct] is a good reference in terms of
 behavior guidelines.
+
+<!-- ## Navigation   Maybe not necessary
+
+Documentation for specific `MAJOR.MINOR` versions can be chosen by using the dropdown on the top of every page.
+The `dev` version reflects changes that have not yet been released.
+Shortcuts can be used for navigation, i.e.
+<kbd>,</kbd>/<kbd>p</kbd> and <kbd>.</kbd>/<kbd>n</kbd> for previous and next page, respectively, as well as
+<kbd>/</kbd>/<kbd>s</kbd> for searching. -->
 
 ## Issue Reports
 
@@ -36,7 +44,7 @@ you help us to identify the root cause of the issue.
 You can help improve the documentation of BSM2-Python by making them more readable
 and coherent, or by adding missing information and correcting mistakes.
 
-This documentation uses [mkdocs] as its main documentation compiler.
+This documentation uses [MkDocs] as its main documentation compiler.
 This means that the docs are kept in the same repository as the project code, and
 that any documentation update is done in the same way was a code contribution.
 
@@ -57,6 +65,37 @@ When working on documentation changes in your local machine, you can
 build and serve them using [hatch] with `hatch run docs:build` and
 `hatch run docs:serve`, respectively.
 
+### Documentation setup on local machines (windows only)
+
+If you want to improve the documentation of this project on your local windows machine,
+there are a few setup-steps before you can begin. In order to use [MkDocs] you have to:
+
+ 1. Install the [GTK-Package]:
+
+    - Download and install [MSYS2].
+
+    - Start the MSYS2-Shell
+
+    - Install the GTK4-Package:
+
+    ```console
+    pacman -S mingw-w64-x86_64-gtk4
+    ```
+
+    - Install the compiler for Python:
+
+    ```console
+    pacman -S mingw-w64-x86_64-python-gobject
+    ```
+
+ 2. Add the MSYS2 path to the Environment Variables:
+
+    - Add the path `C:\msys64\mingw64\bin` to your Environment Variables.
+
+    - To do this, go to the Control Panel and open "System and Security" > "System" > "Advanced System Settings".
+
+    - Click on "Environment Variables" and edit the `PATH` variable by adding the path `C:\msys64\mingw64\bin`.
+
 ## Code Contributions
 
 ### Submit an issue
@@ -65,22 +104,24 @@ Before you work on any non-trivial code contribution it's best to first create
 a report in the [issue tracker] to start a discussion on the subject.
 This often provides additional considerations and avoids unnecessary work.
 
+### Install the project
+
 ### Set up your Integrated Development Environment (IDE)
 
 Before you can get started you have to install an IDE such as [VSCode](https://code.visualstudio.com/) or [PyCharm](https://www.jetbrains.com/de-de/pycharm/) on your device. Since most of the setup instructions are for VSCode, this IDE is recommended if you are new to programming.
 
 ### Install Python
 
-Install the correct Python Version (3.10 - 3. 12) that works with the dependencies of the project.
+Install a Python Version (>= 3.10) that works with the dependencies of the project.
 
- - To install Python 3.12 download and run the windows installer on [this](https://www.python.org/downloads/release/python-3120/) website.
+ - To install Python download and run the installer from the [Python](https://www.python.org/) website.
 
 ### Install Git
 
 Git is used as the Version Control System for this project, to track and manage changes to the file system.
 If Git is new to you, you can read [this](https://git-scm.com/book/en/v2/Getting-Started-What-is-Git%3F) Git guide.
 
- - To install Git download and run the windows installer on [this]((https://git-scm.com/downloads)) website.
+ - To install Git download and run the installer from the [Git](https://git-scm.com/) website.
 
 After installation is finished, you have to configure your Git username and email using the following commands in the Git Bash console:
 
@@ -153,17 +194,15 @@ Open VSCode:
 
 - Select a folder directory in which the project is to be saved
 
-### Install the project
-
 You can install the project in two ways:
-#### Installation via dev container
+#### Installation via dev container (remote)
 1. If you want to use a dev container (tested with [VSCode]):
    Open the project folder in [VSCode] and click on the green button in the bottom left corner.
    Choose `Remote-Containers: Reopen in Container` and wait for the container to build.
    To make it work, you need to have [Docker] installed on your machine.
    The dev container is preconfigured with all necessary tools and dependencies.
 
-#### Installation via hatch
+#### Installation via hatch (local)
 1. Make sure [pipx] is installed using [pip] and install [hatch]:
 
    ```console
@@ -192,7 +231,7 @@ You can install the project in two ways:
 
    and start making changes. Never work on the main branch!
 
-2. Start your work on this branch. Don't forget to add [docstrings] in [Numpy style]
+2. Start your work on this branch. Don't forget to add [Docstrings] in [Numpy style]
    to new functions, modules and classes, especially if they are part of public APIs.
 
 3. Add yourself to the list of contributors in `AUTHORS.md`.
@@ -250,22 +289,23 @@ activate, or enter, an environment. Instead, you use `hatch run env_name:command
 is assumed for a command if there is no colon found. Thus you must always define your environment in a declarative
 way and hatch makes sure that the environment reflects your declaration by updating it whenever you issue
 a `hatch run ...`. This helps with reproducability and avoids forgetting to specify dependencies since the
-hatch workflow is to specify everything directly in [pyproject.toml](pyproject.toml). Only in rare cases, you
+hatch workflow is to specify everything directly in `pyproject.toml`. Only in rare cases, you
 will use `hatch shell` to enter the `default` environment, which is similar to what you may know from other tools.
 
 To get you started, use `hatch run test:cov` or `hatch run test:no-cov` to run pytest with or without coverage reports,
 respectively. Use `hatch run lint:all` to run all kinds of typing and linting checks. Try to automatically fix linting
 problems with `hatch run lint:fix` and use `hatch run docs:serve` to build and serve your documentation.
 You can also easily define your own environments and commands. Check out the environment setup of hatch
-in [pyproject.toml](pyproject.toml) for more commands as well as the package, build and tool configuration.
+in `pyproject.toml` for more commands as well as the package, build and tool configuration.
 
 [black]: https://pypi.org/project/black/
 [contribution-guide.org]: http://www.contribution-guide.org/
 [creating a PR]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request
-[Docker]: https://docs.docker.com/desktop/
+[Docker]: https://www.docker.com/
 [docstrings]: https://peps.python.org/pep-0257/
 [flake8]: https://flake8.pycqa.org/en/stable/
-[git]: https://git-scm.com
+[Git]: https://git-scm.com
+[github web interface]: https://docs.github.com/en/github/managing-files-in-a-repository/managing-files-on-github/editing-files-in-your-repository
 [hatch]: https://hatch.pypa.io/latest/
 [other kinds of contributions]: https://opensource.guide/how-to-contribute
 [pre-commit]: https://pre-commit.com/
@@ -274,3 +314,6 @@ in [pyproject.toml](pyproject.toml) for more commands as well as the package, bu
 [Numpy style]: https://numpydoc.readthedocs.io/en/latest/format.html
 [guide created by FreeCodeCamp]: https://github.com/FreeCodeCamp/how-to-contribute-to-open-source
 [VSCode]: https://code.visualstudio.com/
+[GTK-Package]: https://www.gtk.org/docs/installations/windows/
+[MkDocs]: https://www.mkdocs.org/
+[MSYS2]: https://www.msys2.org/
