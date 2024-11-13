@@ -7,6 +7,6 @@ hide:
 
 This guide gives you an overview and explains how to set up your own BSM2-Python project.
 
-![BSM2-Python](/assets/images/bsm2-python_schematic.svg)
+![BSM2-Python](../img/bsm2em_python.drawio.svg)
 
 <!--TODO: ## Getting started  -->
