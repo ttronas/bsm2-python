@@ -13,7 +13,7 @@ A Python implementation of the Benchmark Simulation Model 2 (BSM2) plant layout 
     <br>
     <br>
 
-    [:octicons-arrow-right-24: Install BSM2-Python](install)
+    [:octicons-arrow-right-24: Install BSM2-Python](Install)
 
 -   :material-book-open-variant:{ .lg .middle } __User guide__
 
@@ -21,7 +21,7 @@ A Python implementation of the Benchmark Simulation Model 2 (BSM2) plant layout 
 
     Learn how to get started with the `User Guide` and to set up your own BSM2-Python project.
 
-    [:octicons-arrow-right-24: Getting started](user_guide)
+    [:octicons-arrow-right-24: Getting started](User_guide)
 
 -   :material-puzzle-plus-outline:{ .lg .middle } __Contribute__
 
@@ -30,7 +30,7 @@ A Python implementation of the Benchmark Simulation Model 2 (BSM2) plant layout 
     Want to add codebase, documentation or improve BSM2-Python?
     The `Contribute Guide` will help you doing that.
 
-    [:octicons-arrow-right-24: Contribute](contribute)
+    [:octicons-arrow-right-24: Contribute](Contribute)
 
 -   :material-book-information-variant:{ .lg .middle } __Documentation__
 
