@@ -1,4 +1,10 @@
-"""This is the source code folder of the Benchmark Simulation Model No. 2 in Python. <br>
+"""
+---
+hide:
+  - toc
+---
+
+This is the source code folder of the Benchmark Simulation Model No. 2 in Python. <br>
 The source code is structured as follows:
 
 <pre>
