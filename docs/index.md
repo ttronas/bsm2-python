@@ -1,6 +1,7 @@
 # ​BSM2-Python
 
-A Python implementation of the Benchmark Simulation Model 2 (BSM2) plant layout according to the IWA standard.
+A Python implementation of the Benchmark Simulation Model 2 (BSM2) plant layout according to the 
+[IWA](http://iwa-mia.org/) standard.
 
 <div class="grid cards" markdown>
 

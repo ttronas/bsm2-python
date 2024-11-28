@@ -65,6 +65,8 @@ plugins:
   - autorefs
   - glightbox
   - include-markdown
+  - minify:
+      minify_html: true
   - gen-files:
       scripts:
         - docs/scripts/gen_ref_nav.py
