@@ -14,12 +14,30 @@ edit_uri: blob/master/docs
 nav:
   - Home:
     - Overview: index.md
-    - Changelog: changelog.md
-    - Authors: authors.md
-    - Copyright: copyright.md
-    - License: license.md
+    - Changelog: home/changelog.md
+    - Authors: home/authors.md
+    - Copyright: home/copyright.md
+    - License: home/license.md
   - Install: install.md
-  - User guide: user_guide.md
+  - User guide:
+    - User_guide: user_guide/index.md
+    - Wastewater treatment components:
+      - Primary clarifier: user_guide/wwt_components/primary_clarifier.md
+      - Activated sludge reactor: user_guide/wwt_components/activated_sludge_reactor.md
+      - Settler: user_guide/wwt_components/settler.md
+      - Thickener: user_guide/wwt_components/thickener.md
+      - Anerobic digester: user_guide/wwt_components/anerobic_digester.md
+      - Dewatering: user_guide/wwt_components/dewatering.md
+      - Sludge storage: user_guide/wwt_components/sludge_storage.md
+      - Combiner: user_guide/wwt_components/combiner.md
+      - Splitter: user_guide/wwt_components/splitter.md
+    - Energy management components:
+      - Boiler: user_guide/em_components/boiler.md
+      - Combined heat and power unit: user_guide/em_components/chp.md
+      - Compressor: user_guide/em_components/compressor.md
+      - Cooler: user_guide/em_components/cooler.md
+      - Flare: user_guide/em_components/flare.md
+      - Biogas storage: user_guide/em_components/biogas_storage.md
   - Contribute: contribute.md
   # defer to gen-files + literate-nav
   - Source code documentation: reference/
@@ -55,6 +73,7 @@ theme:
     - navigation.sections
     - navigation.top
     - navigation.instant
+    - navigation.indexes
 
 watch:
 - src/bsm2_python

@@ -19,42 +19,42 @@ customized wastewater treatment plant layout.
 ![BSM2-Python](https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python/-/raw/main/img/bsm2em_python.drawio.svg)
 
 
-## Wastewater treatment components
+## BSM2-Python components
 
-### Primary clarifier
+### Wastewater treatment components
 
-### Activated sludge reactor
+- [Primary clarifier](/user_guide/wwt_components/primary_clarifier)
 
-ASM1 (Activated sludge Model No. 1)
+- [Activated sludge reactor](/user_guide/wwt_components/activated_sludge_reactor)
 
-### Settler
+- [Settler](/user_guide/wwt_components/settler)
 
-### Thickener
+- [Thickener](/user_guide/wwt_components/thickener)
 
-### Anerobic Digester
+- [Anerobic digester](/user_guide/wwt_components/anerobic_digester)
 
-ADM1 (Anerobic Digestion Model No. 1)
+- [Dewatering](/user_guide/wwt_components/dewatering)
 
-### Dewatering
+- [Sludge storage](/user_guide/wwt_components/sludge_storage)
 
-### Sludge storage
+- [Combiner](/user_guide/wwt_components/combiner)
 
-### Combiner / Splitter
+- [Splitter](/user_guide/wwt_components/splitter)
 
 
-## Energy management components
+### Energy management components
 
-### Boiler
+- [Boiler](/user_guide/em_components/boiler)
 
-### Combined heat and power unit
+- [Combined heat and power unit](/user_guide/em_components/chp)
 
-### Compressor
+- [Compressor](/user_guide/em_components/compressor)
 
-### Cooler
+- [Cooler](/user_guide/em_components/cooler)
 
-### Flare
+- [Flare](/user_guide/em_components/flare)
 
-### Gas storage
+- [Biogas storage](/user_guide/em_components/biogas_storage)
 
 
 ## Quickstart
