@@ -44,17 +44,17 @@ customized wastewater treatment plant layout.
 
 ### Energy management components
 
-- [Boiler](/user_guide/em_components/boiler)
+- [Biogas storage](/user_guide/em_components/biogas_storage)
 
 - [Combined heat and power unit](/user_guide/em_components/chp)
 
-- [Compressor](/user_guide/em_components/compressor)
-
-- [Cooler](/user_guide/em_components/cooler)
+- [Boiler](/user_guide/em_components/boiler)
 
 - [Flare](/user_guide/em_components/flare)
 
-- [Biogas storage](/user_guide/em_components/biogas_storage)
+- [Cooler](/user_guide/em_components/cooler)
+
+- [Compressor](/user_guide/em_components/compressor)
 
 
 ## Quickstart
