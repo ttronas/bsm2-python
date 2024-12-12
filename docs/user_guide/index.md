@@ -48,7 +48,7 @@ All components are configured with their default values.
 :bsm2python-primary-clarifier: __[Primary clarifier](/user_guide/wwt_components/primary_clarifier)__
 { .card }
 
-:bsm2python-activated-sludge: __[Activated sludge reactor](/user_guide/wwt_components/activated_sludge_reactor)__
+:bsm2python-activated-sludge-reactor: __[Activated sludge reactor](/user_guide/wwt_components/activated_sludge_reactor)__
 { .card }
 
 :bsm2python-settler: __[Settler](/user_guide/wwt_components/settler)__

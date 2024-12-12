@@ -3,7 +3,8 @@ hide:
   - toc
 ---
 
-![Activated sludge reactor](../../assets/images/activated_sludge_reactor.drawio.svg){ align=right }
+![Activated sludge reactor](https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python/-/raw/doc_new2/docs/assets/.icons/bsm2python/activated-sludge-reactor.svg){ align=right }
+<!-- TODO: change link to main branch before merging -->
 
 Activated sludge reactor: ASM1 (Activated Sludge Model No. 1)
 
