@@ -176,11 +176,11 @@ As we are maintaining this repo in our free time, don't expect rapid development
 [BMWK]: http://bmwk.de/
 
 ## Citation
-If you use this package in your research, please cite it as follows:
+We are currently in the publication process of a peer-reviewed paper. In the meantime, please reference our work with
 ```
-@article{miederer2024bsm2python,
+@misc{miederer2024bsm2python,
     title={Energy Management Model for Wastewater Treatment Plants},
     author={Jonas Miederer and Lukas Meier and Nora Elhaus and Simon Markthaler and J{\"u}rgen Karl},
-    journal={Journal of Energy Conversion and Management},
-    year={2024}
+    year = {2024--},
+    url = "https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python"
 }
