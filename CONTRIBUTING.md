@@ -96,6 +96,9 @@ there are a few setup-steps before you can begin. In order to use [MkDocs] you h
 
     - Click on "Environment Variables" and edit the `PATH` variable by adding the path `C:\msys64\mingw64\bin`.
 
+### Using the Dev Container for documentation
+With a Dev Container setup, all necessary tools and dependencies are already installed. See the [Clone the repository](#clone-the-repository) section for instructions on how to get the repository, including the Dev Container setup.
+
 ## Code Contributions
 
 ### Submit an issue
@@ -195,8 +198,8 @@ Open VSCode:
 - Select a folder directory in which the project is to be saved
 
 You can install the project in two ways:
-#### Installation via dev container (remote)
-1. If you want to use a dev container (tested with [VSCode]):
+#### Installation via Dev Container (remote)
+1. If you want to use a Dev Container (tested with [VSCode]):
    Open the project folder in [VSCode] and click on the green button in the bottom left corner.
    Choose `Remote-Containers: Reopen in Container` and wait for the container to build.
    To make it work, you need to have [Docker] installed on your machine.

@@ -10,7 +10,7 @@ This guide gives you an overview and explains how to set up your own BSM2-Python
 
 ## What is BSM2-Python?
 
-BSM2-Python is an implementation of a wastewater treatment plant using the [Benchmark Simulation Model No.2],
+BSM2-Python is an implementation of a wastewater treatment plant using the [Benchmark Simulation Model No. 2],
 which is extended with an energy management system that operates the plants energy processes. BSM2-Python can be used to
 fully display a real world wastewater treatment plant to simulate and run techno-economic analyses. It is possible to
 modify the predefined wastewater treatment plant layout by adding, removing or modifying units of BSM2-Python to build a
