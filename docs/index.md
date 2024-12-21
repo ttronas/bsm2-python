@@ -9,7 +9,7 @@ A Python implementation of the **Benchmark Simulation Model No. 2 (BSM2)** plant
 
     ---
 
-    **Install `BSM2-Python` with `pip`** and get up
+    Install **`BSM2-Python`** with **`pip`** and get up
     and running in minutes.
     <br>
     <br>
@@ -20,7 +20,7 @@ A Python implementation of the **Benchmark Simulation Model No. 2 (BSM2)** plant
 
     ---
 
-    Learn how to get started with the **`User Guide`** and how to set up your own BSM2-Python project.
+    Learn how to get started with the **<code>User&nbsp;Guide</code>** and how to set up your own BSM2-Python project.
 
     [:octicons-arrow-right-24: Getting started](../user_guide)
 
@@ -28,8 +28,8 @@ A Python implementation of the **Benchmark Simulation Model No. 2 (BSM2)** plant
 
     ---
 
-    Want to add codebase, documentation or improve BSM2-Python?
-    The **`Contribute Guide`** will help you doing that.
+    Want to add codebase, documentation or help us improve BSM2-Python?
+    The **`Contribute Guide`** will show you how.
 
     [:octicons-arrow-right-24: Contribute](../contribute)
 

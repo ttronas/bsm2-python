@@ -97,7 +97,7 @@ there are a few setup-steps before you can begin. In order to use [MkDocs] you h
     - Click on "Environment Variables" and edit the `PATH` variable by adding the path `C:\msys64\mingw64\bin`.
 
 ### Using the Dev Container for documentation
-With a Dev Container setup, all necessary tools and dependencies are already installed. See the [Clone the repository](#clone-the-repository) section for instructions on how to get the repository, including the Dev Container setup.
+With a Dev Container setup, all necessary tools and dependencies are already installed. See the [Clone the repository](contribute/#clone-the-repository) section for instructions on how to get the repository, including the Dev Container setup.
 
 ## Code Contributions
 

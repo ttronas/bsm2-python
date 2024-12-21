@@ -187,4 +187,4 @@ cash_flow = bsm2_olem.economics.cum_cash_flow
 ## Build your own wastewater treatment plant
 
 
-[Benchmark Simulation Model No.2]: https://iwaponline.com/ebooks/book-pdf/650794/wio9781780401171.pdf
+[Benchmark Simulation Model No. 2]: https://iwaponline.com/ebooks/book-pdf/650794/wio9781780401171.pdf
