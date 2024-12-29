@@ -54,4 +54,4 @@ $$
 mod</span> [primclar_bsm2](/reference/bsm2_python/bsm2/primclar_bsm2)
 
 
-[^1]: (For more information visit: [Benchmarking of Control Strategies for Wastewater Treatment Plants](https://iwaponline.com/ebooks/book-pdf/650794/wio9781780401171.pdf), chap. 4.2.4.1 Primary clarifier)
+[^1]: [Benchmarking of Control Strategies for Wastewater Treatment Plants](https://iwaponline.com/ebooks/book-pdf/650794/wio9781780401171.pdf), chap. 4.2.4.1 Primary clarifier

@@ -21,7 +21,10 @@ The reaction rate for a component $i$ across all processes $\rho_j$ is then desc
 
 ASM1 also supports connecting multiple reactors with different parameters in series, allowing the simulation of distinct reactor zones (e.g. anoxic denitrification).
 
-### Components
+
+### Equations
+
+#### Components
 
 | $i$ | Component                                       | Symbol    | Unit         |
 | --  | ----------------------------------------------  | --------- | ------------ |
@@ -40,7 +43,7 @@ ASM1 also supports connecting multiple reactors with different parameters in ser
 | 13  | Alkalinity                                      | $S_{ALK}$ | Molar unit   |
 
 
-### Process rate equations
+#### Process rate equations
 
 | $\rho_j$ | Process rate in [ML^-3^T^-1^]              | Equation  |
 | --       | ------------------------------------------ | --------- |
@@ -54,7 +57,7 @@ ASM1 also supports connecting multiple reactors with different parameters in ser
 | 8        | 'Hydrolysis' of entrapped organic nitrogen | $\rho_8 = \rho_7 (X_{ND} / X_S)$ |
 
 
-#### Kinetic parameters
+**Kinetic parameters**
 
 - $\hat \mu$: Maximum specific growth rate
 
@@ -75,13 +78,13 @@ ASM1 also supports connecting multiple reactors with different parameters in ser
 - Correction factor for anoxic hydrolysis: $\eta_h$
 
 
-### Observed conversion rate equation
+#### Observed conversion rate equation
 
 $$
 r_i = \sum_j \nu_{ij}\rho_j
 $$
 
-### Stoichiometric coefficients $\nu_{ij}$
+#### Stoichiometric coefficients $\nu_{ij}$
 
 $$
 \begin{array}{r|rrrrrrrrrrrrr}
@@ -98,7 +101,7 @@ $$
 \end{array}
 $$
 
-#### Stoichiometric parameters
+**Stoichiometric parameters**
 
 - $Y$: True growth yield
 
@@ -125,5 +128,6 @@ $$
   margin-right: 0.2rem;">
 mod</span> [asm1_bsm2](/reference/bsm2_python/bsm2/asm1_bsm2)
 
-[^1]: (For more information visit: [Activated Sludge Model No. 1, Henze et al. (1987)](https://www.researchgate.net/publication/243624144_Activated_Sludge_Model_No_1))
-[^2]: ([Benchmarking of Control Strategies for Wastewater Treatment Plants](https://iwaponline.com/ebooks/book-pdf/650794/wio9781780401171.pdf), chap. 4.2.1 Activated Sludge Model No. 1)
+
+[^1]: [Benchmarking of Control Strategies for Wastewater Treatment Plants](https://iwaponline.com/ebooks/book-pdf/650794/wio9781780401171.pdf), chap. 4.2.1 Activated Sludge Model No. 1
+[^2]: [Activated Sludge Model No. 1, Henze et al. (1987)](https://www.researchgate.net/publication/243624144_Activated_Sludge_Model_No_1)
