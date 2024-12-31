@@ -20,10 +20,10 @@ The following figure illustrates the flowchart for wastewater treatment and ener
 Initially, wastewater flows into the primary clarifier, where excess sewage sludge is removed. Next, the wastewater flows
 undergoes treatment in five activated sludge reactors. The treated effluent is then fed into a settler to remove any
 remaining sewage sludge.
-The sludge collected in the settler is compressed in a thickener, separating excess wastewater, which is returned into to the
-treatment process. In the anaerobic digester, sewage gas is produced and subsequently stored in a biogas storage tank.
-Fully fermented sewage sludge is drained and transferred to a sewage sludge storage, where it is held until needed for
-the wastewater treatment processes.
+The sludge collected in the settler is compressed in a thickener, separating excess wastewater, which is returned into the
+treatment process. In the anaerobic digester, sewage gas is produced and subsequently stored in a biogas storage.
+The fully fermented sewage sludge is drained in the dewatering unit and then disposed of. Excess wastewater is held in a 
+wastewater storage and recycled to the wastewater treatment processes.
 In the energy management system, the sewage gas is utilized in two combined heat and power (CHP) units to generate
 electricity for the aeration in the activated sludge reactors and heat for the anaerobic digester. If the heat generated
 by the CHP units is insufficient, additional sewage gas is burned in a boiler. When sewage gas production exceeds the
