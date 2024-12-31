@@ -28,7 +28,7 @@ nav:
       - Thickener: user_guide/wwt_components/thickener.md
       - Anerobic digester: user_guide/wwt_components/anerobic_digester.md
       - Dewatering: user_guide/wwt_components/dewatering.md
-      - Sludge storage: user_guide/wwt_components/sludge_storage.md
+      - Wastewater storage: user_guide/wwt_components/wastewater_storage.md
       - Combiner: user_guide/wwt_components/combiner.md
       - Splitter: user_guide/wwt_components/splitter.md
     - Energy management components:

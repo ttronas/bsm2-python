@@ -63,7 +63,7 @@ All components are configured with their default values.
 :bsm2python-dewatering: __[Dewatering](/user_guide/wwt_components/dewatering)__
 { .card }
 
-:bsm2python-sludge-storage: __[Sludge storage](/user_guide/wwt_components/sludge_storage)__
+:bsm2python-wastewater-storage: __[Wastewater storage](/user_guide/wwt_components/wastewater_storage)__
 { .card }
 
 :material-call-merge: __[Combiner](/user_guide/wwt_components/combiner)__
