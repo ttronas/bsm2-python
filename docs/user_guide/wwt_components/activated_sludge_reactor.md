@@ -128,6 +128,16 @@ $$
   margin-right: 0.2rem;">
 mod</span> [asm1_bsm2](/reference/bsm2_python/bsm2/asm1_bsm2)
 
+<span style=
+  "color: #5cad0f;
+  font-weight: bold;
+  font-size: .85em;
+  background-color: #5cad0f1a;
+  padding: 0 .3em;
+  border-radius: .1rem;
+  margin-right: 0.2rem;">
+mod</span> [asm1init_bsm2](/reference/bsm2_python/bsm2/init/asm1init_bsm2)
+
 
 [^1]: [Benchmarking of Control Strategies for Wastewater Treatment Plants](https://iwaponline.com/ebooks/book-pdf/650794/wio9781780401171.pdf), chap. 4.2.1 Activated Sludge Model No. 1
 [^2]: [Activated Sludge Model No. 1, Henze et al. (1987)](https://www.researchgate.net/publication/243624144_Activated_Sludge_Model_No_1)
