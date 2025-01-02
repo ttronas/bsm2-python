@@ -66,10 +66,7 @@ All components are configured with their default values.
 :bsm2python-wastewater-storage: __[Wastewater storage](/user_guide/wwt_components/wastewater_storage)__
 { .card }
 
-:material-call-merge: __[Combiner](/user_guide/wwt_components/combiner)__
-{ .card }
-
-:material-call-split: __[Splitter](/user_guide/wwt_components/splitter)__
+:material-call-merge: :material-call-split: __[Combiner and Splitter](/user_guide/wwt_components/combiner_and_splitter)__
 { .card }
 </div>
 

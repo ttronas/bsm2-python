@@ -29,8 +29,7 @@ nav:
       - Anerobic digester: user_guide/wwt_components/anerobic_digester.md
       - Dewatering: user_guide/wwt_components/dewatering.md
       - Wastewater storage: user_guide/wwt_components/wastewater_storage.md
-      - Combiner: user_guide/wwt_components/combiner.md
-      - Splitter: user_guide/wwt_components/splitter.md
+      - Combiner and Splitter: user_guide/wwt_components/combiner_and_splitter.md
     - Energy management components:
       - Biogas storage: user_guide/em_components/biogas_storage.md
       - Combined heat and power unit: user_guide/em_components/chp.md
