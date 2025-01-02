@@ -19,8 +19,8 @@ nav:
     - Copyright: home/copyright.md
     - License: home/license.md
   - Install: install.md
-  - User guide:
-    - User_guide: user_guide/index.md
+  - User guide: 
+    - user_guide/index.md
     - Wastewater treatment components:
       - Primary clarifier: user_guide/wwt_components/primary_clarifier.md
       - Activated sludge reactor: user_guide/wwt_components/activated_sludge_reactor.md
@@ -72,7 +72,6 @@ theme:
     - navigation.sections
     - navigation.top
     - navigation.instant
-    - navigation.indexes
 
 watch:
 - src/bsm2_python
