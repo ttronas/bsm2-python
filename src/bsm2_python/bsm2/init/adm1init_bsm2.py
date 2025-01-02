@@ -98,6 +98,93 @@ DIGESTERINIT = np.array(
         X_D5_D,
     ]
 )
+"""Initial values for ADM1 differential equations, used by all three ADM implementations, `adm1_ODE`, `adm1_DAE1` and `adm1_DAE2`.
+
+Initial concentrations of 42 components
+(26 ADM1 components, 9 other gas-related components, Q, T and 5 dummy states).
+
+Other Parameters
+----------------
+S_SU : float
+    Monosacharides [kg COD/m^3^].
+S_AA : float
+    Amino acids [kg COD/m^3^].
+S_FA : float
+    Long chain fatty acids (LCFA) [kg COD/m^3^].
+S_VA : float
+    Total valerate [kg COD/m^3^].
+S_BU : float
+    Total butyrate [kg COD/m^3^].
+S_PRO : float
+    Total propionate [kg COD/m^3^].
+S_AC : float
+    Total acetate [kg COD/m^3^].
+S_H2 : float
+    Hydrogen gas [kg COD/m^3^].
+S_CH4 : float
+    Methane gas [kg COD/m^3^].
+S_IC : float
+    Inorganic carbon [kmole C/m^3^].
+S_IN : float
+    Inorganic nitrogen [kmole N/m^3^].
+S_I : float
+    Soluble inerts [kg COD/m^3^].
+X_XC : float
+    Composites [kg COD/m^3^].
+X_CH : float
+    Carbohydrates [kg COD/m^3^].
+X_PR : float
+    Proteins [kg COD/m^3^].
+X_LI : float
+    Lipids [kg COD/m^3^].
+X_SU : float
+    Sugar degraders [kg COD/m^3^].
+X_AA : float
+    Amino acid degraders [kg COD/m^3^].
+X_FA : float
+    LCFA degraders [kg COD/m^3^].
+X_C4 : float
+    Valerate and butyrate degraders [kg COD/m^3^].
+X_PRO : float
+    Propionate degraders [kg COD/m^3^].
+X_AC : float
+    Acetate degraders [kg COD/m^3^].
+X_H2 : float
+    Hydrogen degraders [kg COD/m^3^].
+X_I : float
+    Particulate inerts [kg COD/m^3^].
+S_CAT : float
+    Cations (metallic ions, strong base) [kmole/m^3^].
+S_AN : float
+    Anions (metallic ions, strong acid) [kmole/m^3^].
+S_HVA : float
+    is actually Sva-
+S_HBU : float
+    is actually Sbu-
+S_HPRO : float
+    is actually Spro-
+S_HAC : float
+    is actually Sac-
+S_HCO3 : float
+S_NH3 : float
+S_GAS_H2 : float
+S_GAS_CH4 : float
+S_GAS_CO2 : float
+Q_D : float
+    Influent flow rate [m^3^/d].
+T_D : int
+    Temperature [°C].
+S_D1_D : int
+    Dummy state 1.
+S_D2_D : int
+    Dummy state 2.
+S_D3_D : int
+    Dummy state 3.
+X_D4_D : int
+    Dummy state 4.
+X_D5_D : int
+    Dummy state 5.
+"""
 # The following initial conditions are not used due to convergence duration -
 # it would take around a year to reach steady state.
 # DIGESTERINIT = np.ones(42)
@@ -315,11 +402,129 @@ DIGESTERPAR = np.array(
         K_P,
     ]
 )
+"""Digester parameters.
+
+Other Parameters
+----------------
+F_SI_XC : int or float
+F_XI_XC : int or float
+F_CH_XC : int or float
+F_PR_XC : int or float
+F_LI_XC : int or float
+N_XC : int or float
+N_I : int or float
+N_AA : int or float
+C_XC : int or float
+C_SI : int or float
+C_CH : int or float
+C_PR : int or float
+C_LI : int or float
+C_XI : int or float
+C_SU : int or float
+C_AA : int or float
+F_FA_LI : int or float
+C_FA : int or float
+F_H2_SU : int or float
+F_BU_SU : int or float
+F_PRO_SU : int or float
+F_AC_SU : int or float
+N_BAC : int or float
+C_BU : int or float
+C_PRO : int or float
+C_AC : int or float
+C_BAC : int or float
+Y_SU : int or float
+F_H2_AA : int or float
+F_VA_AA : int or float
+F_BU_AA : int or float
+F_PRO_AA : int or float
+F_AC_AA : int or float
+C_VA : int or float
+Y_AA : int or float
+Y_FA : int or float
+Y_C4 : int or float
+Y_PRO : int or float
+C_CH4 : int or float
+Y_AC : int or float
+Y_H2 : int or float
+K_DIS : int or float
+K_HYD_CH : int or float
+K_HYD_PR : int or float
+K_HYD_LI : int or float
+K_S_IN : int or float
+K_M_SU : int or float
+K_S_SU : int or float
+PH_UL_AA : int or float
+PH_LL_AA : int or float
+K_M_AA : int or float
+K_S_AA : int or float
+K_M_FA : int or float
+K_S_FA : int or float
+K_IH2_FA : int or float
+K_M_C4 : int or float
+K_S_C4 : int or float
+K_IH2_C4 : int or float
+K_M_PRO : int or float
+K_S_PRO : int or float
+K_IH2_PRO : int or float
+K_M_AC : int or float
+K_S_AC : int or float
+K_I_NH3 : int or float
+PH_UL_AC : int or float
+PH_LL_AC : int or float
+K_M_H2 : int or float
+K_S_H2 : int or float
+PH_UL_H2 : int or float
+PH_LL_H2 : int or float
+K_DEC_XSU : int or float
+K_DEC_XAA : int or float
+K_DEC_XFA : int or float
+K_DEC_XC4 : int or float
+K_DEC_XPRO : int or float
+K_DEC_XAC : int or float
+K_DEC_XH2 : int or float
+R : int or float
+    Universal gas constant [dm3*bar/(mol*K)] = 8.3145 [J/(mol*K)].
+T_BASE : int or float
+    25 [°C] = 298.15 [K].
+t_op : int or float
+    Operational temperature of AD and interfaces, 35 [°C]. Can be changed in the code.
+PK_W_BASE : int or float
+PK_A_VA_BASE : int or float
+PK_A_BU_BASE : int or float
+PK_A_PRO_BASE : int or float
+PK_A_AC_BASE : int or float
+PK_A_CO2_BASE : int or float
+PK_A_IN_BASE : int or float
+K_A_BVA : int or float
+K_A_BBU : int or float
+K_A_BPRO : int or float
+K_A_BAC : int or float
+K_A_BCO2 : int or float
+K_A_BIN : int or float
+P_ATM : int or float
+    Atmospheric pressure [bar].
+K_LA : int or float
+K_H_H2O_BASE : int or float
+K_H_CO2_BASE : int or float
+K_H_CH4_BASE : int or float
+K_H_H2_BASE : int or float
+K_P : int or float
+"""
 
 V_LIQ = 3400  # m3, size of BSM2 AD
 V_GAS = 300  # m3, size of BSM2 AD
 
 DIM_D = np.array([V_LIQ, V_GAS])
+"""Reactor dimensions of the anaerobic digestor.
+
+Other Parameters
+----------------
+V_LIQ = 3400
+    Liquid volume of anaerobic digestor [m^3^].
+V_GAS = 300
+    Gas volume of anaerobic digestor [m^3^].
+"""
 
 # parameters for ASM2ADM and ADM2ASM interfaces
 # could be put it their own initialisation file
@@ -368,6 +573,49 @@ INTERFACEPAR = np.array(
         PK_A_IN_BASE,
     ]
 )
+"""Parameters for ASM2ADM and ADM2ASM interfaces.
+
+Other Parameters
+----------------
+COD_EQUIV : int or float
+FNAA : int or float
+    Fraction of N in amino acids and Xpr as in ADM1 report.
+FNXC : int or float
+    N content of composite material based on BSM2.
+FNBAC : int or float
+    N content of biomass based on BSM1, same in AS and AD.
+FXNI : int or float
+    N content of inerts XI and XP, same in AS and AD.
+FSNI : int or float
+    N content of SI, assumed zero in ASM1 and BSM1.
+FSNI_ADM : int or float
+    N content of SI in the AD system.
+FRLIXS : int or float
+    Lipid fraction of non-nitrogenous XS in BSM2.
+FRLIBAC : int or float
+    Lipid fraction of non-nitrogenous biomass in BSM2.
+FRXS_ADM : int or float
+    Anaerobically degradable fraction of AS biomass in BSM2.
+FDEGRADE_ADM : int or float
+    Amount of AS XI and XP degradable in AD, zero in BSM2.
+FRXS_AS : int or float
+    Aerobically degradable fraction of AD biomass in BSM2.
+FDEGRADE_AS : int or float
+    Amount of AD XI and XP degradable in AS, zero in BSM2.
+R : int or float
+    Universal gas constant [dm^3^*bar/(mol*K)] = 8.3145 [J/(mol*K)].
+T_BASE : int or float
+    25 [°C] = 298.15 [K].
+t_op : int or float
+    Operational temperature of AD and interfaces, 35 [°C]. Can be changed in the code.
+PK_W_BASE : int or float
+PK_A_VA_BASE : int or float
+PK_A_BU_BASE : int or float
+PK_A_PRO_BASE : int or float
+PK_A_AC_BASE : int or float
+PK_A_CO2_BASE : int or float
+PK_A_IN_BASE : int or float
+"""
 
 # parameters for the pHdelay function
 PHINIT = PH_ADM_INIT
