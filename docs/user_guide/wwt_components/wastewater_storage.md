@@ -8,24 +8,11 @@ hide:
 
 ### Introduction and Model
 
-The wastewater storage...
+The wastewater storage holds reject wastewater from the dewatering unit before recycling it back into the wastewater treatment process, either at the primary clarifier influent or effluent. The implementation assumes a non-reactive storage tank with variable volume and complete mixing. The tank's behaviour depends upon the flow rate from the dewatering unit, the available storage volume and the destination of the stored reject water. The influent flow to the storage tank can either be bypassed if the storage tank is nearly full or stored if there is sufficient capacity. The following cases are assumed:
 
-The reject water from the dewatering unit can be recycled to a non-reactive storage tank prior to being recycled to the process stream. The storage tank behaviour depends upon the flow rate from the dewatering unit, the available storage volume and the fate of the stored reject water. It is assumed that the effluent flow from the storage tank will be equal to the influent flow if the tank is full, equal to a defined pumped flow if less than full and equal to the influent flow if completely empty. The effluent flow should not exceed a reasonable rate, to avoid unrealistic instantaneous emptying of the tank and the flow is directed to either
-the primary clarifier influent or effluent as defined by the user.
-
-
-This implements a simple storage tank of variable volume with complete mix.
-
-No biological reactions. Dummy states are included.
-
-`tempmodel` defines how temperature changes in the input affect the liquid temperature.
-It also defines rules for a potential necessary bypass of the storage tank.
-
-`activate` used to activate dummy states. See documentation by Dr Marie-Noelle Pons.
-
-If liquid volume > 90% of total volume then automatically bypass flow.
-If liquid volume < 10% of total volume then automatically input flow.
-Storage output and automatic bypass streams are joined in a Combiner afterwards.
+- If the tank volume is $\ge$ 90% of total capacity, the influent flow is automatically bypassed.
+- If the tank volume is between 10% and 90% of total capacity, the influent flow is automatically stored.
+- If the tank volume is $\le$ 10% of total capacity, the influent flow is also automatically stored.
 
 
 ### Source code documentation
