@@ -23,7 +23,7 @@ The components are defined as follows:
 
 - 5 dummy states: [S~D1~, S~D2~, S~D3~, X~D4~, X~D5~]
 
-For detailed information about the state variable concentrations visit the documentation for the [activated sludge reactor](wwt_components/activated_sludge_reactor).
+For detailed information about the state variable concentrations visit the documentation for the [activated sludge reactor](../activated_sludge_reactor).
 
 
 ### Source code documentation
