@@ -10,14 +10,14 @@ hide:
 
 The activated sludge reactor is designed to remove organic matter and nutrients from wastewater through processes such as carbon oxidation, nitrification and denitrification. This treatment relies on microorganisms, which are supplied with oxygen in an aerated tank. The implementation is based on the Activated Sludge Model No. 1 (ASM1) by Henze et al. (1987). ASM1 represents the activated sludge reactor as a continuous stirred tank reactor (CSTR) that is assumed to be completely mixed. The oxygen transfer provided by the aeration equipment is defined by the mass transfer coefficient K~L~a. Additionally, it is possible to maintain a fixed dissolved oxygen (DO) concentration in the reactor using an aeration controller.
 
-The model incorporates 13 relevant [components](#components), which are categorized into insoluble components (X) and soluble components (S). The transformation of these components is controlled by eight fundamental [process rate equations](#process-rate-equations) that describe four key processes:
+The model incorporates 13 relevant [components](#components), which are categorized into insoluble components (X) and soluble components (S). The transformation of these components is controlled by eight fundamental [process rate equations](#process-rates) that describe four key processes:
 
 - the growth of biomass
 - the decay of biomass
 - the ammonification of organic nitrogen
 - the 'hydrolysis' of particulate organics trapped within the biofloc
 
-The reaction rate for a component $i$ across all processes $\rho_j$ is then described by the [observed conversation rate equation](#observed-conversion-rate-equation), which sums up the products of the [stoichiometric coefficients](#stoichiometric-coefficients-nu_ij) $\nu_{ij}$ and the process rates $\rho_j$. For dynamic state modeling, these equations are expressed as a set of coupled ordinary differential equations, which are solved using numerical integration techniques.
+The reaction rate for a component $i$ across all processes $\rho_j$ is then described by the [conversation rate equation](#conversion-rate), which sums up the products of the [stoichiometric coefficients](#stoichiometric-coefficients-nu_ij) $\nu_{ij}$ and the process rates $\rho_j$. For dynamic state modeling, these equations are expressed as a set of coupled ordinary differential equations, which are solved using numerical integration techniques.
 
 ASM1 also supports connecting multiple reactors with different parameters in series, allowing the simulation of distinct reactor zones (e.g. anoxic denitrification).
 
@@ -26,59 +26,58 @@ ASM1 also supports connecting multiple reactors with different parameters in ser
 
 #### Components
 
-| $i$ | Component                                       | Symbol    | Unit         |
-| --  | ----------------------------------------------  | --------- | ------------ |
-| 1   | Soluble inert organic matter                    | $S_I$     | M(COD)L^-3^  |
-| 2   | Readily biodegradable substrate                 | $S_S$     | M(COD)L^-3^  |
-| 3   | Particulate inert organic matter                | $X_I$     | M(COD)L^-3^  |
-| 4   | Slowly biodegradable substrate                  | $X_S$     | M(COD)L^-3^  |
-| 5   | Active heterotrophic biomass                    | $X_{B,H}$ | M(COD)L^-3^  |
-| 6   | Active autotrophic biomass                      | $X_{B,A}$ | M(COD)L^-3^  |
-| 7   | Particulate products arising from biomass decay | $X_P$     | M(COD)L^-3^  |
-| 8   | Oxygen (negative COD)                           | $S_O$     | M(-COD)L^-3^ |
-| 9   | Nitrate and nitrite nitrogen                    | $S_{NO}$  | M(N)L^-3^    |
-| 10  | $NH^+_4 + NH_3$ nitrogen                        | $S_{NH}$  | M(N)L^-3^    |
-| 11  | Soluble biodegradable organic nitrogen          | $S_{ND}$  | M(N)L^-3^    |
-| 12  | Particulate biodegradable organic nitrogen      | $X_{ND}$  | M(N)L^-3^    |
-| 13  | Alkalinity                                      | $S_{ALK}$ | Molar unit   |
+| $i$ | Component                                       | Symbol    | Unit                |
+| --  | ----------------------------------------------  | --------- | ------------------- |
+| 1   | Soluble inert organic matter                    | $S_I$     | g(COD)$\cdot$m^-3^  |
+| 2   | Readily biodegradable substrate                 | $S_S$     | g(COD)$\cdot$m^-3^  |
+| 3   | Particulate inert organic matter                | $X_I$     | g(COD)$\cdot$m^-3^  |
+| 4   | Slowly biodegradable substrate                  | $X_S$     | g(COD)$\cdot$m^-3^  |
+| 5   | Active heterotrophic biomass                    | $X_{B,H}$ | g(COD)$\cdot$m^-3^  |
+| 6   | Active autotrophic biomass                      | $X_{B,A}$ | g(COD)$\cdot$m^-3^  |
+| 7   | Particulate products arising from biomass decay | $X_P$     | g(COD)$\cdot$m^-3^  |
+| 8   | Dissolved oxygen                                | $S_O$     | g(O~2~)$\cdot$m^-3^ |
+| 9   | Nitrate and nitrite nitrogen                    | $S_{NO}$  | g(N)$\cdot$m^-3^    |
+| 10  | Ammonium plus ammonia nitrogen                  | $S_{NH}$  | g(N)$\cdot$m^-3^    |
+| 11  | Soluble biodegradable organic nitrogen          | $S_{ND}$  | g(N)$\cdot$m^-3^    |
+| 12  | Particulate biodegradable organic nitrogen      | $X_{ND}$  | g(N)$\cdot$m^-3^    |
+| 13  | Alkalinity                                      | $S_{ALK}$ | mol(HCO$_3^-$)$\cdot$m^-3^   |
 
 
-#### Process rate equations
+#### Process rates
 
-| $\rho_j$ | Process rate in [ML^-3^T^-1^]              | Equation  |
-| --       | ------------------------------------------ | --------- |
-| 1        | Aerobic growth of heterotrophs             | $\rho_1 = \hat \mu_H \left( \frac{S_S}{K_S + S_S} \right) \left( \frac{S_O}{K_{O,H} + S_O} \right) X_{B,H}$ |
-| 2        | Anoxic growth of heterotrophs              | $\rho_2 = \hat \mu_H \left( \frac{S_S}{K_S + S_S} \right) \left( \frac{K_{O,H}}{K_{O,H} + S_O} \right) \times \left( \frac{S_{NO}}{K_{NO} + S_{NO}} \right) \eta_g X_{B,H}$ |
-| 3        | Aerobic growth of autotrophs               | $\rho_3 = \hat \mu_A \left( \frac{S_{NH}}{K_{NH} + S_{NH}} \right) \left( \frac{S_O}{K_{O,A} + S_O} \right) X_{B,A}$ |
-| 4        | 'Decay' of heterotrophs                    | $\rho_4 = b_H X_{B,H}$ |
-| 5        | 'Decay' of autotrophs                      | $\rho_5 = b_A X_{B,A}$ |
-| 6        | Ammonification of soluble organic nitrogen | $\rho_6 = k_a S_{ND} X_{B,H}$ |
-| 7        | 'Hydrolysis' of entrapped organics         | $\rho_7 = k_h \frac{X_S / X_{B,H}}{K_X + (X_S / X_{B,H})} \left[ \left( \frac{S_O}{K_{O,H} + S_O} \right) + \eta_h \left( \frac{K_{O,H}}{K_{O,H} + S_O} \right) \left( \frac{S_{NO}}{K_{NO} + S_{NO}} \right) \right] X_{B,H}$ |
-| 8        | 'Hydrolysis' of entrapped organic nitrogen | $\rho_8 = \rho_7 (X_{ND} / X_S)$ |
-
-
-**Kinetic parameters**
-
-- $\hat \mu$: Maximum specific growth rate
-
-- $K$: Half-velocity constant
-
-- $b$: Specific decay rate
-
-- Heterotrophic growth and decay: $\hat \mu_H, K_S, K_{O,H}, K_{NO}, b_H$
-
-- Autotrophic growth and decay: $\hat \mu_A, K_{NH}, K_{O,A}, b_A$
-
-- Correction factor for anoxic growth of heterotrophs: $\eta_g$
-
-- Ammonification: $k_a$
-
-- Hydrolysis: $k_h, K_X$
-
-- Correction factor for anoxic hydrolysis: $\eta_h$
+| $\rho_j$ | Process rate [g(COD)$\cdot$m^-3^$\cdot$d^-1^] | Equation  |
+| -------- | --------------------------------------------- | --------- |
+| $\rho_1$ | Aerobic growth of heterotrophs                | $\hat \mu_H \left( \frac{S_S}{K_S + S_S} \right) \left( \frac{S_O}{K_{O,H} + S_O} \right) X_{B,H}$ |
+| $\rho_2$ | Anoxic growth of heterotrophs                 | $\hat \mu_H \left( \frac{S_S}{K_S + S_S} \right) \left( \frac{K_{O,H}}{K_{O,H} + S_O} \right) \left( \frac{S_{NO}}{K_{NO} + S_{NO}} \right) \eta_g X_{B,H}$     |
+| $\rho_3$ | Aerobic growth of autotrophs                  | $\hat \mu_A \left( \frac{S_{NH}}{K_{NH} + S_{NH}} \right) \left( \frac{S_O}{K_{O,A} + S_O} \right) X_{B,A}$ |
+| $\rho_4$ | 'Decay' of heterotrophs                       | $b_H X_{B,H}$ |
+| $\rho_5$ | 'Decay' of autotrophs                         | $b_A X_{B,A}$ |
+| $\rho_6$ | Ammonification of soluble organic nitrogen    | $k_a S_{ND} X_{B,H}$ |
+| $\rho_7$ | 'Hydrolysis' of entrapped organics            | $k_h \frac{X_S / X_{B,H}}{K_X + (X_S / X_{B,H})} \left[ \left( \frac{S_O}{K_{O,H} + S_O} \right) + \eta_h \left( \frac{K_{O,H}}{K_{O,H} + S_O} \right) \left( \frac{S_{NO}}{K_{NO} + S_{NO}} \right) \right] X_{B,H}$ |
+| $\rho_8$ | 'Hydrolysis' of entrapped organic nitrogen    | $\rho_7 \cdot (X_{ND} / X_S)$ |
 
 
-#### Observed conversion rate equation
+**Process rate parameters**
+
+| Symbol       | Description | Unit  |
+| ------------ | ----------- | ----- |
+| $\hat \mu_H$ | Maximum heterotrophic growth rate | d^-1^ |
+| $\hat \mu_A$ | Maximum autotrophic growth rate | d^-1^ |
+| $b_H$ | Heterotrophic decay rate | d^-1^ |
+| $b_A$ | Autotrophic decay rate | d^-1^ |
+| $K_S$ | Substrate half-saturation coefficient for heterotrophic growth | g(COD)$\cdot$m^-3^ |
+| $K_{O,H}$ | Oxygen half-saturation coefficient for heterotrophic growth | g(O~2~)$\cdot$m^-3^ |
+| $K_{NO}$ | Nitrate half-saturation coefficient for anoxic heterotrophic growth | g(N)$\cdot$m^-3^ |
+| $K_{NH}$ | Ammonia half-saturation coefficient for autotrophic growth | g(N)$\cdot$m^-3^ |
+| $K_{O,A}$ | Oxygen half-saturation coefficient for autotrophic growth | g(O~2~)$\cdot$m^-3^ |
+| $K_X$ | Particulate substrate half-saturation coefficient for hydrolysis | g(COD)$\cdot$(g(COD))^-1^ |
+| $k_a$ | Ammonification rate | m^3^$\cdot$(g(COD))^-1^$\cdot$d^-1^ |
+| $k_h$ | Maximum specific hydrolysis rate | g(COD)$\cdot$(g(COD))^-1^$\cdot$d^-1^ |
+| $\eta_g$ | Anoxic growth rate correction factor | - |
+| $\eta_h$ | Anoxic hydrolysis rate correction factor | - |
+
+
+#### Conversion rate
 
 $$
 r_i = \sum_j \nu_{ij}\rho_j
@@ -87,9 +86,9 @@ $$
 #### Stoichiometric coefficients $\nu_{ij}$
 
 $$
-\begin{array}{r|rrrrrrrrrrrrr}
-\text{component} \rightarrow j & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 \\
-\text{process} \downarrow i & S_I & S_S & X_I & X_S & X_{B,H} & X_{B,A} & X_P & S_O & S_{NO} & S_{NH} & S_{ND} & X_{ND} & S_{ALK} \\ \hline
+\begin{array}{c|ccccccccccccc}
+\text{component} \, i \rightarrow & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 \\
+\text{process} \, j \downarrow & S_I & S_S & X_I & X_S & X_{B,H} & X_{B,A} & X_P & S_O & S_{NO} & S_{NH} & S_{ND} & X_{ND} & S_{ALK} \\ \hline
 1 &  & - \frac{1}{Y_H} &  &  & 1 &  &  & - \frac{1-Y_H}{Y_H} &  & -i_{XB} &  &  & - \frac{i_{XB}}{14} \\
 2 &  & - \frac{1}{Y_H} &  &  & 1 &  &  &  & - \frac{1-Y_H}{2.86 Y_H} & -i_{XB} &  &  & \frac{1-Y_H}{14 \cdot 2.86 Y_H} - \frac{i_{XB}}{14} \\
 3 &  &  &  &  &  & 1 &  &  - \frac{4.57-Y_A}{Y_A} & \frac{1}{Y_A} & -i_{XB}- \frac{1}{Y_A} &  &  & - \frac{i_{XB}}{14} - \frac{1}{7 Y_A} \\
@@ -103,17 +102,13 @@ $$
 
 **Stoichiometric parameters**
 
-- $Y$: True growth yield
-
-- Heterotrophic yield: $Y_H$
-
-- Autotrophic yield: $Y_A$
-
-- Fraction of biomass yielding particulate products: $f_P$
-
-- Mass N/Mass COD in biomass: $i_{XB}$
-
-- Mass N/Mass COD in products from biomass: $i_{XP}$
+| Symbol   | Description                                               | Unit                      |
+| -------- | --------------------------------------------------------- | ------------------------- |
+| $Y_H$    | Heterotrophic yield                                       | g(COD)$\cdot$(g(COD))^-1^ |
+| $Y_A$    | Autotrophic yield                                         | g(COD)$\cdot$(g(N))^-1^   |
+| $f_P$    | Fraction of biomass leading to particulate inert products | -                         |
+| $i_{XB}$ | Fraction of nitrogen in biomass                           | g(N)$\cdot$(g(COD))^-1^   |
+| $i_{XP}$ | Fraction of nitrogen in organic particulate inerts        | g(N)$\cdot$(g(COD))^-1^   |
 
 
 ### Source code documentation
@@ -140,4 +135,5 @@ mod</span> [asm1init_bsm2](/reference/bsm2_python/bsm2/init/asm1init_bsm2)
 
 
 [^1]: [Benchmarking of Control Strategies for Wastewater Treatment Plants](https://iwaponline.com/ebooks/book-pdf/650794/wio9781780401171.pdf), chap. 4.2.1 Activated Sludge Model No. 1
-[^2]: [Activated Sludge Model No. 1, Henze et al. (1987)](https://www.researchgate.net/publication/243624144_Activated_Sludge_Model_No_1)
+[^2]: [Benchmark Simulation Model no. 2 (BSM2)](http://iwa-mia.org/wp-content/uploads/2022/09/TR3_BSM_TG_Tech_Report_no_3_BSM2_General_Description.pdf), chap. 2. Modeling of the activated sludge section
+[^3]: [Activated Sludge Model No. 1, Henze et al. (1987)](https://www.researchgate.net/publication/243624144_Activated_Sludge_Model_No_1)
