@@ -57,7 +57,7 @@ All components are configured with their default values.
 :bsm2python-thickener: __[Thickener](/user_guide/wwt_components/thickener)__
 { .card }
 
-:bsm2python-anerobic-digester: __[Anerobic digester](/user_guide/wwt_components/anerobic_digester)__
+:bsm2python-anerobic-digester: __[Anaerobic digester](/user_guide/wwt_components/anaerobic_digester)__
 { .card }
 
 :bsm2python-dewatering: __[Dewatering](/user_guide/wwt_components/dewatering)__

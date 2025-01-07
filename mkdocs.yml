@@ -26,7 +26,7 @@ nav:
       - Activated sludge reactor: user_guide/wwt_components/activated_sludge_reactor.md
       - Settler: user_guide/wwt_components/settler.md
       - Thickener: user_guide/wwt_components/thickener.md
-      - Anerobic digester: user_guide/wwt_components/anerobic_digester.md
+      - Anaerobic digester: user_guide/wwt_components/anaerobic_digester.md
       - Dewatering: user_guide/wwt_components/dewatering.md
       - Wastewater storage: user_guide/wwt_components/wastewater_storage.md
       - Combiner and Splitter: user_guide/wwt_components/combiner_and_splitter.md
