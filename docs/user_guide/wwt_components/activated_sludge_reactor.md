@@ -17,7 +17,7 @@ The model incorporates 13 relevant [components](#components), which are categori
 - the ammonification of organic nitrogen
 - the 'hydrolysis' of particulate organics trapped within the biofloc
 
-The reaction rate for a component $i$ across all processes $\rho_j$ is then described by the [conversation rate equation](#conversion-rate), which sums up the products of the [stoichiometric coefficients](#stoichiometric-coefficients-nu_ij) $\nu_{ij}$ and the process rates $\rho_j$. For dynamic state modeling, these equations are expressed as a set of coupled ordinary differential equations, which are solved using numerical integration techniques.
+The reaction rate for a component $i$ is then described by the [conversation rate equation](#conversion-rate), which sums up the products of the [stoichiometric coefficients](#stoichiometric-coefficients-nu_ij) $\nu_{ij}$ and the process rates $\rho_j$ across all processes $j$. For dynamic state modeling, these equations are expressed as a set of coupled ordinary differential equations, which are solved using numerical integration techniques.
 
 ASM1 also supports connecting multiple reactors with different parameters in series, allowing the simulation of distinct reactor zones (e.g. anoxic denitrification).
 

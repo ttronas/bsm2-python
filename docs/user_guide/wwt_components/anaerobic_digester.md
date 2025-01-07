@@ -8,9 +8,22 @@ hide:
 
 ### Introduction and Model
 
-Deviation from original model from Batstone et al. (2002).
+The anaerobic digester is designed to break down organic matter in sewage sludge to produce methane gas through four key stages: hydrolysis, acidogenesis, acetogenesis and methanogenesis. Most of this processes rely on microorganisms that metabolize substrates in the absence of oxygen, typically at mesophilic temperatures (20-45&nbsp;°C). The implementation is based on the Anaerobic Digestion Model No. 1 (ADM1) by Batstone et al. (2002), with some deviations from the original model due to computational issues and to ensure consistency with BSM2. ADM1 represents the anaerobic digester as two separate volumes: one for the liquid phase and one for the gas phase. Both phases are assumed to be completly mixed (CSTR).
 
-Enter text here.
+The model incorporates 24 relevant [components](#components), which are categorized into insoluble components (X) and soluble components (S). In the liquid phase these components are transformed due to 19 [biochemical processes](#biochemical-process-rates) that can be described by four key processes:
+
+- Disintegration (more complex hydrolysis steps)
+- Hydrolysis
+- Substrate uptake / biomass growth
+- Substrate decay / biomass decay
+
+The uptake processes depend on the pH value, which is accounted for using [inhibition functions](#process-inhibition), while the calculation of the pH value relies heavily on [acid-base processes](#acid-base-rates). The [gas transfer processes](#gas-transfer-rates) describe the transition of dissolved gas from the liquid phase to the gas phase.
+
+In the differential mass balance for a [soluble (i=1-12)](#differential-mass-balance-for-soluble-components) or [particulate (i=13-24)](#differential-mass-balance-for-particulate-components), the reaction term for biochemical processes is expressed as the sum across all processes $j$, which sums up the products of the [stoichiometric coefficients](#stoichiometric-coefficients-nu_ij) $\nu_{ij}$ and the process rates $\rho_j$. For the soluble components $S_{h2}$, $S_{co2}$ and $S_{ch4}$ the gas transfer rate $\rho_{T,i}$ is included. 
+
+The determination of the pH value involves a differential mass balance for [cations](#differential-mass-balance-for-cations) and [anions](#differential-mass-balance-for-anions) (i=4-7, 10-11), along with [differential equations for ion states](#differential-equations-for-ion-states) that incorporate the acid-base process rates $\rho_{A,i}$. 
+
+For the gas phase there are differential mass balances for [hydrogen gas](#differential-mass-balance-for-hydrogen), [methane gas](#differential-mass-balance-for-methane) and [carbon dioxide gas](#differential-mass-balance-for-carbon-dioxide), that use the gas transfer rates $\rho_{T,i}$. For dynamic state modeling, these equations are solved using numerical integration techniques.
 
 
 ### Equations
@@ -85,32 +98,6 @@ Enter text here.
 | $K_{S}$       | Monod half saturation constant  | kg(COD)$\cdot$m^-3^ |
 
 
-#### Acid-base rates
-
-| $\rho_{A,n}$  | Acid-base rate [kg(COD)$\cdot$m^-3^d^-1^] | Equation            |
-| --------- | --------------------------------------- | ------------------- |
-| $\rho_{A,4}$  | Acid-base equilibrium of valerate   | $k_{A,Bva} \left( S_{va^-} (K_{a,va}+S_{H^+}) -K_{a,va}S_{va} \right)$        |
-| $\rho_{A,5}$  | Acid-base equilibrium of butyrate    | $k_{A,Bbu} \left( S_{bu^-} (K_{a,bu}+S_{H^+}) -K_{a,bu}S_{bu} \right)$  |
-| $\rho_{A,6}$  | Acid-base equilibrium of propionate      | $k_{A,Bpro} \left( S_{pro^-} (K_{a,pro}+S_{H^+}) -K_{a,pro}S_{pro} \right)$  |
-| $\rho_{A,7}$  | Acid-base equilibrium of acetate           | $k_{A,Bac} \left( S_{ac^-} (K_{a,ac}+S_{H^+}) -K_{a,ac}S_{ac} \right)$  |
-| $\rho_{A,10}$  | Acid-base equilibrium of inorganic carbon       | $k_{A,Bco2} \left( S_{hco3^-} (K_{a,co2}+S_{H^+}) -K_{a,co2}S_{IC} \right)$ |
-| $\rho_{A,11}$  | Acid-base equilibrium of inorganic nitrogen   | $k_{A,BIN} \left( S_{nh3} (K_{a,IN}+S_{H^+}) -K_{a,IN}S_{IN} \right)$ |
-
-**Acid-base rate parameters**
-
-| Symbol        | Description | Unit  |
-| ------------- | ----------- | ----- |
-| $k_{A,Bsub}$     | Acid-base kinetic parameter for substance *sub* | m^3^$\cdot$kmol^-1^$\cdot$d^-1^ |
-| $K_{a,acid}$     | Acid-base equilibrium constant for *acid* | kmol$\cdot$m^-3^ |
-| $S_{va}$  | Total valerate, sum of acid-base pair ($S_{va}=S_{va^-}+S_{hva}$) | kg(COD)$\cdot$m^-3^ |
-| $S_{bu}$  | Total butyrate, sum of acid-base pair ($S_{bu}=S_{bu^-}+S_{hbu}$) | kg(COD)$\cdot$m^-3^ |
-| $S_{pro}$  | Total propionate, sum of acid-base pair ($S_{pro}=S_{pro^-}+S_{hpro}$) | kg(COD)$\cdot$m^-3^ |
-| $S_{ac}$  | Total acetate, sum of acid-base pair ($S_{ac}=S_{ac^-}+S_{hac}$) | kg(COD)$\cdot$m^-3^ |
-| $S_{IC}$  | Inorganic carbon, sum of acid-base pair ($S_{IC}=S_{hco3^-}+S_{h2co3}$) | kmol(C)$\cdot$m^-3^ |
-| $S_{IN}$  | Inorganic nitrogen, sum of acid-base pair ($S_{IN}=S_{nh3}+S_{nh4^+}$) | kmol(N)$\cdot$m^-3^ |
-| $S_{H^+}$     | Molar concentration of hydrogen | kmol$\cdot$m^-3^ |
-
-
 #### Process inhibition
 
 | $I_i$ | Process inhibition due to pH [-] | Equation |
@@ -153,20 +140,46 @@ $$
 | $pH_{UL,h2}$     | Upper limit of pH for uptake rate of hydrogen | - |
 
 
+#### Acid-base rates
+
+| $\rho_{A,i}$  | Acid-base rate [kg(COD)$\cdot$m^-3^d^-1^] | Equation            |
+| --------- | --------------------------------------- | ------------------- |
+| $\rho_{A,4}$  | Acid-base equilibrium of valerate   | $k_{A,Bva} \left( S_{va^-} (K_{a,va}+S_{H^+}) -K_{a,va}S_{va} \right)$        |
+| $\rho_{A,5}$  | Acid-base equilibrium of butyrate    | $k_{A,Bbu} \left( S_{bu^-} (K_{a,bu}+S_{H^+}) -K_{a,bu}S_{bu} \right)$  |
+| $\rho_{A,6}$  | Acid-base equilibrium of propionate      | $k_{A,Bpro} \left( S_{pro^-} (K_{a,pro}+S_{H^+}) -K_{a,pro}S_{pro} \right)$  |
+| $\rho_{A,7}$  | Acid-base equilibrium of acetate           | $k_{A,Bac} \left( S_{ac^-} (K_{a,ac}+S_{H^+}) -K_{a,ac}S_{ac} \right)$  |
+| $\rho_{A,10}$  | Acid-base equilibrium of inorganic carbon       | $k_{A,Bco2} \left( S_{hco3^-} (K_{a,co2}+S_{H^+}) -K_{a,co2}S_{IC} \right)$ |
+| $\rho_{A,11}$  | Acid-base equilibrium of inorganic nitrogen   | $k_{A,BIN} \left( S_{nh3} (K_{a,IN}+S_{H^+}) -K_{a,IN}S_{IN} \right)$ |
+
+**Acid-base rate parameters**
+
+| Symbol        | Description | Unit  |
+| ------------- | ----------- | ----- |
+| $k_{A,Bsub}$     | Acid-base kinetic parameter for substance *sub* | m^3^$\cdot$kmol^-1^$\cdot$d^-1^ |
+| $K_{a,acid}$     | Acid-base equilibrium constant for *acid* | kmol$\cdot$m^-3^ |
+| $S_{va}$  | Total valerate, sum of acid-base pair ($S_{va}=S_{va^-}+S_{hva}$) | kg(COD)$\cdot$m^-3^ |
+| $S_{bu}$  | Total butyrate, sum of acid-base pair ($S_{bu}=S_{bu^-}+S_{hbu}$) | kg(COD)$\cdot$m^-3^ |
+| $S_{pro}$  | Total propionate, sum of acid-base pair ($S_{pro}=S_{pro^-}+S_{hpro}$) | kg(COD)$\cdot$m^-3^ |
+| $S_{ac}$  | Total acetate, sum of acid-base pair ($S_{ac}=S_{ac^-}+S_{hac}$) | kg(COD)$\cdot$m^-3^ |
+| $S_{IC}$  | Inorganic carbon, sum of acid-base pair ($S_{IC}=S_{hco3^-}+S_{h2co3}$) | kmol(C)$\cdot$m^-3^ |
+| $S_{IN}$  | Inorganic nitrogen, sum of acid-base pair ($S_{IN}=S_{nh3}+S_{nh4^+}$) | kmol(N)$\cdot$m^-3^ |
+| $S_{H^+}$     | Molar concentration of hydrogen | kmol$\cdot$m^-3^ |
+
+
 #### Gas transfer rates
 
 | $\rho_{T,i}$  | Gas transfer rate [kmol$\cdot$m^-3^d^-1^] | Equation            |
 | --------- | --------------------------------------- | ------------------- |
-| $\rho_{T,8}$  | Transfer rate of hydrogen   | $K_{L}a(S_{h2}-16 \cdot K_{H,h2}p_{gas,h2})$        |
-| $\rho_{T,9}$  | Transfer rate of methane    | $K_{L}a(S_{ch4}-64 \cdot K_{H,ch4}p_{gas,ch4})$  |
-| $\rho_{T,10}$  | Transfer rate of carbon dioxide      | $K_{L}a(S_{co_2}-K_{H,co2}p_{gas,co2})$  |
+| $\rho_{T,8}$  | Transfer rate of hydrogen   | $K_{L}a_{h2}(S_{h2}-16 \cdot K_{H,h2}p_{gas,h2})$        |
+| $\rho_{T,9}$  | Transfer rate of methane    | $K_{L}a_{ch4}(S_{ch4}-64 \cdot K_{H,ch4}p_{gas,ch4})$  |
+| $\rho_{T,10}$  | Transfer rate of carbon dioxide      | $K_{L}a_{co2}(S_{co_2}-K_{H,co2}p_{gas,co2})$  |
 
 
 **Gas transfer rate parameters**
 
 | Symbol        | Description | Unit  |
 | ------------- | ----------- | ----- |
-| $K_{L}a$     | Oxygen transfer coefficient | d^-1^ |
+| $K_{L}a_{gas}$     | Transfer coefficient of *gas* | d^-1^ |
 | $K_{H,h2}$     | Henry’s law coefficient for hydrogen | kmol$\cdot$m^-3^$\cdot$bar^-1^ |
 | $K_{H,ch4}$     | Henry’s law coefficient for methane | kmol$\cdot$m^-3^$\cdot$bar^-1^ |
 | $K_{H,co2}$     | Henry’s law coefficient for carbon dioxide | kmol$\cdot$m^-3^$\cdot$bar^-1^ |
@@ -178,31 +191,31 @@ $$
 
 #### Liquid phase equations
 
-- Differential equations for soluble components:
+##### Differential mass balance for soluble components:
 
 $$
-\frac{dS_i}{dt} = \frac{Q}{V_{liq}} \left( S_{in,i} - S_{out,i} \right) + \sum_{j=1-12} \nu_{ij}\rho_j - \rho_{T,i}
+\frac{dS_i}{dt} = \frac{Q}{V_{liq}} \left( S_{i,in} - S_{i,out} \right) + \left( \sum_{j} \nu_{ij}\rho_j \right) - \rho_{T,i}
 $$
 
-- Differential equations for particulate components:
+##### Differential mass balance for particulate components:
 
 $$
-\frac{dX_i}{dt} = \frac{Q}{V_{liq}} \left( X_{in,i} - X_{out,i} \right) + \sum_{j=13-24} \nu_{ij}\rho_j
+\frac{dX_i}{dt} = \frac{Q}{V_{liq}} \left( X_{i,in} - X_{i,out} \right) + \sum_{j} \nu_{ij}\rho_j
 $$
 
-- Differential equations for cations:
+##### Differential mass balance for cations:
 
 $$
-\frac{dS_{cat^+}}{dt} = \frac{Q}{V_{liq}} \left( S_{cat^+,i} - S_{cat^+} \right)
+\frac{dS_{i,cat^+}}{dt} = \frac{Q}{V_{liq}} \left( S_{i,cat^+,in} - S_{i,cat^+,out} \right)
 $$
 
-- Differential equations for anions:
+##### Differential mass balance for anions:
 
 $$
-\frac{dS_{an^-}}{dt} = \frac{Q}{V_{liq}} \left( S_{an^-,i} - S_{an^-} \right)
+\frac{dS_{i,an^-}}{dt} = \frac{Q}{V_{liq}} \left( S_{i,an^-,in} - S_{i,an^-,out} \right)
 $$
 
-- Differential equations for ion states:
+##### Differential equations for ion states:
 
 $$
 \frac{dS_{va^-}}{dt} = - \rho_{A,4}
@@ -290,19 +303,19 @@ $$
 
 #### Gas phase equations
 
-- Differential equations for hydrogen:
+##### Differential mass balance for hydrogen:
 
 $$
 \frac{dS_{gas,h2}}{dt} = -\frac{S_{gas,h2} Q_{gas}}{V_{gas}} + \rho_{T,8} \frac{V_{liq}}{V_{gas}}
 $$
 
-- Differential equations for methane:
+##### Differential mass balance for methane:
 
 $$
 \frac{dS_{gas,ch4}}{dt} = -\frac{S_{gas,ch4} Q_{gas}}{V_{gas}} + \rho_{T,9} \frac{V_{liq}}{V_{gas}}
 $$
 
-- Differential equations for carbon dioxide:
+##### Differential mass balance for carbon dioxide:
 
 $$
 \frac{dS_{gas,co2}}{dt} = -\frac{S_{gas,co2} Q_{gas}}{V_{gas}} + \rho_{T,10} \frac{V_{liq}}{V_{gas}}
