@@ -98,7 +98,8 @@ DIGESTERINIT = np.array(
         X_D5_D,
     ]
 )
-"""Initial values for ADM1 differential equations, used by all three ADM implementations, `adm1_ODE`, `adm1_DAE1` and `adm1_DAE2`.
+"""Initial values for ADM1 differential equations, used by all three ADM implementations, `adm1_ODE`,
+`adm1_DAE1` and `adm1_DAE2`.
 
 Initial concentrations of 42 components
 (26 ADM1 components, 9 other gas-related components, Q, T and 5 dummy states).
