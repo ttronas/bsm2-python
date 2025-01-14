@@ -3,8 +3,7 @@ hide:
   - toc
 ---
 
-![Anerobic digester](https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python/-/raw/doc_new2/docs/assets/.icons/bsm2python/anerobic-digester.svg){ align=right } 
-<!-- TODO: change link to main branch before merging -->
+![Anerobic digester](../../assets/icons/bsm2python/anerobic-digester.svg){ align=right }
 
 ### Introduction and Model
 
