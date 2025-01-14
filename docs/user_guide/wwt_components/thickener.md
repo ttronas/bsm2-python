@@ -35,3 +35,4 @@ mod</span> [thickenerinit_bsm2](/reference/bsm2_python/bsm2/init/thickenerinit_b
 
 
 [^1]: [Benchmarking of Control Strategies for Wastewater Treatment Plants](https://iwaponline.com/ebooks/book-pdf/650794/wio9781780401171.pdf), chap. 4.2.4.3 Thickener
+[^2]: [Benchmark Simulation Model no. 2 (BSM2)](http://iwa-mia.org/wp-content/uploads/2022/09/TR3_BSM_TG_Tech_Report_no_3_BSM2_General_Description.pdf), chap. 5.1 Thickener

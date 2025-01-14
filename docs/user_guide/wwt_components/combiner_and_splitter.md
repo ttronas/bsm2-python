@@ -5,7 +5,7 @@ hide:
 
 ### Introduction and Model
 
-The combiner and splitter are simple components used to either combine multiple wastewater flows into a single stream or splitt one wastewater flow into multiples streams. The resulting streams are assumed to be evenly mixed. Flows are represented in ASM1 format as arrays containing 21 standard components:
+The combiner and splitter are simple components used to either combine multiple wastewater flows into a single stream or split one wastewater flow into multiples streams. The resulting streams are assumed to be evenly mixed. Flows are represented in ASM1 format as arrays containing 21 standard components:
 
 $$
 \left[S_I, S_S, X_I, X_S, X_{BH}, X_{BA}, X_P, S_O, S_{NO}, S_{NH}, S_{ND}, X_{ND}, S_{ALK}, TSS, Q, T, S_{D1}, S_{D2}, S_{D3}, X_{D4}, X_{D5}\right]

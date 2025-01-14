@@ -38,3 +38,4 @@ mod</span> [storage_bsm2](/reference/bsm2_python/bsm2/storage_bsm2)
 mod</span> [storageinit_bsm2](/reference/bsm2_python/bsm2/init/storageinit_bsm2)
 
 [^1]: [Benchmarking of Control Strategies for Wastewater Treatment Plants](https://iwaponline.com/ebooks/book-pdf/650794/wio9781780401171.pdf), chap. 4.2.4.5 Reject water storage tank
+[^2]: [Benchmark Simulation Model no. 2 (BSM2)](http://iwa-mia.org/wp-content/uploads/2022/09/TR3_BSM_TG_Tech_Report_no_3_BSM2_General_Description.pdf), chap. 6. Modeling of the reject water storage tank

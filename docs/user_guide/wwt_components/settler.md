@@ -26,11 +26,11 @@ $$
 J_s = \nu_s(X_{sc}) \cdot X_{sc}
 $$
 
-- $J_s$: Solids flux due to gravity in layer $j$ [g $\cdot$ m^-2^ $\cdot$ d^-1^]
-
-- $\nu_s(X_{sc})$: Settling velocity in layer $j$ [m $\cdot$ d^-1^]
-
-- $X_{sc}$: Solids concentration in layer $j$ [g $\cdot$ m^-3^]
+| Symbol | Description | Unit |
+| ------ | ----------- | ---- |
+| $J_s$  | Solids flux due to gravity in layer $j$ | g $\cdot$ m^-2^ $\cdot$ d^-1^ |
+| $\nu_s(X_{sc})$ | Settling velocity in layer $j$ | m $\cdot$ d^-1^ |
+| $X_{sc}$ | Solids concentration in layer $j$ | g $\cdot$ m^-3^ |
 
 
 #### Double-exponential settling velocity function
@@ -39,20 +39,17 @@ $$
 \nu_{sj} = \nu_o e^{-r_h X_j^*} - \nu_o e^{-r_p X_j^*} \quad \text{with} \quad 0 \le \nu_{sj} \le \nu'_o
 $$
 
-The first term $(\nu_o e^{-r_h X_j^*})$ reflects the settling velocity of the large, well flocculating particles. 
-The second term $(\nu_o e^{-r_p X_j^*})$ is a velocity correction factor to account for the smaller, slowly settling particles.
+The first term $(\nu_o e^{-r_h X_j^*})$ reflects the settling velocity of the large, well flocculating particles and 
+the second term $(\nu_o e^{-r_p X_j^*})$ is a velocity correction factor to account for the smaller, slowly settling particles.
 
-- $\nu_{sj}$: settling velocity in layer $j$ [m $\cdot$ d^-1^]
-
-- $\nu_o$: maximum theoretical settling velocity [m $\cdot$ d^-1^]
-
-- $\nu_o'$: maximum practical settling velocity [m $\cdot$ d^-1^]
-
-- $r_h$: settling parameter associated with the hindered settling component of settling velocity equation [m^3^ $\cdot$ g^-1^]
-
-- $r_p$: settling parameter associated with the low concentration and slowly settling component of the suspension [m^3^ $\cdot$ g^-1^]
-
-- $X_j^*$ solids concentration in layer $j$ [g $\cdot$ m^-3^]
+| Symbol | Description | Unit |
+| ------ | ----------- | ---- |
+| $\nu_{sj}$ | Settling velocity in layer $j$ | m $\cdot$ d^-1^ |
+| $\nu_o$ | Maximum theoretical settling velocity | m $\cdot$ d^-1^ |
+| $\nu_o'$ | Maximum practical settling velocity | m $\cdot$ d^-1^ |
+| $r_h$ | Settling parameter associated with the hindered settling component of settling velocity equation | m^3^ $\cdot$ g^-1^ |
+| $r_p$ | Settling parameter associated with the low concentration and slowly settling component of the suspension | m^3^ $\cdot$ g^-1^ |
+| $X_j^*$ | Solids concentration in layer $j$ | g $\cdot$ m^-3^ |
 
 **Limiting condition:**
 
@@ -60,13 +57,12 @@ $$
 X_j^* = X_j - X_{min} \quad \text{with} \quad X_{min} = f_{ns} \cdot X_{in}
 $$
 
-- $X_j$: suspended solids concentration in layer $j$ [g $\cdot$ m^-3^]
-
-- $X_{min}$: minimum attainable suspended solids concentration [g $\cdot$ m^-3^]
-
-- $X_{in}$: mixed liquor suspended solids concentration entering the settling tank [g $\cdot$ m^-3^]
-
-- $f_{ns}$: non-settleable fraction of $X_{in}$ [-]
+| Symbol | Description | Unit |
+| ------ | ----------- | ---- |
+| $X_j$ | Suspended solids concentration in layer $j$ | g $\cdot$ m^-3^ |
+| $X_{min}$ | Minimum attainable suspended solids concentration | g $\cdot$ m^-3^ |
+| $X_{in}$ | Mixed liquor suspended solids concentration entering the settling tank | g $\cdot$ m^-3^ |
+| $f_{ns}$ | Non-settleable fraction of $X_{in}$ | - |
 
 
 ### Source code documentation
@@ -93,4 +89,5 @@ mod</span> [settler1dinit_bsm2](/reference/bsm2_python/bsm2/init/settler1dinit_b
 
 
 [^1]: [Benchmarking of Control Strategies for Wastewater Treatment Plants](https://iwaponline.com/ebooks/book-pdf/650794/wio9781780401171.pdf), chap. 4.2.4.2 Secondary clarifier
-[^2]: [A dynamic model of the clarification-thickening process, Takács et al. (1991)](https://www.sciencedirect.com/science/article/pii/004313549190066Y)
+[^2]: [Benchmark Simulation Model no. 2 (BSM2)](http://iwa-mia.org/wp-content/uploads/2022/09/TR3_BSM_TG_Tech_Report_no_3_BSM2_General_Description.pdf), chap. 2.3.3 Secondary clarifier
+[^3]: [A dynamic model of the clarification-thickening process, Takács et al. (1991)](https://www.sciencedirect.com/science/article/pii/004313549190066Y)
