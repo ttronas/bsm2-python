@@ -1,4 +1,0 @@
-
-{%
-   include-markdown "../AUTHORS.md"
-%}

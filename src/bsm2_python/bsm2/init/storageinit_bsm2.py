@@ -1,4 +1,4 @@
-"""Initialisation file for the sludge storage."""
+"""Initialisation file for the wastewater storage."""
 
 import numpy as np
 

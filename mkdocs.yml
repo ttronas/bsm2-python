@@ -14,12 +14,29 @@ edit_uri: blob/master/docs
 nav:
   - Home:
     - Overview: index.md
-    - Changelog: changelog.md
-    - Authors: authors.md
-    - Copyright: copyright.md
-    - License: license.md
+    - Changelog: home/changelog.md
+    - Authors: home/authors.md
+    - Copyright: home/copyright.md
+    - License: home/license.md
   - Install: install.md
-  - User guide: user_guide.md
+  - User guide: 
+    - user_guide/index.md
+    - Wastewater treatment components:
+      - Primary clarifier: user_guide/wwt_components/primary_clarifier.md
+      - Activated sludge reactor: user_guide/wwt_components/activated_sludge_reactor.md
+      - Settler: user_guide/wwt_components/settler.md
+      - Thickener: user_guide/wwt_components/thickener.md
+      - Anaerobic digester: user_guide/wwt_components/anaerobic_digester.md
+      - Dewatering: user_guide/wwt_components/dewatering.md
+      - Wastewater storage: user_guide/wwt_components/wastewater_storage.md
+      - Combiner and Splitter: user_guide/wwt_components/combiner_and_splitter.md
+    - Energy management components:
+      - Biogas storage: user_guide/em_components/biogas_storage.md
+      - Combined heat and power unit: user_guide/em_components/chp.md
+      - Boiler: user_guide/em_components/boiler.md
+      - Flare: user_guide/em_components/flare.md
+      - Cooler: user_guide/em_components/cooler.md
+      - Compressor: user_guide/em_components/compressor.md
   - Contribute: contribute.md
   # defer to gen-files + literate-nav
   - Source code documentation: reference/
@@ -65,6 +82,8 @@ plugins:
   - autorefs
   - glightbox
   - include-markdown
+  - minify:
+      minify_html: true
   - gen-files:
       scripts:
         - docs/scripts/gen_ref_nav.py
@@ -89,6 +108,7 @@ plugins:
             show_symbol_type_heading: true
             show_symbol_type_toc: true
             # Members
+            members_order: source
             show_submodules: false
             show_labels: false
             # Docstrings
@@ -115,6 +135,7 @@ markdown_extensions:
       permalink: true
   # Extra
   - pymdownx.arithmatex:
+      generic: true
   - pymdownx.betterem:
       smart_enable: all
   - pymdownx.caret:
@@ -123,6 +144,9 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      options:
+        custom_icons:
+          - docs/assets/.icons
   - pymdownx.highlight:
       guess_lang: false
       linenums_style: pymdownx-inline
@@ -155,6 +179,10 @@ markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.tilde:
+
+extra_javascript:
+  - scripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
 
 extra:
   social:

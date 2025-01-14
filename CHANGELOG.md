@@ -1,8 +1,12 @@
 # Changelog
 
+<h2> Version 0.0.9 (development) </h2>
+
+- improve documentation, update to `readthedocs` theme
+
 <h2> Version 0.0.5 (development) </h2>
 
-- improved documentation and examples
+- improve documentation and examples
 
 <h2> Version 0.0.1 (development) </h2>
 

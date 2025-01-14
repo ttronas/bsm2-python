@@ -17,8 +17,8 @@ Install a Python Version (>= 3.10) that works with the dependencies of the proje
 
 ### Easy way
 
-To install the latest release of the project via [PyPI](https://pypi.org/), open a command prompt and type 
-`install pip install bsm2-python`
+To install the latest release of the project via [PyPI](https://pypi.org/), open a command prompt and type
+`pip install bsm2-python`
 
 ### Build from source
 
