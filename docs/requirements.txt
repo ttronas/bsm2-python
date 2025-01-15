@@ -14,4 +14,3 @@ mike~=2.0.0
 pymdown-extensions~=10.5
 pygments~=2.13
 linkchecker~=10.3
-git-lfs-http-mirror
