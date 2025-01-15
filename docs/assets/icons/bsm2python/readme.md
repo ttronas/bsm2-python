@@ -1,2 +1,3 @@
 - use `-` instead of whitespaces for the svg file names (emoji usage)
 - svg files can be viewed with drawio when file name is changed to `.drawio.svg`
+- for emoji usage it is necessary that the files end with `.svg`

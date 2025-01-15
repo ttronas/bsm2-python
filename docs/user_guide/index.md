@@ -31,7 +31,7 @@ storage capacity, the surplus is safely burned off using a flare. To regulate th
 dissipate any excess heat.
 
 <figure markdown="span">
-  ![BSM2-Python-Flowchart](https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python/-/raw/main/img/bsm2em_python.drawio.svg)
+  ![BSM2-Python-Flowchart](../assets/images/bsm2em_python_flowchart.drawio.svg)
   <figcaption>BSM2 Flowchart</figcaption>
 </figure>
 
