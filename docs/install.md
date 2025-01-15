@@ -11,7 +11,7 @@ Before you can get started you have to install an IDE such as [VSCode](https://c
 
 <h2> Install Python </h2>
 
-Install a Python Version (>= 3.10) that works with the dependencies of the project. To install Python 3.12 download and run the installer from the [Python](https://www.python.org/) website.
+Install a Python Version ($\ge$ 3.10) that works with the dependencies of the project. To install Python 3.12 download and run the installer from the [Python](https://www.python.org/) website.
 
 ## Installation
 
