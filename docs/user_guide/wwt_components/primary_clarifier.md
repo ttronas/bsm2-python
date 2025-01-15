@@ -3,8 +3,7 @@ hide:
   - toc
 ---
 
-![Primary clarifier](https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python/-/raw/doc_new2/docs/assets/.icons/bsm2python/primary-clarifier.svg){ align=right }
-<!-- TODO: change link to main branch before merging -->
+![Primary clarifier](../../assets/icons/bsm2python/primary-clarifier.svg){ align=right }
 
 ### Introduction and Model
 

@@ -3,8 +3,7 @@ hide:
   - toc
 ---
 
-![Wastewater storage](https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python/-/raw/doc_new2/docs/assets/.icons/bsm2python/wastewater-storage.svg){ align=right }
-<!-- TODO: change link to main branch before merging -->
+![Wastewater storage](../../assets/icons/bsm2python/wastewater-storage.svg){ align=right }
 
 ### Introduction and Model
 

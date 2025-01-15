@@ -19,7 +19,7 @@ nav:
     - Copyright: home/copyright.md
     - License: home/license.md
   - Install: install.md
-  - User guide: 
+  - User guide:
     - user_guide/index.md
     - Wastewater treatment components:
       - Primary clarifier: user_guide/wwt_components/primary_clarifier.md
@@ -146,7 +146,7 @@ markdown_extensions:
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
       options:
         custom_icons:
-          - docs/assets/.icons
+          - docs/assets/icons
   - pymdownx.highlight:
       guess_lang: false
       linenums_style: pymdownx-inline
