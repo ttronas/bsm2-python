@@ -7,7 +7,9 @@ hide:
 
 ### Introduction and Model
 
-The thickener reduces the volume of wasted sludge from the settler before sludge digestion, separating the stream into residual effluent (overflow) and thickened sludge (underflow). The implementation is based on an idealized thickener unit with no volume, as the thickener is not considered a critical component. A defined amount of total solids are removed (98&nbsp;%) from the influent stream and directed to the underflow, while the remaining solids will leave with the overflow. The underflow is assumed to have a fixed sludge concentration of 7&nbsp;%. With these two constraints, the model calculates the flow rate for the underflow. Mass balances are then used to calculate the concentrations and the flow rate for the overflow. The model does not alter the concentrations of soluble components as they pass through the thickener.
+The thickener reduces the volume of wasted sludge from the settler before sludge digestion, separating the stream into residual effluent (overflow) and thickened sludge (underflow).
+
+The implementation is based on an idealized thickener unit with no volume, as the thickener is not considered a critical component. A defined amount of total solids are removed (98%) from the influent stream and directed to the underflow, while the remaining solids will leave with the overflow. The underflow is assumed to have a fixed sludge concentration of 7%. With these two constraints, the model calculates the flow rate for the underflow. Mass balances are then used to calculate the concentrations and the flow rate for the overflow. The model does not alter the concentrations of soluble components as they pass through the thickener.
 
 
 ### Source code documentation
