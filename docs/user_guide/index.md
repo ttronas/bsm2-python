@@ -79,7 +79,7 @@ Further details about the components used for wastewater treatment and energy ma
 :bsm2python-chp: __[Combined heat and power unit](/user_guide/em_components/chp)__
 { .card }
 
-:bsm2python-boiler: __[Settler](/user_guide/wwt_components/settler)__
+:bsm2python-boiler: __[Boiler](/user_guide/em_components/boiler)__
 { .card }
 
 :bsm2python-flare: __[Flare](/user_guide/em_components/flare)__
