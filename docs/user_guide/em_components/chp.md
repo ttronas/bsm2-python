@@ -51,7 +51,7 @@ $$
 
 | Symbol | Description | Unit |
 | ------ | ----------- | ---- |
-| $\dot V_{gas}$ | Biogas consumption | Nm^3^ $\cdot$ h^-1^ |
+| $\dot V_{gas}$ | Biogas consumption of the CHP unit | Nm^3^ $\cdot$ h^-1^ |
 | $P_{gas,max}$ | Maximum gas uptake power | kW |
 | $k_{load}$ | Utilization rate of the CHP unit | - |
 | $H_{u,gas}$ | Lower heating value of the biogas | kWh $\cdot$ Nm^-3^ |

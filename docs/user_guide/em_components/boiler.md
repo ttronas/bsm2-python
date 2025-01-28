@@ -44,7 +44,7 @@ $$
 
 | Symbol | Description | Unit |
 | ------ | ----------- | ---- |
-| $\dot V_{gas}$ | Biogas consumption | Nm^3^ $\cdot$ h^-1^ |
+| $\dot V_{gas}$ | Biogas consumption of the boiler | Nm^3^ $\cdot$ h^-1^ |
 | $P_{th,max}$ | Maximum generation of thermal energy | kW |
 | $k_{load}$ | Utilization rate of the boiler | - |
 | $H_{u,gas}$ | Lower heating value of the biogas | kWh $\cdot$ Nm^-3^ |
