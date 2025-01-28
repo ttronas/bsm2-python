@@ -88,6 +88,9 @@ Further details about the components used for wastewater treatment and energy ma
 :bsm2python-cooler: __[Cooler](/user_guide/em_components/cooler)__
 { .card }
 
+:material-heating-coil: __[Heating network](/user_guide/em_components/heat_net)__
+{ .card }
+
 :material-arrow-collapse: __[Compressor](/user_guide/em_components/compressor)__
 { .card }
 </div>
