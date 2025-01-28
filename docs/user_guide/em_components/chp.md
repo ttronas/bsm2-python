@@ -11,11 +11,11 @@ The combined heat and power (CHP) unit utilizes sewage gas from the biogas stora
 
 The CHP unit is implemented as a black box model, as its internal workings are not considered critical and are too complex to model in detail. The [electrical and thermal power generation](#electrical-and-thermal-power) is calculated with defined efficiencies at the current utilization of the CHP unit. The [biogas consumption](#biogas-consumption) of the CHP unit is calculated with the current utilization and the lower heating value of the biogas. The utilization rate $k_{load}$ of the CHP is depended on the storage fill level of the biogas storage and can vary between a defined minimum utilization of 54% and 100%. The following cases are assumed:
 
-- Storage fill level $\gt$ 50%: CHP is fully utilized ($k_{load} = 1$)
+- Storage fill level ($\gt$ 50%): CHP is fully utilized ($k_{load} = 1$)
 
-- Storage fill level $\gt$ 35%: CHP is partially utilized ($0.54 \ge k_{load} \lt 1$)
+- Storage fill level ($\gt$ 35%): CHP is partially utilized ($0.54 \ge k_{load} \lt 1$)
 
-- Storage fill level $\le$ 35%: CHP is not utilized ($k_{load} = 0$)
+- Storage fill level ($\le$ 35%): CHP is not utilized ($k_{load} = 0$)
 
 To avoid sudden changes of the utilization, the CHP cannot adjust its utilization again for 6 hours after a change.
 Also, the CHP unit has a certain failure rate, after which a short maintenance break is required in order to be operational again.

@@ -9,11 +9,11 @@ hide:
 
 The boiler utilizes sewage gas from the biogas storage to heat the anaerobic digester and maintain its necessary operating temperature. It serves as a secondary heat generator that is only operated if the heat supply from the CHPs is insufficient.
 
-The boiler is implemented as a black box model, as its internal workings are not considered critical and are too complex to model in detail. The [thermal power generation](#thermal-power) is calculated with defined efficiencies at the current utilization of the boiler. The [biogas consumption](#biogas-consumption) of the boiler is calculated with the current utilization and the lower heating value of the biogas. The utilization rate $k_{load}$ of the boiler is depended on the heat demand of the anaerobic digester and can vary between a defined minimum utilization of 30% and 100%. The following cases are assumed:
+The boiler is implemented as a black box model, as its internal workings are not considered critical and are too complex to model in detail. The [thermal power generation](#thermal-power) is calculated with defined efficiencies at the current utilization of the boiler. The [biogas consumption](#biogas-consumption) of the boiler is calculated with the current utilization and the lower heating value of the biogas. The utilization rate $k_{load}$ of the boiler depends on the heat demand $P_{th,demand}$ of the anaerobic digester and can vary between a defined minimum utilization of 30% and 100%. The following cases are assumed:
 
 - High heat demand ($P_{th,demand} \ge P_{th,max}$): Boiler is used at maximum utilization ($k_{load} = 1$)
 
-- Partial heat demand ($P_{th,max} \gt P_{th,demand} \ge P_{th,min}$): Boiler is partially utilized ($0.30 \le k_{load} \lt 1$)
+- Partial heat demand ($P_{th,min} \le P_{th,demand} \lt P_{th,max}$): Boiler is partially utilized ($0.30 \le k_{load} \lt 1$)
 
 - Low heat demand ($P_{th,demand} \lt P_{th,min}$): Boiler is used at minimum utilization ($k_{load} = 0.30$)
 

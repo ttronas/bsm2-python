@@ -9,29 +9,16 @@ hide:
 
 The flare burns excess sewage gas from the biogas storage, when the storage tank's full capacity is reached.
 
-The flare is implemented as a black box model, as its internal workings are not considered critical and are too complex to model in detail. The utilization rate $k_{load}$ of the flare depends on the biogas surplus $\dot V_{gas}$ of the biogas storage tank. The following cases are assumed:
+The flare is implemented as a black box model, as its internal workings are not considered critical and are too complex to model in detail. The [biogas consumption](#biogas-consumption) of the flare is calculated with the maximum gas uptake power and the current utilization of the flare. The utilization rate $k_{load}$ of the flare depends on the biogas surplus $\dot V_{gas}$ of the biogas storage tank. The following cases are assumed:
 
 - High gas surplus ($\dot V_{gas} \ge \dot V_{gas,max}$): Flare is fully utilized ($k_{load} = 1$)
 
-- Partial gas surplus ($\dot V_{gas,max} \gt \dot V_{gas} \gt 0$): Flare is partially utilized ($0 \lt k_{load} \lt 1$)
+- Partial gas surplus ($0 \lt \dot V_{gas} \lt \dot V_{gas,max}$): Flare is partially utilized ($0 \lt k_{load} \lt 1$)
 
 - No gas surplus ($\dot V_{gas} = 0$): Flare is not utilized ($k_{load} = 0$)
 
 
 ### Equations
-
-#### Utilization rate
-
-$$
-k_{load} = \frac{\dot V_{gas}}{\dot V_{gas,max}}
-$$
-
-| Symbol | Description | Unit |
-| ------ | ----------- | ---- |
-| $k_{load}$ | Utilization rate of the flare | - |
-| $\dot V_{gas}$ | Biogas consumption of the flare | Nm^3^ $\cdot$ h^-1^ |
-| $\dot V_{gas,max}$ | Maximum gas uptake flow | Nm^3^ $\cdot$ h^-1^ |
-
 
 #### Biogas consumption
 
