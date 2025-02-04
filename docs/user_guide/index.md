@@ -93,6 +93,9 @@ Further details about the components used for wastewater treatment and energy ma
 
 :material-arrow-collapse: __[Compressor](/user_guide/em_components/compressor)__
 { .card }
+
+:material-transit-connection-horizontal: __[Fermenter interface](/user_guide/em_components/fermenter_interface)__
+{ .card }
 </div>
 
 
