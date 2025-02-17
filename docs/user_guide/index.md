@@ -96,6 +96,9 @@ Further details about the components used for wastewater treatment and energy ma
 
 :material-transit-connection-horizontal: __[Fermenter interface](/user_guide/em_components/fermenter_interface)__
 { .card }
+
+:material-cube: __[Module](/user_guide/em_components/module)__
+{ .card }
 </div>
 
 

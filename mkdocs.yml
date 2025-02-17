@@ -39,6 +39,7 @@ nav:
       - Heating network: user_guide/em_components/heat_net.md
       - Compressor: user_guide/em_components/compressor.md
       - Fermenter interface: user_guide/em_components/fermenter_interface.md
+      - Module: user_guide/em_components/module.md
   - Contribute: contribute.md
   # defer to gen-files + literate-nav
   - Source code documentation: reference/
