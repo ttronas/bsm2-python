@@ -99,6 +99,9 @@ Further details about the components used for wastewater treatment and energy ma
 
 :material-cube: __[Module](/user_guide/em_components/module)__
 { .card }
+
+:material-calculator: __[Economics](/user_guide/em_components/economics)__
+{ .card }
 </div>
 
 
