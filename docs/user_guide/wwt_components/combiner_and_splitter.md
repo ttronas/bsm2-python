@@ -3,6 +3,9 @@ hide:
   - toc
 ---
 
+![Splitter](../../assets/icons/bsm2python/splitter.svg){ align=right }
+![Combiner](../../assets/icons/bsm2python/combiner.svg){ align=right }
+
 ### Introduction and Model
 
 The combiner and splitter are simple components used to either combine multiple wastewater flows into a single stream or split one wastewater flow into multiples streams. The resulting streams are assumed to be evenly mixed. Flows are represented in ASM1 format as arrays containing 21 standard components:
