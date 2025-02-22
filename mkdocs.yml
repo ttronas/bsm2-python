@@ -36,7 +36,11 @@ nav:
       - Boiler: user_guide/em_components/boiler.md
       - Flare: user_guide/em_components/flare.md
       - Cooler: user_guide/em_components/cooler.md
+      - Heating network: user_guide/em_components/heat_net.md
       - Compressor: user_guide/em_components/compressor.md
+      - Fermenter interface: user_guide/em_components/fermenter_interface.md
+      - Module: user_guide/em_components/module.md
+      - Economics: user_guide/em_components/economics.md
   - Contribute: contribute.md
   # defer to gen-files + literate-nav
   - Source code documentation: reference/
