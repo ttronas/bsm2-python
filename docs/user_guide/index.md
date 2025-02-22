@@ -5,29 +5,28 @@ hide:
 
 # BMS2-Python user guide
 
-This guide gives you an overview and explains how to set up your own BSM2-Python project.
+This guide provides an overview and explains how to set up your own BSM2-Python project.
 
 
 ## What is BSM2-Python?
 
 BSM2-Python is an implementation of a wastewater treatment plant using the [Benchmark Simulation Model No. 2],
-which is extended with an energy management system that operates the plants energy processes. BSM2-Python can be used to
-fully display a real world wastewater treatment plant to simulate and run techno-economic analyses. It is possible to
+which is extended with an energy management system that operates the plant's energy processes. BSM2-Python can be used to
+fully display a real-world wastewater treatment plant to simulate and run techno-economic analyses. It is possible to
 modify the predefined wastewater treatment plant layout by adding, removing or modifying units of BSM2-Python to build a
 customized wastewater treatment plant layout.
 
 The following figure illustrates the flowchart for wastewater treatment and energy management.
-Initially, wastewater flows into the primary clarifier, where excess sewage sludge is removed. Next, the wastewater flows
-undergoes treatment in five activated sludge reactors. The treated effluent is then fed into a settler to remove any
-remaining sewage sludge.
-The sludge collected in the settler is compressed in a thickener, separating excess wastewater, which is returned into the
+Initially, wastewater flows into the primary clarifier, where excess sewage sludge is removed. Next, the wastewater flow
+undergoes treatment in five activated sludge reactors. The treated effluent is then fed into a settler, where any
+remaining sewage sludge is removed.
+The sludge collected in the settler is compressed in a thickener, separating excess wastewater, which is returned to the
 treatment process. In the anaerobic digester, sewage gas is produced and subsequently stored in a biogas storage.
-The fully fermented sewage sludge is drained in the dewatering unit and then disposed of. Excess wastewater is held in a 
-wastewater storage and recycled to the wastewater treatment processes.
+The fully fermented sewage sludge is drained in the dewatering unit and then disposed of. Excess wastewater is held in a wastewater storage tank and recycled back to the wastewater treatment processes.
 In the energy management system, the sewage gas is utilized in two combined heat and power (CHP) units to generate
 electricity for the aeration in the activated sludge reactors and heat for the anaerobic digester. If the heat generated
 by the CHP units is insufficient, additional sewage gas is burned in a boiler. When sewage gas production exceeds the
-storage capacity, the surplus is safely burned off using a flare. To regulate the heat network, a cooler is used to
+storage capacity, the surplus is burned off with a flare. To regulate the heat network, a cooler is used to
 dissipate any excess heat.
 
 <figure markdown="span">
@@ -38,8 +37,7 @@ dissipate any excess heat.
 
 ## BSM2-Python components
 
-Further information about the components for the wastewater treatment and energy management can be found below. <br>
-All components are configured with their default values.
+Further details about the components used for wastewater treatment and energy management are provided in the section below.
 
 ### Wastewater treatment components
 
@@ -81,7 +79,7 @@ All components are configured with their default values.
 :bsm2python-chp: __[Combined heat and power unit](/user_guide/em_components/chp)__
 { .card }
 
-:bsm2python-boiler: __[Settler](/user_guide/wwt_components/settler)__
+:bsm2python-boiler: __[Boiler](/user_guide/em_components/boiler)__
 { .card }
 
 :bsm2python-flare: __[Flare](/user_guide/em_components/flare)__
@@ -90,7 +88,19 @@ All components are configured with their default values.
 :bsm2python-cooler: __[Cooler](/user_guide/em_components/cooler)__
 { .card }
 
+:material-heating-coil: __[Heating network](/user_guide/em_components/heat_net)__
+{ .card }
+
 :material-arrow-collapse: __[Compressor](/user_guide/em_components/compressor)__
+{ .card }
+
+:material-transit-connection-horizontal: __[Fermenter interface](/user_guide/em_components/fermenter_interface)__
+{ .card }
+
+:material-cube: __[Module](/user_guide/em_components/module)__
+{ .card }
+
+:material-calculator: __[Economics](/user_guide/em_components/economics)__
 { .card }
 </div>
 
@@ -99,7 +109,7 @@ All components are configured with their default values.
 
 ### Run default model
 
-You could then use the following convenience function:
+You can use the following convenience function:
 
 ```python
 from bsm2_python import BSM2OL
@@ -113,13 +123,13 @@ bsm2_ol.simulate()
 
 This will run the BSM2 Open Loop model for the default 609 days of simulation time.
 It will then plot IQI, EQI and OCI values for the effluent over the last few days of simulation.
-Further, relevant data will be saved to `data/output_evaluation.csv` for further analysis.
+Additionally, relevant data will be saved to `data/output_evaluation.csv` for further analysis.
 
 ### Run with custom aeration
 
-You can also run the BSM2 models with your own aeration control - this example selects
-a random kla value for each reactor every timestep.
-The final performance is then saved in the `oci` variable:
+You can also run the BSM2 models with your own aeration control.
+This example selects a random kla value for each reactor every timestep.
+The final performance is saved in the `oci` variable:
 
 ```python
 import numpy as np
@@ -145,8 +155,8 @@ oci = bsm2_ol.get_final_performance()[-1]
 
 ### Run Closed Loop simulation with custom DO setpoint
 You can also run the BSM2 Closed Loop model with your own dissolved oxygen (DO) setpoints.
-Please note: The Closed Loop model runs with a resolution of 1 minute for the sake of sensor stability,
-so it might take a while to run the simulation.
+Please note: The Closed Loop model runs with a resolution of 1 minute to ensure sensor stability. 
+As a result, the simulation might take a while to complete.
 
 ```python
 from bsm2_python import BSM2CL

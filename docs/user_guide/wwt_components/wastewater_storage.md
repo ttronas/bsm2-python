@@ -7,11 +7,13 @@ hide:
 
 ### Introduction and Model
 
-The wastewater storage holds reject wastewater from the dewatering unit before recycling it back into the wastewater treatment process, either at the primary clarifier influent or effluent. The implementation assumes a non-reactive storage tank with variable volume and complete mixing. The tank's behaviour depends upon the flow rate from the dewatering unit, the available storage volume and the destination of the stored reject water. The influent flow to the storage tank can either be bypassed if the storage tank is nearly full or stored if there is sufficient capacity. The following cases are assumed:
+The wastewater storage holds reject wastewater from the dewatering unit before recycling it back into the wastewater treatment process, either at the primary clarifier influent or effluent. 
 
-- If the tank volume is $\ge$ 90% of total capacity, the influent flow is automatically bypassed.
-- If the tank volume is between 10% and 90% of total capacity, the influent flow is automatically stored.
-- If the tank volume is $\le$ 10% of total capacity, the influent flow is also automatically stored.
+The implementation assumes a non-reactive storage tank with variable volume and complete mixing. The tank's behavior depends upon the flow rate from the dewatering unit, the available storage volume and the destination of the stored reject water. The influent flow to the storage tank can either be bypassed to the wastewater treatment if the storage tank is nearly full or stored if there is sufficient capacity. The following cases are assumed:
+
+- Nearly full ($\ge$ 90%): When the tank volume is near maximum capacity, the influent flow is automatically bypassed.
+- Partial capacity (10-90%): When the tank has available capacity, the influent flow is stored.
+- Nearly empty ($\le$ 10%): When the tank is near empty, the influent flow is stored as well.
 
 
 ### Source code documentation

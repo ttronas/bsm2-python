@@ -64,26 +64,54 @@ class ADM1Reactor(Module):
     yd0 : np.ndarray
         Initial values for ADM1 differential equations. <br>
         Initial concentrations of 42 components <br>
-        (26 ADM1 components, 9 other gas-related components, Q, T and 5 dummy states).
+        (26 ADM1 components, 9 other gas-related components, Q, T and 5 dummy states). \n
+        [S_SU, S_AA, S_FA, S_VA, S_BU, S_PRO, S_AC, S_H2, S_CH4, S_IC, S_IN, S_I, X_XC,
+        X_CH, X_PR, X_LI, X_SU, X_AA, X_FA, X_C4, X_PRO, X_AC, X_H2, X_I, S_CAT, S_AN,
+        S_HVA, S_HBU, S_HPRO, S_HAC, S_HCO3, S_NH3, S_GAS_H2, S_GAS_CH4, S_GAS_CO2, Q_D,
+        T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D]
     digesterpar : np.ndarray
-        Digester parameters.
-    interfacepar: np.ndarray
-        Interface parameters.
-    dim: np.ndarray
-        Reactor dimensions.
+        Digester parameters. \n
+        [F_SI_XC, F_XI_XC, F_CH_XC, F_PR_XC, F_LI_XC, N_XC, N_I, N_AA, C_XC, C_SI, C_CH,
+        C_PR, C_LI, C_XI, C_SU, C_AA, F_FA_LI, C_FA, F_H2_SU, F_BU_SU, F_PRO_SU, F_AC_SU,
+        N_BAC, C_BU, C_PRO, C_AC, C_BAC, Y_SU, F_H2_AA, F_VA_AA, F_BU_AA, F_PRO_AA, F_AC_AA,
+        C_VA, Y_AA, Y_FA, Y_C4, Y_PRO, C_CH4, Y_AC, Y_H2, K_DIS, K_HYD_CH, K_HYD_PR, K_HYD_LI,
+        K_S_IN, K_M_SU, K_S_SU, PH_UL_AA, PH_LL_AA, K_M_AA, K_S_AA, K_M_FA, K_S_FA, K_IH2_FA,
+        K_M_C4, K_S_C4, K_IH2_C4, K_M_PRO, K_S_PRO, K_IH2_PRO, K_M_AC, K_S_AC, K_I_NH3,
+        PH_UL_AC, PH_LL_AC, K_M_H2, K_S_H2, PH_UL_H2, PH_LL_H2, K_DEC_XSU, K_DEC_XAA,
+        K_DEC_XFA, K_DEC_XC4, K_DEC_XPRO, K_DEC_XAC, K_DEC_XH2, R, T_BASE, t_op, PK_W_BASE,
+        PK_A_VA_BASE, PK_A_BU_BASE, PK_A_PRO_BASE, PK_A_AC_BASE, PK_A_CO2_BASE, PK_A_IN_BASE,
+        K_A_BVA, K_A_BBU, K_A_BPRO, K_A_BAC, K_A_BCO2, K_A_BIN, P_ATM, K_LA, K_H_H2O_BASE,
+        K_H_CO2_BASE, K_H_CH4_BASE, K_H_H2_BASE, K_P]
+    interfacepar : np.ndarray
+        Interface parameters. \n
+        [COD_EQUIV, FNAA, FNXC, FNBAC, FXNI, FSNI, FSNI_ADM, FRLIXS, FRLIBAC, FRXS_ADM,
+        FDEGRADE_ADM, FRXS_AS, FDEGRADE_AS, R, T_BASE, t_op, PK_W_BASE, PK_A_VA_BASE,
+        PK_A_BU_BASE, PK_A_PRO_BASE, PK_A_AC_BASE, PK_A_CO2_BASE, PK_A_IN_BASE]
+    dim : np.ndarray
+        Reactor dimensions of the anaerobic digestor. \n
+        [V_LIQ, V_GAS]
 
     Attributes
     ----------
     y_in1 : np.ndarray(22)
         Concentrations for the 21 standard components <br>
-        (13 ASM1 components, TSS, Q, T and 5 dummy states).
+        (13 ASM1 components, TSS, Q, T and 5 dummy states). \n
+        [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+        SD1, SD2, SD3, XD4, XD5]
     t_op : float
-        Operational temperature for the digester.
+        Operational temperature of digester.
+        At the moment very rudimentary implementation!
+        No heat losses / transfer embedded!
     temperature : float
-        TODO: What is this for?
+        Temperature of the effluent after the ADM1 reactor.
     yd_out : np.ndarray(51)
-        Concentrations for the 51 components <br>
-        (35 ADM1 components, 9 other gas-related components, Q, T and 5 dummy states).
+        Concentrations of the 51 components after the ADM1 reactor <br>
+        (35 ADM1 components, 9 other gas-related components, Q, T and 5 dummy states). \n
+        [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
+        X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
+        Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D, pH, S_H_ion, S_hva, S_hbu,
+        S_hpro, S_hac, S_hco3, S_CO2, S_nh3, S_NH4+, S_gas_h2, S_gas_ch4, S_gas_co2,
+        p_gas_h2, p_gas_ch4, p_gas_co2, P_gas, q_gas]
     """
 
     def __init__(self, yd0, digesterpar, interfacepar, dim):
@@ -300,16 +328,33 @@ def adm1equations(t, yd, yd_in, digesterpar, t_op, dim):
         X_LI, X_SU, X_AA, X_FA, X_C4, X_PRO, X_AC, X_H2, X_I, S_CAT, S_AN, S_HVA, S_HBU, S_HPRO, S_HAC,
         S_HCO3, S_NH3, S_GAS_H2, S_GAS_CH4, S_GAS_CO2, Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D]
     digesterpar : np.ndarray
-        Digester parameters.
+        Digester parameters. \n
+        [F_SI_XC, F_XI_XC, F_CH_XC, F_PR_XC, F_LI_XC, N_XC, N_I, N_AA, C_XC, C_SI, C_CH,
+        C_PR, C_LI, C_XI, C_SU, C_AA, F_FA_LI, C_FA, F_H2_SU, F_BU_SU, F_PRO_SU, F_AC_SU,
+        N_BAC, C_BU, C_PRO, C_AC, C_BAC, Y_SU, F_H2_AA, F_VA_AA, F_BU_AA, F_PRO_AA, F_AC_AA,
+        C_VA, Y_AA, Y_FA, Y_C4, Y_PRO, C_CH4, Y_AC, Y_H2, K_DIS, K_HYD_CH, K_HYD_PR, K_HYD_LI,
+        K_S_IN, K_M_SU, K_S_SU, PH_UL_AA, PH_LL_AA, K_M_AA, K_S_AA, K_M_FA, K_S_FA, K_IH2_FA,
+        K_M_C4, K_S_C4, K_IH2_C4, K_M_PRO, K_S_PRO, K_IH2_PRO, K_M_AC, K_S_AC, K_I_NH3,
+        PH_UL_AC, PH_LL_AC, K_M_H2, K_S_H2, PH_UL_H2, PH_LL_H2, K_DEC_XSU, K_DEC_XAA,
+        K_DEC_XFA, K_DEC_XC4, K_DEC_XPRO, K_DEC_XAC, K_DEC_XH2, R, T_BASE, t_op, PK_W_BASE,
+        PK_A_VA_BASE, PK_A_BU_BASE, PK_A_PRO_BASE, PK_A_AC_BASE, PK_A_CO2_BASE, PK_A_IN_BASE,
+        K_A_BVA, K_A_BBU, K_A_BPRO, K_A_BAC, K_A_BCO2, K_A_BIN, P_ATM, K_LA, K_H_H2O_BASE,
+        K_H_CO2_BASE, K_H_CH4_BASE, K_H_H2_BASE, K_P]
     t_op : float
-        Operating temperature.
+        Operational temperature of digester.
+        At the moment very rudimentary implementation!
+        No heat losses / transfer embedded!
     dim : np.ndarray
-        Reactor dimensions.
+        Reactor dimensions of the anaerobic digestor. \n
+        [V_LIQ, V_GAS]
 
     Returns
     -------
     dyd : np.ndarray
-        Array containing the differential values dy of yd_in based on ADM1.
+        Array containing the differential values dy of yd_in based on ADM1. \n
+        [S_SU, S_AA, S_FA, S_VA, S_BU, S_PRO, S_AC, S_H2, S_CH4, S_IC, S_IN, S_I, X_XC, X_CH, X_PR,
+        X_LI, X_SU, X_AA, X_FA, X_C4, X_PRO, X_AC, X_H2, X_I, S_CAT, S_AN, S_HVA, S_HBU, S_HPRO, S_HAC,
+        S_HCO3, S_NH3, S_GAS_H2, S_GAS_CH4, S_GAS_CO2, Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D]
     """
 
     # u = yd_in
@@ -705,7 +750,10 @@ def asm2adm(y_in1, t_op, interfacepar):
         Temperature in the ADM1 and the ASM1 to ADM1 and the ADM1 to ASM1
         interfaces should be identical at every time instant.
     interfacepar : np.ndarray(23)
-        23 parameters needed for ASM1 to ADM1 interface.
+        23 parameters needed for ASM1 to ADM1 interface. \n
+        [COD_EQUIV, FNAA, FNXC, FNBAC, FXNI, FSNI, FSNI_ADM, FRLIXS, FRLIBAC, FRXS_ADM,
+        FDEGRADE_ADM, FRXS_AS, FDEGRADE_AS, R, T_BASE, t_op, PK_W_BASE, PK_A_VA_BASE,
+        PK_A_BU_BASE, PK_A_PRO_BASE, PK_A_AC_BASE, PK_A_CO2_BASE, PK_A_IN_BASE]
 
     Returns
     -------
@@ -1051,7 +1099,10 @@ def adm2asm(y_in2, t_op, interfacepar):
         Temperature in the ADM1 and the ASM1 to ADM1 and the ADM1 to ASM1
         interfaces should be identical at every time instant.
     interfacepar : np.ndarray(23)
-        23 parameters needed for ADM1 to ASM1 interface.
+        23 parameters needed for ADM1 to ASM1 interface. \n
+        [COD_EQUIV, FNAA, FNXC, FNBAC, FXNI, FSNI, FSNI_ADM, FRLIXS, FRLIBAC, FRXS_ADM,
+        FDEGRADE_ADM, FRXS_AS, FDEGRADE_AS, R, T_BASE, t_op, PK_W_BASE, PK_A_VA_BASE,
+        PK_A_BU_BASE, PK_A_PRO_BASE, PK_A_AC_BASE, PK_A_CO2_BASE, PK_A_IN_BASE]
 
     Returns
     -------

@@ -7,7 +7,9 @@ hide:
 
 ### Introduction and Model
 
-The activated sludge reactor is designed to remove organic matter and nutrients from wastewater through processes such as carbon oxidation, nitrification and denitrification. This treatment relies on microorganisms, which are supplied with oxygen in an aerated tank. The implementation is based on the Activated Sludge Model No. 1 (ASM1) by Henze et al. (1987). ASM1 represents the activated sludge reactor as a continuous stirred tank reactor (CSTR) that is assumed to be completely mixed. The oxygen transfer provided by the aeration equipment is defined by the mass transfer coefficient K~L~a. Additionally, it is possible to maintain a fixed dissolved oxygen (DO) concentration in the reactor using an aeration controller.
+The activated sludge reactor is designed to remove organic matter and nutrients from wastewater through processes such as carbon oxidation, nitrification and denitrification. This treatment relies on microorganisms, which are supplied with oxygen in an aerated tank.
+
+The implementation is based on the Activated Sludge Model No. 1 (ASM1) by Henze et al. (1987). ASM1 represents the activated sludge reactor as a continuous stirred tank reactor (CSTR) that is assumed to be completely mixed. The oxygen transfer provided by the aeration equipment is defined by the mass transfer coefficient K~L~a. Additionally, it is possible to maintain a fixed dissolved oxygen (DO) concentration in the reactor using an aeration controller.
 
 The model incorporates 13 relevant [components](#components), which are categorized into insoluble components (X) and soluble components (S). The transformation of these components is controlled by eight fundamental [process rate equations](#process-rates) that describe four key processes:
 

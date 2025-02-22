@@ -7,7 +7,9 @@ hide:
 
 ### Introduction and Model
 
-The anaerobic digester is designed to break down organic matter in sewage sludge to produce methane gas through four key stages: hydrolysis, acidogenesis, acetogenesis and methanogenesis. Most of this processes rely on microorganisms that metabolize substrates in the absence of oxygen, typically at mesophilic temperatures (20-45&nbsp;°C). The implementation is based on the Anaerobic Digestion Model No. 1 (ADM1) by Batstone et al. (2002), with some deviations from the original model due to computational issues and to ensure consistency with BSM2. ADM1 represents the anaerobic digester as two separate volumes: one for the liquid phase and one for the gas phase. Both phases are assumed to be completly mixed (CSTR).
+The anaerobic digester is designed to break down organic matter in sewage sludge to produce methane gas through four key stages: hydrolysis, acidogenesis, acetogenesis and methanogenesis. Most of this processes rely on microorganisms that metabolize substrates in the absence of oxygen, typically at mesophilic temperature range <br> (20-45&nbsp;°C).
+
+The implementation is based on the Anaerobic Digestion Model No. 1 (ADM1) by Batstone et al. (2002), with some deviations from the original model due to computational issues and to ensure consistency with BSM2. ADM1 represents the anaerobic digester as two separate volumes: one for the liquid phase and one for the gas phase. Both phases are assumed to be completely mixed (CSTR).
 
 The model incorporates 24 relevant [components](#components), which are categorized into insoluble components (X) and soluble components (S). In the liquid phase these components are transformed due to 19 [biochemical processes](#biochemical-process-rates) that can be described by four key processes:
 
