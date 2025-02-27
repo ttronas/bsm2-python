@@ -71,9 +71,9 @@ ASM1 also supports connecting multiple reactors with different parameters in ser
 | $K_{NO}$ | Nitrate half-saturation coefficient for anoxic heterotrophic growth | g(N)$\cdot$m^-3^ |
 | $K_{NH}$ | Ammonia half-saturation coefficient for autotrophic growth | g(N)$\cdot$m^-3^ |
 | $K_{O,A}$ | Oxygen half-saturation coefficient for autotrophic growth | g(O~2~)$\cdot$m^-3^ |
-| $K_X$ | Particulate substrate half-saturation coefficient for hydrolysis | g(COD)$\cdot$(g(COD))^-1^ |
-| $k_a$ | Ammonification rate | m^3^$\cdot$(g(COD))^-1^$\cdot$d^-1^ |
-| $k_h$ | Maximum specific hydrolysis rate | g(COD)$\cdot$(g(COD))^-1^$\cdot$d^-1^ |
+| $K_X$ | Particulate substrate half-saturation coefficient for hydrolysis | g(COD)$\cdot$g(COD)^-1^ |
+| $k_a$ | Ammonification rate | m^3^$\cdot$(g(COD)$\cdot$d)^-1^ |
+| $k_h$ | Maximum specific hydrolysis rate | g(COD)$\cdot$(g(COD)$\cdot$d)^-1^ |
 | $\eta_g$ | Anoxic growth rate correction factor | - |
 | $\eta_h$ | Anoxic hydrolysis rate correction factor | - |
 
@@ -105,11 +105,11 @@ $$
 
 | Symbol   | Description                                               | Unit                      |
 | -------- | --------------------------------------------------------- | ------------------------- |
-| $Y_H$    | Heterotrophic yield                                       | g(COD)$\cdot$(g(COD))^-1^ |
-| $Y_A$    | Autotrophic yield                                         | g(COD)$\cdot$(g(N))^-1^   |
+| $Y_H$    | Heterotrophic yield                                       | g(COD)$\cdot$g(COD)^-1^ |
+| $Y_A$    | Autotrophic yield                                         | g(COD)$\cdot$g(N)^-1^   |
 | $f_P$    | Fraction of biomass leading to particulate inert products | -                         |
-| $i_{XB}$ | Fraction of nitrogen in biomass                           | g(N)$\cdot$(g(COD))^-1^   |
-| $i_{XP}$ | Fraction of nitrogen in organic particulate inerts        | g(N)$\cdot$(g(COD))^-1^   |
+| $i_{XB}$ | Fraction of nitrogen in biomass                           | g(N)$\cdot$g(COD)^-1^   |
+| $i_{XP}$ | Fraction of nitrogen in organic particulate inerts        | g(N)$\cdot$g(COD)^-1^   |
 
 
 ### Source code documentation
