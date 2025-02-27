@@ -1,18 +1,23 @@
 """Initialisation file for all states and parameters related to the AS systems (reactors 1-5).
 
 All parameters and specifications are based on BSM1 model.
-This file will be executed when running `asm1runss.py` or `asm1run.py`.
+This file will be executed when running `bsm2_cl.py`, `bsm2_ol.py` or `bsm2_olem.py`.
 """
 
 import numpy as np
 
 # flows:
 QIN0 = 20648
+"""Flow rate of influent [m^3^ $\cdot$ d^-1^]."""
 
 QIN = QIN0
+"""Flow rate of influent [m^3^ $\cdot$ d^-1^]."""
 QINTR = 3 * QIN0
+"""Flow rate of internal recirculation [m^3^ $\cdot$ d^-1^]."""
 QR = QIN0
+"""Flow rate of sludge return. [m^3^ $\cdot$ d^-1^]."""
 QW = 300
+"""Flow rate of waste sludge [m^3^ $\cdot$ d^-1^]."""
 
 # The following states represent concentrations in different AS reactors (1 to 5)
 
@@ -151,6 +156,54 @@ YINIT1 = np.array(
         X_D5_1,
     ]
 )
+"""Initial concentrations for the AS system in reactor 1.
+
+Other Parameters
+----------------
+S_I1 : float
+    Initial concentration of soluble inert substrate [g(COD) $\cdot$ m^-3^].
+S_S1 : float
+    Initial concentration of readily biodegradable substrate [g(COD) $\cdot$ m^-3^].
+X_I1 : float
+    Initial concentration of particulate inert organic matter [g(COD) $\cdot$ m^-3^].
+X_S1 : float
+    Initial concentration of slowly biodegradable substrate [g(COD) $\cdot$ m^-3^].
+X_BH1 : float
+    Initial concentration of heterotrophic biomass [g(COD) $\cdot$ m^-3^].
+X_BA1 : float
+    Initial concentration of active autotrophic biomass [g(COD) $\cdot$ m^-3^].
+X_P1 : float
+    Initial concentration of particulate products [g(COD) $\cdot$ m^-3^].
+S_O1 : float
+    Initial concentration of dissolved oxygen [g(O~2~) $\cdot$ m^-3^].
+S_NO1 : float
+    Initial concentration of nitrate [g(N) $\cdot$ m^-3^].
+S_NH1 : float
+    Initial concentration of ammonium [g(N) $\cdot$ m^-3^].
+S_ND1 : float
+    Initial concentration of soluble biodegradable dissolved organic nitrogen [g(N) $\cdot$ m^-3^].
+X_ND1 : float
+    Initial concentration of particulate biodegradable organic nitrogen [g(N) $\cdot$ m^-3^].
+S_ALK1 : float
+    Initial concentration of alkalinity [mol $\cdot$ m^-3^].
+TSS1 : float
+    Initial concentration of total suspended solids [g(TSS) $\cdot$ m^-3^].
+Q1 : float
+    Initial flow rate [m^3^ $\cdot$ d^-1^].
+T1 : float
+    Initial temperature [°C].
+S_D1_1 : float
+    Initial dummy state 1 [-].
+S_D2_1 : float
+    Initial dummy state 2 [-].
+S_D3_1 : float
+    Initial dummy state 3 [-].
+X_D4_1 : float
+    Initial dummy state 4 [-].
+X_D5_1 : float
+    Initial dummy state 5 [-].
+"""
+
 YINIT2 = np.array(
     [
         S_I2,
@@ -176,6 +229,8 @@ YINIT2 = np.array(
         X_D5_2,
     ]
 )
+"""Initial concentrations for the AS system in reactor 2."""
+
 YINIT3 = np.array(
     [
         S_I3,
@@ -201,6 +256,8 @@ YINIT3 = np.array(
         X_D5_3,
     ]
 )
+"""Initial concentrations for the AS system in reactor 3."""
+
 YINIT4 = np.array(
     [
         S_I4,
@@ -226,6 +283,8 @@ YINIT4 = np.array(
         X_D5_4,
     ]
 )
+"""Initial concentrations for the AS system in reactor 4."""
+
 YINIT5 = np.array(
     [
         S_I5,
@@ -251,6 +310,7 @@ YINIT5 = np.array(
         X_D5_5,
     ]
 )
+"""Initial concentrations for the AS system in reactor 5."""
 
 
 # parameters for AS system at 15 degC, based on Alex et al (2018) (BSM1)
@@ -307,21 +367,89 @@ PAR1 = np.array(
         X_P2TSS,
     ]
 )
+"""Parameters for the AS system at 15 °C, based on Alex et al (2018) (BSM1).
+
+Other Parameters
+----------------
+MU_H : float
+    Maximum specific growth rate of heterotrophic biomass [d^-1^].
+K_S : float
+    Half-saturation constant for substrate [g(COD) $\cdot$ m^-3^].
+K_OH : float
+    Oxygen half-saturation coefficient for heterotrophic growth [g(O~2~) $\cdot$ m^-3^].
+K_NO : float
+    Half-saturation constant for nitrate [g(N) $\cdot$ m^-3^].
+B_H : float
+    Decay coefficient for heterotrophic biomass [d^-1^].
+MU_A : float
+    Maximum specific growth rate of autotrophic biomass [d^-1^].
+K_NH : float
+    Half-saturation constant for ammonium [g(N) $\cdot$ m^-3^].
+K_OA : float
+    Oxygen half-saturation coefficient for autotrophic growth [g(O~2~) $\cdot$ m^-3^].
+B_A : float
+    Decay coefficient for autotrophic biomass [d^-1^].
+NY_G : float
+    Anoxic growth rate correction factor [-].
+K_A : float
+    Ammonification rate [m^3^ $\cdot$ (g(COD) $\cdot$ d)^-1^].
+K_H : float
+    Hydrolysis rate [g(COD) $\cdot$ (g(COD) $\cdot$ d)^-1^].
+K_X : float
+    Particulate half-saturation constant for hydrolysis [g(COD) $\cdot$ g(COD)^-1^].
+NY_H : float
+    Anoxic hydrolysis rate correction factor [-].
+Y_H : float
+    Yield coefficient for heterotrophic biomass [g(COD) $\cdot$ g(COD)^-1^].
+Y_A : float
+    Yield coefficient for autotrophic biomass [g(COD) $\cdot$ g(N)^-1^].
+F_P : float
+    Fraction of particulate inert products of biomass [-].
+I_XB : float
+    Fraction of nitrogen in biomass [g(N) $\cdot$ g(COD)^-1^].
+I_XP : float
+    Fraction of nitrogen in organic particulate inerts [g(N) $\cdot$ g(COD)^-1^].
+X_I2TSS : float
+    Conversion factor from inert organic matter to TSS [-].
+X_S2TSS : float
+    Conversion factor from readily biodegradable substrate to TSS [-].
+X_BH2TSS : float
+    Conversion factor from heterotrophic biomass to TSS [-].
+X_BA2TSS : float
+    Conversion factor from autotrophic biomass to TSS [-].
+X_P2TSS : float
+    Conversion factor from particulate products to TSS [-].
+"""
+
 PAR2 = PAR1
+"""Parameters for the AS system at 15 °C, based on Alex et al (2018) (BSM1)."""
 PAR3 = PAR1
+"""Parameters for the AS system at 15 °C, based on Alex et al (2018) (BSM1)."""
 PAR4 = PAR1
+"""Parameters for the AS system at 15 °C, based on Alex et al (2018) (BSM1)."""
 PAR5 = PAR1
+"""Parameters for the AS system at 15 °C, based on Alex et al (2018) (BSM1)."""
 
 # reactor volumes:
 VOL1 = 1500
+"""Volume of reactor 1 [m^3^]."""
 VOL2 = VOL1
+"""Volume of reactor 2 [m^3^]."""
 VOL3 = 3000
+"""Volume of reactor 3 [m^3^]."""
 VOL4 = VOL3
+"""Volume of reactor 4 [m^3^]."""
 VOL5 = VOL3
+"""Volume of reactor 5 [m^3^]."""
 
 # oxygen saturation concentration at 15 degC, based on BSM1
 SOSAT1 = 8
+"""Oxygen saturation concentration at 15 °C in reactor 1 [%]."""
 SOSAT2 = SOSAT1
+"""Oxygen saturation concentration at 15 °C in reactor 2 [%]."""
 SOSAT3 = SOSAT1
+"""Oxygen saturation concentration at 15 °C in reactor 3 [%]."""
 SOSAT4 = SOSAT1
+"""Oxygen saturation concentration at 15 °C in reactor 4 [%]."""
 SOSAT5 = SOSAT1
+"""Oxygen saturation concentration at 15 °C in reactor 5 [%]."""

@@ -411,9 +411,9 @@ class Settler(Module):
     layer : np.ndarray
         Feedlayer and number of layers in the settler.
     q_r : int
-        Return sludge flow rate.
+        Flow rate of sludge return [m^3^ $\cdot$ d^-1^].
     q_w : int
-        Flow rate of waste sludge.
+        Flow rate of waste sludge [m^3^ $\cdot$ d^-1^].
     ys0 : np.ndarray
         Initial values for the 12 components (without Q and particulates) for each layer, sorted by components.
     sedpar : np.ndarray

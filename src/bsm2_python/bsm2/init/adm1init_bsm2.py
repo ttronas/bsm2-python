@@ -107,57 +107,57 @@ Initial concentrations of 42 components
 Other Parameters
 ----------------
 S_SU : float
-    Monosacharides [kg COD/m^3^].
+    Monosacharides [kg COD $\cdot$ m^-3^].
 S_AA : float
-    Amino acids [kg COD/m^3^].
+    Amino acids [kg COD $\cdot$ m^-3^].
 S_FA : float
-    Long chain fatty acids (LCFA) [kg COD/m^3^].
+    Long chain fatty acids (LCFA) [kg COD $\cdot$ m^-3^].
 S_VA : float
-    Total valerate [kg COD/m^3^].
+    Total valerate [kg COD $\cdot$ m^-3^].
 S_BU : float
-    Total butyrate [kg COD/m^3^].
+    Total butyrate [kg COD $\cdot$ m^-3^].
 S_PRO : float
-    Total propionate [kg COD/m^3^].
+    Total propionate [kg COD $\cdot$ m^-3^].
 S_AC : float
-    Total acetate [kg COD/m^3^].
+    Total acetate [kg COD $\cdot$ m^-3^].
 S_H2 : float
-    Hydrogen gas [kg COD/m^3^].
+    Hydrogen gas [kg COD $\cdot$ m^-3^].
 S_CH4 : float
-    Methane gas [kg COD/m^3^].
+    Methane gas [kg COD $\cdot$ m^-3^].
 S_IC : float
-    Inorganic carbon [kmole C/m^3^].
+    Inorganic carbon [kmole C $\cdot$ m^-3^].
 S_IN : float
-    Inorganic nitrogen [kmole N/m^3^].
+    Inorganic nitrogen [kmole N $\cdot$ m^-3^].
 S_I : float
-    Soluble inerts [kg COD/m^3^].
+    Soluble inerts [kg COD $\cdot$ m^-3^].
 X_XC : float
-    Composites [kg COD/m^3^].
+    Composites [kg COD $\cdot$ m^-3^].
 X_CH : float
-    Carbohydrates [kg COD/m^3^].
+    Carbohydrates [kg COD $\cdot$ m^-3^].
 X_PR : float
-    Proteins [kg COD/m^3^].
+    Proteins [kg COD $\cdot$ m^-3^].
 X_LI : float
-    Lipids [kg COD/m^3^].
+    Lipids [kg COD $\cdot$ m^-3^].
 X_SU : float
-    Sugar degraders [kg COD/m^3^].
+    Sugar degraders [kg COD $\cdot$ m^-3^].
 X_AA : float
-    Amino acid degraders [kg COD/m^3^].
+    Amino acid degraders [kg COD $\cdot$ m^-3^].
 X_FA : float
-    LCFA degraders [kg COD/m^3^].
+    LCFA degraders [kg COD $\cdot$ m^-3^].
 X_C4 : float
-    Valerate and butyrate degraders [kg COD/m^3^].
+    Valerate and butyrate degraders [kg COD $\cdot$ m^-3^].
 X_PRO : float
-    Propionate degraders [kg COD/m^3^].
+    Propionate degraders [kg COD $\cdot$ m^-3^].
 X_AC : float
-    Acetate degraders [kg COD/m^3^].
+    Acetate degraders [kg COD $\cdot$ m^-3^].
 X_H2 : float
-    Hydrogen degraders [kg COD/m^3^].
+    Hydrogen degraders [kg COD $\cdot$ m^-3^].
 X_I : float
-    Particulate inerts [kg COD/m^3^].
+    Particulate inerts [kg COD $\cdot$ m^-3^].
 S_CAT : float
-    Cations (metallic ions, strong base) [kmole/m^3^].
+    Cations (metallic ions, strong base) [kmole $\cdot$ m^-3^].
 S_AN : float
-    Anions (metallic ions, strong acid) [kmole/m^3^].
+    Anions (metallic ions, strong acid) [kmole $\cdot$ m^-3^].
 S_HVA : float
     is actually Sva-
 S_HBU : float
@@ -172,7 +172,7 @@ S_GAS_H2 : float
 S_GAS_CH4 : float
 S_GAS_CO2 : float
 Q_D : float
-    Influent flow rate [m^3^/d].
+    Influent flow rate [m^3^ $\cdot$ d^-1^].
 T_D : int
     Temperature [°C].
 S_D1_D : int
@@ -485,7 +485,7 @@ K_DEC_XPRO : int or float
 K_DEC_XAC : int or float
 K_DEC_XH2 : int or float
 R : int or float
-    Universal gas constant [dm3*bar/(mol*K)] = 8.3145 [J/(mol*K)].
+    Universal gas constant [dm^3^ $\cdot$ bar $\cdot$ (mol $\cdot$ K)^-1^] = 8.3145 [J $\cdot$ (mol $\cdot$ K)^-1^].
 T_BASE : int or float
     25 [°C] = 298.15 [K].
 t_op : int or float
@@ -604,7 +604,7 @@ FRXS_AS : int or float
 FDEGRADE_AS : int or float
     Amount of AD XI and XP degradable in AS, zero in BSM2.
 R : int or float
-    Universal gas constant [dm^3^*bar/(mol*K)] = 8.3145 [J/(mol*K)].
+    Universal gas constant [dm^3^ $\cdot$ bar $\cdot$ (mol $\cdot$ K)^-1^] = 8.3145 [J $\cdot$ (mol $\cdot$ K)^-1^].
 T_BASE : int or float
     25 [°C] = 298.15 [K].
 t_op : int or float
