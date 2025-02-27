@@ -43,17 +43,17 @@ for path in sorted(Path('src').rglob('*.py')):
                         show_root_full_path: true""")
                 
         # Changes local mkdocstring options for init files
-        init_folder_names = ["bsm2_python.bsm2.init", "bsm2_python.energy_management.init"]
-        for init_folder in init_folder_names:
-            if init_folder == ident:
-                # fd.write("""
-                #     \tshow_root_full_path""")
-                break 
-            elif "init" in ident and ident not in init_folder_names:
-                fd.write("""
-                    options:
-                        show_if_no_docstring: true""")
-                break
+        # init_folder_names = ["bsm2_python.bsm2.init", "bsm2_python.energy_management.init"]
+        # for init_folder in init_folder_names:
+        #     if init_folder == ident:
+        #         # fd.write("""
+        #         #     \tshow_root_full_path""")
+        #         break 
+        #     elif "init" in ident and ident not in init_folder_names:
+        #         fd.write("""
+        #             options:
+        #                 show_if_no_docstring: true""")
+        #         break
 
     mkdocs_gen_files.set_edit_path(full_doc_path, path)
 
