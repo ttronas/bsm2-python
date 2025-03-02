@@ -89,7 +89,7 @@ S_ND2 = 0.6862
 X_ND2 = 3.7424
 """Particulate biodegradable organic nitrogen (reactor 2) [g(N) $\cdot$ m^-3^]."""
 S_ALK2 = 5.5659
-"""Alkalinity (reactor 2) [mol($HCO_3^-$) $\cdot$ m^-3^]."""
+"""Alkalinity (reactor 2) [mol(HCO$_3^-$) $\cdot$ m^-3^]."""
 TSS2 = 3726.6
 """Total suspended solids (reactor 2) [g(TSS) $\cdot$ m^-3^]."""
 Q2 = 103533
@@ -132,7 +132,7 @@ S_ND3 = 0.6513
 X_ND3 = 3.1405
 """Particulate biodegradable organic nitrogen (reactor 3) [g(N) $\cdot$ m^-3^]."""
 S_ALK3 = 5.0608
-"""Alkalinity (reactor 3) [mol($HCO_3^-$) $\cdot$ m^-3^]."""
+"""Alkalinity (reactor 3) [mol(HCO$_3^-$) $\cdot$ m^-3^]."""
 TSS3 = 3719.9
 """Total suspended solids (reactor 3) [g(TSS) $\cdot$ m^-3^]."""
 Q3 = 103533
@@ -175,7 +175,7 @@ S_ND4 = 0.6094
 X_ND4 = 2.6815
 """Particulate biodegradable organic nitrogen (reactor 4) [g(N) $\cdot$ m^-3^]."""
 S_ALK4 = 4.6590
-"""Alkalinity (reactor 4) [mol($HCO_3^-$) $\cdot$ m^-3^]."""
+"""Alkalinity (reactor 4) [mol(HCO$_3^-$) $\cdot$ m^-3^]."""
 TSS4 = 3713.9
 """Total suspended solids (reactor 4) [g(TSS) $\cdot$ m^-3^]."""
 Q4 = 103533
@@ -218,7 +218,7 @@ S_ND5 = 0.5594
 X_ND5 = 2.3926
 """Particulate biodegradable organic nitrogen (reactor 5) [g(N) $\cdot$ m^-3^]."""
 S_ALK5 = 4.5646
-"""Alkalinity (reactor 5) [mol($HCO_3^-$) $\cdot$ m^-3^]."""
+"""Alkalinity (reactor 5) [mol(HCO$_3^-$) $\cdot$ m^-3^]."""
 TSS5 = 3708.4
 """Total suspended solids (reactor 5) [g(TSS) $\cdot$ m^-3^]."""
 Q5 = 103533
