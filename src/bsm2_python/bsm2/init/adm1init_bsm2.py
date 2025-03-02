@@ -7,49 +7,92 @@ The state values are based on BSM2 technical report.
 import numpy as np
 
 S_SU = 0.0124  # monosacharides (kg COD/m3)
+"""Monosacharides [kg(COD) $\cdot$ m^-3^]."""
 S_AA = 0.0055  # amino acids (kg COD/m3)
+"""Amino acids [kg(COD) $\cdot$ m^-3^]."""
 S_FA = 0.1074  # long chain fatty acids (LCFA) (kg COD/m3)
+"""Long chain fatty acids (LCFA) [kg(COD) $\cdot$ m^-3^]."""
 S_VA = 0.0123  # total valerate (kg COD/m3)
+"""Total valerate [kg(COD) $\cdot$ m^-3^]."""
 S_BU = 0.0140  # total butyrate (kg COD/m3)
+"""Total butyrate [kg(COD) $\cdot$ m^-3^]."""
 S_PRO = 0.0176  # total propionate (kg COD/m3)
+"""Total propionate [kg(COD) $\cdot$ m^-3^]."""
 S_AC = 0.0893  # total acetate (kg COD/m3)
+"""Total acetate [kg(COD) $\cdot$ m^-3^]."""
 S_H2 = 2.5055e-7  # hydrogen gas (kg COD/m3)
+"""Hydrogen gas [kg(COD) $\cdot$ m^-3^]."""
 S_CH4 = 0.0555  # methane gas (kg COD/m3)
+"""Methane gas [kg(COD) $\cdot$ m^-3^]."""
 S_IC = 0.0951  # inorganic carbon (kmole C/m3)
+"""Inorganic carbon [kmol(C) $\cdot$ m^-3^]."""
 S_IN = 0.0945  # inorganic nitrogen (kmole N/m3)
+"""Inorganic nitrogen [kmol(N) $\cdot$ m^-3^]."""
 S_I = 0.1309  # soluble inerts (kg COD/m3)
+"""Soluble inerts [kg(COD) $\cdot$ m^-3^]."""
 X_XC = 0.1079  # composites (kg COD/m3)
+"""Composites [kg(COD) $\cdot$ m^-3^]."""
 X_CH = 0.0205  # carbohydrates (kg COD/m3)
+"""Carbohydrates [kg(COD) $\cdot$ m^-3^]."""
 X_PR = 0.0842  # proteins (kg COD/m3)
+"""Proteins [kg(COD) $\cdot$ m^-3^]."""
 X_LI = 0.0436  # lipids (kg COD/m3)
+"""Lipids [kg(COD) $\cdot$ m^-3^]."""
 X_SU = 0.3122  # sugar degraders (kg COD/m3)
+"""Sugar degraders [kg(COD) $\cdot$ m^-3^]."""
 X_AA = 0.9317  # amino acid degraders (kg COD/m3)
+"""Amino acid degraders [kg(COD) $\cdot$ m^-3^]."""
 X_FA = 0.3384  # LCFA degraders (kg COD/m3)
+"""LCFA degraders [kg(COD) $\cdot$ m^-3^]."""
 X_C4 = 0.3258  # valerate and butyrate degraders (kg COD/m3)
+"""Valerate and butyrate degraders [kg(COD) $\cdot$ m^-3^]."""
 X_PRO = 0.1011  # propionate degraders (kg COD/m3)
+"""Propionate degraders [kg(COD) $\cdot$ m^-3^]."""
 X_AC = 0.6772  # acetate degraders (kg COD/m3)
+"""Acetate degraders [kg(COD) $\cdot$ m^-3^]."""
 X_H2 = 0.2848  # hydrogen degraders (kg COD/m3)
+"""Hydrogen degraders [kg(COD) $\cdot$ m^-3^]."""
 X_I = 17.2162  # particulate inerts (kg COD/m3)
+"""Particulate inerts [kg(COD) $\cdot$ m^-3^]."""
 S_CAT = 3.5659e-43  # cations (metallic ions, strong base) (kmole/m3)
+"""Cations (metallic ions, strong base) [kmol $\cdot$ m^-3^]."""
 S_AN = 0.0052  # anions (metallic ions, strong acid) (kmole/m3)
+"""Anions (metallic ions, strong acid) [kmol $\cdot$ m^-3^]."""
 S_HVA = 0.0123  # is actually Sva-
+"""Is actually valeric acid ($S_{va^-}$) [kg(COD) $\cdot$ m^-3^]."""
 S_HBU = 0.0140  # is actually Sbu-
+"""Is actually butyric acid ($S_{bu^-}$) [kg(COD) $\cdot$ m^-3^]."""
 S_HPRO = 0.0175  # is actually Spro-
+"""Is actually propanoic acid ($S_{pro^-}$) [kg(COD) $\cdot$ m^-3^]."""
 S_HAC = 0.0890  # is actually Sac-
+"""Is actually acetic acid ($S_{ac^-}$) [kg(COD) $\cdot$ m^-3^]."""
 S_HCO3 = 0.0857
+"""Carbonate [kg(COD) $\cdot$ m^-3^]."""
 S_NH3 = 0.0019
+"""Ammonia [kg(COD) $\cdot$ m^-3^]."""
 S_GAS_H2 = 1.1032e-5
+"""Hydrogen gas (gaseous) [kg(COD) $\cdot$ m^-3^]."""
 S_GAS_CH4 = 1.6535
+"""Methane gas (gaseous) [kg(COD) $\cdot$ m^-3^]."""
 S_GAS_CO2 = 0.0135
+"""Carbon dioxide (gaseous) [kg(COD) $\cdot$ m^-3^]."""
 Q_D = 178.4674  # influent flow rate (m3/d)
+"""Influent flow rate [m^3^ $\cdot$ d^-1^]."""
 T_D = 35  # temperature (°C)
+"""Temperature [°C]."""
 S_D1_D = 0
+"""Dummy state 1 [-]."""
 S_D2_D = 0
+"""Dummy state 2 [-]."""
 S_D3_D = 0
+"""Dummy state 3 [-]."""
 X_D4_D = 0
+"""Dummy state 4 [-]."""
 X_D5_D = 0
+"""Dummy state 5 [-]."""
 
 S_H_ION = 5.4562e-8
+"""Hydrogen ion [kg(COD) $\cdot$ m^-3^]."""
 
 # used by all three ADM implementations, adm1_ODE, adm1_DAE1 and adm1_DAE2.
 DIGESTERINIT = np.array(
@@ -98,94 +141,7 @@ DIGESTERINIT = np.array(
         X_D5_D,
     ]
 )
-"""Initial values for ADM1 differential equations, used by all three ADM implementations, `adm1_ODE`,
-`adm1_DAE1` and `adm1_DAE2`.
-
-Initial concentrations of 42 components
-(26 ADM1 components, 9 other gas-related components, Q, T and 5 dummy states).
-
-Other Parameters
-----------------
-S_SU : float
-    Monosacharides [kg COD $\cdot$ m^-3^].
-S_AA : float
-    Amino acids [kg COD $\cdot$ m^-3^].
-S_FA : float
-    Long chain fatty acids (LCFA) [kg COD $\cdot$ m^-3^].
-S_VA : float
-    Total valerate [kg COD $\cdot$ m^-3^].
-S_BU : float
-    Total butyrate [kg COD $\cdot$ m^-3^].
-S_PRO : float
-    Total propionate [kg COD $\cdot$ m^-3^].
-S_AC : float
-    Total acetate [kg COD $\cdot$ m^-3^].
-S_H2 : float
-    Hydrogen gas [kg COD $\cdot$ m^-3^].
-S_CH4 : float
-    Methane gas [kg COD $\cdot$ m^-3^].
-S_IC : float
-    Inorganic carbon [kmole C $\cdot$ m^-3^].
-S_IN : float
-    Inorganic nitrogen [kmole N $\cdot$ m^-3^].
-S_I : float
-    Soluble inerts [kg COD $\cdot$ m^-3^].
-X_XC : float
-    Composites [kg COD $\cdot$ m^-3^].
-X_CH : float
-    Carbohydrates [kg COD $\cdot$ m^-3^].
-X_PR : float
-    Proteins [kg COD $\cdot$ m^-3^].
-X_LI : float
-    Lipids [kg COD $\cdot$ m^-3^].
-X_SU : float
-    Sugar degraders [kg COD $\cdot$ m^-3^].
-X_AA : float
-    Amino acid degraders [kg COD $\cdot$ m^-3^].
-X_FA : float
-    LCFA degraders [kg COD $\cdot$ m^-3^].
-X_C4 : float
-    Valerate and butyrate degraders [kg COD $\cdot$ m^-3^].
-X_PRO : float
-    Propionate degraders [kg COD $\cdot$ m^-3^].
-X_AC : float
-    Acetate degraders [kg COD $\cdot$ m^-3^].
-X_H2 : float
-    Hydrogen degraders [kg COD $\cdot$ m^-3^].
-X_I : float
-    Particulate inerts [kg COD $\cdot$ m^-3^].
-S_CAT : float
-    Cations (metallic ions, strong base) [kmole $\cdot$ m^-3^].
-S_AN : float
-    Anions (metallic ions, strong acid) [kmole $\cdot$ m^-3^].
-S_HVA : float
-    is actually Sva-
-S_HBU : float
-    is actually Sbu-
-S_HPRO : float
-    is actually Spro-
-S_HAC : float
-    is actually Sac-
-S_HCO3 : float
-S_NH3 : float
-S_GAS_H2 : float
-S_GAS_CH4 : float
-S_GAS_CO2 : float
-Q_D : float
-    Influent flow rate [m^3^ $\cdot$ d^-1^].
-T_D : int
-    Temperature [°C].
-S_D1_D : int
-    Dummy state 1.
-S_D2_D : int
-    Dummy state 2.
-S_D3_D : int
-    Dummy state 3.
-X_D4_D : int
-    Dummy state 4.
-X_D5_D : int
-    Dummy state 5.
-"""
+"""Initial values for ADM1 differential equations."""
 # The following initial conditions are not used due to convergence duration -
 # it would take around a year to reach steady state.
 # DIGESTERINIT = np.ones(42)
@@ -193,111 +149,215 @@ X_D5_D : int
 # used by both DAE ADM implementations, adm1_DAE1 and adm1_DAE2.
 # PHSOLVINIT = np.array([S_H_ion, S_hva, S_hbu, S_hpro, S_hac, S_hco3, S_nh3])
 PHSOLVINIT = np.ones(7)
+"""Initial concentrations of 7 components for pH solver. \n
+[S_H_ION, S_HVA, S_HBU, S_HPRO, S_HAC, S_HCO3, S_NH3]
+"""
 
 # used by one DAE ADM implementation, adm1_DAE2.
 # SH2SOLVINIT = S_h2
 SH2SOLVINIT = 0
+"""Initial concentration of S_H2."""
 
 F_SI_XC = 0.1
+"""Fraction of composites to S_I by disintegration [-]."""
 F_XI_XC = 0.2
+"""Fraction of composites to X_I by disintegration [-]."""
 F_CH_XC = 0.2
+"""Fraction of composites to X_CH by disintegration [-]."""
 F_PR_XC = 0.2
+"""Fraction of composites to X_PR by disintegration [-]."""
 F_LI_XC = 0.3
+"""Fraction of composites to X_LI by disintegration [-]."""
 N_XC = 0.0376 / 14.0
+"""Nitrogen content of X_C [kmol(N) $\cdot$ kg(COD)^-1^]."""
 N_I = 0.06 / 14.0
+"""Nitrogen content of inerts [kmol(N) $\cdot$ kg(COD)^-1^]."""
 N_AA = 0.007
+"""Nitrogen content of S_AA [kmol(N) $\cdot$ kg(COD)^-1^]."""
 C_XC = 0.02786
+"""Carbon content of X_C [kmol(C) $\cdot$ kg(COD)^-1^]."""
 C_SI = 0.03
+"""Carbon content of S_I [kmol(C) $\cdot$ kg(COD)^-1^]."""
 C_CH = 0.0313
+"""Carbon content of S_CH [kmol(C) $\cdot$ kg(COD)^-1^]."""
 C_PR = 0.03
+"""Carbon content of S_PR [kmol(C) $\cdot$ kg(COD)^-1^]."""
 C_LI = 0.022
+"""Carbon content of S_LI [kmol(C) $\cdot$ kg(COD)^-1^]."""
 C_XI = 0.03
+"""Carbon content of X_I [kmol(C) $\cdot$ kg(COD)^-1^]."""
 C_SU = 0.0313
+"""Carbon content of S_SU [kmol(C) $\cdot$ kg(COD)^-1^]."""
 C_AA = 0.03
+"""Carbon content of S_AA [kmol(C) $\cdot$ kg(COD)^-1^]."""
 F_FA_LI = 0.95
+"""Yield (catabolism only) of S_FA on X_LI [-]."""
 C_FA = 0.0217
+"""Carbon content of S_FA [kmol(C) $\cdot$ kg(COD)^-1^]."""
 F_H2_SU = 0.19
+"""Yield (catabolism only) of S_H2 on S_SU [-]."""
 F_BU_SU = 0.13
+"""Yield (catabolism only) of S_BU on S_SU [-]."""
 F_PRO_SU = 0.27
+"""Yield (catabolism only) of S_PRO on S_SU [-]."""
 F_AC_SU = 0.41
+"""Yield (catabolism only) of S_AC on S_SU [-]."""
 N_BAC = 0.08 / 14.0
+"""Nitrogen content of biomass [kmol(N) $\cdot$ kg(COD)^-1^]."""
 C_BU = 0.025
+"""Carbon content of S_BU [kmol(C) $\cdot$ kg(COD)^-1^]."""
 C_PRO = 0.0268
+"""Carbon content of S_PRO [kmol(C) $\cdot$ kg(COD)^-1^]."""
 C_AC = 0.0313
+"""Carbon content of S_AC [kmol(C) $\cdot$ kg(COD)^-1^]."""
 C_BAC = 0.0313
+"""Carbon content of biomass [kmol(C) $\cdot$ kg(COD)^-1^]."""
 Y_SU = 0.1
+"""Yield of biomass, sugar degraders [-]."""
 F_H2_AA = 0.06
+"""Yield (catabolism only) of S_H2 on S_AA [-]."""
 F_VA_AA = 0.23
+"""Yield (catabolism only) of S_VA on S_AA [-]."""
 F_BU_AA = 0.26
+"""Yield (catabolism only) of S_BU on S_AA [-]."""
 F_PRO_AA = 0.05
+"""Yield (catabolism only) of S_PRO on S_AA [-]."""
 F_AC_AA = 0.40
+"""Yield (catabolism only) of S_AC on S_AA [-]."""
 C_VA = 0.024
+"""Carbon content of S_VA [kmol(C) $\cdot$ kg(COD)^-1^]."""
 Y_AA = 0.08
+"""Yield of biomass, amino acid degraders [-]."""
 Y_FA = 0.06
+"""Yield of biomass, long chain fatty acid degraders [-]."""
 Y_C4 = 0.06
+"""Yield of biomass, valerate and butyrate degraders [-]."""
 Y_PRO = 0.04
+"""Yield of biomass, propionate degraders [-]."""
 C_CH4 = 0.0156
+"""Carbon content of S_CH4 [kmol(C) $\cdot$ kg(COD)^-1^]."""
 Y_AC = 0.05
+"""Yield of biomass, acetate degraders [-]."""
 Y_H2 = 0.06
+"""Yield of biomass, hydrogen degraders [-]."""
 K_DIS = 0.5
+"""Disintegration rate [d^-1^]."""
 K_HYD_CH = 10.0
+"""Hydrolysis rate of X_CH [d^-1^]."""
 K_HYD_PR = 10.0
+"""Hydrolysis rate of X_PR [d^-1^]."""
 K_HYD_LI = 10.0
+"""Hydrolysis rate of X_LI [d^-1^]."""
 K_S_IN = 1.0e-4
+"""Inhibition parameter for inorganic nitrogen [kmol(N) $\cdot$ m^-3^]."""
 K_M_SU = 30.0
+"""Monod maximum specific uptake rate for uptake of sugars [d^-1^]."""
 K_S_SU = 0.5
+"""Half saturation value for uptake of sugars [kg(COD) $\cdot$ m^-3^]."""
 PH_UL_AA = 5.5
+"""Upper limit of pH for uptake rate of amino acids [-]."""
 PH_LL_AA = 4.0
+"""Lower limit of pH for uptake rate of amino acids [-]."""
 K_M_AA = 50.0
+"""Monod maximum specific uptake rate for uptake of amino acids [d^-1^]."""
 K_S_AA = 0.3
+"""Half saturation value for uptake of amino acids [kg(COD) $\cdot$ m^-3^]."""
 K_M_FA = 6.0
+"""Monod maximum specific uptake rate for uptake of LCFA [d^-1^]."""
 K_S_FA = 0.4
+"""Half saturation value for uptake of LCFA [kg(COD) $\cdot$ m^-3^]."""
 K_IH2_FA = 5.0e-6
+"""50% inhibitory concentration of H2 on LCFA uptake [kg(COD) $\cdot$ m^-3^]."""
 K_M_C4 = 20.0
+"""Monod maximum specific uptake rate for uptake of valerate and butyrate [d^-1^]."""
 K_S_C4 = 0.2
+"""Half saturation value for uptake of valerate and butyrate [kg(COD) $\cdot$ m^-3^]."""
 K_IH2_C4 = 1.0e-5
+"""50% inhibitory concentration of H2 on valerate and butyrate uptake [kg(COD) $\cdot$ m^-3^]."""
 K_M_PRO = 13.0
+"""Monod maximum specific uptake rate for uptake of propionate [d^-1^]."""
 K_S_PRO = 0.1
+"""Half saturation value for uptake of propionate [kg(COD) $\cdot$ m^-3^]."""
 K_IH2_PRO = 3.5e-6
+"""50% inhibitory concentration of H2 on propionate uptake [kg(COD) $\cdot$ m^-3^]."""
 K_M_AC = 8.0
+"""Monod maximum specific uptake rate for uptake of acetate [d^-1^]."""
 K_S_AC = 0.15
+"""Half saturation value for uptake of acetate [kg(COD) $\cdot$ m^-3^]."""
 K_I_NH3 = 0.0018
+"""50% inhibitory concentration of NH3 on acetate uptake [kg(COD) $\cdot$ m^-3^]."""
 PH_UL_AC = 7.0
+"""Upper limit of pH for uptake rate of acetate [-]."""
 PH_LL_AC = 6.0
+"""Lower limit of pH for uptake rate of acetate [-]."""
 K_M_H2 = 35.0
+"""Monod maximum specific uptake rate for uptake of hydrogen [d^-1^]."""
 K_S_H2 = 7.0e-6
+"""Half saturation value for uptake of hydrogen [kg(COD) $\cdot$ m^-3^]."""
 PH_UL_H2 = 6.0
+"""Upper limit of pH for uptake rate of hydrogen [-]."""
 PH_LL_H2 = 5.0
+"""Lower limit of pH for uptake rate of hydrogen [-]."""
 K_DEC_XSU = 0.02
+"""Decay rate of X_SU [d^-1^]."""
 K_DEC_XAA = 0.02
+"""Decay rate of X_AA [d^-1^]."""
 K_DEC_XFA = 0.02
+"""Decay rate of X_FA [d^-1^]."""
 K_DEC_XC4 = 0.02
+"""Decay rate of X_C4 [d^-1^]."""
 K_DEC_XPRO = 0.02
+"""Decay rate of X_PRO [d^-1^]."""
 K_DEC_XAC = 0.02
+"""Decay rate of X_AC [d^-1^]."""
 K_DEC_XH2 = 0.02
+"""Decay rate of X_H2 [d^-1^]."""
 R = 0.083145  # universal gas constant dm3*bar/(mol*K) = 8.3145 J/(mol*K)
+"""Universal gas constant [dm^3^ $\cdot$ bar $\cdot$ (mol $\cdot$ K)^-1^] = 8.3145 [J $\cdot$ (mol $\cdot$ K)^-1^]."""
 T_BASE = 298.15  # 25 degC = 298.15 K
+"""Base temperature (=25°C) [K]."""
 t_op = 308.15  # operational temperature of AD and interfaces, 35 degC. Can be changed in the code.
+"""Operational temperature of AD and interfaces (=35°C) [K]."""
 PK_W_BASE = 14.0
+""""""
 PK_A_VA_BASE = 4.86
+""""""
 PK_A_BU_BASE = 4.82
+""""""
 PK_A_PRO_BASE = 4.88
+""""""
 PK_A_AC_BASE = 4.76
+""""""
 PK_A_CO2_BASE = 6.35
+""""""
 PK_A_IN_BASE = 9.25
+""""""
 K_A_BVA = 1.0e10  # 1e8 according to STR
+""""""
 K_A_BBU = 1.0e10  # 1e8 according to STR
+""""""
 K_A_BPRO = 1.0e10  # 1e8 according to STR
+""""""
 K_A_BAC = 1.0e10  # 1e8 according to STR
+""""""
 K_A_BCO2 = 1.0e10  # 1e8 according to STR
+""""""
 K_A_BIN = 1.0e10  # 1e8 according to STR
+""""""
 P_ATM = 1.013  # bar
+"""Atmospheric pressure [bar]."""
 K_LA = 200.0
+""""""
 K_H_H2O_BASE = 0.0313
+""""""
 K_H_CO2_BASE = 0.035
+""""""
 K_H_CH4_BASE = 0.0014
+""""""
 K_H_H2_BASE = 7.8e-4
+""""""
 K_P = 5.0e4
+"""Compensation factor for gas flow rate [m^3^ $\cdot$ (bar $\cdot$ d)^-1^]."""
 
 DIGESTERPAR = np.array(
     [
@@ -403,149 +463,49 @@ DIGESTERPAR = np.array(
         K_P,
     ]
 )
-"""Digester parameters.
-
-Other Parameters
-----------------
-F_SI_XC : int or float
-F_XI_XC : int or float
-F_CH_XC : int or float
-F_PR_XC : int or float
-F_LI_XC : int or float
-N_XC : int or float
-N_I : int or float
-N_AA : int or float
-C_XC : int or float
-C_SI : int or float
-C_CH : int or float
-C_PR : int or float
-C_LI : int or float
-C_XI : int or float
-C_SU : int or float
-C_AA : int or float
-F_FA_LI : int or float
-C_FA : int or float
-F_H2_SU : int or float
-F_BU_SU : int or float
-F_PRO_SU : int or float
-F_AC_SU : int or float
-N_BAC : int or float
-C_BU : int or float
-C_PRO : int or float
-C_AC : int or float
-C_BAC : int or float
-Y_SU : int or float
-F_H2_AA : int or float
-F_VA_AA : int or float
-F_BU_AA : int or float
-F_PRO_AA : int or float
-F_AC_AA : int or float
-C_VA : int or float
-Y_AA : int or float
-Y_FA : int or float
-Y_C4 : int or float
-Y_PRO : int or float
-C_CH4 : int or float
-Y_AC : int or float
-Y_H2 : int or float
-K_DIS : int or float
-K_HYD_CH : int or float
-K_HYD_PR : int or float
-K_HYD_LI : int or float
-K_S_IN : int or float
-K_M_SU : int or float
-K_S_SU : int or float
-PH_UL_AA : int or float
-PH_LL_AA : int or float
-K_M_AA : int or float
-K_S_AA : int or float
-K_M_FA : int or float
-K_S_FA : int or float
-K_IH2_FA : int or float
-K_M_C4 : int or float
-K_S_C4 : int or float
-K_IH2_C4 : int or float
-K_M_PRO : int or float
-K_S_PRO : int or float
-K_IH2_PRO : int or float
-K_M_AC : int or float
-K_S_AC : int or float
-K_I_NH3 : int or float
-PH_UL_AC : int or float
-PH_LL_AC : int or float
-K_M_H2 : int or float
-K_S_H2 : int or float
-PH_UL_H2 : int or float
-PH_LL_H2 : int or float
-K_DEC_XSU : int or float
-K_DEC_XAA : int or float
-K_DEC_XFA : int or float
-K_DEC_XC4 : int or float
-K_DEC_XPRO : int or float
-K_DEC_XAC : int or float
-K_DEC_XH2 : int or float
-R : int or float
-    Universal gas constant [dm^3^ $\cdot$ bar $\cdot$ (mol $\cdot$ K)^-1^] = 8.3145 [J $\cdot$ (mol $\cdot$ K)^-1^].
-T_BASE : int or float
-    25 [°C] = 298.15 [K].
-t_op : int or float
-    Operational temperature of AD and interfaces, 35 [°C]. Can be changed in the code.
-PK_W_BASE : int or float
-PK_A_VA_BASE : int or float
-PK_A_BU_BASE : int or float
-PK_A_PRO_BASE : int or float
-PK_A_AC_BASE : int or float
-PK_A_CO2_BASE : int or float
-PK_A_IN_BASE : int or float
-K_A_BVA : int or float
-K_A_BBU : int or float
-K_A_BPRO : int or float
-K_A_BAC : int or float
-K_A_BCO2 : int or float
-K_A_BIN : int or float
-P_ATM : int or float
-    Atmospheric pressure [bar].
-K_LA : int or float
-K_H_H2O_BASE : int or float
-K_H_CO2_BASE : int or float
-K_H_CH4_BASE : int or float
-K_H_H2_BASE : int or float
-K_P : int or float
-"""
+"""Digester parameters."""
 
 V_LIQ = 3400  # m3, size of BSM2 AD
+"""Liquid volume of anaerobic digestor [m^3^]."""
 V_GAS = 300  # m3, size of BSM2 AD
+"""Gas volume of anaerobic digestor [m^3^]."""
 
 DIM_D = np.array([V_LIQ, V_GAS])
-"""Reactor dimensions of the anaerobic digestor.
-
-Other Parameters
-----------------
-V_LIQ = 3400
-    Liquid volume of anaerobic digestor [m^3^].
-V_GAS = 300
-    Gas volume of anaerobic digestor [m^3^].
-"""
+"""Reactor dimensions of the anaerobic digestor."""
 
 # parameters for ASM2ADM and ADM2ASM interfaces
 # could be put it their own initialisation file
 COD_EQUIV = 40.0 / 14.0
+"""COD equivalent."""
 FNAA = N_AA * 14.0  # fraction of N in amino acids and Xpr as in ADM1 report
+"""Fraction of N in amino acids and Xpr as in ADM1 report [-]."""
 FNXC = N_XC * 14.0  # N content of composite material based on BSM2
+"""N content of composite material based on BSM2 [-]."""
 FNBAC = N_BAC * 14.0  # N content of biomass based on BSM1, same in AS and AD
+"""N content of biomass based on BSM1, same in AS and AD [-]."""
 FXNI = N_I * 14.0  # N content of inerts XI and XP, same in AS and AD
+"""N content of inerts XI and XP, same in AS and AD."""
 FSNI = 0.0  # N content of SI, assumed zero in ASM1 and BSM1
+""""N content of SI, assumed zero in ASM1 and BSM1."""
 FSNI_ADM = N_I * 14.0  # N content of SI in the AD system
+"""N content of SI in the AD system."""
 # fnbac, fxni and fsni are adjusted to fit the benchmark values of iXB=0.08 and
 # iXP=0.06 in the AS.
 FRLIXS = 0.7  # lipid fraction of non-nitrogenous XS in BSM2
+"""Lipid fraction of non-nitrogenous XS in BSM2."""
 FRLIBAC = 0.4  # lipid fraction of non-nitrogenous biomass in BSM2
+"""Lipid fraction of non-nitrogenous biomass in BSM2."""
 FRXS_ADM = 0.68  # anaerobically degradable fraction of AS biomass in BSM2
+"""Anaerobically degradable fraction of AS biomass in BSM2."""
 FDEGRADE_ADM = 0  # amount of AS XI and XP degradable in AD, zero in BSM2
+"""Amount of AS XI and XP degradable in AD, zero in BSM2."""
 FRXS_AS = 0.79  # aerobically degradable fraction of AD biomass in BSM2
+"""Aerobically degradable fraction of AD biomass in BSM2."""
 FDEGRADE_AS = 0  # amount of AD XI and XP degradable in AS, zero in BSM2
+"""Amount of AD XI and XP degradable in AS, zero in BSM2."""
 
 PH_ADM_INIT = 7.0  # initial value of pH in ADM to be used by interfaces for the first sample
+"""Initial value of pH in ADM to be used by interfaces for the first sample."""
 
 INTERFACEPAR = np.array(
     [
@@ -574,50 +534,10 @@ INTERFACEPAR = np.array(
         PK_A_IN_BASE,
     ]
 )
-"""Parameters for ASM2ADM and ADM2ASM interfaces.
-
-Other Parameters
-----------------
-COD_EQUIV : int or float
-FNAA : int or float
-    Fraction of N in amino acids and Xpr as in ADM1 report.
-FNXC : int or float
-    N content of composite material based on BSM2.
-FNBAC : int or float
-    N content of biomass based on BSM1, same in AS and AD.
-FXNI : int or float
-    N content of inerts XI and XP, same in AS and AD.
-FSNI : int or float
-    N content of SI, assumed zero in ASM1 and BSM1.
-FSNI_ADM : int or float
-    N content of SI in the AD system.
-FRLIXS : int or float
-    Lipid fraction of non-nitrogenous XS in BSM2.
-FRLIBAC : int or float
-    Lipid fraction of non-nitrogenous biomass in BSM2.
-FRXS_ADM : int or float
-    Anaerobically degradable fraction of AS biomass in BSM2.
-FDEGRADE_ADM : int or float
-    Amount of AS XI and XP degradable in AD, zero in BSM2.
-FRXS_AS : int or float
-    Aerobically degradable fraction of AD biomass in BSM2.
-FDEGRADE_AS : int or float
-    Amount of AD XI and XP degradable in AS, zero in BSM2.
-R : int or float
-    Universal gas constant [dm^3^ $\cdot$ bar $\cdot$ (mol $\cdot$ K)^-1^] = 8.3145 [J $\cdot$ (mol $\cdot$ K)^-1^].
-T_BASE : int or float
-    25 [°C] = 298.15 [K].
-t_op : int or float
-    Operational temperature of AD and interfaces, 35 [°C]. Can be changed in the code.
-PK_W_BASE : int or float
-PK_A_VA_BASE : int or float
-PK_A_BU_BASE : int or float
-PK_A_PRO_BASE : int or float
-PK_A_AC_BASE : int or float
-PK_A_CO2_BASE : int or float
-PK_A_IN_BASE : int or float
-"""
+"""Parameters for ADM interfaces."""
 
 # parameters for the pHdelay function
 PHINIT = PH_ADM_INIT
+"""Initial value of pH in ADM."""
 PHTIMECONST = 0.01
+"""Time constant for pH function."""

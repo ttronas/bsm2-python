@@ -1,33 +1,58 @@
-"""Initialisation file for the wastewater storage."""
+"""Initialisation file for all states and parameters related to the wastewater storage.
+
+This file will be executed when running `bsm2_cl.py`, `bsm2_ol.py` or `bsm2_olem.py`.
+"""
 
 import numpy as np
 
-# Maximum volume of the sludge storage tank (m3)
-VOL_S = 160
+VOL_S = 160 # Maximum volume of the sludge storage tank (m3)
+"""Maximum volume of the sludge storage tank [m^3^]."""
 
 # Initial values for the sludge storage
 S_I_S = 140.1528
+"""Soluble inert organic matter [g(COD) $\cdot$ m^-3^]."""
 S_S_S = 260.0720
+"""Readily biodegradable substrate [g(COD) $\cdot$ m^-3^]."""
 X_I_S = 363.7842
+"""Particulate inert organic matter [g(COD) $\cdot$ m^-3^]."""
 X_S_S = 57.1637
+"""Slowly biodegradable substrate [g(COD) $\cdot$ m^-3^]."""
 X_BH_S = 0
+"""Active heterotrophic biomass [g(COD) $\cdot$ m^-3^]."""
 X_BA_S = 0
+"""Active autotrophic biomass [g(COD) $\cdot$ m^-3^]."""
 X_P_S = 13.7743
+"""Particulate products arising from biomass decay [g(COD) $\cdot$ m^-3^]."""
 S_O_S = 0
+"""Dissolved oxygen [g(O~2~) $\cdot$ m^-3^]."""
 S_NO_S = 0
+"""Nitrate and nitrite [g(N) $\cdot$ m^-3^]."""
 S_NH_S = 1.5685e03
+"""Ammonium plus ammonia nitrogen [g(N) $\cdot$ m^-3^]."""
 S_ND_S = 0.4786
+"""Soluble biodegradable organic nitrogen [g(N) $\cdot$ m^-3^]."""
 X_ND_S = 2.2039
+"""Particulate biodegradable organic nitrogen [g(N) $\cdot$ m^-3^]."""
 S_ALK_S = 106.8816
+"""Alkalinity [mol(HCO$_3^-$) $\cdot$ m^-3^]."""
 TSS_S = 326.0416
+"""Total suspended solids [g(TSS) $\cdot$ m^-3^]."""
 Q_S = 0
+"""Flow rate [m^3^ $\cdot$ d^-1^]."""
 T_S = 14.8581
+"""Temperature [°C]."""
 S_D1_S = 0
+"""Dummy state 1 [-]."""
 S_D2_S = 0
+"""Dummy state 2 [-]."""
 S_D3_S = 0
+"""Dummy state 3 [-]."""
 X_D4_S = 0
+"""Dummy state 4 [-]."""
 X_D5_S = 0
+"""Dummy state 5 [-]."""
 VOL_INIT_S = VOL_S * 0.5  # Initial liquid volume in storage tank
+"""Initial liquid volume in storage tank [m^3^]."""
 
 ystinit = np.array(
     [
@@ -55,3 +80,4 @@ ystinit = np.array(
         VOL_INIT_S,
     ]
 )
+"""Initial concentrations for the sludge storage."""

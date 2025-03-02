@@ -22,114 +22,219 @@ QW = 300
 # The following states represent concentrations in different AS reactors (1 to 5)
 
 S_I1 = 28.0643
+"""Soluble inert organic matter (reactor 1) [g(COD) $\cdot$ m^-3^]."""
 S_S1 = 3.0503
+"""Readily biodegradable substrate (reactor 1) [g(COD) $\cdot$ m^-3^]."""
 X_I1 = 1532.3
+"""Particulate inert organic matter (reactor 1) [g(COD) $\cdot$ m^-3^]."""
 X_S1 = 63.0433
+"""Slowly biodegradable substrate (reactor 1) [g(COD) $\cdot$ m^-3^]."""
 X_BH1 = 2245.1
+"""Active heterotrophic biomass (reactor 1) [g(COD) $\cdot$ m^-3^]."""
 X_BA1 = 166.6699
+"""Active autotrophic biomass (reactor 1) [g(COD) $\cdot$ m^-3^]."""
 X_P1 = 964.8992
+"""Particulate products arising from biomass decay (reactor 1) [g(COD) $\cdot$ m^-3^]."""
 S_O1 = 0.0093
+"""Dissolved oxygen (reactor 1) [g(O~2~) $\cdot$ m^-3^]."""
 S_NO1 = 3.9350
+"""Nitrate and nitrite (reactor 1) [g(N) $\cdot$ m^-3^]."""
 S_NH1 = 6.8924
+"""Ammonium plus ammonia nitrogen (reactor 1) [g(N) $\cdot$ m^-3^]."""
 S_ND1 = 0.9580
+"""Soluble biodegradable organic nitrogen (reactor 1) [g(N) $\cdot$ m^-3^]."""
 X_ND1 = 3.8453
+"""Particulate biodegradable organic nitrogen (reactor 1) [g(N) $\cdot$ m^-3^]."""
 S_ALK1 = 5.4213
+"""Alkalinity (reactor 1) [mol(HCO$_3^-$) $\cdot$ m^-3^]."""
 TSS1 = 3729.0
+"""Total suspended solids (reactor 1) [g(TSS) $\cdot$ m^-3^]."""
 Q1 = 103533
+"""Flow rate (reactor 1) [m^3^ $\cdot$ d^-1^]."""
 T1 = 14.8581
+"""Temperature (reactor 1) [°C]."""
 S_D1_1 = 0
+"""Dummy state 1 (reactor 1) [-]."""
 S_D2_1 = 0
+"""Dummy state 2 (reactor 1) [-]."""
 S_D3_1 = 0
+"""Dummy state 3 (reactor 1) [-]."""
 X_D4_1 = 0
+"""Dummy state 4 (reactor 1) [-]."""
 X_D5_1 = 0
+"""Dummy state 5 (reactor 1) [-]."""
 
 S_I2 = 28.0643
+"""Soluble inert organic matter (reactor 2) [g(COD) $\cdot$ m^-3^]."""
 S_S2 = 1.3412
+"""Readily biodegradable substrate (reactor 2) [g(COD) $\cdot$ m^-3^]."""
 X_I2 = 1532.3
+"""Particulate inert organic matter (reactor 2) [g(COD) $\cdot$ m^-3^]."""
 X_S2 = 58.8579
+"""Slowly biodegradable substrate (reactor 2) [g(COD) $\cdot$ m^-3^]."""
 X_BH2 = 2245.4
+"""Active heterotrophic biomass (reactor 2) [g(COD) $\cdot$ m^-3^]."""
 X_BA2 = 166.5512
+"""Active autotrophic biomass (reactor 2) [g(COD) $\cdot$ m^-3^]."""
 X_P2 = 965.6805
+"""Particulate products arising from biomass decay (reactor 2) [g(COD) $\cdot$ m^-3^]."""
 S_O2 = 1.0907e-4
+"""Dissolved oxygen (reactor 2) [g(O~2~) $\cdot$ m^-3^]."""
 S_NO2 = 2.2207
+"""Nitrate and nitrite (reactor 2) [g(N) $\cdot$ m^-3^]."""
 S_NH2 = 7.2028
+"""Ammonium plus ammonia nitrogen (reactor 2) [g(N) $\cdot$ m^-3^]."""
 S_ND2 = 0.6862
+"""Soluble biodegradable organic nitrogen (reactor 2) [g(N) $\cdot$ m^-3^]."""
 X_ND2 = 3.7424
+"""Particulate biodegradable organic nitrogen (reactor 2) [g(N) $\cdot$ m^-3^]."""
 S_ALK2 = 5.5659
+"""Alkalinity (reactor 2) [mol($HCO_3^-$) $\cdot$ m^-3^]."""
 TSS2 = 3726.6
+"""Total suspended solids (reactor 2) [g(TSS) $\cdot$ m^-3^]."""
 Q2 = 103533
+"""Flow rate (reactor 2) [m^3^ $\cdot$ d^-1^]."""
 T2 = 14.8581
+"""Temperature (reactor 2) [°C]."""
 S_D1_2 = 0
+"""Dummy state 1 (reactor 2) [-]."""
 S_D2_2 = 0
+"""Dummy state 2 (reactor 2) [-]."""
 S_D3_2 = 0
+"""Dummy state 3 (reactor 2) [-]."""
 X_D4_2 = 0
+"""Dummy state 4 (reactor 2) [-]."""
 X_D5_2 = 0
+"""Dummy state 5 (reactor 2) [-]."""
 
 S_I3 = 28.0643
+"""Soluble inert organic matter (reactor 3) [g(COD) $\cdot$ m^-3^]."""
 S_S3 = 0.9553
+"""Readily biodegradable substrate (reactor 3) [g(COD) $\cdot$ m^-3^]."""
 X_I3 = 1532.3
+"""Particulate inert organic matter (reactor 3) [g(COD) $\cdot$ m^-3^]."""
 X_S3 = 46.2983
+"""Slowly biodegradable substrate (reactor 3) [g(COD) $\cdot$ m^-3^]."""
 X_BH3 = 2246.8
+"""Active heterotrophic biomass (reactor 3) [g(COD) $\cdot$ m^-3^]."""
 X_BA3 = 167.3077
+"""Active autotrophic biomass (reactor 3) [g(COD) $\cdot$ m^-3^]."""
 X_P3 = 967.2442
+"""Particulate products arising from biomass decay (reactor 3) [g(COD) $\cdot$ m^-3^]."""
 S_O3 = 0.4663
+"""Dissolved oxygen (reactor 3) [g(O~2~) $\cdot$ m^-3^]."""
 S_NO3 = 5.5141
+"""Nitrate and nitrite (reactor 3) [g(N) $\cdot$ m^-3^]."""
 S_NH3 = 3.4247
+"""Ammonium plus ammonia nitrogen (reactor 3) [g(N) $\cdot$ m^-3^]."""
 S_ND3 = 0.6513
+"""Soluble biodegradable organic nitrogen (reactor 3) [g(N) $\cdot$ m^-3^]."""
 X_ND3 = 3.1405
+"""Particulate biodegradable organic nitrogen (reactor 3) [g(N) $\cdot$ m^-3^]."""
 S_ALK3 = 5.0608
+"""Alkalinity (reactor 3) [mol($HCO_3^-$) $\cdot$ m^-3^]."""
 TSS3 = 3719.9
+"""Total suspended solids (reactor 3) [g(TSS) $\cdot$ m^-3^]."""
 Q3 = 103533
+"""Flow rate (reactor 3) [m^3^ $\cdot$ d^-1^]."""
 T3 = 14.8581
+"""Temperature (reactor 3) [°C]."""
 S_D1_3 = 0
+"""Dummy state 1 (reactor 3) [-]."""
 S_D2_3 = 0
+"""Dummy state 2 (reactor 3) [-]."""
 S_D3_3 = 0
+"""Dummy state 3 (reactor 3) [-]."""
 X_D4_3 = 0
+"""Dummy state 4 (reactor 3) [-]."""
 X_D5_3 = 0
+"""Dummy state 5 (reactor 3) [-]."""
 
 S_I4 = 28.0643
+"""Soluble inert organic matter (reactor 4) [g(COD) $\cdot$ m^-3^]."""
 S_S4 = 0.7806
+"""Readily biodegradable substrate (reactor 4) [g(COD) $\cdot$ m^-3^]."""
 X_I4 = 1532.3
+"""Particulate inert organic matter (reactor 4) [g(COD) $\cdot$ m^-3^]."""
 X_S4 = 37.3881
+"""Slowly biodegradable substrate (reactor 4) [g(COD) $\cdot$ m^-3^]."""
 X_BH4 = 2245.6
+"""Active heterotrophic biomass (reactor 4) [g(COD) $\cdot$ m^-3^]."""
 X_BA4 = 167.8339
+"""Active autotrophic biomass (reactor 4) [g(COD) $\cdot$ m^-3^]."""
 X_P4 = 968.8072
+"""Particulate products arising from biomass decay (reactor 4) [g(COD) $\cdot$ m^-3^]."""
 S_O4 = 1.4284
+"""Dissolved oxygen (reactor 4) [g(O~2~) $\cdot$ m^-3^]."""
 S_NO4 = 8.4066
+"""Nitrate and nitrite (reactor 4) [g(N) $\cdot$ m^-3^]."""
 S_NH4 = 0.6922
+"""Ammonium plus ammonia nitrogen (reactor 4) [g(N) $\cdot$ m^-3^]."""
 S_ND4 = 0.6094
+"""Soluble biodegradable organic nitrogen (reactor 4) [g(N) $\cdot$ m^-3^]."""
 X_ND4 = 2.6815
+"""Particulate biodegradable organic nitrogen (reactor 4) [g(N) $\cdot$ m^-3^]."""
 S_ALK4 = 4.6590
+"""Alkalinity (reactor 4) [mol($HCO_3^-$) $\cdot$ m^-3^]."""
 TSS4 = 3713.9
+"""Total suspended solids (reactor 4) [g(TSS) $\cdot$ m^-3^]."""
 Q4 = 103533
+"""Flow rate (reactor 4) [m^3^ $\cdot$ d^-1^]."""
 T4 = 14.8581
+"""Temperature (reactor 4) [°C]."""
 S_D1_4 = 0
+"""Dummy state 1 (reactor 4) [-]."""
 S_D2_4 = 0
+"""Dummy state 2 (reactor 4) [-]."""
 S_D3_4 = 0
+"""Dummy state 3 (reactor 4) [-]."""
 X_D4_4 = 0
+"""Dummy state 4 (reactor 4) [-]."""
 X_D5_4 = 0
+"""Dummy state 5 (reactor 4) [-]."""
 
 S_I5 = 28.0643
+"""Soluble inert organic matter (reactor 5) [g(COD) $\cdot$ m^-3^]."""
 S_S5 = 0.6734
+"""Readily biodegradable substrate (reactor 5) [g(COD) $\cdot$ m^-3^]."""
 X_I5 = 1532.3
+"""Particulate inert organic matter (reactor 5) [g(COD) $\cdot$ m^-3^]."""
 X_S5 = 31.9144
+"""Slowly biodegradable substrate (reactor 5) [g(COD) $\cdot$ m^-3^]."""
 X_BH5 = 2242.1
+"""Active heterotrophic biomass (reactor 5) [g(COD) $\cdot$ m^-3^]."""
 X_BA5 = 167.8482
+"""Active autotrophic biomass (reactor 5) [g(COD) $\cdot$ m^-3^]."""
 X_P5 = 970.3678
+"""Particulate products arising from biomass decay (reactor 5) [g(COD) $\cdot$ m^-3^]."""
 S_O5 = 1.3748
+"""Dissolved oxygen (reactor 5) [g(O~2~) $\cdot$ m^-3^]."""
 S_NO5 = 9.1948
+"""Nitrate and nitrite (reactor 5) [g(N) $\cdot$ m^-3^]."""
 S_NH5 = 0.1585
+"""Ammonium plus ammonia nitrogen (reactor 5) [g(N) $\cdot$ m^-3^]."""
 S_ND5 = 0.5594
+"""Soluble biodegradable organic nitrogen (reactor 5) [g(N) $\cdot$ m^-3^]."""
 X_ND5 = 2.3926
+"""Particulate biodegradable organic nitrogen (reactor 5) [g(N) $\cdot$ m^-3^]."""
 S_ALK5 = 4.5646
+"""Alkalinity (reactor 5) [mol($HCO_3^-$) $\cdot$ m^-3^]."""
 TSS5 = 3708.4
+"""Total suspended solids (reactor 5) [g(TSS) $\cdot$ m^-3^]."""
 Q5 = 103533
+"""Flow rate (reactor 5) [m^3^ $\cdot$ d^-1^]."""
 T5 = 14.8581
+"""Temperature (reactor 5) [°C]."""
 S_D1_5 = 0
+"""Dummy state 1 (reactor 5) [-]."""
 S_D2_5 = 0
+"""Dummy state 2 (reactor 5) [-]."""
 S_D3_5 = 0
+"""Dummy state 3 (reactor 5) [-]."""
 X_D4_5 = 0
+"""Dummy state 4 (reactor 5) [-]."""
 X_D5_5 = 0
+"""Dummy state 5 (reactor 5) [-]."""
 
 YINIT1 = np.array(
     [
@@ -156,53 +261,7 @@ YINIT1 = np.array(
         X_D5_1,
     ]
 )
-"""Initial concentrations for the AS system in reactor 1.
-
-Other Parameters
-----------------
-S_I1 : float
-    Initial concentration of soluble inert substrate [g(COD) $\cdot$ m^-3^].
-S_S1 : float
-    Initial concentration of readily biodegradable substrate [g(COD) $\cdot$ m^-3^].
-X_I1 : float
-    Initial concentration of particulate inert organic matter [g(COD) $\cdot$ m^-3^].
-X_S1 : float
-    Initial concentration of slowly biodegradable substrate [g(COD) $\cdot$ m^-3^].
-X_BH1 : float
-    Initial concentration of heterotrophic biomass [g(COD) $\cdot$ m^-3^].
-X_BA1 : float
-    Initial concentration of active autotrophic biomass [g(COD) $\cdot$ m^-3^].
-X_P1 : float
-    Initial concentration of particulate products [g(COD) $\cdot$ m^-3^].
-S_O1 : float
-    Initial concentration of dissolved oxygen [g(O~2~) $\cdot$ m^-3^].
-S_NO1 : float
-    Initial concentration of nitrate [g(N) $\cdot$ m^-3^].
-S_NH1 : float
-    Initial concentration of ammonium [g(N) $\cdot$ m^-3^].
-S_ND1 : float
-    Initial concentration of soluble biodegradable dissolved organic nitrogen [g(N) $\cdot$ m^-3^].
-X_ND1 : float
-    Initial concentration of particulate biodegradable organic nitrogen [g(N) $\cdot$ m^-3^].
-S_ALK1 : float
-    Initial concentration of alkalinity [mol $\cdot$ m^-3^].
-TSS1 : float
-    Initial concentration of total suspended solids [g(TSS) $\cdot$ m^-3^].
-Q1 : float
-    Initial flow rate [m^3^ $\cdot$ d^-1^].
-T1 : float
-    Initial temperature [°C].
-S_D1_1 : float
-    Initial dummy state 1 [-].
-S_D2_1 : float
-    Initial dummy state 2 [-].
-S_D3_1 : float
-    Initial dummy state 3 [-].
-X_D4_1 : float
-    Initial dummy state 4 [-].
-X_D5_1 : float
-    Initial dummy state 5 [-].
-"""
+"""Initial concentrations for the activated sludge reactor 1."""
 
 YINIT2 = np.array(
     [
@@ -229,7 +288,7 @@ YINIT2 = np.array(
         X_D5_2,
     ]
 )
-"""Initial concentrations for the AS system in reactor 2."""
+"""Initial concentrations for the activated sludge reactor 2."""
 
 YINIT3 = np.array(
     [
@@ -256,7 +315,7 @@ YINIT3 = np.array(
         X_D5_3,
     ]
 )
-"""Initial concentrations for the AS system in reactor 3."""
+"""Initial concentrations for the activated sludge reactor 3."""
 
 YINIT4 = np.array(
     [
@@ -283,7 +342,7 @@ YINIT4 = np.array(
         X_D5_4,
     ]
 )
-"""Initial concentrations for the AS system in reactor 4."""
+"""Initial concentrations for the activated sludge reactor 4."""
 
 YINIT5 = np.array(
     [
@@ -310,34 +369,58 @@ YINIT5 = np.array(
         X_D5_5,
     ]
 )
-"""Initial concentrations for the AS system in reactor 5."""
+"""Initial concentrations for the activated sludge reactor 5."""
 
 
 # parameters for AS system at 15 degC, based on Alex et al (2018) (BSM1)
 MU_H = 4.0
+"""Maximum heterotrophic growth rate [d^-1^]."""
 K_S = 10.0
+"""Substrate half-saturation coefficient for heterotrophic growth [g(COD) $\cdot$ m^-3^]."""
 K_OH = 0.2
+"""Oxygen half-saturation coefficient for heterotrophic growth [g(O~2~) $\cdot$ m^-3^]."""
 K_NO = 0.5
+"""Nitrate half-saturation coefficient for anoxic heterotrophic growth [g(N) $\cdot$ m^-3^]."""
 B_H = 0.3
+"""Heterotrophic decay rate [d^-1^]."""
 MU_A = 0.5
+"""Maximum autotrophic growth rate [d^-1^]."""
 K_NH = 1.0
+"""Ammonia half-saturation coefficient for autotrophic growth [g(N) $\cdot$ m^-3^]."""
 K_OA = 0.4
+"""Oxygen half-saturation coefficient for autotrophic growth [g(O~2~) $\cdot$ m^-3^]."""
 B_A = 0.05
+"""Autotrophic decay rate [d^-1^]."""
 NY_G = 0.8
+"""Anoxic growth rate correction factor [-]."""
 K_A = 0.05
+"""Ammonification rate [m^3^ $\cdot$ (g(COD) $\cdot$ d)^-1^]."""
 K_H = 3.0
+"""Maximum specific hydrolysis rate [g(COD) $\cdot$ (g(COD) $\cdot$ d)^-1^]."""
 K_X = 0.1
+"""Particulate substrate half-saturation coefficient for hydrolysis [g(COD) $\cdot$ g(COD)^-1^]."""
 NY_H = 0.8
+"""Anoxic hydrolysis rate correction factor [-]."""
 Y_H = 0.67
+"""Heterotrophic yield [g(COD) $\cdot$ g(COD)^-1^]."""
 Y_A = 0.24
+"""Autotrophic yield [g(COD) $\cdot$ g(N)^-1^]."""
 F_P = 0.08
+"""Fraction of biomass leading to particulate inert products [-]."""
 I_XB = 0.08
+"""Fraction of nitrogen in biomass [g(N) $\cdot$ g(COD)^-1^]."""
 I_XP = 0.06
+"""Fraction of nitrogen in organic particulate inerts [g(N) $\cdot$ g(COD)^-1^]."""
 X_I2TSS = 0.75
+"""Conversion factor for particulate inert organic matter to TSS [-]."""
 X_S2TSS = 0.75
+"""Conversion factor for readily biodegradable substrate to TSS [-]."""
 X_BH2TSS = 0.75
+"""Conversion factor for heterotrophic biomass to TSS [-]."""
 X_BA2TSS = 0.75
+"""Conversion factor for autotrophic biomass to TSS [-]."""
 X_P2TSS = 0.75
+"""Conversion factor for particulate products to TSS [-]."""
 
 PAR1 = np.array(
     [
@@ -367,68 +450,16 @@ PAR1 = np.array(
         X_P2TSS,
     ]
 )
-"""Parameters for the AS system at 15 °C, based on Alex et al (2018) (BSM1).
-
-Other Parameters
-----------------
-MU_H : float
-    Maximum specific growth rate of heterotrophic biomass [d^-1^].
-K_S : float
-    Half-saturation constant for substrate [g(COD) $\cdot$ m^-3^].
-K_OH : float
-    Oxygen half-saturation coefficient for heterotrophic growth [g(O~2~) $\cdot$ m^-3^].
-K_NO : float
-    Half-saturation constant for nitrate [g(N) $\cdot$ m^-3^].
-B_H : float
-    Decay coefficient for heterotrophic biomass [d^-1^].
-MU_A : float
-    Maximum specific growth rate of autotrophic biomass [d^-1^].
-K_NH : float
-    Half-saturation constant for ammonium [g(N) $\cdot$ m^-3^].
-K_OA : float
-    Oxygen half-saturation coefficient for autotrophic growth [g(O~2~) $\cdot$ m^-3^].
-B_A : float
-    Decay coefficient for autotrophic biomass [d^-1^].
-NY_G : float
-    Anoxic growth rate correction factor [-].
-K_A : float
-    Ammonification rate [m^3^ $\cdot$ (g(COD) $\cdot$ d)^-1^].
-K_H : float
-    Hydrolysis rate [g(COD) $\cdot$ (g(COD) $\cdot$ d)^-1^].
-K_X : float
-    Particulate half-saturation constant for hydrolysis [g(COD) $\cdot$ g(COD)^-1^].
-NY_H : float
-    Anoxic hydrolysis rate correction factor [-].
-Y_H : float
-    Yield coefficient for heterotrophic biomass [g(COD) $\cdot$ g(COD)^-1^].
-Y_A : float
-    Yield coefficient for autotrophic biomass [g(COD) $\cdot$ g(N)^-1^].
-F_P : float
-    Fraction of particulate inert products of biomass [-].
-I_XB : float
-    Fraction of nitrogen in biomass [g(N) $\cdot$ g(COD)^-1^].
-I_XP : float
-    Fraction of nitrogen in organic particulate inerts [g(N) $\cdot$ g(COD)^-1^].
-X_I2TSS : float
-    Conversion factor from inert organic matter to TSS [-].
-X_S2TSS : float
-    Conversion factor from readily biodegradable substrate to TSS [-].
-X_BH2TSS : float
-    Conversion factor from heterotrophic biomass to TSS [-].
-X_BA2TSS : float
-    Conversion factor from autotrophic biomass to TSS [-].
-X_P2TSS : float
-    Conversion factor from particulate products to TSS [-].
-"""
+"""Parameters for the activated sludge reactor 1 at 15 °C, based on Alex et al (2018) (BSM1)."""
 
 PAR2 = PAR1
-"""Parameters for the AS system at 15 °C, based on Alex et al (2018) (BSM1)."""
+"""Parameters for the activated sludge reactor 2 at 15 °C, based on Alex et al (2018) (BSM1)."""
 PAR3 = PAR1
-"""Parameters for the AS system at 15 °C, based on Alex et al (2018) (BSM1)."""
+"""Parameters for the activated sludge reactor 3 at 15 °C, based on Alex et al (2018) (BSM1)."""
 PAR4 = PAR1
-"""Parameters for the AS system at 15 °C, based on Alex et al (2018) (BSM1)."""
+"""Parameters for the activated sludge reactor 4 at 15 °C, based on Alex et al (2018) (BSM1)."""
 PAR5 = PAR1
-"""Parameters for the AS system at 15 °C, based on Alex et al (2018) (BSM1)."""
+"""Parameters for the activated sludge reactor 5 at 15 °C, based on Alex et al (2018) (BSM1)."""
 
 # reactor volumes:
 VOL1 = 1500
