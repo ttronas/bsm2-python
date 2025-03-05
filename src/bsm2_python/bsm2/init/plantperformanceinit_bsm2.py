@@ -1,30 +1,34 @@
-"""Initialisation file for all states and parameters related to the plant performance."""
+"""Initialisation file for all states and parameters related to the plant performance.
+
+All parameters and specifications are based on BSM1 model.
+This file will be executed when running `bsm2_cl.py`, `bsm2_ol.py` or `bsm2_olem.py`.
+"""
 
 import numpy as np
 
 # Effluent pollutant concentration discharge limits
 TOTALCODEMAX = 100
-""""""
+"""Effluent concentration limit for total chemical oxygen demand (COD~part~ + COD~sol~) [g(COD) $\cdot$ m^-3^]."""
 TOTALNEMAX = 18
-""""""
+"""Effluent concentration limit for total nitrogen [g(N) $\cdot$ m^-3^]."""
 SNHEMAX = 4
-""""""
+"""Effluent concentration limit for ammonium plus ammonia nitrogen [g(N) $\cdot$ m^-3^]."""
 TSSEMAX = 30
-""""""
+"""Effluent concentration limit for total suspended solids (TSS) [g(SS) $\cdot$ m^-3^]."""
 BOD5EMAX = 10
-""""""
+"""Effluent concentration limit for biochemical oxygen demand (BOD) [g(BOD) $\cdot$ m^-3^]."""
 
 # Pollutant weighting factors, effluent pollutants
 BSS = 2
-""""""
+"""Pollutant weighting factor for suspended solids [-]."""
 BCOD = 1
-""""""
+"""Pollutant weighting factor for chemical oxygen demand [-]."""
 BNKJ = 30
-""""""
+"""Pollutant weighting factor for total Kjeldahl nitrogen (TKN) [-]."""
 BNO = 10
-""""""
+"""Pollutant weighting factor for nitrate and nitrite nitrogen [-]."""
 BBOD5 = 2
-""""""
+"""Pollutant weighting factor for biochemical oxygen demand (BOD) [-]."""
 
 # Pumping energy factors
 PF_QINTR = 0.004  # kWh/m3, pumping energy factor, internal AS recirculation

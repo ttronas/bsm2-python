@@ -319,45 +319,46 @@ T_BASE = 298.15  # 25 degC = 298.15 K
 t_op = 308.15  # operational temperature of AD and interfaces, 35 degC. Can be changed in the code.
 """Operational temperature of AD and interfaces (=35°C) [K]."""
 PK_W_BASE = 14.0
-""""""
+"""Parameter for calculation of K~W~ [-]."""
 PK_A_VA_BASE = 4.86
-""""""
+"""Acid-base equilibrium constant for valerate [kmol $\cdot$ m^-3^]."""
 PK_A_BU_BASE = 4.82
-""""""
+"""Acid-base equilibrium constant for butyrate [kmol $\cdot$ m^-3^]."""
 PK_A_PRO_BASE = 4.88
-""""""
+"""Acid-base equilibrium constant for propionate [kmol $\cdot$ m^-3^]."""
 PK_A_AC_BASE = 4.76
-""""""
+"""Acid-base equilibrium constant for acetate [kmol $\cdot$ m^-3^]."""
 PK_A_CO2_BASE = 6.35
-""""""
+"""Acid-base equilibrium constant for inorganic carbon [kmol $\cdot$ m^-3^]."""
 PK_A_IN_BASE = 9.25
-""""""
+"""Acid-base equilibrium constant for inorganic nitrogen [kmol $\cdot$ m^-3^]."""
 K_A_BVA = 1.0e10  # 1e8 according to STR
-""""""
+"""Acid-base kinetic parameter for valerate [m^3^ $\cdot$ (kmol $\cdot$ d)^-1^]."""
 K_A_BBU = 1.0e10  # 1e8 according to STR
-""""""
+"""Acid-base kinetic parameter for butyrate [m^3^ $\cdot$ (kmol $\cdot$ d)^-1^]."""
 K_A_BPRO = 1.0e10  # 1e8 according to STR
-""""""
+"""Acid-base kinetic parameter for propionate [m^3^ $\cdot$ (kmol $\cdot$ d)^-1^]."""
 K_A_BAC = 1.0e10  # 1e8 according to STR
-""""""
+"""Acid-base kinetic parameter for acetate [m^3^ $\cdot$ (kmol $\cdot$ d)^-1^]."""
 K_A_BCO2 = 1.0e10  # 1e8 according to STR
-""""""
+"""Acid-base kinetic parameter for inorganic carbon [m^3^ $\cdot$ (kmol $\cdot$ d)^-1^]."""
 K_A_BIN = 1.0e10  # 1e8 according to STR
-""""""
+"""Acid-base kinetic parameter for inorganic nitrogen [m^3^ $\cdot$ (kmol $\cdot$ d)^-1^]."""
 P_ATM = 1.013  # bar
 """Atmospheric pressure [bar]."""
 K_LA = 200.0
-""""""
+"""Transfer coefficient for gases [d^-1^]."""
 K_H_H2O_BASE = 0.0313
-""""""
+"""Henry's law coefficient for water vapor [kmol $\cdot$ m^-3^ $\cdot$ bar^-1^]."""
 K_H_CO2_BASE = 0.035
-""""""
+"""Henry's law coefficient for carbon dioxide [kmol $\cdot$ m^-3^ $\cdot$ bar^-1^]."""
 K_H_CH4_BASE = 0.0014
-""""""
+"""Henry's law coefficient for methane [kmol $\cdot$ m^-3^ $\cdot$ bar^-1^]."""
 K_H_H2_BASE = 7.8e-4
-""""""
+"""Henry's law coefficient for hydrogen [kmol $\cdot$ m^-3^ $\cdot$ bar^-1^]."""
 K_P = 5.0e4
-"""Compensation factor for gas flow rate [m^3^ $\cdot$ (bar $\cdot$ d)^-1^]."""
+"""Compensation factor for overpressure in the head space of the ADM [m^3^ $\cdot$ (bar $\cdot$ d)^-1^]. \n
+Must be adjusted if physical or operational conditions (volume, load etc.) of the ADM are changed."""
 
 DIGESTERPAR = np.array(
     [
@@ -476,7 +477,7 @@ DIM_D = np.array([V_LIQ, V_GAS])
 # parameters for ASM2ADM and ADM2ASM interfaces
 # could be put it their own initialisation file
 COD_EQUIV = 40.0 / 14.0
-"""COD equivalent."""
+"""COD equivalent of nitrate and nitrite nitrogen [g(O~2~) $\cdot$ g(N)^-1^]."""
 FNAA = N_AA * 14.0  # fraction of N in amino acids and Xpr as in ADM1 report
 """Fraction of N in amino acids and Xpr as in ADM1 report [-]."""
 FNXC = N_XC * 14.0  # N content of composite material based on BSM2
