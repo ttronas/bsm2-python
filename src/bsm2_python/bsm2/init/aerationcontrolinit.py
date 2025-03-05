@@ -37,7 +37,7 @@ KLA3GAIN = 1.0  # gain for control signal to reactor 3
 T90_KLA3 = 4  # Response time 4 minutes
 """Response time t~r~ for K~L~a actuator 3 [min]."""
 T_KLA3 = T90_KLA3 / (60 * 24) / 3.89
-"""Integral part time constant $\tau$ for K~L~a actuator 3 [min]."""
+"""Integral part time constant $τ$ for K~L~a actuator 3 [min]."""
 
 # initial values for sensor 4:
 T90_SO4 = 1  # Response time 1 min
@@ -47,7 +47,7 @@ MIN_SO4 = 0
 MAX_SO4 = 10
 """"Upper measuring limit of the oxygen sensor 4 [g(O~2~) $\cdot$ m^-3^]."""
 T_SO4 = T90_SO4 / (60 * 24) / 3.89
-"""Integral part time constant $\tau$ of transfer function for sensor 4 [min]."""
+"""Integral part time constant $τ$ of transfer function for sensor 4 [min]."""
 STD_SO4 = 0.025
 """Standard deviation for adding measurement noise for sensor 4 [g(O~2~) $\cdot$ m^-3^]."""
 
