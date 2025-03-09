@@ -134,6 +134,16 @@ mod</span> [asm1_bsm2](/reference/bsm2_python/bsm2/asm1_bsm2)
   margin-right: 0.2rem;">
 mod</span> [asm1init_bsm2](/reference/bsm2_python/bsm2/init/asm1init_bsm2)
 
+<span style=
+  "color: #5cad0f;
+  font-weight: bold;
+  font-size: .85em;
+  background-color: #5cad0f1a;
+  padding: 0 .3em;
+  border-radius: .1rem;
+  margin-right: 0.2rem;">
+mod</span> [reginit_bsm2](/reference/bsm2_python/bsm2/init/reginit_bsm2)
+
 
 [^1]: [Benchmarking of Control Strategies for Wastewater Treatment Plants](https://iwaponline.com/ebooks/book-pdf/650794/wio9781780401171.pdf), chap. 4.2.1 Activated Sludge Model No. 1
 [^2]: [Benchmark Simulation Model no. 2 (BSM2)](http://iwa-mia.org/wp-content/uploads/2022/09/TR3_BSM_TG_Tech_Report_no_3_BSM2_General_Description.pdf), chap. 2. Modeling of the activated sludge section
