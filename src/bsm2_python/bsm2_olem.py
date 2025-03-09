@@ -171,7 +171,7 @@ class BSM2OLEM(BSM2Base):
 
     def step(self, i: int, *, stabilized: bool = False):
         """Simulates the one time step of the BSM2 model.
-        
+
         Parameters
         ----------
         i : int

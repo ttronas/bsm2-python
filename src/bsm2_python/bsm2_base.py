@@ -454,7 +454,7 @@ class BSM2Base:
         atol : float (optional)
             Absolute tolerance for the stabilization. <br>
             Default is 1e-3.
-        
+
         Returns
         -------
         stable : bool
