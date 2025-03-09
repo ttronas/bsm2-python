@@ -127,7 +127,7 @@ $$
 
 | Symbol        | Description | Unit  |
 | ------------- | ----------- | ----- |
-| $K_{S,IN}$     | Inhibition parameter for inorganic nitrogen | kmol$\cdot$m^-3^ |
+| $K_{S,IN}$     | Inhibition parameter for inorganic nitrogen | kmol(N)$\cdot$m^-3^ |
 | $K_{I,h2,fa}$     | 50% inhibitory concentration of inhibitor H~2~ on LCFA uptake process | kg(COD)$\cdot$m^-3^ |
 | $K_{I,h2,c4}$     | 50% inhibitory concentration of inhibitor H~2~ on valerate and butyrate uptake process | kg(COD)$\cdot$m^-3^ |
 | $K_{I,h2,pro}$     | 50% inhibitory concentration of inhibitor H~2~ on propionate uptake process | kg(COD)$\cdot$m^-3^ |

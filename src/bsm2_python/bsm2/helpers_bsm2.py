@@ -22,12 +22,16 @@ class Combiner(Module):
         Parameters
         ----------
         *args : np.ndarray(21)
-            ASM1 arrays to be combined.
+            ASM1 arrays to be combined. \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+            SD1, SD2, SD3, XD4, XD5]
 
         Returns
         -------
         out : np.ndarray(21)
-            ASM1 array with combined values.
+            ASM1 array with combined values. \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+            SD1, SD2, SD3, XD4, XD5]
         """
 
         out = np.zeros(21)
@@ -69,7 +73,9 @@ class Splitter(Module):
         Parameters
         ----------
         in1 : np.ndarray(21)
-            ASM1 array to be split.
+            ASM1 array to be split. \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+            SD1, SD2, SD3, XD4, XD5]
         splitratio : tuple(float)
             Split ratio for each component. <br>
             Ideally sums up to 1 (except if sp_type=2, then no split ratio is
@@ -79,8 +85,9 @@ class Splitter(Module):
 
         Returns
         -------
-        outs : tuple(np.ndarray(21))
-            ASM1 arrays with split volume flows. Tuple of length of splitratio.
+        outs : tuple(np.ndarray(21), np.ndarray(21),...)
+            ASM1 arrays with split volume flows. Tuple of length of splitratio. \n
+            (asm1_flow1, asm1,flow2,...)
         """
 
         outs = List()

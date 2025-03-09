@@ -13,10 +13,10 @@ class TqdmLoggingHandler(logging.Handler):
         ----------
         level : int (optional)
             The log level for this handler. <br>
-            Default is logging.INFO.
+            Default is `logging.INFO`.
         tqdm_level_is_lower : bool (optional)
-            If True, the progress bar is not shown when the log level is higher than the tqdm log level. <br>
-            Default is False.
+            If `True`, the progress bar is not shown when the log level is higher than the tqdm log level. <br>
+            Default is `False`.
         """
 
         super().__init__(level)
