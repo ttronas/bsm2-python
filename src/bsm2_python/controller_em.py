@@ -17,14 +17,14 @@ class ControllerEM(Controller):
     Parameters
     ----------
     price_percentile : float
-        Percentile of electricity prices used to adjust KLA values (aeration reduction at prices above the
+        Percentile of electricity prices used to adjust KLa values (aeration reduction at prices above the
         percentile, e.g. 0.9 -> aerate less when electricity prices are in the top 10%).
     klas_init : np.ndarray
-        Initial KLA values for the reactor compartments [1/d].
+        Initial KLa values for the reactor compartments [d⁻¹].
     kla_reduction : float
-        Reduction factor for KLA values.
+        Reduction factor for KLa values.
     s_nh_threshold : float
-        Maximum value of ammonia concentration in the effluent [g/m³].
+        Maximum value of ammonia concentration in the effluent [g ⋅ m⁻³].
     biogas : GasMix
         Biogas object.
     o2 : Gas
@@ -149,6 +149,8 @@ class ControllerEM(Controller):
 
         Parameters
         ----------
+        heat_net : HeatNet
+            Heat net object.
         chps : list[CHP]
             List of CHP objects.
         heat_demand : float
@@ -156,7 +158,7 @@ class ControllerEM(Controller):
 
         Returns
         -------
-        float
+        heatnet_temp : float
             Temperature of heat net after using heat from chps [°C].
         """
 
@@ -176,9 +178,9 @@ class ControllerEM(Controller):
         fill_level : float
             Fill level of biogas storage at start of current timestep [Nm³].
         inflow : float
-            Inflow of biogas in current timestep [Nm³/h].
+            Inflow of biogas in current timestep [Nm³ ⋅ h⁻¹].
         outflow : float
-            Outflow of biogas in current timestep [Nm³/h].
+            Outflow of biogas in current timestep [Nm³ ⋅ h⁻¹].
         time_diff : float
             Length of current timestep [h].
 

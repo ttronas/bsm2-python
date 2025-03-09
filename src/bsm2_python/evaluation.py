@@ -42,15 +42,15 @@ class Evaluation:
             Units of the columns in the DataObject, '-' at default, if only one unit is specified it is applied to all
             columns.
         export : bool (optional)
-            If True the data will be exported to the csv file. <br>
-            Default is True.
+            If `True` the data will be exported to the csv file. <br>
+            Default is `True`.
         plot : bool (optional)
-            If True the data will be plotted. <br>
-            Default is True.
+            If `True` the data will be plotted. <br>
+            Default is `True`.
 
         Returns
         -------
-        DataObject
+        new_data_object : DataObject
             DataObject that was added.
         """
 
@@ -75,12 +75,12 @@ class Evaluation:
         Parameters
         ----------
         name : str
-            Name of the DataObject whose data is to be updated.
+            Name of the `DataObject` whose data is to be updated.
         values : float or list[float] or np.ndarray
-            Values to be appended to the columns of the DataObject, if only one column exists a single value can be
+            Values to be appended to the columns of the `DataObject`, if only one column exists a single value can be
             used instead of a list.
         timestamp : float
-            Timestamp to be appended to the timestamps of the DataObject.
+            Timestamp to be appended to the timestamps of the `DataObject`.
         """
 
         if not any(data_object.name == name for data_object in self.data_objects):
@@ -106,12 +106,12 @@ class Evaluation:
         Parameters
         ----------
         name : str
-            Name of the DataObject to be returned.
+            Name of the `DataObject` to be returned.
 
         Returns
         -------
-        DataObject
-            DataObject with the specified name.
+        data_object : DataObject
+            `DataObject` with the specified name.
         """
 
         if not any(data_object.name == name for data_object in self.data_objects):
@@ -127,14 +127,14 @@ class Evaluation:
         Parameters
         ----------
         name : str
-            Name of the DataObject whose column index is to be returned.
+            Name of the `DataObject` whose column index is to be returned.
         column_name : str
             Name of the column whose index is to be returned.
 
         Returns
         -------
-        int
-            Index of the specified column.
+        index : int
+            Index of the specified column [-].
         """
 
         if not any(data_object.name == name for data_object in self.data_objects):
@@ -150,12 +150,12 @@ class Evaluation:
         Parameters
         ----------
         name : str
-            Name of the DataObject whose timestamps are to be returned.
+            Name of the `DataObject` whose timestamps are to be returned.
 
         Returns
         -------
-        list[float]
-            Timestamps of the DataObject.
+        timestamp : list[float]
+            Timestamps of the `DataObject`.
         """
 
         if not any(data_object.name == name for data_object in self.data_objects):
@@ -260,11 +260,11 @@ class DataObject:
         units : list[str] (optional)
             Units of the columns in the data object, '-' at default.
         export : bool (optional)
-            If True the data will be exported to the csv file. <br>
-            Default is True.
+            If `True` the data will be exported to the csv file. <br>
+            Default is `True`.
         plot : bool (optional)
-            If True the data will be plotted. <br>
-            Default is True.
+            If `True` the data will be plotted. <br>
+            Default is `True`.
         """
 
         self.name = name
@@ -289,8 +289,8 @@ class DataObject:
 
         Returns
         -------
-        str
-            String representation of the DataObject.
+        repr : str
+            String representation of the `DataObject`.
         """
 
         output = '\n' + self.name + ':\n'
@@ -347,7 +347,7 @@ class DataObject:
 
         Returns
         -------
-        2D list
+        values : 2D list
             List over columns containing the values at each timestamp.
         """
 
@@ -367,8 +367,8 @@ class DataObject:
 
         Returns
         -------
-        int
-            Index of the specified column.
+        index : int
+            Index of the specified column [-].
         """
 
         return self.column_names.index(column_name)
@@ -378,7 +378,7 @@ class DataObject:
 
         Returns
         -------
-        int or float
+        timestamps : int or float
             Timestamps stored in the data object.
         """
 
