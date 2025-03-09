@@ -1,5 +1,9 @@
 # Changelog
 
+<h2> Version 0.0.13 (development) </h2>
+
+- improve documentation further, fix overall layout not displaying correctly in PyPI
+
 <h2> Version 0.0.9 (development) </h2>
 
 - improve documentation, update to `readthedocs` theme
