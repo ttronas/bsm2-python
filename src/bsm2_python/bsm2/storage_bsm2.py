@@ -43,7 +43,7 @@ def storageequations(t, yst, yst_in1, tempmodel, activate):
         otherwise influent wastewater temperature is just passed through process reactors.
     activate : bool
         If true, dummy states are activated, otherwise dummy states are not activated.
-    
+
     Returns
     -------
     dyst : nd.array(22)
@@ -92,7 +92,7 @@ class Storage(Module):
     yst0 : np.ndarray(22)
         Initial integration values of the 21 components
         (13 ASM1 components, TSS, Q, T and 5 dummy states). \n
-        [S_I_S, S_S_S, X_I_S, X_S_S, X_BH_S, X_BA_S, X_P_S, S_O_S, S_NO_S, S_NH_S, S_ND_S, X_ND_S, 
+        [S_I_S, S_S_S, X_I_S, X_S_S, X_BH_S, X_BA_S, X_P_S, S_O_S, S_NO_S, S_NH_S, S_ND_S, X_ND_S,
         S_ALK_S, TSS_S, Q_S, T_S, S_D1_S, S_D2_S, S_D3_S, X_D4_S, X_D5_S, VOL_INIT_S]
     tempmodel : bool
         If true, mass balance for the wastewater temperature is used in process rates,

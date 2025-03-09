@@ -710,7 +710,7 @@ class PlantPerformance:
     @staticmethod
     def _reshape_if_1_element(arr):
         """Reshapes the array to float if it is 1 element.
-        
+
         Parameters
         ----------
         arr : np.ndarray(1)

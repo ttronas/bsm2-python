@@ -86,4 +86,3 @@ MODELTYPE = 0
 - 1: Model with 1 layer for solubles (GSP-X implementation) (not implemented yet).
 - 2: Model with 0 layers for solubles (old WEST implementation) (not implemented yet).
 """
-

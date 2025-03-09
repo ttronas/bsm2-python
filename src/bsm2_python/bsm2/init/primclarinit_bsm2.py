@@ -6,19 +6,19 @@ This file will be executed when running `bsm2_cl.py`, `bsm2_ol.py` or `bsm2_olem
 
 import numpy as np
 
-VOL_P = 900 # Volume of the primary clarifier (m3)
+VOL_P = 900  # Volume of the primary clarifier (m3)
 """Volume of the primary clarifier [m³]."""
 
-F_CORR = 0.65 # Efficiency correction
+F_CORR = 0.65  # Efficiency correction
 """Efficiency correction factor [-]."""
 
-F_X = 0.85 # CODpart/CODtot ratio
+F_X = 0.85  # CODpart/CODtot ratio
 """COD_part/COD_tot ratio [-]."""
 
-T_M = 0.125 # Smoothing time constant for qm calculation
+T_M = 0.125  # Smoothing time constant for qm calculation
 """Smoothing time constant for m² calculation [d]."""
 
-F_PS = 0.007 # Ratio of primary sludge flow rate to the influent flow
+F_PS = 0.007  # Ratio of primary sludge flow rate to the influent flow
 """Ratio of primary sludge flow rate to the influent flow [-]."""
 
 # Initial values

@@ -1,4 +1,5 @@
-"""Initialisation file for all states and parameters related to the aeration control system `aerationcontrol.py` in reactor 3 to 5.
+"""Initialisation file for all states and parameters related to the aeration control system `aerationcontrol.py`
+in reactor 3 to 5.
 
 All parameters and specifications are based on BSM1 model.
 This file will be executed when running `bsm2_cl.py`.
@@ -27,7 +28,7 @@ QR_MAX = 2 * asm1init.QIN0
 """Maximum pump capacity for return sludge flow rate Q_r [m³ ⋅ d⁻¹]."""
 QSTORAGE_MAX = 1500
 """Maximum pump capacity for outlet flow rate of the storage tank Q_st,out [m³ ⋅ d⁻¹]."""
-QWT = 1 / 60 / 24 * 10 # time delay for artificial Qw actuator (acts as first-order filter)
+QWT = 1 / 60 / 24 * 10  # time delay for artificial Qw actuator (acts as first-order filter)
 """Time delay for artificial Q_w actuator (acts as first-order filter) [d]."""
 
 KLA3GAIN = 1.0  # gain for control signal to reactor 3

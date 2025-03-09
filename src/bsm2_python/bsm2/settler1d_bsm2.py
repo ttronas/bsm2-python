@@ -62,7 +62,7 @@ def settlerequations(t, ys, ys_in, sedpar, dim, layer, q_r, q_w, tempmodel, mode
     Returns
     -------
     dys : np.ndarray(12 * nooflayers)
-        Array containing the differential values of `ys_in` only for soluble components, 
+        Array containing the differential values of `ys_in` only for soluble components,
         total suspended solids (TSS) and temperature the settling model with certain number of layers. \n
         Components: [S_I, S_S, S_O, S_NO, S_NH, S_ND, S_ALK, X_TSS, TEMP, S_D1, S_D2, S_D3] \n
         [SI_LAY1, SI_LAY2, SI_LAY3,..., SI_NOOFLAY, SS_LAY1, SS_LAY2, SS_LAY3,... SS_NOOFLAY, SO_LAY1,...]

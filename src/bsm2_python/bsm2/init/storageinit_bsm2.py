@@ -6,7 +6,7 @@ This file will be executed when running `bsm2_cl.py`, `bsm2_ol.py` or `bsm2_olem
 
 import numpy as np
 
-VOL_S = 160 # Maximum volume of the sludge storage tank (m3)
+VOL_S = 160  # Maximum volume of the sludge storage tank (m3)
 """Maximum volume of the sludge storage tank [m³]."""
 
 # Initial values for the sludge storage
