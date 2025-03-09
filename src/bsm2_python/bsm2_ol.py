@@ -9,23 +9,29 @@ class BSM2OL(BSM2Base):
 
     Parameters
     ----------
-    data_in : np.ndarray (optional)
+    data_in : np.ndarray(n, 21) (optional)
         Influent data. Has to be a 2D array. <br>
         First column is time [days], the rest are 21 components
-        (13 ASM1 components, TSS, Q, T and 5 dummy states). <br>
-        If not provided, the influent data from BSM2 is used.
+        (13 ASM1 components, TSS, Q, T and 5 dummy states).
+        If not provided, the influent data from BSM2 is used. \n
+        [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5]
     timestep : float (optional)
-        Timestep for the simulation (days). <br>
+        Timestep for the simulation [d]. <br>
         If not provided, the timestep is calculated from the influent data.
     endtime : float (optional)
-        Endtime for the simulation [days]. <br>
+        Endtime for the simulation [d]. <br>
         If not provided, the endtime is the last time step in the influent data.
+    evaltime : np.ndarray(2) (optional)
+        Evaluation time for the simulation [d]. <br>
+        Needs to be passed as a 1D np.ndarray with two values.
+        If not provided, the last 5 days of the simulation will be assessed. \n
+        [starttime, self.simtime[-1]]
     tempmodel : bool (optional)
-        If True, the temperature model dependencies are activated. <br>
-        Default is False.
+        If `True`, the temperature model dependencies are activated.
+        Default is `False`.
     activate : bool (optional)
-        If True, the dummy states are activated. <br>
-        Default is False.
+        If `True`, the dummy states are activated.
+        Default is `False`.
     """
 
     def __init__(self, data_in=None, timestep=None, endtime=None, evaltime=None, *, tempmodel=False, activate=False):
@@ -48,9 +54,9 @@ class BSM2OL(BSM2Base):
         Parameters
         ----------
         i : int
-            Index of the current time step.
+            Index of the current time step [-].
         klas : np.ndarray (optional)
-            Array with the values of the oxygen transfer coefficients for the 5 ASM1 reactors. <br>
+            Array with the values of the oxygen transfer coefficients for the 5 ASM1 reactors. \n
             Default is: [reginit.KLA1, reginit.KLA2, reginit.KLA3, reginit.KLA4, reginit.KLA5]
         """
 

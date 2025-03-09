@@ -41,7 +41,7 @@ class HeatNet:
     def update_temperature(self, heat: float) -> None:
         """Sets new temperature based on heat input, previous temperature of HeatNet and mass_flow in the heat_network.
 
-        Implements the equation: $T_{new} = T_{old} + Q/(m_dot*c_p)$
+        Implements the equation: T_{new} = T_{old} + Q / (m_dot ⋅ c_p)
 
         Parameters
         ----------
@@ -54,7 +54,7 @@ class HeatNet:
     def calculate_heat(self, new_temperature: float) -> float:
         """Calculates heat output based on old and new temperature and mass flow in the heat_network.
 
-        Implements the equation: $Q = m_dot*c_p*(T_{new}-T_{old})$
+        Implements the equation: Q = m_dot ⋅ c_p ⋅ (T_{new} - T_{old})
 
         Parameters
         ----------
@@ -72,7 +72,7 @@ class HeatNet:
     def calculate_temperature(self, heat: float, temperature_old: float) -> float:
         """Calculates temperature based on heat input, previous temperature and mass_flow in the heat_network.
 
-        Implements the equation: $T_{new} = T_{old} + Q/(m_dot*c_p)$
+        Implements the equation: T_{new} = T_{old} + Q / (m_dot ⋅ c_p)
 
         Parameters
         ----------

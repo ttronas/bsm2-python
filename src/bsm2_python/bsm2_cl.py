@@ -17,36 +17,42 @@ class BSM2CL(BSM2Base):
 
     Parameters
     ----------
-    data_in : np.ndarray (optional)
+    data_in : np.ndarray(n, 21) (optional)
         Influent data. Has to be a 2D array. <br>
-        First column is time [days], the rest are 21 components
-        (13 ASM1 components, TSS, Q, T and 5 dummy states). <br>
-        If not provided, the influent data from BSM2 is used.
+        First column is time [d], the rest are 21 components
+        (13 ASM1 components, TSS, Q, T and 5 dummy states).
+        If not provided, the influent data from BSM2 is used. \n
+        [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5]
     timestep : float (optional)
-        Timestep for the simulation [days]. <br>
+        Timestep for the simulation [d]. <br>
         If not provided, the timestep is set to 1 minute. <br>
         Please note: Due to sensor sensitivity, the timestep should not be larger than 1 minute.
     endtime : float (optional)
-        Endtime for the simulation [days]. <br>
+        Endtime for the simulation [d]. <br>
         If not provided, the endtime is the last time step in the influent data.
+    evaltime : np.ndarray(2) (optional)
+        Evaluation time for the simulation [d]. <br>
+        Needs to be passed as a 1D np.ndarray with two values.
+        If not provided, the last 5 days of the simulation will be assessed. \n
+        [starttime, self.simtime[-1]]
     use_noise : int (optional)
         - 0: No noise is added to the sensor data.
-        - 1: A noise file is used to add noise to the sensor data. <br>
-                If so, a noise_file has to be provided. Needs to have at least 2 columns: time and noise data
+        - 1: A noise file is used to add noise to the sensor data.
+             If so, a noise_file has to be provided. Needs to have at least 2 columns: time and noise data
         - 2: A random number generator is used to add noise to the sensor data. Seed is used from noise_seed. <br>
-                Default is 1.
+             Default is 1.
     noise_in : str (optional)
-        Noise data. Needs to be provided if use_noise is 1. <br>
+        Noise data. Needs to be provided if use_noise is 1.
         If not provided, the default noise file is used.
     noise_seed : int (optional)
-        Seed for the random number generator. <br>
+        Seed for the random number generator.
         Default is 1.
     tempmodel : bool (optional)
-        If True, the temperature model dependencies are activated. <br>
-        Default is False.
+        If `True`, the temperature model dependencies are activated.
+        Default is `False`.
     activate : bool (optional)
-        If True, the dummy states are activated. <br>
-        Default is False.
+        If `True`, the dummy states are activated.
+        Default is `False`.
     """
 
     def __init__(
@@ -194,7 +200,7 @@ class BSM2CL(BSM2Base):
         Parameters
         ----------
         i : int
-            Index of the current time step.
+            Index of the current time step [-].
         """
 
         if so4ref is None:

@@ -17,8 +17,11 @@ from bsm2_python.log import logger
 logger.info('Initialize bsm2\n')
 
 timestep = 15 / 24 / 60  # 15 minutes in fraction of a day
+"""15 minutes in fraction of a day [d⁻¹]."""
 endtime = 50  # 50 days
+"""Endtime [d⁻¹]."""
 total_steps = int(endtime / timestep)
+"""Total simulation steps [-]."""
 
 tempmodel = (
     False  # if tempmodel is False influent wastewater temperature is just passed through process reactors and settler

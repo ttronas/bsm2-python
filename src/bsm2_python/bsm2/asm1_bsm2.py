@@ -24,21 +24,26 @@ def asm1equations(t, y, y_in, asm1par, kla, volume, tempmodel, activate):
 
     Parameters
     ----------
-    t : np.ndarray
-        Time interval for integration, needed for the solver.
-    y : np.ndarray
-        Solution of the differential equations, needed for the solver.
-    y_in : np.ndarray
-        Reactor inlet concentrations of the 21 components <br>
-        (13 ASM1 components, TSS, Q, T and 5 dummy states).
-    asm1par : np.ndarray
-        24 parameters needed for ASM1 equations. \n
+    t : np.ndarray(2)
+        Time interval for integration, needed for the solver. \n
+        [step, step + timestep]
+    y : np.ndarray(21)
+        Solution of the differential equations from the previous step, needed for the solver. \n
+        [S_I, S_S, X_I, X_S, X_BH, X_BA, X_P, S_O, S_NO, S_NH, S_ND, X_ND,
+        S_ALK, TSS, Q, T, S_D1, S_D2, S_D3, X_D4, X_D5]
+    y_in : np.ndarray(21)
+        Influent concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        before the activated sludge reactor. \n
+        [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+        SD1, SD2, SD3, XD4, XD5]
+    asm1par : np.ndarray(24)
+        Parameters needed for the ASM1 equations. \n
         [MU_H, K_S, K_OH, K_NO, B_H, MU_A, K_NH, K_OA, B_A, NY_G, K_A, K_H, K_X, NY_H,
         Y_H, Y_A, F_P, I_XB, I_XP, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS]
-    kla : int
-        Oxygen transfer coefficient in aerated reactors.
-    volume : int
-        Volume of the reactor.
+    kla : float
+        Oxygen transfer coefficient in aerated reactors [d⁻¹].
+    volume : float
+        Volume of the reactor [m³].
     tempmodel : bool
         If true, mass balance for the wastewater temperature is used in process rates,
         otherwise influent wastewater temperature is just passed through process reactors.
@@ -47,8 +52,10 @@ def asm1equations(t, y, y_in, asm1par, kla, volume, tempmodel, activate):
 
     Returns
     -------
-    dy : np.ndarray
-        Array containing the 21 differential equations based on ASM1 model.
+    dy : np.ndarray(21)
+        Array containing the 21 differential values of `y_in` based on ASM1. \n
+        [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+        SD1, SD2, SD3, XD4, XD5]
     """
 
     dy = np.zeros(21)
@@ -202,19 +209,23 @@ def carbonaddition(y_in, carb, csourceconc):
 
     Parameters
     ----------
-    y_in : np.ndarray
-        Reactor inlet concentrations of the 21 components <br>
-        (13 ASM1 components, TSS, Q, T and 5 dummy states) before adding external carbon source.
+    y_in : np.ndarray(21)
+        Influent concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        before adding external carbon source. \n
+        [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+        SD1, SD2, SD3, XD4, XD5]
     carb : float
-        External carbon flow rate for carbon addition to a reactor.
+        External carbon flow rate for carbon addition to a reactor [kg(COD) ⋅ d⁻¹].
     csourceconc : float
-        External carbon source concentration.
+        External carbon source concentration [g(COD) ⋅ m⁻³].
 
     Returns
     -------
-    np.ndarray
-        Array containing the reactor inlet concentrations of the 21 components <br>
-        (13 ASM1 components, TSS, Q, T and 5 dummy states) after adding external carbon source.
+    y_in : np.ndarray(21)
+        Influent concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+        after adding external carbon source. \n
+        [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+        SD1, SD2, SD3, XD4, XD5]
     """
 
     y_in[SI] = (y_in[SI] * y_in[Q]) / (carb + y_in[Q])
@@ -237,18 +248,22 @@ class ASM1Reactor(Module):
     Parameters
     ----------
     kla : float
-        Oxygen transfer coefficient in aerated reactors.
+        Oxygen transfer coefficient in aerated reactors [d⁻¹].
     volume : float
-        Volume of the reactor.
-    y0 : np.ndarray
-        Initial integration values of the 21 components <br>
-        (13 ASM1 components, TSS, Q, T and 5 dummy states).
-    asm1par : np.ndarray
-        24 parameters needed for ASM1 equations.
+        Volume of the reactor [m³].
+    y0 : np.ndarray(21)
+        Initial integration values of the 21 components
+        (13 ASM1 components, TSS, Q, T and 5 dummy states). \n
+        [S_I, S_S, X_I, X_S, X_BH, X_BA, X_P, S_O, S_NO, S_NH, S_ND, X_ND,
+        S_ALK, TSS, Q, T, S_D1, S_D2, S_D3, X_D4, X_D5]
+    asm1par : np.ndarray(24)
+        Parameters needed for the ASM1 equations. \n
+        [MU_H, K_S, K_OH, K_NO, B_H, MU_A, K_NH, K_OA, B_A, NY_G, K_A, K_H, K_X, NY_H,
+        Y_H, Y_A, F_P, I_XB, I_XP, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS]
     carb : float
-        External carbon flow rate for carbon addition to a reactor.
+        External carbon flow rate for carbon addition to a reactor [kg(COD) ⋅ d⁻¹].
     csourceconc : float
-        External carbon source concentration.
+        External carbon source concentration [g(COD) ⋅ m⁻³].
     tempmodel : bool
         If true, mass balance for the wastewater temperature is used in process rates,
         otherwise influent wastewater temperature is just passed through process reactors.
@@ -282,19 +297,23 @@ class ASM1Reactor(Module):
 
         Parameters
         ----------
-        timestep : int or float
-            Size of integration interval [days].
-        step : int or float
-            Start time for integration interval [days].
-        y_in : np.ndarray
-            Reactor inlet concentrations of the 21 components <br>
-            (13 ASM1 components, TSS, Q, T and 5 dummy states).
+        timestep : float
+            Size of integration interval [d].
+        step : float
+            Start time for integration interval [d].
+        y_in : np.ndarray(21)
+            Influent concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            before the activated sludge reactor. \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+            SD1, SD2, SD3, XD4, XD5]
 
         Returns
         -------
-        y_out : np.ndarray
-            Array containing the values of the 21 components <br>
-            (13 ASM1 components, TSS, Q, T and 5 dummy states) at the current time step after the integration.
+        y_out : np.ndarray(21)
+            Effluent concentration of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            after the activated sludge reactor. \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+            SD1, SD2, SD3, XD4, XD5]
         """
 
         t_eval = np.array([step, step + timestep])  # time interval for odeint

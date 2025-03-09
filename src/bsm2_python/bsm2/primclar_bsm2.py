@@ -24,20 +24,33 @@ def primclarequations(t, yp, yp_in, p_par, volume, tempmodel):
 
     Parameters
     ----------
-    t : np.ndarray
-        Time interval for integration, needed for the solver.
-    yp : np.ndarray
-        Solution of the differential equations, needed for the solver.
-    yp_in : np.ndarray
-        Primary clarifier influent concentrations of the 21 components <br>
-        (13 ASM1 components, TSS, Q, T and 5 dummy states).
-    p_par : np.ndarray
-        Primary clarifier parameters.
+    t : np.ndarray(2)
+        Time interval for integration, needed for the solver [d]. \n
+        [step, step + timestep]
+    yp : np.ndarray(21)
+        Solution of the differential equations, needed for the solver. \n
+        [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, T_WW,
+        SD1, SD2, SD3, XD4, XD5]
+    yp_in : np.ndarray(21)
+        Primary clarifier influent concentrations of the 21 components
+        (13 ASM1 components, TSS, Q, T and 5 dummy states). \n
+        [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, T_WW,
+        SD1, SD2, SD3, XD4, XD5]
+    p_par : np.ndarray(4)
+        Parameters for the primary clarifier. \n
+        [F_CORR, F_X, T_M, F_PS]
     volume : float
-        Volume of the primary clarifier.
+        Volume of the primary clarifier [m³].
     tempmodel : bool
         If true, mass balance for the wastewater temperature is used in process rates,
         otherwise influent wastewater temperature is just passed through process reactors.
+
+    Returns
+    -------
+    dyp : np.ndarray(21)
+        Array containing the differential values of `yp_in` based on ADM1. \n
+        [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, T_WW,
+        SD1, SD2, SD3, XD4, XD5]
     """
 
     # u = yp_in
@@ -65,30 +78,31 @@ class PrimaryClarifier(Module):
     The implementation is to a large extent based on an implementation of the
     Otterpohl/Freund model by Dr. Jens Alex, IFAK, Magdeburg.
 
-    In addition to ASM1 states, the clarifier will also pass on `TSS`, `Q`, `TEMP` and
-    5 dummy states to effluent and underflow.
+    - In addition to ASM1 states, the clarifier will also pass on `TSS`, `Q`, `TEMP` and
+      5 dummy states to effluent and underflow.
 
-    If `tempmodel` == True, T(out) is a first-order equation based on the
-    heat content of the influent, the reactor and outflow.
+    - If `tempmodel` == True, T(out) is a first-order equation based on the
+      heat content of the influent, the reactor and outflow.
 
     Parameters
     ----------
     volume : float
-        Volume of the primary clarifier.
-    yp0 : np.ndarray
-        Initial integration values of the 21 components <br>
-        (13 ASM1 components, TSS, Q, T and 5 dummy states).
-    p_par : np.ndarray
-        Array with four parameters for primary clarifier: <br>
-        [f_corr, f_X, t_m, f_PS] \n
-        - f_corr: Efficiency correction for primary clarifier.
-        - f_X: CODpart/CODtot ratio.
-        - t_m: Smoothing time constant for qm calculation.
-        - f_PS: Ratio of primary sludge flow rate to the influent flow.
-    asm1par : np.ndarray
-        ASM1 parameters.
-    x_vector : np.ndarray
-        Primary clarifier state vector.
+        Volume of the primary clarifier [m³].
+    yp0 : np.ndarray(21)
+        Initial integration values of the 21 components
+        (13 ASM1 components, TSS, Q, T and 5 dummy states). \n
+        [S_I_P, S_S_P, X_I_P, X_S_P, X_BH_P, X_BA_P, X_P_P, S_O_P, S_NO_P, S_NH_P, S_ND_P,
+        X_ND_P, S_ALK_P, TSS_P, Q_P, T_P, S_D1_P, S_D2_P, S_D3_P, X_D4_P, X_D5_P]
+    p_par : np.ndarray(4)
+        Parameters for the primary clarifier. \n
+        [F_CORR, F_X, T_M, F_PS]
+    asm1par : np.ndarray(24)
+        ASM1 parameters. \n
+        [MU_H, K_S, K_OH, K_NO, B_H, MU_A, K_NH, K_OA, B_A, NY_G, K_A, K_H, K_X, NY_H,
+        Y_H, Y_A, F_P, I_XB, I_XP, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS]
+    x_vector : np.ndarray(21)
+        Vector with settleability of the 21 components of ASM1 [-]. \n
+        [0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1]
     tempmodel : bool
         If true, first-order equation based on the heat content of the influent, the reactor and outflow is solved,
         otherwise influent wastewater temperature is just passed through process reactors.
@@ -112,25 +126,33 @@ class PrimaryClarifier(Module):
         Parameters
         ----------
         timestep : float
-            Current time step.
+            Current time step [d].
         step : float
-            Current time.
-        yp_in : np.ndarray
-            Primary clarifier influent concentrations of the 21 components <br>
-            (13 ASM1 components, TSS, Q, T and 5 dummy states).
+            Current time [d].
+        yp_in : np.ndarray(21)
+            Primary clarifier influent concentrations of the 21 components
+            (13 ASM1 components, TSS, Q, T and 5 dummy states). \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, T_WW,
+            SD1, SD2, SD3, XD4, XD5]
 
         Returns
         -------
-        yp_uf : np.ndarray
-            Primary clarifier underflow (sludge) concentrations of the 21 components <br>
-            (13 ASM1 components, TSS, Q, T and 5 dummy states).
-        yp_of : np.ndarray
-            Primary clarifier overflow (effluent) concentrations of the 21 components <br>
-            (13 ASM1 components, TSS, Q, T and 5 dummy states).
-        yp_internal : np.ndarray
+        yp_uf : np.ndarray(21)
+            Primary clarifier underflow (sludge) concentrations of the 21 components
+            (13 ASM1 components, TSS, Q, T and 5 dummy states). \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, T_WW,
+            SD1, SD2, SD3, XD4, XD5]
+        yp_of : np.ndarray(21)
+            Primary clarifier overflow (effluent) concentrations of the 21 components
+            (13 ASM1 components, TSS, Q, T and 5 dummy states). \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, T_WW,
+            SD1, SD2, SD3, XD4, XD5]
+        yp_internal : np.ndarray(21)
             Primary clarifier internal (basically influent) concentrations of the 21 components
-            (13 ASM1 components, TSS, Q, T and 5 dummy states). <br>
-            Only for evaluation purposes.
+            (13 ASM1 components, TSS, Q, T and 5 dummy states).
+            Only for evaluation purposes. \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, T_WW,
+            SD1, SD2, SD3, XD4, XD5]
         """
 
         # f_corr, f_X, t_m, f_PS = p_par
