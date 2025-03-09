@@ -48,9 +48,9 @@ def settlerequations(t, ys, ys_in, sedpar, dim, layer, q_r, q_w, tempmodel, mode
         Feedlayer and number of layers in the settler. \n
         [feedlayer, nooflayers]
     q_r : float
-        Return sludge flow rate [m^3^ $\cdot$ d^-1^].
+        Return sludge flow rate [m³ ⋅ d⁻¹].
     q_w : float
-        Flow rate of waste sludge [m^3^ $\cdot$ d^-1^].
+        Flow rate of waste sludge [m³ ⋅ d⁻¹].
     tempmodel : bool
         If true, differential equation for the wastewater temperature is used,
         otherwise influent wastewater temperature is just passed through the settler.
@@ -276,9 +276,9 @@ def get_output(ys_int, ys_in, nooflayers, tempmodel, q_r, q_w, dim, asm1par, sed
         If true, differential equation for the wastewater temperature is used,
         otherwise influent wastewater temperature is just passed through the settler.
     q_r : float
-        Return sludge flow rate [m^3^ $\cdot$ d^-1^].
+        Return sludge flow rate [m³ ⋅ d⁻¹].
     q_w : float
-        Flow rate of waste sludge [m^3^ $\cdot$ d^-1^].
+        Flow rate of waste sludge [m³ ⋅ d⁻¹].
     dim : np.ndarray(2)
         Dimensions of the settler, area and height. \n
         [area, height]
@@ -441,10 +441,10 @@ class Settler(Module):
         Feedlayer and number of layers in the settler. \n
         [feedlayer, nooflayers]
     q_r : float
-        Flow rate of sludge return [m^3^ $\cdot$ d^-1^].
+        Flow rate of sludge return [m³ ⋅ d⁻¹].
     q_w : float
-        Flow rate of waste sludge [m^3^ $\cdot$ d^-1^].
-    ys0 : np.ndarray(12 $\cdot$ nooflayers)
+        Flow rate of waste sludge [m³ ⋅ d⁻¹].
+    ys0 : np.ndarray(12 ⋅ nooflayers)
         Initial values for the 12 components for each layer, sorted by components. \n
         Components: [S_I, S_S, S_O, S_NO, S_NH, S_ND, S_ALK, X_TSS, TEMP, S_D1, S_D2, S_D3] <br>
         [SI_LAY1, SI_LAY2, SI_LAY3,..., SI_NOOFLAY, SS_LAY1, SS_LAY2, SS_LAY3,... SS_NOOFLAY, SO_LAY1,...]

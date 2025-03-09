@@ -88,7 +88,7 @@ class Storage(Module):
     Parameters
     ----------
     volume : float
-        Volume of the sludge storage tank [m^3^].
+        Volume of the sludge storage tank [m³].
     yst0 : np.ndarray(22)
         Initial integration values of the 21 components
         (13 ASM1 components, TSS, Q, T and 5 dummy states). \n
@@ -124,7 +124,7 @@ class Storage(Module):
             [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, T_WW,
             SD1, SD2, SD3, XD4, XD5]
         qstorage : float
-            Default flow rate from storage tank [m^3^ $\cdot$ d^-1^].
+            Default flow rate from storage tank [m³ ⋅ d⁻¹].
 
         Returns
         -------
@@ -134,7 +134,7 @@ class Storage(Module):
             [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
             SD1, SD2, SD3, XD4, XD5]
         curr_vol : float
-            Current volume of the storage tank [m^3^].
+            Current volume of the storage tank [m³].
         """
 
         yst_in1 = np.zeros(22)

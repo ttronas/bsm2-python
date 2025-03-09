@@ -10,11 +10,11 @@ class OxygenSensor:
     Parameters
     ----------
     min_so : float
-        Lower measuring limit of the oxygen sensor [g(O~2~) $\cdot$ m^-3^].
+        Lower measuring limit of the oxygen sensor [g(O₂) ⋅ m⁻³].
     max_so : float
-        Upper measuring limit of the oxygen sensor [g(O~2~) $\cdot$ m^-3^].
+        Upper measuring limit of the oxygen sensor [g(O₂) ⋅ m⁻³].
     t_so : float
-        Integral part time constant $τ$ of transfer function [d].
+        Integral part time constant *τ* of transfer function [d].
     std_so : float
         Standard deviation for adding measurement noise [-].
     """
@@ -34,8 +34,8 @@ class OxygenSensor:
         ----------
         so : np.ndarray(2)
             Oxygen concentration from ASM1 model at every time step of the interval for the transfer function <br>
-            [g(O~2~) $\cdot$ m^-3^]. \n
-            [so~i-1~, so~i~]
+            [g(O₂) ⋅ m⁻³]. \n
+            [so_i-1, so_i]
         step : float
             Current time step of the simulation loop [d].
         controlnumber : int
@@ -50,7 +50,7 @@ class OxygenSensor:
         Returns
         -------
         so_meas : float
-            Measured oxygen concentration in the reactor compartment [g(O~2~) $\cdot$ m^-3^].
+            Measured oxygen concentration in the reactor compartment [g(O₂) ⋅ m⁻³].
         """
 
         num_so = [1]
@@ -93,27 +93,27 @@ class PIAeration:
     Parameters
     ----------
     kla_min : float
-        Lower limit of the adjustable K~L~a value [d^-1^].
+        Lower limit of the adjustable KLa value [d⁻¹].
     kla_max : float
-        Upper limit of the adjustable K~L~a value [d^-1^].
+        Upper limit of the adjustable KLa value [d⁻¹].
     kso : float
         Amplification constant for PI controller [-].
     tiso : float
-        Integral part time constant $τ$ [d].
+        Integral part time constant *τ* [d].
     ttso : float
-        Integral part time constant $τ$ of 'antiwindup' [d].
+        Integral part time constant *τ* of 'antiwindup' [d].
     soref : float
-        Set point for oxygen concentration [g(O~2~) $\cdot$ m^-3^].
+        Set point for oxygen concentration [g(O₂) ⋅ m⁻³].
     klaoffset : float
-        Controller output when the rest is turned off [d^-1^].
+        Controller output when the rest is turned off [d⁻¹].
     sointstate : float
-        Initial integration value for saturated oxygen concentration [g(O~2~) $\cdot$ m^-3^].
+        Initial integration value for saturated oxygen concentration [g(O₂) ⋅ m⁻³].
     soawstate : float
-        Initial integration value of 'antiwindup' for saturated oxygen concentration [g(O~2~) $\cdot$ m^-3^].
+        Initial integration value of 'antiwindup' for saturated oxygen concentration [g(O₂) ⋅ m⁻³].
     kla_lim : float
-        K~L~a value after adjusting to upper and lower limit [d^-1^].
+        KLa value after adjusting to upper and lower limit [d⁻¹].
     kla_calc : float
-        K~L~a value calculated from PI control [d^-1^].
+        KLa value calculated from PI control [d⁻¹].
     use_antiwindup : bool
         If True, 'antiwindup' is used in the PI control. Strongly recommended.
     """
@@ -148,13 +148,13 @@ class PIAeration:
         self.use_antiwindup = use_antiwindup
 
     def output(self, so_meas: float, step: float, timestep: float) -> float:
-        """Returns the K~L~a value determined by the PI control to adjust the oxygen concentration to the set point in
+        """Returns the KLa value determined by the PI control to adjust the oxygen concentration to the set point in
         the reactor compartment.
 
         Parameters
         ----------
         so_meas : float
-            Measured oxygen concentration in the reactor compartment [g(O~2~) $\cdot$ m^-3^].
+            Measured oxygen concentration in the reactor compartment [g(O₂) ⋅ m⁻³].
         step : float
             Bottom boundary for integration interval [d].
         timestep : float
@@ -163,8 +163,8 @@ class PIAeration:
         Returns
         -------
         kla : float
-            K~L~a value determined by the PI control to adjust the oxygen concentration to the set point
-            in the reactor compartment [d^-1^].
+            KLa value determined by the PI control to adjust the oxygen concentration to the set point
+            in the reactor compartment [d⁻¹].
         """
 
         error_so = (self.soref - so_meas) * self.kso
@@ -201,7 +201,7 @@ class KLaActuator:
     Parameters
     ----------
     t_kla : float
-        Integral part time constant $τ$ for K~L~a actuator [d].
+        Integral part time constant *τ* for KLa actuator [d].
     """
 
     def __init__(self, t_kla: float):
@@ -215,8 +215,8 @@ class KLaActuator:
         Parameters
         ----------
         kla : np.ndarray(2)
-            K~L~a value from PI control at every time step of the interval for the transfer function [d^-1^]. \n
-            [KLa~i-1~, KLa~i~]
+            KLa value from PI control at every time step of the interval for the transfer function [d⁻¹]. \n
+            [KLa_i-1, KLa_i]
         step : float
             Current time step of the simulation loop [d].
         controlnumber : int
@@ -229,7 +229,7 @@ class KLaActuator:
         Returns
         -------
         kla_out : float
-            Delayed K~L~a value for the reactor compartment [d^-1^].
+            Delayed KLa value for the reactor compartment [d⁻¹].
         """
 
         num_kla = [1]

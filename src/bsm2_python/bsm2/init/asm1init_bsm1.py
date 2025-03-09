@@ -7,16 +7,16 @@ import numpy as np
 
 # flows:
 QIN0 = 18446
-"""Flow rate of influent [m^3^ $\cdot$ d^-1^]."""
+"""Flow rate of influent [m³ ⋅ d⁻¹]."""
 
 QIN = QIN0
-"""Flow rate of influent [m^3^ $\cdot$ d^-1^]."""
+"""Flow rate of influent [m³ ⋅ d⁻¹]."""
 QINTR = 3 * QIN0
-"""Flow rate of internal recirculation [m^3^ $\cdot$ d^-1^]."""
+"""Flow rate of internal recirculation [m³ ⋅ d⁻¹]."""
 QR = QIN0
-"""Flow rate of sludge return. [m^3^ $\cdot$ d^-1^]."""
+"""Flow rate of sludge return. [m³ ⋅ d⁻¹]."""
 QW = 385
-"""Flow rate of waste sludge [m^3^ $\cdot$ d^-1^]."""
+"""Flow rate of waste sludge [m³ ⋅ d⁻¹]."""
 
 
 YINIT1 = np.concatenate((np.ones(16), np.zeros(5)))
@@ -45,43 +45,43 @@ S_D2_5, S_D3_5, X_D4_5, X_D5_5]"""
 
 # parameters for AS system at 15 degC, based on Alex et al (2018) (BSM1)
 MU_H = 4.0
-"""Maximum heterotrophic growth rate [d^-1^]."""
+"""Maximum heterotrophic growth rate [d⁻¹]."""
 K_S = 10.0
-"""Substrate half-saturation coefficient for heterotrophic growth [g(COD) $\cdot$ m^-3^]."""
+"""Substrate half-saturation coefficient for heterotrophic growth [g(COD) ⋅ m⁻³]."""
 K_OH = 0.2
-"""Oxygen half-saturation coefficient for heterotrophic growth [g(O~2~) $\cdot$ m^-3^]."""
+"""Oxygen half-saturation coefficient for heterotrophic growth [g(O₂) ⋅ m⁻³]."""
 K_NO = 0.5
-"""Nitrate half-saturation coefficient for anoxic heterotrophic growth [g(N) $\cdot$ m^-3^]."""
+"""Nitrate half-saturation coefficient for anoxic heterotrophic growth [g(N) ⋅ m⁻³]."""
 B_H = 0.3
-"""Heterotrophic decay rate [d^-1^]."""
+"""Heterotrophic decay rate [d⁻¹]."""
 MU_A = 0.5
-"""Maximum autotrophic growth rate [d^-1^]."""
+"""Maximum autotrophic growth rate [d⁻¹]."""
 K_NH = 1.0
-"""Ammonia half-saturation coefficient for autotrophic growth [g(N) $\cdot$ m^-3^]."""
+"""Ammonia half-saturation coefficient for autotrophic growth [g(N) ⋅ m⁻³]."""
 K_OA = 0.4
-"""Oxygen half-saturation coefficient for autotrophic growth [g(O~2~) $\cdot$ m^-3^]."""
+"""Oxygen half-saturation coefficient for autotrophic growth [g(O₂) ⋅ m⁻³]."""
 B_A = 0.05
-"""Autotrophic decay rate [d^-1^]."""
+"""Autotrophic decay rate [d⁻¹]."""
 NY_G = 0.8
 """Anoxic growth rate correction factor [-]."""
 K_A = 0.05
-"""Ammonification rate [m^3^ $\cdot$ (g(COD) $\cdot$ d)^-1^]."""
+"""Ammonification rate [m³ ⋅ (g(COD) ⋅ d)⁻¹]."""
 K_H = 3.0
-"""Maximum specific hydrolysis rate [g(COD) $\cdot$ (g(COD) $\cdot$ d)^-1^]."""
+"""Maximum specific hydrolysis rate [g(COD) ⋅ (g(COD) ⋅ d)⁻¹]."""
 K_X = 0.1
-"""Particulate substrate half-saturation coefficient for hydrolysis [g(COD) $\cdot$ g(COD)^-1^]."""
+"""Particulate substrate half-saturation coefficient for hydrolysis [g(COD) ⋅ g(COD)⁻¹]."""
 NY_H = 0.8
 """Anoxic hydrolysis rate correction factor [-]."""
 Y_H = 0.67
-"""Heterotrophic yield [g(COD) $\cdot$ g(COD)^-1^]."""
+"""Heterotrophic yield [g(COD) ⋅ g(COD)⁻¹]."""
 Y_A = 0.24
-"""Autotrophic yield [g(COD) $\cdot$ g(N)^-1^]."""
+"""Autotrophic yield [g(COD) ⋅ g(N)⁻¹]."""
 F_P = 0.08
 """Fraction of biomass leading to particulate inert products [-]."""
 I_XB = 0.08
-"""Fraction of nitrogen in biomass [g(N) $\cdot$ g(COD)^-1^]."""
+"""Fraction of nitrogen in biomass [g(N) ⋅ g(COD)⁻¹]."""
 I_XP = 0.06
-"""Fraction of nitrogen in organic particulate inerts [g(N) $\cdot$ g(COD)^-1^]."""
+"""Fraction of nitrogen in organic particulate inerts [g(N) ⋅ g(COD)⁻¹]."""
 X_I2TSS = 0.75
 """Conversion factor for particulate inert organic matter to TSS [-]."""
 X_S2TSS = 0.75
@@ -134,15 +134,15 @@ PAR5 = PAR1
 
 # reactor volumes:
 VOL1 = 1000
-"""Volume of reactor 1 [m^3^]."""
+"""Volume of reactor 1 [m³]."""
 VOL2 = VOL1
-"""Volume of reactor 2 [m^3^]."""
+"""Volume of reactor 2 [m³]."""
 VOL3 = 1333
-"""Volume of reactor 3 [m^3^]."""
+"""Volume of reactor 3 [m³]."""
 VOL4 = VOL3
-"""Volume of reactor 4 [m^3^]."""
+"""Volume of reactor 4 [m³]."""
 VOL5 = VOL3
-"""Volume of reactor 5 [m^3^]."""
+"""Volume of reactor 5 [m³]."""
 
 # oxygen saturation concentration at 15 degC, based on BSM1
 SOSAT1 = 8
@@ -158,27 +158,27 @@ SOSAT5 = SOSAT1
 
 # Default KLa (oxygen transfer coefficient) values for AS reactors:
 KLA1 = 0
-"""Default KLa (oxygen transfer coefficient) value for reactor 1 [d^-1^]."""
+"""Default KLa (oxygen transfer coefficient) value for reactor 1 [d⁻¹]."""
 KLA2 = 0
-"""Default KLa (oxygen transfer coefficient) value for reactor 2 [d^-1^]."""
+"""Default KLa (oxygen transfer coefficient) value for reactor 2 [d⁻¹]."""
 KLA3 = 240
-"""Default KLa (oxygen transfer coefficient) value for reactor 3 [d^-1^]."""
+"""Default KLa (oxygen transfer coefficient) value for reactor 3 [d⁻¹]."""
 KLA4 = 240
-"""Default KLa (oxygen transfer coefficient) value for reactor 4 [d^-1^]."""
+"""Default KLa (oxygen transfer coefficient) value for reactor 4 [d⁻¹]."""
 KLA5 = 84
-"""Default KLa (oxygen transfer coefficient) value for reactor 5 [d^-1^]."""
+"""Default KLa (oxygen transfer coefficient) value for reactor 5 [d⁻¹]."""
 
 # external carbon flow rates for reactor 1 to 5:
 CARB1 = 0
-"""External carbon flow rate to reactor 1 [kg(COD) $\cdot$ d^-1^]."""
+"""External carbon flow rate to reactor 1 [kg(COD) ⋅ d⁻¹]."""
 CARB2 = 0
-"""External carbon flow rate to reactor 2 [kg(COD) $\cdot$ d^-1^]."""
+"""External carbon flow rate to reactor 2 [kg(COD) ⋅ d⁻¹]."""
 CARB3 = 0
-"""External carbon flow rate to reactor 3 [kg(COD) $\cdot$ d^-1^]."""
+"""External carbon flow rate to reactor 3 [kg(COD) ⋅ d⁻¹]."""
 CARB4 = 0
-"""External carbon flow rate to reactor 4 [kg(COD) $\cdot$ d^-1^]."""
+"""External carbon flow rate to reactor 4 [kg(COD) ⋅ d⁻¹]."""
 CARB5 = 0
-"""External carbon flow rate to reactor 5 [kg(COD) $\cdot$ d^-1^]."""
+"""External carbon flow rate to reactor 5 [kg(COD) ⋅ d⁻¹]."""
 # external carbon source concentration = 400000 mg COD / L from BSM1
 CARBONSOURCECONC = 400000
-"""External carbon source concentration [mg(COD) $\cdot$ l^-1^]."""
+"""External carbon source concentration [g(COD) ⋅ m⁻³]."""

@@ -56,10 +56,10 @@ class PlantPerformance:
         Parameters
         ----------
         kla : np.ndarray
-            K~L~a values of all activated sludge reactor compartments at every time step of the evaluation time [d^-1^]. \n
+            KLa values of all activated sludge reactor compartments at every time step of the evaluation time [d⁻¹]. \n
             [KLA1, KLA2, KLA3,...]
         vol : np.ndarray
-            Volume of each activated sludge reactor compartment [m^3^]. \n
+            Volume of each activated sludge reactor compartment [m³]. \n
             [VOL1, VOL2, VOL3,...]
         sosat : np.ndarray
             Oxygen saturation concentration in each activated sludge reactor compartment [%]. \n
@@ -81,10 +81,10 @@ class PlantPerformance:
         Parameters
         ----------
         flows : np.ndarray(6)
-            Flow rates at every time step of the evaluation time <br>[m^3^ $\cdot$ d^-1^]. \n
+            Flow rates at every time step of the evaluation time <br>[m³ ⋅ d⁻¹]. \n
             [Q_INTR, Q_R, Q_W, Q_PU, Q_TU, Q_DO]
         pumpfactor : np.ndarray(6)
-            Pumping energy factor for each flow [kWh $\cdot$ m^-3^]. \n
+            Pumping energy factor for each flow [kWh ⋅ m⁻³]. \n
             [PF_QINTR, PF_QR, PF_QW, PF_QPU, PF_QTU, PF_QDO]
 
         Returns
@@ -104,14 +104,14 @@ class PlantPerformance:
         Parameters
         ----------
         kla : np.ndarray
-            K~L~a values of all activated sludge reactor compartments at every time step of the evaluation time [d^-1^]. \n
+            KLa values of all activated sludge reactor compartments at every time step of the evaluation time [d⁻¹]. \n
             [KLA1, KLA2, KLA3,...]
         vol : np.ndarray
-            Volume of each activated sludge reactor compartment, including the anaerobic digester unit [m^3^]. \n
+            Volume of each activated sludge reactor compartment, including the anaerobic digester unit [m³]. \n
             [VOL1, VOL2, VOL3,..., ADM1_VOL_LIQ]
         me_ad : float
             Mixing energy factor for the anaerobic digester unit <br>
-            [kWh $\cdot$ m^-3^].
+            [kWh ⋅ m⁻³].
 
         Returns
         -------
@@ -132,9 +132,9 @@ class PlantPerformance:
         Parameters
         ----------
         arr_eff : float
-            Concentration of the component in the effluent at every time step of the evaluation time [g(COMP) $\cdot$ m^-3^].
+            Concentration of the component in the effluent at every time step of the evaluation time [g(COMP) ⋅ m⁻³].
         limit : float
-            Limit value of the component. Must have the same unit as the component [g(COMP) $\cdot$ m^-3^].
+            Limit value of the component. Must have the same unit as the component [g(COMP) ⋅ m⁻³].
 
         Returns
         -------
@@ -156,11 +156,11 @@ class PlantPerformance:
         advanced quantities of the effluent.
 
         Currently supports the following components: \n
-        - `kjeldahlN`: Total Kjeldahl nitrogen [g(N) $\cdot$ m^-3^]
-        - `totalN`: Total nitrogen [g(N) $\cdot$ m^-3^]
-        - `COD`: Chemical oxygen demand [g(COD) $\cdot$ m^-3^]
-        - `BOD5`: Biological oxygen demand (5 days) [g(BOD) $\cdot$ m^-3^]
-        - `X_TSS`: Total suspended solids [g(SS) $\cdot$ m^-3^]
+        - `kjeldahlN`: Total Kjeldahl nitrogen [g(N) ⋅ m⁻³]
+        - `totalN`: Total nitrogen [g(N) ⋅ m⁻³]
+        - `COD`: Chemical oxygen demand [g(COD) ⋅ m⁻³]
+        - `BOD5`: Biological oxygen demand (5 days) [g(BOD) ⋅ m⁻³]
+        - `X_TSS`: Total suspended solids [g(SS) ⋅ m⁻³]
 
         Parameters
         ----------
@@ -246,7 +246,7 @@ class PlantPerformance:
         -------
         iqi : float or np.ndarray
             The value of the influent quality index of the stream <br>
-            [kg(Pollution Units) $\cdot$ d^-1^].
+            [kg(Pollution Units) ⋅ d⁻¹].
         """
 
         y_in = self._reshape_if_1d(y_in)
@@ -290,7 +290,7 @@ class PlantPerformance:
         Returns
         -------
         eqi: float or np.ndarray
-            The value of the effluent quality index of the stream <br>[kg(Pollution Units) $\cdot$ d^-1^].
+            The value of the effluent quality index of the stream <br>[kg(Pollution Units) ⋅ d⁻¹].
         """
 
         ys_of = self._reshape_if_1d(ys_of)
@@ -343,7 +343,7 @@ class PlantPerformance:
         y_out : np.ndarray
             The effluent of the reactor.
         vol : np.ndarray
-            The volume of the reactor [m^3^].
+            The volume of the reactor [m³].
 
         Returns
         -------
@@ -368,7 +368,7 @@ class PlantPerformance:
         Returns
         -------
         tss_flow : np.ndarray
-            Mass flow of total suspende solids (TSS) [kg(SS) $\cdot$ d^-1^].
+            Mass flow of total suspende solids (TSS) [kg(SS) ⋅ d⁻¹].
         """
 
         y_out = self._reshape_if_1d(y_out)
@@ -432,7 +432,7 @@ class PlantPerformance:
             [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
             SD1, SD2, SD3, XD4, XD5]
         ys_tss_internal: np.ndarray(nooflayers)
-            Total suspended solids (TSS) concentrations of the internals of the settler [g(TSS) $\cdot$ m^-3^]. \n
+            Total suspended solids (TSS) concentrations of the internals of the settler [g(TSS) ⋅ m⁻³]. \n
             [TSS_LAY1, TSS_LAY2, TSS_LAY3,...]
         yd_out : np.ndarray(51)
             Concentrations of the 51 components and gas phase parameters after the digester. \n
@@ -447,12 +447,12 @@ class PlantPerformance:
             [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
             SD1, SD2, SD3, XD4, XD5]
         yst_vol : float
-            Current volume of the storage tank [m^3^].
+            Current volume of the storage tank [m³].
 
         Returns
         -------
         tss_mass : float
-            Sludge production [kg $\cdot$ d^-1^].
+            Sludge production [kg ⋅ d⁻¹].
         """
 
         # reshape if 1D for all input streams
@@ -498,15 +498,15 @@ class PlantPerformance:
         Parameters
         ----------
         carb : float or np.ndarray
-            The carbon flow added to the system <br>[kg(COD) $\cdot$ d^-1^].
+            The carbon flow added to the system <br>[kg(COD) ⋅ d⁻¹].
         concentration : float or np.ndarray
-            The concentration of the carbon flow <br>[g(COD) $\cdot$ m^-3^]. \n
+            The concentration of the carbon flow <br>[g(COD) ⋅ m⁻³]. \n
             [CARB_CONC1, CARB_CONC2, CARB_CONC3,...]
 
         Returns
         -------
         carbon_mass : float or np.ndarray
-            The total added carbon mass [kg(COD) $\cdot$ d^-1^].
+            The total added carbon mass [kg(COD) ⋅ d⁻¹].
         """
         # if carb is a np.ndarray, sum the rows
         if isinstance(carb, np.ndarray) and carb.ndim == 1:
@@ -537,13 +537,13 @@ class PlantPerformance:
         Returns
         -------
         ch4 : float
-            Methane production of the anaerobic digester [kg $\cdot$ d^-1^].
+            Methane production of the anaerobic digester [kg ⋅ d⁻¹].
         h2 : float
-            Hydrogen production of the anaerobic digester [kg $\cdot$ d^-1^].
+            Hydrogen production of the anaerobic digester [kg ⋅ d⁻¹].
         co2 : float
-            Carbon dioxide production of the anaerobic digester [kg $\cdot$ d^-1^].
+            Carbon dioxide production of the anaerobic digester [kg ⋅ d⁻¹].
         q_gas : float
-            Total gas flow rate of the anaerobic digester [m^3^ $\cdot$ d^-1^].
+            Total gas flow rate of the anaerobic digester [m³ ⋅ d⁻¹].
         """
 
         r = 0.0831  # kJ/(mol*K)
@@ -610,7 +610,7 @@ class PlantPerformance:
             S_hpro, S_hac, S_hco3, S_CO2, S_nh3, S_NH4+, S_gas_h2, S_gas_ch4, S_gas_co2,
             p_gas_h2, p_gas_ch4, p_gas_co2, P_gas, q_gas]
         vol_fermenter : float
-            Volume of the anaerobic digester [m^3^].
+            Volume of the anaerobic digester [m³].
 
         Returns
         -------
@@ -637,19 +637,19 @@ class PlantPerformance:
         Parameters
         ----------
         pe : float
-            Pumping energy of the plant [kWh $\cdot$ d^-1^].
+            Pumping energy of the plant [kWh ⋅ d⁻¹].
         ae : float
-            Aeration energy of the plant [kWh $\cdot$ d^-1^].
+            Aeration energy of the plant [kWh ⋅ d⁻¹].
         me : float
-            Mixing energy of the plant [kWh $\cdot$ d^-1^].
+            Mixing energy of the plant [kWh ⋅ d⁻¹].
         tss : float
-            Total suspended solids production of the plant [kWh $\cdot$ d^-1^].
+            Total suspended solids production of the plant [kWh ⋅ d⁻¹].
         cm : float
-            Added carbon mass of the plant [kWh $\cdot$ d^-1^].
+            Added carbon mass of the plant [kWh ⋅ d⁻¹].
         he : float
-            Heating demand of the plant [kWh $\cdot$ d^-1^].
+            Heating demand of the plant [kWh ⋅ d⁻¹].
         mp : float
-            Methane production of the plant [kWh $\cdot$ d^-1^].
+            Methane production of the plant [kWh ⋅ d⁻¹].
 
         Returns
         -------

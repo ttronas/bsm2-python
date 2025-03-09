@@ -40,7 +40,7 @@ def primclarequations(t, yp, yp_in, p_par, volume, tempmodel):
         Parameters for the primary clarifier. \n
         [F_CORR, F_X, T_M, F_PS]
     volume : float
-        Volume of the primary clarifier [m^3^].
+        Volume of the primary clarifier [m³].
     tempmodel : bool
         If true, mass balance for the wastewater temperature is used in process rates,
         otherwise influent wastewater temperature is just passed through process reactors.
@@ -87,7 +87,7 @@ class PrimaryClarifier(Module):
     Parameters
     ----------
     volume : float
-        Volume of the primary clarifier [m^3^].
+        Volume of the primary clarifier [m³].
     yp0 : np.ndarray(21)
         Initial integration values of the 21 components
         (13 ASM1 components, TSS, Q, T and 5 dummy states). \n

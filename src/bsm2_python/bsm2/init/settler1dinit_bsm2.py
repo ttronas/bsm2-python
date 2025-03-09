@@ -8,25 +8,25 @@ import numpy as np
 
 # parameters for Takács settler model, based on Alex et al (2018) (BSM1)
 v0_max = 250
-"""Maximum settling velocity [m $\cdot$ d^-1^]."""
+"""Maximum settling velocity [m ⋅ d⁻¹]."""
 v0 = 474
-"""Maximum theoretical (Vesilind) settling velocity [m $\cdot$ d^-1^]."""
+"""Maximum theoretical (Vesilind) settling velocity [m ⋅ d⁻¹]."""
 r_h = 0.000576
-"""Settling parameter related to the hindered zone [m^3^ $\cdot$ g^-1^]."""
+"""Settling parameter related to the hindered zone [m³ ⋅ g⁻¹]."""
 r_p = 0.00286
-"""Settling parameter related to the flocculant zone [m^3^ $\cdot$ g^-1^]."""
+"""Settling parameter related to the flocculant zone [m³ ⋅ g⁻¹]."""
 f_ns = 0.00228
 """Non-settleable fraction [-]."""
 X_t = 3000
-"""Threshold concentration for the non-settleable fraction [g $\cdot$ m^-3^]."""
+"""Threshold concentration for the non-settleable fraction [g ⋅ m⁻³]."""
 sb_limit = 3000
-"""Limit for the sludge blanket [g $\cdot$ m^-3^]."""
+"""Limit for the sludge blanket [g ⋅ m⁻³]."""
 
 SETTLERPAR = np.array([v0_max, v0, r_h, r_p, f_ns, X_t, sb_limit])
 """Settler parameters."""
 
 area = 1500
-"""Area of the settler [m^2^]."""
+"""Area of the settler [m²]."""
 height = 4
 """Height of the settler [m]."""
 
@@ -41,19 +41,19 @@ nooflayers = 10
 
 settlerinit = np.zeros(12 * nooflayers)
 settlerinit[0 * nooflayers : 1 * nooflayers] = 28.0643  # SI
-"""Initial value for soluble inert organic matter [g(COD) $\cdot$ m^-3^]."""
+"""Initial value for soluble inert organic matter [g(COD) ⋅ m⁻³]."""
 settlerinit[1 * nooflayers : 2 * nooflayers] = 0.6734  # S_S
-"""Initial value for readily biodegradable substrate [g(COD) $\cdot$ m^-3^]."""
+"""Initial value for readily biodegradable substrate [g(COD) ⋅ m⁻³]."""
 settlerinit[2 * nooflayers : 3 * nooflayers] = 1.3748  # S_O
-"""Initial value for dissolved oxygen [g(O~2~) $\cdot$ m^-3^]."""
+"""Initial value for dissolved oxygen [g(O₂) ⋅ m⁻³]."""
 settlerinit[3 * nooflayers : 4 * nooflayers] = 9.1948  # S_NO
-"""Initial value for nitrate and nitrite [g(N) $\cdot$ m^-3^]."""
+"""Initial value for nitrate and nitrite [g(N) ⋅ m⁻³]."""
 settlerinit[4 * nooflayers : 5 * nooflayers] = 0.1585  # S_NH
-"""Initial value for ammonium plus ammonia nitrogen [g(N) $\cdot$ m^-3^]."""
+"""Initial value for ammonium plus ammonia nitrogen [g(N) ⋅ m⁻³]."""
 settlerinit[5 * nooflayers : 6 * nooflayers] = 0.5594  # S_ND
-"""Initial value for soluble biodegradable organic nitrogen [g(N) $\cdot$ m^-3^]."""
+"""Initial value for soluble biodegradable organic nitrogen [g(N) ⋅ m⁻³]."""
 settlerinit[6 * nooflayers : 7 * nooflayers] = 4.5646  # S_ALK
-"""Initial value for alkalinity [mol $\cdot$ m^-3^]."""
+"""Initial value for alkalinity [mol ⋅ m⁻³]."""
 settlerinit[7 * nooflayers : 8 * nooflayers] = [
     14.3255,
     20.8756,
@@ -66,7 +66,7 @@ settlerinit[7 * nooflayers : 8 * nooflayers] = [
     3.7106e03,
     7.3483e03,
 ]  # TSS
-"""Initial value for total suspended solids [g(TSS) $\cdot$ m^-3^]."""
+"""Initial value for total suspended solids [g(TSS) ⋅ m⁻³]."""
 settlerinit[8 * nooflayers : 9 * nooflayers] = 14.8581  # T
 """Initial value for temperature [°C]."""
 settlerinit[9 * nooflayers : 12 * nooflayers] = 0  # soluble dummy states

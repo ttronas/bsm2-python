@@ -7,51 +7,51 @@ This file will be executed when running `bsm2_cl.py`, `bsm2_ol.py` or `bsm2_olem
 import numpy as np
 
 VOL_P = 900 # Volume of the primary clarifier (m3)
-"""Volume of the primary clarifier [m^3^]."""
+"""Volume of the primary clarifier [m³]."""
 
 F_CORR = 0.65 # Efficiency correction
 """Efficiency correction factor [-]."""
 
 F_X = 0.85 # CODpart/CODtot ratio
-"""COD~part~/COD~tot~ ratio [-]."""
+"""COD_part/COD_tot ratio [-]."""
 
 T_M = 0.125 # Smoothing time constant for qm calculation
-"""Smoothing time constant for m^2^ calculation [d]."""
+"""Smoothing time constant for m² calculation [d]."""
 
 F_PS = 0.007 # Ratio of primary sludge flow rate to the influent flow
 """Ratio of primary sludge flow rate to the influent flow [-]."""
 
 # Initial values
 S_I_P = 28.0670
-"""Soluble inert organic matter [g(COD) $\cdot$ m^-3^]."""
+"""Soluble inert organic matter [g(COD) ⋅ m⁻³]."""
 S_S_P = 59.0473
-"""Readily biodegradable substrate [g(COD) $\cdot$ m^-3^]."""
+"""Readily biodegradable substrate [g(COD) ⋅ m⁻³]."""
 X_I_P = 94.3557
-"""Particulate inert organic matter [g(COD) $\cdot$ m^-3^]."""
+"""Particulate inert organic matter [g(COD) ⋅ m⁻³]."""
 X_S_P = 356.8434
-"""Slowly biodegradable substrate [g(COD) $\cdot$ m^-3^]."""
+"""Slowly biodegradable substrate [g(COD) ⋅ m⁻³]."""
 X_BH_P = 50.8946
-"""Active heterotrophic biomass [g(COD) $\cdot$ m^-3^]."""
+"""Active heterotrophic biomass [g(COD) ⋅ m⁻³]."""
 X_BA_P = 0.0946
-"""Active autotrophic biomass [g(COD) $\cdot$ m^-3^]."""
+"""Active autotrophic biomass [g(COD) ⋅ m⁻³]."""
 X_P_P = 0.6531
-"""Particulate products arising from biomass decay [g(COD) $\cdot$ m^-3^]."""
+"""Particulate products arising from biomass decay [g(COD) ⋅ m⁻³]."""
 S_O_P = 0.0175
-"""Dissolved oxygen [g(O~2~) $\cdot$ m^-3^]."""
+"""Dissolved oxygen [g(O₂) ⋅ m⁻³]."""
 S_NO_P = 0.1174
-"""Nitrate and nitrite [g(N) $\cdot$ m^-3^]."""
+"""Nitrate and nitrite [g(N) ⋅ m⁻³]."""
 S_NH_P = 34.9215
-"""Ammonium plus ammonia nitrogen [g(N) $\cdot$ m^-3^]."""
+"""Ammonium plus ammonia nitrogen [g(N) ⋅ m⁻³]."""
 S_ND_P = 5.5457
-"""Soluble biodegradable organic nitrogen [g(N) $\cdot$ m^-3^]."""
+"""Soluble biodegradable organic nitrogen [g(N) ⋅ m⁻³]."""
 X_ND_P = 15.8132
-"""Particulate biodegradable organic nitrogen [g(N) $\cdot$ m^-3^]."""
+"""Particulate biodegradable organic nitrogen [g(N) ⋅ m⁻³]."""
 S_ALK_P = 7.6965
-"""Alkalinity [mol(HCO$_3^-$) $\cdot$ m^-3^]."""
+"""Alkalinity [mol(HCO₃⁻) ⋅ m⁻³]."""
 TSS_P = 377.1311
-"""Total suspended solids [g(TSS) $\cdot$ m^-3^]."""
+"""Total suspended solids [g(TSS) ⋅ m⁻³]."""
 Q_P = 2.1086e04
-"""Flow rate [m^3^ $\cdot$ d^-1^]."""
+"""Flow rate [m³ ⋅ d⁻¹]."""
 T_P = 14.8581
 """Temperature [°C]."""
 S_D1_P = 0

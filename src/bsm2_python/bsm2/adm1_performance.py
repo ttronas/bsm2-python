@@ -12,14 +12,14 @@ class ADM1Performance:
     Attributes
     ----------
     dim : np.ndarray(2)
-        Reactor dimensions of the anaerobic digestor [m^3^]. \n
+        Reactor dimensions of the anaerobic digestor [m³]. \n
         [V_LIQ, V_GAS]
     hydrogen_concentration : float
-        Concentration of hydrogen in the biogas [mol $\cdot$ m^-3^].
+        Concentration of hydrogen in the biogas [mol ⋅ m⁻³].
     methane_concentration : float
-        Concentration of methane in the biogas [mol $\cdot$ m^-3^].
+        Concentration of methane in the biogas [mol ⋅ m⁻³].
     carbon_dioxide_concentration : float
-        Concentration of carbon dioxide in the biogas [mol $\cdot$ m^-3^].
+        Concentration of carbon dioxide in the biogas [mol ⋅ m⁻³].
     """
 
     def __init__(self, adm1_obj: ADM1Reactor):
@@ -38,9 +38,9 @@ class ADM1Performance:
         t_old : float
             The old temperature of the reactor [K].
         rho_h2o : float
-            The density of water [kg $\cdot$ m^-3^].
+            The density of water [kg ⋅ m⁻³].
         cp_h2o : float
-            The specific heat capacity of water [J $\cdot$ (kg $\cdot$ K)^-1^].
+            The specific heat capacity of water [J ⋅ (kg ⋅ K)⁻¹].
 
         Returns
         -------
@@ -65,9 +65,9 @@ class ADM1Performance:
         t_old : float
             The old temperature of the reactor [K].
         rho_h2o : float
-            The density of water [kg $\cdot$ m^-3^].
+            The density of water [kg ⋅ m⁻³].
         cp_h2o : float
-            The specific heat capacity of water [J $\cdot$ (kg $\cdot$ K)^-1^].
+            The specific heat capacity of water [J ⋅ (kg ⋅ K)⁻¹].
 
         Returns
         -------
@@ -85,11 +85,11 @@ class ADM1Performance:
         Parameters
         ----------
         hydrogen_concentration : float
-            Hydrogen concentration in the biogas [mol $\cdot$ m^-3^].
+            Hydrogen concentration in the biogas [mol ⋅ m⁻³].
         methane_concentration : float
-            Methane concentration in the biogas [mol $\cdot$ m^-3^].
+            Methane concentration in the biogas [mol ⋅ m⁻³].
         carbon_dioxide_concentration : float
-            Carbon dioxide concentration in the biogas [mol $\cdot$ m^-3^].
+            Carbon dioxide concentration in the biogas [mol ⋅ m⁻³].
 
         Returns
         -------

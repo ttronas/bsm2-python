@@ -41,9 +41,9 @@ def asm1equations(t, y, y_in, asm1par, kla, volume, tempmodel, activate):
         [MU_H, K_S, K_OH, K_NO, B_H, MU_A, K_NH, K_OA, B_A, NY_G, K_A, K_H, K_X, NY_H,
         Y_H, Y_A, F_P, I_XB, I_XP, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS]
     kla : float
-        Oxygen transfer coefficient in aerated reactors [d^-1^].
+        Oxygen transfer coefficient in aerated reactors [d⁻¹].
     volume : float
-        Volume of the reactor [m^3^].
+        Volume of the reactor [m³].
     tempmodel : bool
         If true, mass balance for the wastewater temperature is used in process rates,
         otherwise influent wastewater temperature is just passed through process reactors.
@@ -215,9 +215,9 @@ def carbonaddition(y_in, carb, csourceconc):
         [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
         SD1, SD2, SD3, XD4, XD5]
     carb : float
-        External carbon flow rate for carbon addition to a reactor [kg(COD) $\cdot$ d^-1^].
+        External carbon flow rate for carbon addition to a reactor [kg(COD) ⋅ d⁻¹].
     csourceconc : float
-        External carbon source concentration [g(COD) $\cdot$ m^-3^].
+        External carbon source concentration [g(COD) ⋅ m⁻³].
 
     Returns
     -------
@@ -242,15 +242,15 @@ class ASM1Reactor(Module):
     """IAWQ ASM1 (Activated Sludge Model No. 1) with temperature dependencies of the kinetic parameters.
 
     In addition to the ASM1 states, TSS and dummy states are included.
-    Temperature dependency for oxygen saturation concentration and K~L~a has
+    Temperature dependency for oxygen saturation concentration and KLa has
     also been added in accordance with BSM2 documentation.
 
     Parameters
     ----------
     kla : float
-        Oxygen transfer coefficient in aerated reactors [d^-1^].
+        Oxygen transfer coefficient in aerated reactors [d⁻¹].
     volume : float
-        Volume of the reactor [m^3^].
+        Volume of the reactor [m³].
     y0 : np.ndarray(21)
         Initial integration values of the 21 components
         (13 ASM1 components, TSS, Q, T and 5 dummy states). \n
@@ -261,9 +261,9 @@ class ASM1Reactor(Module):
         [MU_H, K_S, K_OH, K_NO, B_H, MU_A, K_NH, K_OA, B_A, NY_G, K_A, K_H, K_X, NY_H,
         Y_H, Y_A, F_P, I_XB, I_XP, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS]
     carb : float
-        External carbon flow rate for carbon addition to a reactor [kg(COD) $\cdot$ d^-1^].
+        External carbon flow rate for carbon addition to a reactor [kg(COD) ⋅ d⁻¹].
     csourceconc : float
-        External carbon source concentration [g(COD) $\cdot$ m^-3^].
+        External carbon source concentration [g(COD) ⋅ m⁻³].
     tempmodel : bool
         If true, mass balance for the wastewater temperature is used in process rates,
         otherwise influent wastewater temperature is just passed through process reactors.

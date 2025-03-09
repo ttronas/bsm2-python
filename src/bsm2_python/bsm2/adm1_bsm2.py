@@ -88,7 +88,7 @@ class ADM1Reactor(Module):
         FDEGRADE_ADM, FRXS_AS, FDEGRADE_AS, R, T_BASE, t_op, PK_W_BASE, PK_A_VA_BASE,
         PK_A_BU_BASE, PK_A_PRO_BASE, PK_A_AC_BASE, PK_A_CO2_BASE, PK_A_IN_BASE]
     dim : np.ndarray(2)
-        Reactor dimensions of the anaerobic digestor [m^3^]. \n
+        Reactor dimensions of the anaerobic digestor [m³]. \n
         [V_LIQ, V_GAS]
 
     Attributes
@@ -349,7 +349,7 @@ def adm1equations(t, yd, yd_in, digesterpar, t_op, dim):
         At the moment very rudimentary implementation!
         No heat losses / transfer embedded!
     dim : np.ndarray(2)
-        Reactor dimensions of the anaerobic digestor [m^3^]. \n
+        Reactor dimensions of the anaerobic digestor [m³]. \n
         [V_LIQ, V_GAS]
 
     Returns
