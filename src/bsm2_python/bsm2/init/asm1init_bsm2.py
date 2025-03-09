@@ -15,7 +15,7 @@ QIN = QIN0
 QINTR = 3 * QIN0
 """Flow rate of internal recirculation [m^3^ $\cdot$ d^-1^]."""
 QR = QIN0
-"""Flow rate of sludge return. [m^3^ $\cdot$ d^-1^]."""
+"""Flow rate of sludge return [m^3^ $\cdot$ d^-1^]."""
 QW = 300
 """Flow rate of waste sludge [m^3^ $\cdot$ d^-1^]."""
 

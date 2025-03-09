@@ -156,76 +156,76 @@ PHSOLVINIT = np.ones(7)
 # used by one DAE ADM implementation, adm1_DAE2.
 # SH2SOLVINIT = S_h2
 SH2SOLVINIT = 0
-"""Initial concentration of S_H2."""
+"""Initial concentration of S~H2~."""
 
 F_SI_XC = 0.1
-"""Fraction of composites to S_I by disintegration [-]."""
+"""Fraction of composites to S~I~ by disintegration [-]."""
 F_XI_XC = 0.2
-"""Fraction of composites to X_I by disintegration [-]."""
+"""Fraction of composites to X~I~ by disintegration [-]."""
 F_CH_XC = 0.2
-"""Fraction of composites to X_CH by disintegration [-]."""
+"""Fraction of composites to X~CH~ by disintegration [-]."""
 F_PR_XC = 0.2
-"""Fraction of composites to X_PR by disintegration [-]."""
+"""Fraction of composites to X~PR~ by disintegration [-]."""
 F_LI_XC = 0.3
-"""Fraction of composites to X_LI by disintegration [-]."""
+"""Fraction of composites to X~LI~ by disintegration [-]."""
 N_XC = 0.0376 / 14.0
-"""Nitrogen content of X_C [kmol(N) $\cdot$ kg(COD)^-1^]."""
+"""Nitrogen content of composites X~C~ [kmol(N) $\cdot$ kg(COD)^-1^]."""
 N_I = 0.06 / 14.0
-"""Nitrogen content of inerts [kmol(N) $\cdot$ kg(COD)^-1^]."""
+"""Nitrogen content of inerts S~I~ and X~I~ [kmol(N) $\cdot$ kg(COD)^-1^]."""
 N_AA = 0.007
-"""Nitrogen content of S_AA [kmol(N) $\cdot$ kg(COD)^-1^]."""
+"""Nitrogen content of S~AA~ [kmol(N) $\cdot$ kg(COD)^-1^]."""
 C_XC = 0.02786
-"""Carbon content of X_C [kmol(C) $\cdot$ kg(COD)^-1^]."""
+"""Carbon content of X~C~ [kmol(C) $\cdot$ kg(COD)^-1^]."""
 C_SI = 0.03
-"""Carbon content of S_I [kmol(C) $\cdot$ kg(COD)^-1^]."""
+"""Carbon content of S~I~ [kmol(C) $\cdot$ kg(COD)^-1^]."""
 C_CH = 0.0313
-"""Carbon content of S_CH [kmol(C) $\cdot$ kg(COD)^-1^]."""
+"""Carbon content of S~CH~ [kmol(C) $\cdot$ kg(COD)^-1^]."""
 C_PR = 0.03
-"""Carbon content of S_PR [kmol(C) $\cdot$ kg(COD)^-1^]."""
+"""Carbon content of S~PR~ [kmol(C) $\cdot$ kg(COD)^-1^]."""
 C_LI = 0.022
-"""Carbon content of S_LI [kmol(C) $\cdot$ kg(COD)^-1^]."""
+"""Carbon content of S~LI~ [kmol(C) $\cdot$ kg(COD)^-1^]."""
 C_XI = 0.03
-"""Carbon content of X_I [kmol(C) $\cdot$ kg(COD)^-1^]."""
+"""Carbon content of X~I~ [kmol(C) $\cdot$ kg(COD)^-1^]."""
 C_SU = 0.0313
-"""Carbon content of S_SU [kmol(C) $\cdot$ kg(COD)^-1^]."""
+"""Carbon content of S~SU~ [kmol(C) $\cdot$ kg(COD)^-1^]."""
 C_AA = 0.03
-"""Carbon content of S_AA [kmol(C) $\cdot$ kg(COD)^-1^]."""
+"""Carbon content of S~AA~ [kmol(C) $\cdot$ kg(COD)^-1^]."""
 F_FA_LI = 0.95
-"""Yield (catabolism only) of S_FA on X_LI [-]."""
+"""Yield (catabolism only) of S~FA~ on X~LI~ [-]."""
 C_FA = 0.0217
-"""Carbon content of S_FA [kmol(C) $\cdot$ kg(COD)^-1^]."""
+"""Carbon content of S~FA~ [kmol(C) $\cdot$ kg(COD)^-1^]."""
 F_H2_SU = 0.19
-"""Yield (catabolism only) of S_H2 on S_SU [-]."""
+"""Yield (catabolism only) of S~H2~ on S~SU~ [-]."""
 F_BU_SU = 0.13
-"""Yield (catabolism only) of S_BU on S_SU [-]."""
+"""Yield (catabolism only) of S~BU~ on S~SU~ [-]."""
 F_PRO_SU = 0.27
-"""Yield (catabolism only) of S_PRO on S_SU [-]."""
+"""Yield (catabolism only) of S~PRO~ on S~SU~ [-]."""
 F_AC_SU = 0.41
-"""Yield (catabolism only) of S_AC on S_SU [-]."""
+"""Yield (catabolism only) of S~AC~ on S~SU~ [-]."""
 N_BAC = 0.08 / 14.0
 """Nitrogen content of biomass [kmol(N) $\cdot$ kg(COD)^-1^]."""
 C_BU = 0.025
-"""Carbon content of S_BU [kmol(C) $\cdot$ kg(COD)^-1^]."""
+"""Carbon content of S~BU~ [kmol(C) $\cdot$ kg(COD)^-1^]."""
 C_PRO = 0.0268
-"""Carbon content of S_PRO [kmol(C) $\cdot$ kg(COD)^-1^]."""
+"""Carbon content of S~PRO~ [kmol(C) $\cdot$ kg(COD)^-1^]."""
 C_AC = 0.0313
-"""Carbon content of S_AC [kmol(C) $\cdot$ kg(COD)^-1^]."""
+"""Carbon content of S~AC~ [kmol(C) $\cdot$ kg(COD)^-1^]."""
 C_BAC = 0.0313
 """Carbon content of biomass [kmol(C) $\cdot$ kg(COD)^-1^]."""
 Y_SU = 0.1
 """Yield of biomass, sugar degraders [-]."""
 F_H2_AA = 0.06
-"""Yield (catabolism only) of S_H2 on S_AA [-]."""
+"""Yield (catabolism only) of S~H2~ on S~AA~ [-]."""
 F_VA_AA = 0.23
-"""Yield (catabolism only) of S_VA on S_AA [-]."""
+"""Yield (catabolism only) of S~VA~ on S~AA~ [-]."""
 F_BU_AA = 0.26
-"""Yield (catabolism only) of S_BU on S_AA [-]."""
+"""Yield (catabolism only) of S~BU~ on S~AA~ [-]."""
 F_PRO_AA = 0.05
-"""Yield (catabolism only) of S_PRO on S_AA [-]."""
+"""Yield (catabolism only) of S~PRO~ on S~AA~ [-]."""
 F_AC_AA = 0.40
-"""Yield (catabolism only) of S_AC on S_AA [-]."""
+"""Yield (catabolism only) of S~AC~ on S~AA~ [-]."""
 C_VA = 0.024
-"""Carbon content of S_VA [kmol(C) $\cdot$ kg(COD)^-1^]."""
+"""Carbon content of S~VA~ [kmol(C) $\cdot$ kg(COD)^-1^]."""
 Y_AA = 0.08
 """Yield of biomass, amino acid degraders [-]."""
 Y_FA = 0.06
@@ -235,7 +235,7 @@ Y_C4 = 0.06
 Y_PRO = 0.04
 """Yield of biomass, propionate degraders [-]."""
 C_CH4 = 0.0156
-"""Carbon content of S_CH4 [kmol(C) $\cdot$ kg(COD)^-1^]."""
+"""Carbon content of S~CH4~ [kmol(C) $\cdot$ kg(COD)^-1^]."""
 Y_AC = 0.05
 """Yield of biomass, acetate degraders [-]."""
 Y_H2 = 0.06
@@ -243,11 +243,11 @@ Y_H2 = 0.06
 K_DIS = 0.5
 """Disintegration rate [d^-1^]."""
 K_HYD_CH = 10.0
-"""Hydrolysis rate of X_CH [d^-1^]."""
+"""Hydrolysis rate of X~CH~ [d^-1^]."""
 K_HYD_PR = 10.0
-"""Hydrolysis rate of X_PR [d^-1^]."""
+"""Hydrolysis rate of X~PR~ [d^-1^]."""
 K_HYD_LI = 10.0
-"""Hydrolysis rate of X_LI [d^-1^]."""
+"""Hydrolysis rate of X~LI~ [d^-1^]."""
 K_S_IN = 1.0e-4
 """Inhibition parameter for inorganic nitrogen [kmol(N) $\cdot$ m^-3^]."""
 K_M_SU = 30.0
@@ -267,25 +267,25 @@ K_M_FA = 6.0
 K_S_FA = 0.4
 """Half saturation value for uptake of LCFA [kg(COD) $\cdot$ m^-3^]."""
 K_IH2_FA = 5.0e-6
-"""50% inhibitory concentration of H2 on LCFA uptake [kg(COD) $\cdot$ m^-3^]."""
+"""50% inhibitory concentration of H~2~ on LCFA uptake [kg(COD) $\cdot$ m^-3^]."""
 K_M_C4 = 20.0
 """Monod maximum specific uptake rate for uptake of valerate and butyrate [d^-1^]."""
 K_S_C4 = 0.2
 """Half saturation value for uptake of valerate and butyrate [kg(COD) $\cdot$ m^-3^]."""
 K_IH2_C4 = 1.0e-5
-"""50% inhibitory concentration of H2 on valerate and butyrate uptake [kg(COD) $\cdot$ m^-3^]."""
+"""50% inhibitory concentration of H~2~ on valerate and butyrate uptake [kg(COD) $\cdot$ m^-3^]."""
 K_M_PRO = 13.0
 """Monod maximum specific uptake rate for uptake of propionate [d^-1^]."""
 K_S_PRO = 0.1
 """Half saturation value for uptake of propionate [kg(COD) $\cdot$ m^-3^]."""
 K_IH2_PRO = 3.5e-6
-"""50% inhibitory concentration of H2 on propionate uptake [kg(COD) $\cdot$ m^-3^]."""
+"""50% inhibitory concentration of H~2~ on propionate uptake [kg(COD) $\cdot$ m^-3^]."""
 K_M_AC = 8.0
 """Monod maximum specific uptake rate for uptake of acetate [d^-1^]."""
 K_S_AC = 0.15
 """Half saturation value for uptake of acetate [kg(COD) $\cdot$ m^-3^]."""
 K_I_NH3 = 0.0018
-"""50% inhibitory concentration of NH3 on acetate uptake [kg(COD) $\cdot$ m^-3^]."""
+"""50% inhibitory concentration of NH~3~ on acetate uptake [kg(COD) $\cdot$ m^-3^]."""
 PH_UL_AC = 7.0
 """Upper limit of pH for uptake rate of acetate [-]."""
 PH_LL_AC = 6.0
@@ -299,25 +299,25 @@ PH_UL_H2 = 6.0
 PH_LL_H2 = 5.0
 """Lower limit of pH for uptake rate of hydrogen [-]."""
 K_DEC_XSU = 0.02
-"""Decay rate of X_SU [d^-1^]."""
+"""Decay rate of X~SU~ [d^-1^]."""
 K_DEC_XAA = 0.02
-"""Decay rate of X_AA [d^-1^]."""
+"""Decay rate of X~AA~ [d^-1^]."""
 K_DEC_XFA = 0.02
-"""Decay rate of X_FA [d^-1^]."""
+"""Decay rate of X~FA~ [d^-1^]."""
 K_DEC_XC4 = 0.02
-"""Decay rate of X_C4 [d^-1^]."""
+"""Decay rate of X~C4~ [d^-1^]."""
 K_DEC_XPRO = 0.02
-"""Decay rate of X_PRO [d^-1^]."""
+"""Decay rate of X~PRO~ [d^-1^]."""
 K_DEC_XAC = 0.02
-"""Decay rate of X_AC [d^-1^]."""
+"""Decay rate of X~AC~ [d^-1^]."""
 K_DEC_XH2 = 0.02
-"""Decay rate of X_H2 [d^-1^]."""
+"""Decay rate of X~H2~ [d^-1^]."""
 R = 0.083145  # universal gas constant dm3*bar/(mol*K) = 8.3145 J/(mol*K)
 """Universal gas constant [dm^3^ $\cdot$ bar $\cdot$ (mol $\cdot$ K)^-1^] = 8.3145 [J $\cdot$ (mol $\cdot$ K)^-1^]."""
 T_BASE = 298.15  # 25 degC = 298.15 K
 """Base temperature (=25°C) [K]."""
 t_op = 308.15  # operational temperature of AD and interfaces, 35 degC. Can be changed in the code.
-"""Operational temperature of AD and interfaces (=35°C) [K]."""
+"""Operational temperature of anaerobic digester and interfaces (=35°C) [K]."""
 PK_W_BASE = 14.0
 """Parameter for calculation of K~W~ [-]."""
 PK_A_VA_BASE = 4.86
@@ -472,38 +472,38 @@ V_GAS = 300  # m3, size of BSM2 AD
 """Gas volume of anaerobic digestor [m^3^]."""
 
 DIM_D = np.array([V_LIQ, V_GAS])
-"""Reactor dimensions of the anaerobic digestor."""
+"""Reactor dimensions of the anaerobic digestor [m^3^]."""
 
 # parameters for ASM2ADM and ADM2ASM interfaces
 # could be put it their own initialisation file
 COD_EQUIV = 40.0 / 14.0
 """COD equivalent of nitrate and nitrite nitrogen [g(O~2~) $\cdot$ g(N)^-1^]."""
 FNAA = N_AA * 14.0  # fraction of N in amino acids and Xpr as in ADM1 report
-"""Fraction of N in amino acids and Xpr as in ADM1 report [-]."""
+"""Fraction of N in amino acids and X~pr~ as in ADM1 report [-]."""
 FNXC = N_XC * 14.0  # N content of composite material based on BSM2
 """N content of composite material based on BSM2 [-]."""
 FNBAC = N_BAC * 14.0  # N content of biomass based on BSM1, same in AS and AD
 """N content of biomass based on BSM1, same in AS and AD [-]."""
 FXNI = N_I * 14.0  # N content of inerts XI and XP, same in AS and AD
-"""N content of inerts XI and XP, same in AS and AD."""
+"""N content of inerts X~I~ and X~P~, same in AS and AD."""
 FSNI = 0.0  # N content of SI, assumed zero in ASM1 and BSM1
-""""N content of SI, assumed zero in ASM1 and BSM1."""
+""""N content of S~I~, assumed zero in ASM1 and BSM1."""
 FSNI_ADM = N_I * 14.0  # N content of SI in the AD system
-"""N content of SI in the AD system."""
+"""N content of S~I~ in the AD system."""
 # fnbac, fxni and fsni are adjusted to fit the benchmark values of iXB=0.08 and
 # iXP=0.06 in the AS.
 FRLIXS = 0.7  # lipid fraction of non-nitrogenous XS in BSM2
-"""Lipid fraction of non-nitrogenous XS in BSM2."""
+"""Lipid fraction of non-nitrogenous X~S~ in BSM2."""
 FRLIBAC = 0.4  # lipid fraction of non-nitrogenous biomass in BSM2
 """Lipid fraction of non-nitrogenous biomass in BSM2."""
 FRXS_ADM = 0.68  # anaerobically degradable fraction of AS biomass in BSM2
 """Anaerobically degradable fraction of AS biomass in BSM2."""
 FDEGRADE_ADM = 0  # amount of AS XI and XP degradable in AD, zero in BSM2
-"""Amount of AS XI and XP degradable in AD, zero in BSM2."""
+"""Amount of AS X~I~ and X~P~ degradable in AD, zero in BSM2."""
 FRXS_AS = 0.79  # aerobically degradable fraction of AD biomass in BSM2
 """Aerobically degradable fraction of AD biomass in BSM2."""
 FDEGRADE_AS = 0  # amount of AD XI and XP degradable in AS, zero in BSM2
-"""Amount of AD XI and XP degradable in AS, zero in BSM2."""
+"""Amount of AD X~I~ and X~P~ degradable in AS, zero in BSM2."""
 
 PH_ADM_INIT = 7.0  # initial value of pH in ADM to be used by interfaces for the first sample
 """Initial value of pH in ADM to be used by interfaces for the first sample."""
@@ -535,7 +535,7 @@ INTERFACEPAR = np.array(
         PK_A_IN_BASE,
     ]
 )
-"""Parameters for ADM interfaces."""
+"""Interface parameters needed for ASM2ADM and ADM2ASM interfaces."""
 
 # parameters for the pHdelay function
 PHINIT = PH_ADM_INIT

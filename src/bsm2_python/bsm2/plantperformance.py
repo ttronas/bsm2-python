@@ -40,7 +40,7 @@ class PlantPerformance:
 
     Parameters
     ----------
-    pp_par : np.ndarray
+    pp_par : np.ndarray(17)
         Plant performance parameters. \n
         [TOTALCODEMAX, TOTALNEMAX, SNHEMAX, TSSEMAX, BOD5EMAX, BSS, BCOD,
         BNKJ, BNO, BBOD5, PF_QINTR, PF_QR, PF_QW, PF_QPU, PF_QTU, PF_QDO, ME_AD_UNIT]
@@ -56,11 +56,14 @@ class PlantPerformance:
         Parameters
         ----------
         kla : np.ndarray
-            KLa values of all reactor compartments at every time step of the evaluation time.
+            K~L~a values of all activated sludge reactor compartments at every time step of the evaluation time [d^-1^]. \n
+            [KLA1, KLA2, KLA3,...]
         vol : np.ndarray
-            Volume of each reactor compartment.
+            Volume of each activated sludge reactor compartment [m^3^]. \n
+            [VOL1, VOL2, VOL3,...]
         sosat : np.ndarray
-            Saturation concentration of Oxygen in each reactor compartment.
+            Oxygen saturation concentration in each activated sludge reactor compartment [%]. \n
+            [SOSAT1, SOSAT2, SOSAT3,...]
 
         Returns
         -------
@@ -77,10 +80,12 @@ class PlantPerformance:
 
         Parameters
         ----------
-        flows : np.ndarray
-            Values of Qintr, Qr and Qw at every time step of the evaluation time.
-        pumpfactor : np.ndarray
-            Weighting factor of each flow.
+        flows : np.ndarray(6)
+            Flow rates at every time step of the evaluation time <br>[m^3^ $\cdot$ d^-1^]. \n
+            [Q_INTR, Q_R, Q_W, Q_PU, Q_TU, Q_DO]
+        pumpfactor : np.ndarray(6)
+            Pumping energy factor for each flow [kWh $\cdot$ m^-3^]. \n
+            [PF_QINTR, PF_QR, PF_QW, PF_QPU, PF_QTU, PF_QDO]
 
         Returns
         -------
@@ -99,11 +104,14 @@ class PlantPerformance:
         Parameters
         ----------
         kla : np.ndarray
-            KLa values of all reactor compartments at every time step of the evaluation time.
+            K~L~a values of all activated sludge reactor compartments at every time step of the evaluation time [d^-1^]. \n
+            [KLA1, KLA2, KLA3,...]
         vol : np.ndarray
-            Volume of each reactor compartment, including the AD unit.
+            Volume of each activated sludge reactor compartment, including the anaerobic digester unit [m^3^]. \n
+            [VOL1, VOL2, VOL3,..., ADM1_VOL_LIQ]
         me_ad : float
-            Mixing energy factor for the AD unit [kW/m³].
+            Mixing energy factor for the anaerobic digester unit <br>
+            [kWh $\cdot$ m^-3^].
 
         Returns
         -------
@@ -118,20 +126,20 @@ class PlantPerformance:
         return me
 
     def violation_step(self, arr_eff, limit):
-        """Returns the time [days] and percentage of time in which a certain component is over the limit value during
+        """Returns the time and percentage of time in which a certain component is over the limit value during
         the evaluation time.
 
         Parameters
         ----------
-        arr_eff : np.ndarray
-            Concentration of the component in the effluent at every time step of the evaluation time.
-        limit : int or float
-            Limit value of the component. Must have the same unit as the component.
+        arr_eff : float
+            Concentration of the component in the effluent at every time step of the evaluation time [g(COMP) $\cdot$ m^-3^].
+        limit : float
+            Limit value of the component. Must have the same unit as the component [g(COMP) $\cdot$ m^-3^].
 
         Returns
         -------
-        int or float
-            Array containing the time [days] and a boolean if a certain component
+        violationvalues : bool
+            Array containing if a certain component
             is over the limit value during the evaluation time.
         """
 
@@ -148,18 +156,30 @@ class PlantPerformance:
         advanced quantities of the effluent.
 
         Currently supports the following components: \n
-        - `kjeldahlN`: Kjeldahl nitrogen
-        - `totalN`: Total nitrogen
-        - `COD`: Chemical oxygen demand
-        - `BOD5`: Biological oxygen demand (5 days)
+        - `kjeldahlN`: Total Kjeldahl nitrogen [g(N) $\cdot$ m^-3^]
+        - `totalN`: Total nitrogen [g(N) $\cdot$ m^-3^]
+        - `COD`: Chemical oxygen demand [g(COD) $\cdot$ m^-3^]
+        - `BOD5`: Biological oxygen demand (5 days) [g(BOD) $\cdot$ m^-3^]
+        - `X_TSS`: Total suspended solids [g(SS) $\cdot$ m^-3^]
 
         Parameters
         ----------
         arr_eff : np.ndarray(21) or np.ndarray(n, 21)
-            Array in ASM1 format.
+            Array in ASM1 format. \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+            SD1, SD2, SD3, XD4, XD5]
         components : list[str] (optional)
             List of components to be calculated.
-            Defaults to ['kjeldahlN', 'totalN', 'COD', 'BOD5e', 'X_TSS']
+            Defaults to ['kjeldahlN', 'totalN', 'COD', 'BOD5', 'BOD5e', 'X_TSS']
+        asm1par : np.ndarray(24)
+            Parameters for the activated sludge reactor. \n
+            [MU_H, K_S, K_OH, K_NO, B_H, MU_A, K_NH, K_OA, B_A, NY_G, K_A, K_H,K_X, NY_H,
+            Y_H, Y_A, F_P, I_XB, I_XP, X_I2TSS, X_S2TSS, X_BH2TSS, X_BA2TSS, X_P2TSS]
+
+        Returns
+        -------
+        adv_eff : np.ndarray
+            Array containing the choosen advanced quantities of the effluent.
         """
 
         arr_eff = self._reshape_if_1d(arr_eff)
@@ -218,12 +238,15 @@ class PlantPerformance:
         ----------
         y_in : np.ndarray(21) or np.ndarray(n, 21)
             Array containing the values of the 21 components
-            (13 ASM1 components, TSS, Q, T and 5 dummy states).
+            (13 ASM1 components, TSS, Q, T and 5 dummy states) of the influent to BSM1. \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+            SD1, SD2, SD3, XD4, XD5]
 
         Returns
         -------
-        iqi : int or float or np.ndarray
-            The value of the influent quality index of the stream.
+        iqi : float or np.ndarray
+            The value of the influent quality index of the stream <br>
+            [kg(Pollution Units) $\cdot$ d^-1^].
         """
 
         y_in = self._reshape_if_1d(y_in)
@@ -250,18 +273,24 @@ class PlantPerformance:
         ----------
         ys_of : np.ndarray(21) or np.ndarray(n, 21)
             Array containing the values of the 21 components
-            (13 ASM1 components, TSS, Q, T and 5 dummy states) after the fifth ASM reactor.
+            (13 ASM1 components, TSS, Q, T and 5 dummy states) after the fifth ASM reactor. \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+            SD1, SD2, SD3, XD4, XD5]
         y_plant_bp : np.ndarray(21) or np.ndarray(n, 21)
             Array containing the values of the 21 components
-            (13 ASM1 components, TSS, Q, T and 5 dummy states) after the plant bypass.
+            (13 ASM1 components, TSS, Q, T and 5 dummy states) after the plant bypass. \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+            SD1, SD2, SD3, XD4, XD5]
         y_as_bp_c_eff : np.ndarray(21) or np.ndarray(n, 21)
             Array containing the values of the 21 components
-            (13 ASM1 components, TSS, Q, T and 5 dummy states) after the ASM bypass.
+            (13 ASM1 components, TSS, Q, T and 5 dummy states) after the ASM bypass. \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+            SD1, SD2, SD3, XD4, XD5]
 
         Returns
         -------
-        eqi: int or float or np.ndarray
-            The value of the effluent quality index of the stream.
+        eqi: float or np.ndarray
+            The value of the effluent quality index of the stream <br>[kg(Pollution Units) $\cdot$ d^-1^].
         """
 
         ys_of = self._reshape_if_1d(ys_of)
@@ -307,19 +336,19 @@ class PlantPerformance:
         return eqi
 
     def tss_mass(self, y_out, vol):
-        """Calculates the TSS (Total Suspended Solids) mass of a reactor.
+        """Calculates the total suspended solids (TSS) mass of a reactor.
 
         Parameters
         ----------
         y_out : np.ndarray
             The effluent of the reactor.
         vol : np.ndarray
-            The volume of the reactor [m³].
+            The volume of the reactor [m^3^].
 
         Returns
         -------
-        tss_mass : np.ndarray
-            The TSS mass [kg].
+        tss_mass : float
+            Mass of total suspended solids (TSS) [kg].
         """
 
         y_out = self._reshape_if_1d(y_out)
@@ -329,7 +358,7 @@ class PlantPerformance:
         return tss_mass
 
     def tss_flow(self, y_out):
-        """Calculates the TSS (Total Suspended Solids) flow out of a reactor.
+        """Calculates the total suspended solids (TSS) flow out of a reactor.
 
         Parameters
         ----------
@@ -339,7 +368,7 @@ class PlantPerformance:
         Returns
         -------
         tss_flow : np.ndarray
-            The TSS flow [kg/d].
+            Mass flow of total suspende solids (TSS) [kg(SS) $\cdot$ d^-1^].
         """
 
         y_out = self._reshape_if_1d(y_out)
@@ -366,39 +395,64 @@ class PlantPerformance:
 
         Parameters
         ----------
-        yp_of : np.ndarray
-            Primary clarifier overflow (effluent) concentrations of the 21 components <br>
+        yp_of : np.ndarray(21)
+            Primary clarifier overflow (effluent) concentrations of the 21 components
+            (13 ASM1 components, TSS, Q, T and 5 dummy states). \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+            SD1, SD2, SD3, XD4, XD5]
+        yp_uf : np.ndarray(21)
+            Primary clarifier underflow (sludge) concentrations of the 21 components
+            (13 ASM1 components, TSS, Q, T and 5 dummy states). \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+            SD1, SD2, SD3, XD4, XD5]
+        yp_internal : np.ndarray(21)
+            Primary clarifier internal (basically influent) concentrations of the 21 components
             (13 ASM1 components, TSS, Q, T and 5 dummy states).
-        yp_uf : np.ndarray
-            Primary clarifier underflow (sludge) concentrations of the 21 components <br>
-            (13 ASM1 components, TSS, Q, T and 5 dummy states).
-        yp_internal : np.ndarray
-            Primary clarifier internal (basically influent) concentrations of the 21 components <br>
-            (13 ASM1 components, TSS, Q, T and 5 dummy states).
-            Only for evaluation purposes.
-        y_out1 : np.ndarray
-            Concentrations of the 21 components after the first ASM reactor.
-        y_out2 : np.ndarray
-            Concentrations of the 21 components after the second ASM reactor.
-        y_out3 : np.ndarray
-            Concentrations of the 21 components after the third ASM reactor.
-        y_out4 : np.ndarray
-            Concentrations of the 21 components after the fourth ASM reactor.
-        y_out5 : np.ndarray
-            Concentrations of the 21 components after the fifth ASM reactor.
-        ys_tss_internal: np.ndarray
-            TSS concentrations of the internals of the settler.
-        yd_out : np.ndarray
-            Concentrations of the 51 components and gas phase parameters after the digester.
-        yst_out : np.ndarray
-            Concentrations of the 21 components in the effluent of the storage tank.
-        yst_vol : np.ndarray
-            Volume of the storage tank.
+            Only for evaluation purposes. \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+            SD1, SD2, SD3, XD4, XD5]
+        y_out1 : np.ndarray(21)
+            Concentrations of the 21 components after the first ASM reactor. \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+            SD1, SD2, SD3, XD4, XD5]
+        y_out2 : np.ndarray(21)
+            Concentrations of the 21 components after the second ASM reactor. \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+            SD1, SD2, SD3, XD4, XD5]
+        y_out3 : np.ndarray(21)
+            Concentrations of the 21 components after the third ASM reactor. \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+            SD1, SD2, SD3, XD4, XD5]
+        y_out4 : np.ndarray(21)
+            Concentrations of the 21 components after the fourth ASM reactor. \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+            SD1, SD2, SD3, XD4, XD5]
+        y_out5 : np.ndarray(21)
+            Concentrations of the 21 components after the fifth ASM reactor. \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+            SD1, SD2, SD3, XD4, XD5]
+        ys_tss_internal: np.ndarray(nooflayers)
+            Total suspended solids (TSS) concentrations of the internals of the settler [g(TSS) $\cdot$ m^-3^]. \n
+            [TSS_LAY1, TSS_LAY2, TSS_LAY3,...]
+        yd_out : np.ndarray(51)
+            Concentrations of the 51 components and gas phase parameters after the digester. \n
+            [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
+            X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
+            Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D, pH, S_H_ion, S_hva, S_hbu,
+            S_hpro, S_hac, S_hco3, S_CO2, S_nh3, S_NH4+, S_gas_h2, S_gas_ch4, S_gas_co2,
+            p_gas_h2, p_gas_ch4, p_gas_co2, P_gas, q_gas]
+        yst_out : np.ndarray(21)
+            Concentrations of the 21 components (13 ASM1 components, TSS, Q, T and 5 dummy states)
+            in the effluent of the storage tank. \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+            SD1, SD2, SD3, XD4, XD5]
+        yst_vol : float
+            Current volume of the storage tank [m^3^].
 
         Returns
         -------
-        tss_mass : np.ndarray
-            Sludge production [kg/d].
+        tss_mass : float
+            Sludge production [kg $\cdot$ d^-1^].
         """
 
         # reshape if 1D for all input streams
@@ -439,19 +493,20 @@ class PlantPerformance:
 
     @staticmethod
     def added_carbon_mass(carb, concentration):
-        """Calculates the added carbon mass.
+        """Calculates the total added carbon mass.
 
         Parameters
         ----------
         carb : float or np.ndarray
-            The carbon flow added to the system [m³/d].
-        concentration : np.ndarray
-            The concentration of the carbon flow [mg_COD/l].
+            The carbon flow added to the system <br>[kg(COD) $\cdot$ d^-1^].
+        concentration : float or np.ndarray
+            The concentration of the carbon flow <br>[g(COD) $\cdot$ m^-3^]. \n
+            [CARB_CONC1, CARB_CONC2, CARB_CONC3,...]
 
         Returns
         -------
-        carbon_mass : np.ndarray
-            The added carbon mass [kg_COD/d].
+        carbon_mass : float or np.ndarray
+            The total added carbon mass [kg(COD) $\cdot$ d^-1^].
         """
         # if carb is a np.ndarray, sum the rows
         if isinstance(carb, np.ndarray) and carb.ndim == 1:
@@ -466,7 +521,7 @@ class PlantPerformance:
 
         Parameters
         ----------
-        yd_out : np.ndarray
+        yd_out : np.ndarray(51)
             Concentrations of 51 ADM1 components and
             gas phase parameters after the digester. \n
             [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
@@ -476,19 +531,19 @@ class PlantPerformance:
             p_gas_h2, p_gas_ch4, p_gas_co2, P_gas, q_gas]
         p_atm : float
             The atmospheric pressure [bar].
-        t_op : np.ndarray
-            The operating temperature [K].
+        t_op : float
+            Operational temperature of the anaerobic digester [K].
 
         Returns
         -------
-        np.ndarray
-            Methane production [kg/d].
-        np.ndarray
-            Hydrogen production [kg/d].
-        np.ndarray
-            Carbon dioxide production [kg/d].
-        np.ndarray
-            Total gas flow rate [m³/d].
+        ch4 : float
+            Methane production of the anaerobic digester [kg $\cdot$ d^-1^].
+        h2 : float
+            Hydrogen production of the anaerobic digester [kg $\cdot$ d^-1^].
+        co2 : float
+            Carbon dioxide production of the anaerobic digester [kg $\cdot$ d^-1^].
+        q_gas : float
+            Total gas flow rate of the anaerobic digester [m^3^ $\cdot$ d^-1^].
         """
 
         r = 0.0831  # kJ/(mol*K)
@@ -505,22 +560,22 @@ class PlantPerformance:
         return ch4, h2, co2, q_gas
 
     def heat_demand_step(self, y_in, t_op):
-        """Calculates the heating demand of the sludge flow.
+        """Calculates the heating demand of the sludge flow to the anaerobic digester.
 
         Parameters
         ----------
         y_in : np.ndarray(21)
-            Concentrations of the 21 standard components <br>
-            (13 ASM1 components, TSS, Q, T and 5 dummy states). \n
+            Influent concentrations of the 21 standard components
+            (13 ASM1 components, TSS, Q, T and 5 dummy states) before the anaerobic digester. \n
             [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
             SD1, SD2, SD3, XD4, XD5]
-        t_op : np.ndarray
-            The operating temperature of the reactor [K].
+        t_op : float
+            Operational temperature of the anaerobic digester [K].
 
         Returns
         -------
         heat_demand : np.ndarray
-            The heating demand [kW].
+            Heating demand of the sludge flow to the anaerobic digester [kW].
         """
 
         rho = H2O.rho_l  # kg/m^3 (density of water)
@@ -532,30 +587,35 @@ class PlantPerformance:
         return heat_demand
 
     def get_t_op(self, heat, yd_in, yd_out, vol_fermenter):
-        """Calculates the operating temperature of the reactor based on the heat input.
+        """Calculates the operating temperature of the anaerobic digestor reactor based on the heat input.
 
         Parameters
         ----------
         heat : float
-            The heat input to the reactor [kW].
-        yd_in : np.ndarray
-            Concentrations of 51 ADM1 components and
+            Heat input to the anaerobic digester [kW].
+        yd_in : np.ndarray(51)
+            Influent concentrations of 51 ADM1 components and
             gas phase parameters before the digester. \n
             [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
             X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
             Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D, pH, S_H_ion, S_hva, S_hbu,
             S_hpro, S_hac, S_hco3, S_CO2, S_nh3, S_NH4+, S_gas_h2, S_gas_ch4, S_gas_co2,
             p_gas_h2, p_gas_ch4, p_gas_co2, P_gas, q_gas]
-        yd_out : np.ndarray
-            Concentrations of 51 ADM1 components and
-            gas phase parameters after the digester.
+        yd_out : np.ndarray(51)
+            Effluent concentrations of 51 ADM1 components and
+            gas phase parameters after the digester. \n
+            [S_su, S_aa, S_fa, S_va, S_bu, S_pro, S_ac, S_h2, S_ch4, S_IC, S_IN, S_I, X_xc,
+            X_ch, X_pr, X_li, X_su, X_aa, X_fa, X_c4, X_pro, X_ac, X_h2, X_I, S_cat, S_an,
+            Q_D, T_D, S_D1_D, S_D2_D, S_D3_D, X_D4_D, X_D5_D, pH, S_H_ion, S_hva, S_hbu,
+            S_hpro, S_hac, S_hco3, S_CO2, S_nh3, S_NH4+, S_gas_h2, S_gas_ch4, S_gas_co2,
+            p_gas_h2, p_gas_ch4, p_gas_co2, P_gas, q_gas]
         vol_fermenter : float
-            The volume of the fermenter [m³].
+            Volume of the anaerobic digester [m^3^].
 
         Returns
         -------
-        t_op : np.ndarray
-            The operating temperature of the reactor [K].
+        t_op : float
+            Operating temperature of the reactor [K].
         """
 
         yd_in = self._reshape_if_1d(yd_in)
@@ -577,24 +637,24 @@ class PlantPerformance:
         Parameters
         ----------
         pe : float
-            The pumping energy of the plant [kWh/d].
+            Pumping energy of the plant [kWh $\cdot$ d^-1^].
         ae : float
-            The aeration energy of the plant [kWh/d].
+            Aeration energy of the plant [kWh $\cdot$ d^-1^].
         me : float
-            The mixing energy of the plant [kWh/d].
+            Mixing energy of the plant [kWh $\cdot$ d^-1^].
         tss : float
-            The total suspended solids production of the plant [kg/d].
+            Total suspended solids production of the plant [kWh $\cdot$ d^-1^].
         cm : float
-            The added carbon mass of the plant [kg/d].
+            Added carbon mass of the plant [kWh $\cdot$ d^-1^].
         he : float
-            The heating demand of the plant [kWh/d].
+            Heating demand of the plant [kWh $\cdot$ d^-1^].
         mp : float
-            The methane production of the plant [kg/d].
+            Methane production of the plant [kWh $\cdot$ d^-1^].
 
         Returns
         -------
-        float
-            The operational cost index of the plant.
+        oci : float
+            Operational cost index of the plant [-].
         """
 
         tss_cost = 3 * tss
@@ -609,18 +669,17 @@ class PlantPerformance:
 
     @staticmethod
     def _reshape_if_1d(arr):
-        """Reshapes the array to 2D if it is 1D.
+        """Reshapes the array to 2D if it's 1D.
 
         Parameters
         ----------
-        arr : np.ndarray
+        arr : np.ndarray(n) or np.ndarray(m,n)
             Array to be reshaped.
-            Can be of shape (n) or (m,n).
 
         Returns
         -------
-        arr : np.ndarray
-            Reshaped array of shape (1,n) or (m,n).
+        arr : np.ndarray(1,n) or np.ndarray(m,n)
+            Reshaped array.
         """
 
         if arr.ndim == 1:
@@ -650,7 +709,18 @@ class PlantPerformance:
 
     @staticmethod
     def _reshape_if_1_element(arr):
-        """Reshapes the array to float if it is 1 element."""
+        """Reshapes the array to float if it is 1 element.
+        
+        Parameters
+        ----------
+        arr : np.ndarray(1)
+            Array with only 1 element.
+
+        Returns
+        -------
+        arr : float
+            Reshaped float value.
+        """
 
         if arr.size == 1:
             arr = arr[0]

@@ -27,18 +27,28 @@ def storageequations(t, yst, yst_in1, tempmodel, activate):
 
     Parameters
     ----------
-    t : np.ndarray
-        Time interval for integration, needed for the solver.
-    yst : np.ndarray
-        Solution of the differential equations, needed for the solver.
-    yst_in1 : np.ndarray
-        Storage tank influent concentrations of the 21 components <br>
-        (13 ASM1 components, TSS, Q, T and 5 dummy states).
+    t : np.ndarray(2)
+        Time interval for integration, needed for the solver. \n
+        [step, step + timestep]
+    yst : np.ndarray(22)
+        Solution of the differential equations, needed for the solver. \n
+        [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5, VOL]
+    yst_in1 : np.ndarray(21)
+        Storage tank influent concentrations of the 21 components
+        (13 ASM1 components, TSS, Q, T and 5 dummy states). \n
+        [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, T_WW,
+        SD1, SD2, SD3, XD4, XD5]
     tempmodel : bool
         If true, mass balance for the wastewater temperature is used in process rates,
         otherwise influent wastewater temperature is just passed through process reactors.
     activate : bool
         If true, dummy states are activated, otherwise dummy states are not activated.
+    
+    Returns
+    -------
+    dyst : nd.array(22)
+        Array containing the differential values of `ys_in1` with volume `VOL` of the storage. \n
+        [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5, VOL]
     """
 
     # u = yst_in1
@@ -64,25 +74,26 @@ def storageequations(t, yst, yst_in1, tempmodel, activate):
 
 class Storage(Module):
     """This implements a simple storage tank of variable volume with complete mix.
-
     No biological reactions. Dummy states are included.
-
-    `tempmodel` defines how temperature changes in the input affect the liquid temperature.
-    It also defines rules for a potential necessary bypass of the storage tank.
-
-    `activate` used to activate dummy states. See documentation by Dr Marie-Noelle Pons.
 
     If liquid volume > 90% of total volume then automatically bypass flow. <br>
     If liquid volume < 10% of total volume then automatically input flow. <br>
     Storage output and automatic bypass streams are joined in a Combiner afterwards.
 
+    - `tempmodel` defines how temperature changes in the input affect the liquid temperature.
+      It also defines rules for a potential necessary bypass of the storage tank.
+
+    - `activate` used to activate dummy states. See documentation by Dr Marie-Noelle Pons.
+
     Parameters
     ----------
     volume : float
-        Volume of the primary clarifier.
-    yst0 : np.ndarray
-        Initial integration values of the 21 components <br>
-        (13 ASM1 components, TSS, Q, T and 5 dummy states).
+        Volume of the sludge storage tank [m^3^].
+    yst0 : np.ndarray(22)
+        Initial integration values of the 21 components
+        (13 ASM1 components, TSS, Q, T and 5 dummy states). \n
+        [S_I_S, S_S_S, X_I_S, X_S_S, X_BH_S, X_BA_S, X_P_S, S_O_S, S_NO_S, S_NH_S, S_ND_S, X_ND_S, 
+        S_ALK_S, TSS_S, Q_S, T_S, S_D1_S, S_D2_S, S_D3_S, X_D4_S, X_D5_S, VOL_INIT_S]
     tempmodel : bool
         If true, mass balance for the wastewater temperature is used in process rates,
         otherwise influent wastewater temperature is just passed through process reactors.
@@ -103,23 +114,27 @@ class Storage(Module):
 
         Parameters
         ----------
-        timestep : int or float
-            Size of integration interval [days].
-        step : int or float
-            Upper boundary for integration interval [days].
-        yst_in : np.ndarray
-            Storage tank influent concentrations of the 21 components <br>
-            (13 ASM1 components, TSS, Q, T and 5 dummy states).
+        timestep : float
+            Size of integration interval [d].
+        step : float
+            Upper boundary for integration interval [d].
+        yst_in : np.ndarray(21)
+            Storage tank influent concentrations of the 21 components
+            (13 ASM1 components, TSS, Q, T and 5 dummy states). \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, T_WW,
+            SD1, SD2, SD3, XD4, XD5]
         qstorage : float
-            Storage tank influent flow rate.
+            Default flow rate from storage tank [m^3^ $\cdot$ d^-1^].
 
         Returns
         -------
-        yst_out1 : np.ndarray
-            Storage tank effluent concentrations of the 21 components <br>
-            (13 ASM1 components, TSS, Q, T and 5 dummy states).
+        yst_out1 : np.ndarray(21)
+            Storage tank effluent concentrations of the 21 components
+            (13 ASM1 components, TSS, Q, T and 5 dummy states). \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+            SD1, SD2, SD3, XD4, XD5]
         curr_vol : float
-            Current volume of the storage tank.
+            Current volume of the storage tank [m^3^].
         """
 
         yst_in1 = np.zeros(22)

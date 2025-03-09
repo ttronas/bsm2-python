@@ -19,15 +19,15 @@ QSTORAGE2AS = 0  # type 1, none of storage tank effluent to AS, all to primary
 
 # Default KLa (oxygen transfer coefficient) values for AS reactors in d^-1:
 KLA1 = 0
-"""Default KLa (oxygen transfer coefficient) value for reactor 1 [d^-1^]."""
+"""Default K~L~a (oxygen transfer coefficient) value for reactor 1 [d^-1^]."""
 KLA2 = 0
-"""Default KLa (oxygen transfer coefficient) value for reactor 2 [d^-1^]."""
+"""Default K~L~a (oxygen transfer coefficient) value for reactor 2 [d^-1^]."""
 KLA3 = 120
-"""Default KLa (oxygen transfer coefficient) value for reactor 3 [d^-1^]."""
+"""Default K~L~a (oxygen transfer coefficient) value for reactor 3 [d^-1^]."""
 KLA4 = 120
-"""Default KLa (oxygen transfer coefficient) value for reactor 4 [d^-1^]."""
+"""Default K~L~a (oxygen transfer coefficient) value for reactor 4 [d^-1^]."""
 KLA5 = 60
-"""Default KLa (oxygen transfer coefficient) value for reactor 5 [d^-1^]."""
+"""Default K~L~a (oxygen transfer coefficient) value for reactor 5 [d^-1^]."""
 
 # external carbon flow rates for reactor 1 to 5 in kg COD / d:
 CARB1 = 2
@@ -42,7 +42,7 @@ CARB5 = 0
 """External carbon flow rate to reactor 5 [kg(COD) $\cdot$ d^-1^]."""
 # external carbon source concentration = 400000 mg COD / L from BSM1
 CARBONSOURCECONC = 400000  # mg COD / L
-"""External carbon source concentration [mg(COD) $\cdot$ l^-1^]."""
+"""External carbon source concentration [g(COD) $\cdot$ m^-3^]."""
 
 # Default output pumping from storage tank
 QSTORAGE = 0
@@ -50,9 +50,9 @@ QSTORAGE = 0
 
 # Default closed loop control of Qw
 QW_HIGH = 450
-"""Upper limit flow rate for waste sludge QW [m^3^ $\cdot$ d^-1^]."""
+"""Upper limit flow rate for waste sludge Q~W~ [m^3^ $\cdot$ d^-1^]."""
 QW_LOW = 300
-"""Lower limit flow rate for waste sludge QW [m^3^ $\cdot$ d^-1^]."""
+"""Lower limit flow rate for waste sludge Q~W~ [m^3^ $\cdot$ d^-1^]."""
 
 # to be used for a Qintr controller of BSM1 type, should then be
 # sensorinit_bsm2 since it is an rudimentary 'actuator model' similar to QwT

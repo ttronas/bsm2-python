@@ -11,14 +11,15 @@ class ADM1Performance:
 
     Attributes
     ----------
-    dim : np.ndarray
-        Reactor dimensions [m³].
-    hydrogen_concentration : int or float
-        Concentration of hydrogen in the biogas [mol/m³].
-    methane_concentration : int or float
-        Concentration of methane in the biogas [mol/m³].
-    carbon_dioxide_concentration : int or float
-        Concentration of carbon dioxide in the biogas [mol/m³].
+    dim : np.ndarray(2)
+        Reactor dimensions of the anaerobic digestor [m^3^]. \n
+        [V_LIQ, V_GAS]
+    hydrogen_concentration : float
+        Concentration of hydrogen in the biogas [mol $\cdot$ m^-3^].
+    methane_concentration : float
+        Concentration of methane in the biogas [mol $\cdot$ m^-3^].
+    carbon_dioxide_concentration : float
+        Concentration of carbon dioxide in the biogas [mol $\cdot$ m^-3^].
     """
 
     def __init__(self, adm1_obj: ADM1Reactor):
@@ -32,18 +33,18 @@ class ADM1Performance:
 
         Parameters
         ----------
-        t_new : int or float
+        t_new : float
             The new temperature of the reactor [K].
-        t_old : int or float
+        t_old : float
             The old temperature of the reactor [K].
-        rho_h2o : int or float
-            The density of water [kg/m³].
-        cp_h2o : int or float
-            The specific heat capacity of water [J/(kg*K)].
+        rho_h2o : float
+            The density of water [kg $\cdot$ m^-3^].
+        cp_h2o : float
+            The specific heat capacity of water [J $\cdot$ (kg $\cdot$ K)^-1^].
 
         Returns
         -------
-        heat_in_kwh : int or float
+        heat_in_kwh : float
             Energy required to heat up the reactor [kWh].
         """
 
@@ -59,18 +60,18 @@ class ADM1Performance:
 
         Parameters
         ----------
-        heat_in_kwh : int or float
+        heat_in_kwh : float
             Energy supplied to heat up the reactor [kWh].
-        t_old : int or float
+        t_old : float
             The old temperature of the reactor [K].
-        rho_h2o : int or float
-            The density of water [kg/m³].
-        cp_h2o : int or float
-            The specific heat capacity of water [J/(kg*K)].
+        rho_h2o : float
+            The density of water [kg $\cdot$ m^-3^].
+        cp_h2o : float
+            The specific heat capacity of water [J $\cdot$ (kg $\cdot$ K)^-1^].
 
         Returns
         -------
-        t_new : int or float
+        t_new : float
             The new temperature of the reactor [K].
         """
 
@@ -83,16 +84,16 @@ class ADM1Performance:
 
         Parameters
         ----------
-        hydrogen_concentration : int or float
-            Hydrogen concentration in the biogas [mol/m³].
-        methane_concentration : int or float
-            Methane concentration in the biogas [mol/m³].
-        carbon_dioxide_concentration : int or float
-            Carbon dioxide concentration in the biogas [mol/m³].
+        hydrogen_concentration : float
+            Hydrogen concentration in the biogas [mol $\cdot$ m^-3^].
+        methane_concentration : float
+            Methane concentration in the biogas [mol $\cdot$ m^-3^].
+        carbon_dioxide_concentration : float
+            Carbon dioxide concentration in the biogas [mol $\cdot$ m^-3^].
 
         Returns
         -------
-        total_energy_kwh : int or float
+        total_energy_kwh : float
             Total biogas production [kWh].
         """
 

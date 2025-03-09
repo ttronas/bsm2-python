@@ -16,7 +16,7 @@ F_X = 0.85 # CODpart/CODtot ratio
 """COD~part~/COD~tot~ ratio [-]."""
 
 T_M = 0.125 # Smoothing time constant for qm calculation
-"""Smoothing time constant for qm calculation [d]."""
+"""Smoothing time constant for m^2^ calculation [d]."""
 
 F_PS = 0.007 # Ratio of primary sludge flow rate to the influent flow
 """Ratio of primary sludge flow rate to the influent flow [-]."""
