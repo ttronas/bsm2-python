@@ -14,7 +14,7 @@ edit_uri: blob/master/docs
 nav:
   - Home:
     - Overview: index.md
-    - Changelog: home/changelog.md
+    - Changelog: home/bsm2_changelog.md
     - Authors: home/authors.md
     - Copyright: home/copyright.md
     - License: home/license.md
