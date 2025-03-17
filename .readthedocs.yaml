@@ -4,8 +4,8 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.11"
-  jobs:
-    pre_build:
+  # jobs:
+    # pre_build:
       # - python docs/scripts/conf.py
 
 mkdocs:
