@@ -6,7 +6,7 @@ build:
     python: "3.11"
   jobs:
     pre_build:
-      - python docs/scripts/conf.py
+      # - python docs/scripts/conf.py
 
 mkdocs:
   configuration: mkdocs.yml
