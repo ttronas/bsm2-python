@@ -11,4 +11,4 @@ if not os.path.exists('./git-lfs'):
     os.system('./git-lfs untrack CHANGELOG.md')  # remove git lfs paths from git attributes
     os.system('./git-lfs track "*.svg"')  # track .svg files
     os.system('./git add .gitattributes')
-    os.system('./git-lfs prune --force')  # delete old git lfs files from local storage
+    # os.system('./git-lfs prune --force')  # delete old git lfs files from local storage
