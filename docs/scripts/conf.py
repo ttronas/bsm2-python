@@ -17,7 +17,9 @@ if not os.path.exists(os.path.join(LFS_DIR, 'git-lfs')):
     os.remove(LFS_TARBALL)
 
     # Add git-lfs to PATH for subprocesses
-    os.environ["PATH"] = os.path.abspath(LFS_DIR) + ":" + os.environ["PATH"]
+    extracted_path = os.path.join(LFS_DIR, "git-lfs-3.6.1")
+    git_lfs_binary = os.path.join(extracted_path, "git-lfs")
+    os.environ["PATH"] = extracted_path + ":" + os.environ["PATH"]
 
     print("Installing Git LFS...")
     subprocess.run(["git-lfs", "install"], check=True)
