@@ -18,7 +18,7 @@ indices_components = np.arange(21)
 SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = indices_components
 
 
-@jit(nopython=True)
+@jit(nopython=True, cache=True)
 def settlerequations(t, ys, ys_in, sedpar, dim, layer, q_r, q_w, tempmodel, modeltype):
     """Returns an array containing the differential equations of a non-reactive sedimentation tank
     with variable number of layers (default model is 10 layers), which is compatible with ASM1 model.
@@ -254,7 +254,7 @@ def settlerequations(t, ys, ys_in, sedpar, dim, layer, q_r, q_w, tempmodel, mode
     return dys
 
 
-@jit(nopython=True)
+@jit(nopython=True, cache=True)
 def get_output(ys_int, ys_in, nooflayers, tempmodel, q_r, q_w, dim, asm1par, sedpar):
     """Returns the return, waste and effluent concentrations of the settler model.
 

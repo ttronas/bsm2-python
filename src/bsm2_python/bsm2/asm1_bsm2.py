@@ -18,7 +18,7 @@ indices_components = np.arange(21)
 SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = indices_components
 
 
-@jit(nopython=True)
+@jit(nopython=True, cache=True)
 def asm1equations(t, y, y_in, asm1par, kla, volume, tempmodel, activate):
     """Returns an array containing the differential equations based on ASM1.
 
