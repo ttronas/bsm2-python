@@ -65,6 +65,7 @@ plt.ion()
 fig, ax = plt.subplots()
 ax.set_xlim(0, simulation_time)
 ax.set_ylim(acc.MIN_SO4, acc.MAX_SO4)
+(line0,) = ax.plot(t, [acc.SO4REF] * len(t), label='Setpoint')
 (line1,) = ax.plot(t, input_signal, label='Input Signal')
 (line2,) = ax.plot(t, sensor_signal, label='Sensor Signal')
 (line3,) = ax.plot(t, control_signal, label='Control Signal')
@@ -81,6 +82,7 @@ for i in tqdm(range(len(t))):
     output_signal[i] = system_signal
 
     ax.set_title(f'Time: {t[i]:.2f} min')
+    line0.set_ydata([acc.SO4REF] * len(t))
     line2.set_ydata(sensor_signal)
     line3.set_ydata(control_signal)
     line9.set_ydata(output_signal)

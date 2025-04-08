@@ -167,10 +167,12 @@ plt.ion()
 fig, ax = plt.subplots()
 ax.set_xlim(0, simulation_time)
 ax.set_ylim(min_so5, max_so5)
+(line0,) = ax.plot(t, [so5_set] * len(t), label='Setpoint')
 (line1,) = ax.plot(t, input_signal, label='Input Signal')
 (line2,) = ax.plot(t, sensor_signal, label='Sensor Signal')
 (line3,) = ax.plot(t, control_signal, label='Control Signal')
 (line9,) = ax.plot(t, output_signal, label='Output Signal')
+
 fig.legend()
 
 # Simulation loop
@@ -191,6 +193,7 @@ for i in tqdm(range(len(t))):
 
     # Update plot
     ax.set_title(f'Time: {t[i]:.2f} min')
+    line0.set_ydata([so5_set] * len(t))
     line1.set_ydata(input_signal)
     line2.set_ydata(sensor_signal)
     line3.set_ydata(control_signal)
