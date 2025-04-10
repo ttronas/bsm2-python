@@ -107,7 +107,7 @@ Before you work on any non-trivial code contribution it's best to first create
 a report in the [issue tracker] to start a discussion on the subject.
 This often provides additional considerations and avoids unnecessary work.
 
-### Install the project
+### Install the project (recommended way)
 
 ### Set up your Integrated Development Environment (IDE)
 
@@ -181,7 +181,9 @@ Now open VSCode:
 
 - Go to the BSM2-Python repository on [GitLab](https://gitlab.rrze.fau.de/users/sign_in)
 
-- Select the **Code** button and on copy the link from **Clone with SSH**
+- Select the **Code** button and on copy the link from **Clone with HTTPS**
+- Optional: Cloning with SSH works as well if you prefer it. Though, it might me necessary to add an SSH key to your profile in order for your computer to establish
+  a secure connection to GitLab
 
 Open VSCode:
 
@@ -193,17 +195,30 @@ Open VSCode:
 
 - Select as Repository name **evt/klaeffizient/bsm2_python**
 
-- Enter the copied URL (from step with Clone with SSH) with Ctrl+V
+- Enter the copied URL (from step "Clone with HTTPS/SSH") with Ctrl+V
 
 - Select a folder directory in which the project is to be saved
 
-You can install the project in two ways:
+Installing the project works with two approaches: 
+We recommend using Dev Container for a remote installation.
+
 #### Installation via Dev Container (remote)
-1. If you want to use a Dev Container (tested with [VSCode]):
-   Open the project folder in [VSCode] and click on the green button in the bottom left corner.
+(Tested in VS Code)
+1. In order to install the project via Dev Container, you need to have [Docker] installed on your machine.
+   - To install Docker Desktop download and run the installer from the [Docker] website.
+   - Important note: For this to work you actually do not  need to sign in to Docker Desktop.
+     After restarting your machine skip the log-in page and you are good to go.
+
+2. Succeeding to installing Docker Desktop you need to add the Dev Containers extension to your IDE
+   - (In VS Code) Select "Extensions" on the left side
+   - Search for the "Dev Container" extension and install it
+
+3. Open the project folder in [VSCode] and click on the coloured button in the bottom left corner.
    Choose `Remote-Containers: Reopen in Container` and wait for the container to build.
-   To make it work, you need to have [Docker] installed on your machine.
    The dev container is preconfigured with all necessary tools and dependencies.
+
+
+The second approach is optional.
 
 #### Installation via hatch (local)
 1. Make sure [pipx] is installed using [pip] and install [hatch]:
