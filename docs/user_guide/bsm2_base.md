@@ -8,9 +8,17 @@ help you to better understand the wastewater treatment plant layout of BSM2-Pyth
 
 ### Initialization
 
+#### Initialization of WWTP objects
+
 Initialization of wastewater treatment plant objects.
 
 <div class="annotate" markdown>
+
+```python title="bsm2_base.py", linenums="69"
+--8<-- "bsm2_base.py:69:78"
+```
+
+Initialization of the `BSM2Base` object with default parameters, setting up the simulation environment for the BSM2 model.
 
 ```python title="bsm2_base.py", linenums="79"
 --8<-- "bsm2_base.py:79:81"
@@ -107,15 +115,50 @@ Initialization of wastewater treatment plant objects.
 26.  *[Storage class]*
 27.  Initialization file of the wastewater storage *[storageinit_bsm2]*
 
+
+#### Initialization for data collection
+
+<div class="annotate" markdown>
+
+```python title="bsm2_base.py", linenums="168"
+--8<-- "bsm2_base.py:168:287"
+```
+
+</div>
+
 ---
 
 ### Simulation loop
 
+#### Connecting WWTP objects
+
 In the simulation loop wastewater treatment plant objects are connected with each other through wastewater and sludge streams.
 
-Most wastewater and sludge flows in BSM2 are represented in the ASM1 (Activated Sludge Model No. 1) format as an array, containing 21 standard parameters (concentrations, flow rate, temperature and dummy states) to describe the stream.
+Most wastewater and sludge flows in BSM2 are represented in the ASM1 (Activated Sludge Model No. 1) format as an array, containing 21 standard parameters (concentrations, flow rate, temperature and dummy states) to describe the stream. For more information visit the documentation of the [combiner and splitter](../user_guide/bsm2_python_components/wwt_components/combiner_and_splitter.md).
 
 <div class="annotate" markdown>
+
+```python title="bsm2_base.py", linenums="289"
+--8<-- "bsm2_base.py:289:289"
+```
+
+The `step` method is used for the simulation loop. It simulates one time step of the BSM2 model with the index of the current time step `i`.
+
+```python title="bsm2_base.py", linenums="299"
+--8<-- "bsm2_base.py:299:300"
+```
+
+These lines set up the current simulation time `step` and the time step size `stepsize` for the `i`&nbsp;th iteration of the simulation.
+
+```python title="bsm2_base.py", linenums="302"
+--8<-- "bsm2_base.py:302:302"
+```
+
+This ensures that all five reactors (`reactor1` to `reactor5`) are updated with the corresponding oxygen transfer coefficients (`kla` attributes) from the `self.klas` array.
+
+```python title="bsm2_base.py", linenums="271"
+--8<-- "bsm2_base.py:271:271"
+```
 
 ```python title="bsm2_base.py", linenums="304"
 --8<-- "bsm2_base.py:304:309"
@@ -411,14 +454,47 @@ Splitters of type 1 (default) separate streams into multiple by a given split ra
 40.  See method *[PlantPerformance.iqi]*
 41.  See method *[PlantPerformance.eqi]*
 
----
 
-### Evaluation
+#### Data collection for evaluation
 
-Evaluation of plant performance and wastewater treatment parameters.
+In the simulation loop (`step` method) data is collected from each timestep to evaluate the plant performance and wastewater treatment parameters.
 
 ```python title="bsm2_base.py", linenums="348"
---8<-- "bsm2_base.py:348:409"
+--8<-- "bsm2_base.py:348:357"
+```
+
+```python title="bsm2_base.py", linenums="358"
+--8<-- "bsm2_base.py:358:362"
+```
+
+```python title="bsm2_base.py", linenums="271"
+--8<-- "bsm2_base.py:271:271"
+```
+
+- `klas`:
+
+```python title="bsm2_base.py", linenums="364"
+--8<-- "bsm2_base.py:364:377"
+```
+
+```python title="bsm2_base.py", linenums="378"
+--8<-- "bsm2_base.py:378:379"
+```
+
+```python title="bsm2_base.py", linenums="380"
+--8<-- "bsm2_base.py:380:381"
+```
+
+```python title="bsm2_base.py", linenums="382"
+--8<-- "bsm2_base.py:382:383"
+```
+
+```python title="bsm2_base.py", linenums="384"
+--8<-- "bsm2_base.py:384:394"
+```
+
+```python title="bsm2_base.py", linenums="395"
+--8<-- "bsm2_base.py:395:409"
 ```
 
 ---
