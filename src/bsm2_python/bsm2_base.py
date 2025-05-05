@@ -1,8 +1,7 @@
 """This represents the base model of the BSM2 group of classes.
 
-Model file for bsm2 model with primary clarifier,
-5 asm1-reactors and a second clarifier, sludge thickener,
-adm1-fermenter and sludge storage in dynamic simulation without any controllers.
+- BSM2 base: Primary clarifier, 5 asm1 reactors, a second clarifier, sludge thickener,
+adm1 fermenter, sludge dewatering and wastewater storage in dynamic simulation without any controllers.
 """
 
 import csv

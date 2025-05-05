@@ -1,3 +1,9 @@
+"""This represents the base model in an closed loop simulation.
+
+- BSM2 base: Primary clarifier, 5 asm1 reactors, a second clarifier, sludge thickener,
+adm1 fermenter, sludge dewatering and wastewater storage in dynamic simulation with controllers.
+"""
+
 import csv
 import os
 

@@ -3,7 +3,7 @@ hide:
   - toc
 ---
 
-![Thickener](../../assets/icons/bsm2python/thickener.svg){ align=right }
+![Thickener](../../../assets/icons/bsm2python/thickener.svg){ align=right }
 
 ### Introduction and Model
 

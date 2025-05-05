@@ -3,8 +3,8 @@ hide:
   - toc
 ---
 
-![Splitter](../../assets/icons/bsm2python/splitter.svg){ align=right }
-![Combiner](../../assets/icons/bsm2python/combiner.svg){ align=right }
+![Splitter](../../../assets/icons/bsm2python/splitter.svg){ align=right }
+![Combiner](../../../assets/icons/bsm2python/combiner.svg){ align=right }
 
 ### Introduction and Model
 

@@ -6,8 +6,8 @@ The state values are based on BSM2 technical report.
 
 import numpy as np
 
-S_SU = 0.0124  # monosacharides (kg COD/m3)
-"""Monosacharides [kg(COD) ⋅ m⁻³]."""
+S_SU = 0.0124  # monosaccharides (kg COD/m3)
+"""Monosaccharides [kg(COD) ⋅ m⁻³]."""
 S_AA = 0.0055  # amino acids (kg COD/m3)
 """Amino acids [kg(COD) ⋅ m⁻³]."""
 S_FA = 0.1074  # long chain fatty acids (LCFA) (kg COD/m3)
@@ -475,7 +475,7 @@ DIM_D = np.array([V_LIQ, V_GAS])
 """Reactor dimensions of the anaerobic digestor [m³]."""
 
 # parameters for ASM2ADM and ADM2ASM interfaces
-# could be put it their own initialisation file
+# could be put it their own initialization file
 COD_EQUIV = 40.0 / 14.0
 """COD equivalent of nitrate and nitrite nitrogen [g(O₂) ⋅ g(N)⁻¹]."""
 FNAA = N_AA * 14.0  # fraction of N in amino acids and Xpr as in ADM1 report

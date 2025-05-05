@@ -21,26 +21,28 @@ nav:
   - Install: install.md
   - User guide:
     - user_guide/index.md
-    - Wastewater treatment components:
-      - Primary clarifier: user_guide/wwt_components/primary_clarifier.md
-      - Activated sludge reactor: user_guide/wwt_components/activated_sludge_reactor.md
-      - Settler: user_guide/wwt_components/settler.md
-      - Thickener: user_guide/wwt_components/thickener.md
-      - Anaerobic digester: user_guide/wwt_components/anaerobic_digester.md
-      - Dewatering: user_guide/wwt_components/dewatering.md
-      - Wastewater storage: user_guide/wwt_components/wastewater_storage.md
-      - Combiner and Splitter: user_guide/wwt_components/combiner_and_splitter.md
-    - Energy management components:
-      - Biogas storage: user_guide/em_components/biogas_storage.md
-      - Combined heat and power unit: user_guide/em_components/chp.md
-      - Boiler: user_guide/em_components/boiler.md
-      - Flare: user_guide/em_components/flare.md
-      - Cooler: user_guide/em_components/cooler.md
-      - Heating network: user_guide/em_components/heat_net.md
-      - Compressor: user_guide/em_components/compressor.md
-      - Fermenter interface: user_guide/em_components/fermenter_interface.md
-      - Module: user_guide/em_components/module.md
-      - Economics: user_guide/em_components/economics.md
+    - BSM2-Python components:
+      - Wastewater treatment components:
+        - Primary clarifier: user_guide/bsm2_python_components/wwt_components/primary_clarifier.md
+        - Activated sludge reactor: user_guide/bsm2_python_components/wwt_components/activated_sludge_reactor.md
+        - Settler: user_guide/bsm2_python_components/wwt_components/settler.md
+        - Thickener: user_guide/bsm2_python_components/wwt_components/thickener.md
+        - Anaerobic digester: user_guide/bsm2_python_components/wwt_components/anaerobic_digester.md
+        - Dewatering: user_guide/bsm2_python_components/wwt_components/dewatering.md
+        - Wastewater storage: user_guide/bsm2_python_components/wwt_components/wastewater_storage.md
+        - Combiner and Splitter: user_guide/bsm2_python_components/wwt_components/combiner_and_splitter.md
+      - Energy management components:
+        - Biogas storage: user_guide/bsm2_python_components/em_components/biogas_storage.md
+        - Combined heat and power unit: user_guide/bsm2_python_components/em_components/chp.md
+        - Boiler: user_guide/bsm2_python_components/em_components/boiler.md
+        - Flare: user_guide/bsm2_python_components/em_components/flare.md
+        - Cooler: user_guide/bsm2_python_components/em_components/cooler.md
+        - Heating network: user_guide/bsm2_python_components/em_components/heat_net.md
+        - Compressor: user_guide/bsm2_python_components/em_components/compressor.md
+        - Fermenter interface: user_guide/bsm2_python_components/em_components/fermenter_interface.md
+        - Module: user_guide/bsm2_python_components/em_components/module.md
+        - Economics: user_guide/bsm2_python_components/em_components/economics.md
+    - user_guide/bsm2_base.md
   - Contribute: contribute.md
   # defer to gen-files + literate-nav
   - Source code documentation: reference/
@@ -76,6 +78,7 @@ theme:
     - navigation.sections
     - navigation.top
     - navigation.instant
+    - content.code.annotate
 
 watch:
 - src/bsm2_python
@@ -174,6 +177,7 @@ markdown_extensions:
       check_paths: true
       base_path:
         - docs/snippets
+        - src/bsm2_python
       auto_append:
         - links.txt
         # - abbrs.txt

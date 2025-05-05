@@ -1,4 +1,4 @@
-"""Initialisation file for all states and parameters related to the dewatering.
+"""Initialization file for all states and parameters related to the dewatering.
 
 All parameters and specifications are based on BSM2 model.
 This file will be executed when running `bsm2_cl.py`, `bsm2_ol.py` or `bsm2_olem.py`.
@@ -13,7 +13,7 @@ TSS_removal_perc = 98  # %TSS removed from the dewatering overflow (reject water
 X_I2TSS = 0.75
 """Conversion factor of inert particulate organic matter X_I to TSS [g(SS) ⋅ g(COD)⁻¹]."""
 X_S2TSS = 0.75
-"""Conversion factor of slowly biodegradable substrat X_S to TSS [g(SS) ⋅ g(COD)⁻¹]."""
+"""Conversion factor of slowly biodegradable substrate X_S to TSS [g(SS) ⋅ g(COD)⁻¹]."""
 X_BH2TSS = 0.75
 """Conversion factor of heterotrophic biomass X_B,H to TSS [g(SS) ⋅ g(COD)⁻¹]."""
 X_BA2TSS = 0.75

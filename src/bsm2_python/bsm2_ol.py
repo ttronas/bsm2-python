@@ -1,3 +1,9 @@
+"""This represents the base model in an open loop simulation.
+
+- BSM2 base: Primary clarifier, 5 asm1 reactors, a second clarifier, sludge thickener,
+adm1 fermenter, sludge dewatering and wastewater storage in dynamic simulation without any controllers.
+"""
+
 import numpy as np
 
 from bsm2_python.bsm2.init import reginit_bsm2 as reginit

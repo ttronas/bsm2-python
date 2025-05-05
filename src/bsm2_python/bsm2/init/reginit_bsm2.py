@@ -1,5 +1,5 @@
 # Copyright: Ulf Jeppsson, IEA, Lund University, Lund, Sweden
-"""Initialisation file for bypass control, KLa values and carbon flows related to the activated sludge reactors 1-5.
+"""Initialization file for bypass control, KLa values and carbon flows related to the activated sludge reactors 1-5.
 
 All parameters and specifications are based on BSM1 model.
 This file will be executed when running `bsm2_cl.py`, `bsm2_ol.py` or `bsm2_olem.py`.
@@ -10,14 +10,14 @@ QBYPASS = 60000  # type 2, everything above 60000 m3/d bypassed for primary clar
 """Flow rate threshold for bypassing (type 2 splitter). Everything above this value is bypassed
 to the effluent [m³ ⋅ d⁻¹]."""
 QBYPASSPLANT = 1  # type 1, all of this is also bypassed the AS system
-"""If 1, all of the bypass flow also bypasses the activated sludge reactor system."""
-QBYPASSAS = 0  # type 1, none of primary effluent bypassed for AS
-"""If 1, none of the primary clarifier effluent bypasses the activated sludge reactor system."""
-QTHICKENER2AS = 0  # type 1, none of thickener effluent to AS, all to primary
-"""If 1, none of the thickener effluent goes to the activated sludge reactor system, all goes to the
+"""If 1, all of the bypass flow is bypassed to the activated sludge reactor system, and not to the plant effluent."""
+QBYPASSAS = 0  # type 1, all of primary effluent bypassed for AS
+"""If 1, all of the primary clarifier effluent bypasses the activated sludge reactor system and goes to the plant effluent."""
+QTHICKENER2AS = 0  # type 1, all of thickener effluent to AS, none to primary
+"""If 1, all of the thickener effluent goes to the activated sludge reactor system, none goes to the
 primary clarifier."""
-QSTORAGE2AS = 0  # type 1, none of storage tank effluent to AS, all to primary
-"""If 1, none of the storage tank effluent goes to the activated sludge reactor system, all goes to the
+QSTORAGE2AS = 0  # type 1, all of storage tank effluent to AS, none to primary
+"""If 1, all of the storage tank effluent goes to the activated sludge reactor system, none goes to the
 primary clarifier."""
 
 # Default KLa (oxygen transfer coefficient) values for AS reactors in d^-1:
