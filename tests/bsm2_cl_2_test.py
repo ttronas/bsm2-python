@@ -8,7 +8,7 @@ import time
 import numpy as np
 from tqdm import tqdm
 
-from bsm2_python.bsm2_cl import BSM2CL
+from bsm2_python.bsm2_cl_2 import BSM2CL
 from bsm2_python.log import logger
 
 

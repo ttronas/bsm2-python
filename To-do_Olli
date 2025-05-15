@@ -1,0 +1,8 @@
+Hi Olli, ich möchte, dass du:
+- BSM2CL vs BSM2CL2 vergleichst (endtime=5) hinsichtlich
+  - Performance (Laufzeit)
+  - Qualität (Wie regelt der neue Actuator (BSM2CL2) vs BSM2CL?) - bitte mit Grafiken jeweils
+- das ganze Ding (BSM2CL2) debuggst
+- Einen Testfall für den neuen Actuator (BSM2CL2) schreibst
+- Aufräumst
+- Merge!

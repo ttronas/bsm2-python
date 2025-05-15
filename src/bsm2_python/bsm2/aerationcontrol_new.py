@@ -39,7 +39,20 @@ def function_aw(t, y, lim, signal, t_t):
 
 
 class PID:
-    def __init__(self, k, t_i, t_d, t_t, offset, min_value, max_value, setpoint, aw_init=None, *, use_antiwindup=True):
+    def __init__(
+        self,
+        k,
+        t_i,
+        t_d,
+        t_t,
+        offset: float,
+        min_value: float,
+        max_value: float,
+        setpoint: float,
+        aw_init: float | None = None,
+        *,
+        use_antiwindup: bool = True,
+    ):
         self.k = k
         self.t_i = t_i
         self.t_d = t_d
