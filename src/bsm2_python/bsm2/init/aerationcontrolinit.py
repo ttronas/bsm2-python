@@ -65,6 +65,8 @@ TISO4 = 0.002  # I-part time constant (d = 2.88 min)), integral time constant, 0
 """Integral part time constant *τ* for PI controller 4 [d]."""
 TTSO4 = 0.001  # Antiwindup time constant (d), tracking time constant, 0.0002 in BSM1 book
 """Integral part time constant *τ* of 'antiwindup' for PI controller 4 [d]."""
+TDSO4 = 0  # as it is a PI controller, the Differential term is set to 0
+"""Differential part time constant *τ* for PI controller 4 [d]."""
 SO4INTSTATE = -321.7493546935257
 """Initial integration value for saturated oxygen concentration of PI controller 4 [g(O₂) ⋅ m⁻³]."""
 SO4AWSTATE = 379.05091041032915

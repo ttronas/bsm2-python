@@ -1,253 +1,109 @@
+import control as ct
 import numpy as np
 from numba import jit
-from scipy import signal
 from scipy.integrate import odeint
 
 
-class OxygenSensor:
-    """Class for measuring oxygen concentration in a reactor compartment.
+class Sensor:
+    def __init__(self, num, den, min_value, max_value, std):
+        self.num = num
+        self.den = den
+        self.min_value = min_value
+        self.max_value = max_value
+        self.std = std
+        self.state_space = ct.tf2ss(num, den)
+        n_states = self.state_space.nstates
+        self.state = np.zeros(n_states)
 
-    Parameters
-    ----------
-    min_so : float
-        Lower measuring limit of the oxygen sensor [g(O₂) ⋅ m⁻³].
-    max_so : float
-        Upper measuring limit of the oxygen sensor [g(O₂) ⋅ m⁻³].
-    t_so : float
-        Integral part time constant *τ* of transfer function [d].
-    std_so : float
-        Standard deviation for adding measurement noise [-].
-    """
-
-    def __init__(self, min_so: float, max_so: float, t_so: float, std_so: float):
-        self.min_so = min_so
-        self.max_so = max_so
-        self.t_so = t_so
-        self.std_so = std_so
-
-    def measure_so(
-        self, so: np.ndarray, step: float, controlnumber: int, noise_so: float, transferfunction: float, control: float
-    ) -> float:
-        """Returns the measured oxygen concentration in a reactor compartment.
-
-        Parameters
-        ----------
-        so : np.ndarray(2)
-            Oxygen concentration from ASM1 model at every time step of the interval for the transfer function <br>
-            [g(O₂) ⋅ m⁻³]. \n
-            [so_i-1, so_i]
-        step : float
-            Current time step of the simulation loop [d].
-        controlnumber : int
-            Number of the current oxygen measurement [-].
-        noise_so : float
-            Value for adding measurement noise [-].
-        transferfunction : float
-            Interval for transfer function [min].
-        control : float
-            Step of aeration control [min].
-
-        Returns
-        -------
-        so_meas : float
-            Measured oxygen concentration in the reactor compartment [g(O₂) ⋅ m⁻³].
-        """
-
-        num_so = [1]
-        den_so = [self.t_so * self.t_so, 2 * self.t_so, 1]
-        timestep = control / (60 * 24)
-
-        if step == 0:
-            so_meas = so[int(transferfunction / control) - 1] + noise_so * self.max_so * self.std_so
-        elif step <= transferfunction / (60 * 24):
-            t_so_lower15 = np.linspace(0, step + 2 * timestep, controlnumber)
-            so_slice = so[
-                ((int(transferfunction / control) + 1) - controlnumber) : (int(transferfunction / control) + 1)
-            ]
-            _, yout_so, _ = signal.lsim((num_so, den_so), so_slice, t_so_lower15[0:controlnumber])
-            so_meas = yout_so[controlnumber - 1] + noise_so * self.max_so * self.std_so
-        else:
-            t_so_15 = np.arange(step - int(transferfunction / control) * timestep, step + timestep, timestep)
-            _, yout_so, _ = signal.lsim((num_so, den_so), so, t_so_15[0 : (int(transferfunction / control) + 1)])
-            so_meas = yout_so[int(transferfunction / control)] + noise_so * self.max_so * self.std_so
-
-        so_meas = max(so_meas, self.min_so)
-        so_meas = min(so_meas, self.max_so)
-
-        return so_meas
+    def output(self, input_signal, dt, noise):
+        dt = np.array([0, dt])
+        response = ct.forced_response(self.state_space, U=input_signal, T=dt, X0=self.state)
+        self.state = response.states[:, -1]
+        y_out = response.outputs[-1]
+        output_signal = y_out + noise * self.max_value * self.std
+        if output_signal < self.min_value:
+            output_signal = self.min_value
+        elif output_signal > self.max_value:
+            output_signal = self.max_value
+        return output_signal
 
 
 @jit(nopython=True, cache=True)
-def function_ac(t, y, soref, so_meas, kso, tiso):
-    return (soref - so_meas) * kso / tiso
+def function_int(t, y, setpoint, signal, k, t_i):
+    return (setpoint - signal) * k / t_i
 
 
 @jit(nopython=True, cache=True)
-def function_aw(t, y, kla_lim, kla_calc, ttso):
-    return (kla_lim - kla_calc) / ttso
+def function_aw(t, y, lim, signal, t_t):
+    return (lim - signal) / t_t
 
 
-class PIAeration:
-    """Class for a PI controller to adjust aeration in reactor compartments.
-
-    Parameters
-    ----------
-    kla_min : float
-        Lower limit of the adjustable KLa value [d⁻¹].
-    kla_max : float
-        Upper limit of the adjustable KLa value [d⁻¹].
-    kso : float
-        Amplification constant for PI controller [-].
-    tiso : float
-        Integral part time constant *τ* [d].
-    ttso : float
-        Integral part time constant *τ* of 'antiwindup' [d].
-    soref : float
-        Set point for oxygen concentration [g(O₂) ⋅ m⁻³].
-    klaoffset : float
-        Controller output when the rest is turned off [d⁻¹].
-    sointstate : float
-        Initial integration value for saturated oxygen concentration [g(O₂) ⋅ m⁻³].
-    soawstate : float
-        Initial integration value of 'antiwindup' for saturated oxygen concentration [g(O₂) ⋅ m⁻³].
-    kla_lim : float
-        KLa value after adjusting to upper and lower limit [d⁻¹].
-    kla_calc : float
-        KLa value calculated from PI control [d⁻¹].
-    use_antiwindup : bool
-        If True, 'antiwindup' is used in the PI control. Strongly recommended.
-    """
-
+class PID:
     def __init__(
         self,
-        kla_min: float,
-        kla_max: float,
-        kso: float,
-        tiso: float,
-        ttso: float,
-        soref: float,
-        klaoffset: float,
-        sointstate: float,
-        soawstate: float,
-        kla_lim: float,
-        kla_calc: float,
+        k,
+        t_i,
+        t_d,
+        t_t,
+        offset: float,
+        min_value: float,
+        max_value: float,
+        setpoint: float,
+        aw_init: float | None = None,
         *,
-        use_antiwindup: bool,
+        use_antiwindup: bool = True,
     ):
-        self.kla_min = kla_min
-        self.kla_max = kla_max
-        self.kso = kso
-        self.tiso = tiso
-        self.ttso = ttso
-        self.soref = soref
-        self.klaoffset = klaoffset
-        self.sointstate = sointstate
-        self.soawstate = soawstate
-        self.kla_lim = kla_lim
-        self.kla_calc = kla_calc
+        self.k = k
+        self.t_i = t_i
+        self.t_d = t_d
+        self.t_t = t_t
+        self.offset = offset
+        self.min_value = min_value
+        self.max_value = max_value
+        self.setpoint = setpoint
+        self.integral = 0
+        self.derivative = 0
+        self.error = 0
+        self.prev_error = 0
+        self.prev_signal = 0
+        self.prev_lim = 0
+        self.aw = 0
+        self.aw_init = aw_init
         self.use_antiwindup = use_antiwindup
 
-    def output(self, so_meas: float, step: float, timestep: float) -> float:
-        """Returns the KLa value determined by the PI control to adjust the oxygen concentration to the set point in
-        the reactor compartment.
-
-        Parameters
-        ----------
-        so_meas : float
-            Measured oxygen concentration in the reactor compartment [g(O₂) ⋅ m⁻³].
-        step : float
-            Bottom boundary for integration interval [d].
-        timestep : float
-            Size of integration interval [d].
-
-        Returns
-        -------
-        kla : float
-            KLa value determined by the PI control to adjust the oxygen concentration to the set point
-            in the reactor compartment [d⁻¹].
-        """
-
-        error_so = (self.soref - so_meas) * self.kso
-
-        t_ac = np.array([step, step + timestep])
-        ode_ac = odeint(
-            function_ac, self.sointstate, t_ac, args=(self.soref, so_meas, self.kso, self.tiso), tfirst=True
+    def output(self, signal, dt):
+        dt = np.array([0, dt])
+        ode_integral = odeint(
+            function_int, self.integral, dt, args=(self.setpoint, signal, self.k, self.t_i), tfirst=True
         )
-
-        integral_ac = ode_ac[1][0]
-        self.sointstate = integral_ac
-
-        if self.use_antiwindup:
-            ode_aw = odeint(
-                function_aw, self.soawstate, t_ac, args=(self.kla_lim, self.kla_calc, self.ttso), tfirst=True
-            )
-            antiwindup = ode_aw[1][0]
-        else:
-            antiwindup = 0
-
-        self.kla_calc = error_so + integral_ac + self.klaoffset + antiwindup
-
-        kla = self.kla_calc
-        kla = max(kla, self.kla_min)
-        kla = min(kla, self.kla_max)
-        self.kla_lim = kla
-
-        return kla
+        self.integral = ode_integral[1][0]
+        self.error = self.k * (self.setpoint - signal)
+        self.derivative = self.k * self.t_d * (self.error - self.prev_error) / (dt[1] - dt[0])
+        self.prev_error = self.error
+        antiwindup_integral = odeint(
+            function_aw, self.aw_init, dt, args=(self.prev_lim, self.prev_signal, self.t_t), tfirst=True
+        )
+        self.aw = antiwindup_integral[1][0]
+        control_signal = self.error + self.integral + self.derivative + self.offset + self.aw
+        self.prev_signal = control_signal
+        control_signal = max(control_signal, self.min_value)
+        control_signal = min(control_signal, self.max_value)
+        self.prev_lim = control_signal
+        return control_signal
 
 
-class KLaActuator:
-    """Class for a real actuator for the reactor compartments.
+class Actuator:
+    def __init__(self, t90, num, den):
+        self.t90 = t90
+        self.num = num
+        self.den = den
+        self.state_space = ct.tf2ss(num, den)
+        n_states = self.state_space.nstates
+        self.state = np.zeros(n_states)
 
-    Parameters
-    ----------
-    t_kla : float
-        Integral part time constant *τ* for KLa actuator [d].
-    """
-
-    def __init__(self, t_kla: float):
-        self.t_kla = t_kla
-
-    def real_actuator(
-        self, kla: np.ndarray, step: float, controlnumber: int, transferfunction: float, control: float
-    ) -> float:
-        """Returns the delayed KLa value for the reactor compartment.
-
-        Parameters
-        ----------
-        kla : np.ndarray(2)
-            KLa value from PI control at every time step of the interval for the transfer function [d⁻¹]. \n
-            [KLa_i-1, KLa_i]
-        step : float
-            Current time step of the simulation loop [d].
-        controlnumber : int
-            Number of the current aeration control [-].
-        transferfunction : float
-            Interval for transfer function [min].
-        control : float
-            Step of aeration control [min].
-
-        Returns
-        -------
-        kla_out : float
-            Delayed KLa value for the reactor compartment [d⁻¹].
-        """
-
-        num_kla = [1]
-        den_kla = [self.t_kla * self.t_kla, 2 * self.t_kla, 1]
-        timestep = control / (60 * 24)
-        if step == 0:
-            kla_out = kla[14]
-        elif step <= transferfunction / (60 * 24):
-            t_kla_lower15 = np.linspace(0, step + 2 * timestep, controlnumber)
-            _, yout_kla, _ = signal.lsim(
-                (num_kla, den_kla),
-                kla[((int(transferfunction / control) + 1) - controlnumber) : (int(transferfunction / control) + 1)],
-                t_kla_lower15[0:controlnumber],
-            )
-            kla_out = yout_kla[controlnumber - 1]
-        else:
-            t_kla_15 = np.arange(step - transferfunction / control * timestep, step + timestep, timestep)
-            _, yout_kla, _ = signal.lsim((num_kla, den_kla), kla, t_kla_15[0 : (int(transferfunction / control) + 1)])
-            kla_out = yout_kla[int(transferfunction / control)]
-
-        return kla_out
+    def output(self, input_signal, dt):
+        dt = np.array([0, dt])
+        response = ct.forced_response(self.state_space, U=input_signal, T=dt, X0=self.state)
+        self.state = response.states[:, -1]
+        y_out = response.outputs[-1]
+        return y_out

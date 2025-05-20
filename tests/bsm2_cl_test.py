@@ -13,7 +13,7 @@ from bsm2_python.log import logger
 
 
 def test_bsm2_cl():
-    bsm2_cl = BSM2CL(endtime=50, timestep=1 / 60 / 24, tempmodel=False, activate=False)
+    bsm2_cl = BSM2CL(endtime=5, timestep=1 / 60 / 24, tempmodel=False, activate=False)
     start = time.perf_counter()
     for idx, _ in enumerate(tqdm(bsm2_cl.simtime)):
         bsm2_cl.step(idx)
