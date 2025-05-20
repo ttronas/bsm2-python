@@ -42,6 +42,7 @@ dependencies = [
     "numpy",
     "scipy",
     "tqdm",
+    "control",
 ]
 
 dynamic = ["version"]
@@ -241,6 +242,7 @@ dependencies = [
     "numpy",
     "scipy",
     "tqdm",
+    "control",
 ]
 
 # Test environment with test-only dependencies
@@ -265,6 +267,7 @@ dependencies = [
     "tqdm",
     "matplotlib",
     "pandas",
+    "control"
 ]
 [tool.hatch.envs.test.scripts]
 cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=src/bsm2_python --cov=tests {args}"
@@ -301,6 +304,7 @@ dependencies = [
 SOURCE_DATE_EPOCH = "1580601600"
 PYTHONUNBUFFERED = "1"
 MKDOCS_CONFIG = "mkdocs.yml"
+
 [tool.hatch.envs.docs.scripts]
 build = "mkdocs build --config-file {env:MKDOCS_CONFIG} --clean --strict {args}"
 serve = "mkdocs serve --config-file {env:MKDOCS_CONFIG} --dev-addr localhost:8000 {args}"
@@ -362,6 +366,7 @@ dependencies = [
     "scipy",
     "tqdm",
     "matplotlib",
+    "control"
 ]
 
 [[tool.hatch.envs.py-test.matrix]]
