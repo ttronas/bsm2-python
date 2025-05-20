@@ -3,7 +3,7 @@ import os
 
 import numpy as np
 
-from bsm2_python.bsm2 import aerationcontrol
+from bsm2_python.bsm2.aerationcontrol import PID, Actuator, Sensor
 from bsm2_python.bsm2.init import aerationcontrolinit
 from bsm2_python.bsm2.init import asm1init_bsm2 as asm1init
 from bsm2_python.bsm2_base import BSM2Base
@@ -82,29 +82,25 @@ class BSM2CL(BSM2Base):
             tempmodel=tempmodel,
             activate=activate,
         )
-
-        self.so4_sensor = aerationcontrol.OxygenSensor(
-            aerationcontrolinit.MIN_SO4,
-            aerationcontrolinit.MAX_SO4,
-            aerationcontrolinit.T_SO4,
-            aerationcontrolinit.STD_SO4,
+        num_sen = 1
+        den_sen = [aerationcontrolinit.T_SO4**2, 2 * aerationcontrolinit.T_SO4, 1]
+        self.sensor = Sensor(
+            num_sen, den_sen, aerationcontrolinit.MIN_SO4, aerationcontrolinit.MAX_SO4, aerationcontrolinit.STD_SO4
         )
-        self.aerationcontrol4 = aerationcontrol.PIAeration(
-            aerationcontrolinit.KLA4_MIN,
-            aerationcontrolinit.KLA4_MAX,
+        self.pid = PID(
             aerationcontrolinit.KSO4,
             aerationcontrolinit.TISO4,
+            aerationcontrolinit.TDSO4,
             aerationcontrolinit.TTSO4,
-            aerationcontrolinit.SO4REF,
             aerationcontrolinit.KLA4OFFSET,
-            aerationcontrolinit.SO4INTSTATE,
+            aerationcontrolinit.KLA4_MIN,
+            aerationcontrolinit.KLA4_MAX,
+            aerationcontrolinit.SO4REF,
             aerationcontrolinit.SO4AWSTATE,
-            aerationcontrolinit.KLA4_LIM,
-            aerationcontrolinit.KLA4_CALC,
-            use_antiwindup=aerationcontrolinit.USEANTIWINDUPSO4,
         )
-
-        self.kla4_actuator = aerationcontrol.KLaActuator(aerationcontrolinit.T_KLA4)
+        num_act = 1
+        den_act = [aerationcontrolinit.T_KLA4**2, 2 * aerationcontrolinit.T_KLA4, 1]
+        self.actuator = Actuator(aerationcontrolinit.T90_KLA4, num_act, den_act)
 
         if use_noise == 0:
             self.noise_so4 = np.zeros(2)
@@ -204,34 +200,24 @@ class BSM2CL(BSM2Base):
         """
 
         if so4ref is None:
-            self.aerationcontrol4.soref = aerationcontrolinit.SO4REF
+            self.pid.setpoint = aerationcontrolinit.SO4REF
         else:
-            self.aerationcontrol4.soref = so4ref
+            self.pid.setpoint = so4ref
 
         step: float = self.simtime[i]
 
-        if (self.numberstep - 1) % (int(self.control[i] / self.timestep_integration[i])) == 0:
-            # get index of noise that is smaller than and closest to current time step within a small tolerance
-            idx_noise = int(np.where(self.noise_timestep - 1e-7 <= step)[0][-1])
+        # get index of noise that is smaller than and closest to current time step within a small tolerance
+        idx_noise = int(np.where(self.noise_timestep - 1e-7 <= step)[0][-1])
 
-            self.so4[self.max_transfer_per_control] = self.y_out4[7]
-
-            so4_meas = self.so4_sensor.measure_so(
-                self.so4, step, self.controlnumber, self.noise_so4[idx_noise], self.transferfunction, self.control[i]
-            )
-            kla4_ = self.aerationcontrol4.output(so4_meas, step, self.timestep[i])
-            self.kla4[self.max_transfer_per_control] = kla4_
-            self.kla4_a = self.kla4_actuator.real_actuator(
-                self.kla4, step, self.controlnumber, self.transferfunction, self.control[i]
-            )
-            self.kla3_a = aerationcontrolinit.KLA3GAIN * self.kla4_a
-            self.kla5_a = aerationcontrolinit.KLA5GAIN * self.kla4_a
-
-            # for next step:
-            self.so4[0 : self.max_transfer_per_control] = self.so4[1 : (self.max_transfer_per_control + 1)]
-            self.kla4[0 : self.max_transfer_per_control] = self.kla4[1 : (self.max_transfer_per_control + 1)]
-
-            self.controlnumber += 1
+        sensor_signal = self.sensor.output(self.y_out4[7], self.timestep[i], self.noise_so4[idx_noise])
+        control_signal = self.pid.output(sensor_signal, self.timestep[i])
+        actuator_signal = self.actuator.output(control_signal, self.timestep[i])
+        self.kla4_a = actuator_signal
+        self.kla3_a = aerationcontrolinit.KLA3GAIN * self.kla4_a
+        self.kla5_a = aerationcontrolinit.KLA5GAIN * self.kla4_a
+        # for next step:
+        self.so4[0 : self.max_transfer_per_control] = self.so4[1 : (self.max_transfer_per_control + 1)]
+        self.kla4[0 : self.max_transfer_per_control] = self.kla4[1 : (self.max_transfer_per_control + 1)]
 
         self.klas = np.array([0, 0, self.kla3_a, self.kla4_a, self.kla5_a])
         super().step(i)
