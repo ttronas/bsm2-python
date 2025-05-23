@@ -35,23 +35,29 @@ class BSM2OLEM(BSM2Base):
 
     Parameters
     ----------
-    data_in : np.ndarray(n, 21) (optional)
+    data_in : np.ndarray(n, 22) | str (optional)
         Influent data. Has to be a 2D array. <br>
-        First column is time in days, the rest are 21 components
+        First column is time [d], the rest are 21 components
         (13 ASM1 components, TSS, Q, T and 5 dummy states).
+        If a string is provided, it is interpreted as a file name.
         If not provided, the influent data from BSM2 is used. \n
         [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5]
     timestep : float (optional)
         Timestep for the simulation [d]. <br>
-        If not provided, the timestep is calculated from the influent data.
+        If not provided, the timestep is set to 1 minute. <br>
+        Please note: Due to sensor sensitivity, the timestep should not be larger than 1 minute.
     endtime : float (optional)
         Endtime for the simulation [d]. <br>
         If not provided, the endtime is the last time step in the influent data.
-    evaltime : np.ndarray(2) (optional)
+    evaltime : int | np.ndarray(2) (optional)
         Evaluation time for the simulation [d]. <br>
-        Needs to be passed as a 1D np.ndarray with two values.
+        When passed as an int, it defines the number of last days of the simulation to be evaluated.
+        When passed as a 1D np.ndarray with two values, it defines the start and end time of the evaluation period.
         If not provided, the last 5 days of the simulation will be assessed. \n
         [starttime, self.simtime[-1]]
+    data_out : str (optional)
+        Path to the output data file. <br>
+        If not provided, no output data is saved.
     tempmodel : bool (optional)
         If `True`, the temperature model dependencies are activated.
         Default is `False`.
@@ -60,7 +66,17 @@ class BSM2OLEM(BSM2Base):
         Default is `False`.
     """
 
-    def __init__(self, data_in=None, timestep=None, endtime=None, evaltime=None, *, tempmodel=False, activate=False):
+    def __init__(
+        self,
+        data_in: np.ndarray | str | None = None,
+        timestep: float | None = None,
+        endtime: float | None = None,
+        evaltime: int | np.ndarray | None = None,
+        data_out: str | None = None,
+        *,
+        tempmodel: bool = False,
+        activate: bool = False,
+    ):
         super().__init__(
             data_in=data_in,
             timestep=timestep,
@@ -68,10 +84,11 @@ class BSM2OLEM(BSM2Base):
             evaltime=evaltime,
             tempmodel=tempmodel,
             activate=activate,
+            data_out=data_out,
         )
         self.perf_factors_all = np.zeros((len(self.simtime), 14))
 
-        self.timestep_hour = np.dot(self.timestep, 24)
+        self.timestep_hour = np.dot(self.timesteps, 24)
 
         # scenario 5, 75th percentile, 50% reduction when S_NH below 4g/m3
         self.controller = ControllerEM(0.75, self.klas, 0.5, 4, BIOGAS, O2, CH4)
@@ -433,7 +450,7 @@ class BSM2OLEM(BSM2Base):
         Returns
         -------
         oci_dyn : float
-           Operational cost index of the plant, while considering the dynamic electricity prices [-].
+            Operational cost index of the plant, while considering the dynamic electricity prices [-].
         """
 
         tss_cost = 3 * tss

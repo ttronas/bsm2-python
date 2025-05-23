@@ -6,6 +6,7 @@ This file will be executed when running `bsm2_cl.py`.
 """
 
 import bsm2_python.bsm2.init.asm1init_bsm2 as asm1init
+from bsm2_python.bsm2.helpers_bsm2 import PIDParams
 
 # maximum possible external carbon flow rate to reactors
 CARB1_MAX = 5
@@ -82,6 +83,19 @@ KLA4_CALC = 201.3015557168598
 """KLa value calculated from PI control [d⁻¹]."""
 USEANTIWINDUPSO4 = True  # False=no antiwindup, True=use antiwindup for oxygen control
 """Boolean value to use 'antiwindup' for PI controller 4."""
+
+PID4_PARAMS: PIDParams = {
+    'k': KSO4,
+    't_i': TISO4,
+    't_d': TDSO4,
+    't_t': TTSO4,
+    'offset': KLA4OFFSET,
+    'min_value': KLA4_MIN,
+    'max_value': KLA4_MAX,
+    'setpoint': SO4REF,
+    'aw_init': SO4AWSTATE,
+    'use_antiwindup': USEANTIWINDUPSO4,
+}
 
 # values for KLa actuator 4:
 T90_KLA4 = 4  # Response time 4 minutes

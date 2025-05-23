@@ -1,11 +1,11 @@
 import numpy as np
 
-from bsm2_python.bsm2.init import reginit_bsm2 as reginit
-from bsm2_python.bsm2_base import BSM2Base
+from bsm2_python.bsm1_base import BSM1Base
+from bsm2_python.bsm2.init import reginit_bsm1 as reginit
 
 
-class BSM2OL(BSM2Base):
-    """Creates a BSM2OL object.
+class BSM1OL(BSM1Base):
+    """Creates a BSM1OL object.
 
     Parameters
     ----------
@@ -66,7 +66,7 @@ class BSM2OL(BSM2Base):
         i: int,
         klas: np.ndarray | None = None,
     ):
-        """Simulates one time step of the BSM2 model.
+        """Simulates one time step of the BSM1 model.
 
         Parameters
         ----------

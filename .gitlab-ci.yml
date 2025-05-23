@@ -65,3 +65,4 @@ run_tests:
       - pyproject.toml
   script:
     - hatch run test:cov
+  coverage: /TOTAL.*? (100(?:\.0+)?\%\|[1-9]?\d(?:\.\d+)?\%)$/

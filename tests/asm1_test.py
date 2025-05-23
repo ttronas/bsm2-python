@@ -40,7 +40,7 @@ def test_asm1():
 
     timestep = 15 / (60 * 24)
     endtime = 50
-    simtime = np.arange(0, endtime, timestep)
+    simtime = np.arange(0, endtime, timestep, dtype=float)
 
     y_out3 = np.zeros(21)
 
@@ -107,7 +107,7 @@ def test_asm1_ol():
     timestep = 1 / 24 / 60  # 15 minutes in days
     endtime = 50  # only 50 days for testing
     data_time = data_in[:, 0]
-    simtime = np.arange(0, endtime, timestep)
+    simtime = np.arange(0, endtime, timestep, dtype=float)
     y_in = data_in[:, 1:]
     del data_in
 

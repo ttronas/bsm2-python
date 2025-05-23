@@ -3,9 +3,10 @@ import os
 
 import numpy as np
 
+import bsm2_python.bsm2.init.asm1init_bsm1 as asm1init
+from bsm2_python.bsm1_base import BSM1Base
 from bsm2_python.bsm2.aerationcontrol import PID, Actuator, Sensor
-from bsm2_python.bsm2.init import aerationcontrolinit
-from bsm2_python.bsm2_base import BSM2Base
+from bsm2_python.bsm2.init import aerationcontrolinit_bsm1 as ac_init
 from bsm2_python.log import logger
 
 path_name = os.path.dirname(__file__)
@@ -13,8 +14,8 @@ path_name = os.path.dirname(__file__)
 SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = np.arange(21)
 
 
-class BSM2CL(BSM2Base):
-    """Creates a BSM2CL object.
+class BSM1CL(BSM1Base):
+    """Creates a BSM1CL object. WARNING: Not validated yet!! Use at your own risk.
 
     Parameters
     ----------
@@ -91,14 +92,29 @@ class BSM2CL(BSM2Base):
             data_out=data_out,
         )
         num_sen = 1
-        den_sen4 = [aerationcontrolinit.T_SO4**2, 2 * aerationcontrolinit.T_SO4, 1]
-        self.so4_sensor = Sensor(
-            num_sen, den_sen4, aerationcontrolinit.MIN_SO4, aerationcontrolinit.MAX_SO4, aerationcontrolinit.STD_SO4
-        )
-        self.pid4 = PID(**aerationcontrolinit.PID4_PARAMS)
         num_act = 1
-        den_act4 = [aerationcontrolinit.T_KLA4**2, 2 * aerationcontrolinit.T_KLA4, 1]
-        self.kla4_actuator = Actuator(num_act, den_act4)
+
+        den_sno2 = [
+            ac_init.T_SNO2**8,
+            8 * ac_init.T_SNO2**7,
+            28 * ac_init.T_SNO2**6,
+            56 * ac_init.T_SNO2**5,
+            70 * ac_init.T_SNO2**4,
+            56 * ac_init.T_SNO2**3,
+            28 * ac_init.T_SNO2**2,
+            8 * ac_init.T_SNO2,
+            1,
+        ]
+        self.sno2_sensor = Sensor(num_sen, den_sno2, ac_init.MIN_SNO2, ac_init.MAX_SNO2, ac_init.STD_SNO2)
+        self.qintr_pid = PID(**ac_init.PID_QINTR_PARAMS)
+        den_qintr = [ac_init.QINTRT, 1]
+        self.qintr_actuator = Actuator(num_act, den_qintr)
+
+        den_sen5 = [ac_init.T_SO5**2, 2 * ac_init.T_SO5, 1]
+        self.so5_sensor = Sensor(num_sen, den_sen5, ac_init.MIN_SO5, ac_init.MAX_SO5, ac_init.STD_SO5)
+        self.kla5_pid = PID(**ac_init.PID_KLA5_PARAMS)
+        den_act5 = [ac_init.T_KLA5**2, 2 * ac_init.T_KLA5, 1]
+        self.kla5_actuator = Actuator(num_act, den_act5)
 
         if use_noise == 0:
             self.noise_so4 = np.zeros(2)
@@ -147,33 +163,12 @@ class BSM2CL(BSM2Base):
         self.data_time = self.data_in[:, 0]
         # self.simtime = np.arange(0, self.endtime, self.timestep)
 
-        self.kla4_a = aerationcontrolinit.KLA4_INIT
-        self.kla3_a = aerationcontrolinit.KLA3GAIN * self.kla4_a
-        self.kla5_a = aerationcontrolinit.KLA5GAIN * self.kla4_a
+        self.kla3_a = ac_init.KLA3_INIT
+        self.kla4_a = ac_init.KLA4_INIT
+        self.kla5_a = ac_init.KLA5_INIT
 
-        self.y_in_all = np.zeros((len(self.simtime), 21))
-        self.y_eff_all = np.zeros((len(self.simtime), 21))
-        self.y_in_bp_all = np.zeros((len(self.simtime), 21))
-        self.to_primary_all = np.zeros((len(self.simtime), 21))
-        self.prim_in_all = np.zeros((len(self.simtime), 21))
-        self.qpass_plant_all = np.zeros((len(self.simtime), 21))
-        self.qpassplant_to_as_all = np.zeros((len(self.simtime), 21))
-        self.qpassAS_all = np.zeros((len(self.simtime), 21))
-        self.to_as_all = np.zeros((len(self.simtime), 21))
-        self.feed_settler_all = np.zeros((len(self.simtime), 21))
-        self.qthick2AS_all = np.zeros((len(self.simtime), 21))
-        self.qthick2prim_all = np.zeros((len(self.simtime), 21))
-        self.qstorage2AS_all = np.zeros((len(self.simtime), 21))
-        self.qstorage2prim_all = np.zeros((len(self.simtime), 21))
-        self.sludge_all = np.zeros((len(self.simtime), 21))
-        self.iqi_all = np.zeros(len(self.simtime))
-        self.eqi_all = np.zeros(len(self.simtime))
-        self.oci_all = np.zeros(len(self.simtime))
-        self.oci_factors_all = np.zeros((len(self.simtime), 8))
-        self.violation_all = np.zeros(len(self.simtime))
-
-    def step(self, i: int, so4ref: float | None = None):
-        """Simulates one time step of the BSM2 model.
+    def step(self, i: int, so4ref: float | None = None, sno2ref: float | None = None):
+        """Simulates one time step of the BSM1 model.
 
         Parameters
         ----------
@@ -181,13 +176,20 @@ class BSM2CL(BSM2Base):
             Index of the current time step [-].
         so4ref : float (optional)
             Setpoint for the dissolved oxygen concentration [g(O₂) ⋅ m⁻³] \n
-            If not provided, the setpoint is set to aerationcontrolinit.SO4REF.
+            If not provided, the setpoint is set to ac_init.SO4REF.
+        sno2ref : float (optional)
+            Setpoint for the SNO2 concentration [g(NO₂) ⋅ m⁻³] \n
+            If not provided, the setpoint is set to asm1init.SNO2REF.
         """
 
         if so4ref is None:
-            self.pid4.setpoint = aerationcontrolinit.SO4REF
+            self.kla5_pid.setpoint = ac_init.SO4REF
         else:
-            self.pid4.setpoint = so4ref
+            self.kla5_pid.setpoint = so4ref
+
+        if sno2ref is None:
+            sno2ref = ac_init.SNO2REF
+        self.qintr_pid.setpoint = sno2ref
 
         step: float = self.simtime[i]
         stepsize: float = self.timesteps[i]
@@ -195,12 +197,18 @@ class BSM2CL(BSM2Base):
         # get index of noise that is smaller than and closest to current time step within a small tolerance
         idx_noise = int(np.where(self.noise_timestep - 1e-7 <= step)[0][-1])
 
-        sensor_signal = self.so4_sensor.output(self.y_out4[SO], stepsize, self.noise_so4[idx_noise])
-        control_signal = self.pid4.output(sensor_signal, stepsize)
-        actuator_signal = self.kla4_actuator.output(control_signal, stepsize)
-        self.kla4_a = actuator_signal
-        self.kla3_a = aerationcontrolinit.KLA3GAIN * self.kla4_a
-        self.kla5_a = aerationcontrolinit.KLA5GAIN * self.kla4_a
+        # SNO2 Control
+        self.sno2_signal = self.sno2_sensor.output(self.y_out2[SNO], stepsize, self.noise_so4[idx_noise])
+        inject = ac_init.KFEEDFORWARD * (sno2ref / (sno2ref + 1)) * (asm1init.QIN * ac_init.QFFREF - self.qintr)
+        self.qintr_pid_signal = self.qintr_pid.output(self.sno2_signal, stepsize, inject)
+        qintr_act_signal = self.qintr_actuator.output(self.qintr_pid_signal, stepsize)
+        self.qintr = qintr_act_signal
+
+        # SO5 Control
+        self.so5_signal = self.so5_sensor.output(self.y_out5[SO], stepsize, self.noise_so4[idx_noise])
+        self.kla5_pid_signal = self.kla5_pid.output(self.so5_signal, stepsize)
+        kla5_act_signal = self.kla5_actuator.output(self.kla5_pid_signal, stepsize)
+        self.kla5_a = kla5_act_signal
 
         self.klas = np.array([0, 0, self.kla3_a, self.kla4_a, self.kla5_a])
         super().step(i)

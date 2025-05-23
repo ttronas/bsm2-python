@@ -13,8 +13,9 @@ class Evaluation:
 
     Parameters
     ----------
-    filepath : str
+    filepath : str (optional)
         Path to the file where the data will be exported.
+        If not provided, the data will not be exported.
     """
 
     def __init__(self, filepath):
@@ -167,7 +168,8 @@ class Evaluation:
 
     def export_data(self):
         """Exports the data stored in the vars_dicts list to a csv file at the specified filepath."""
-
+        if self.filepath is None:
+            return
         if not self.data_objects:
             logger.warning('No data to export')
             return

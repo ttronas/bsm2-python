@@ -1,4 +1,5 @@
 import warnings
+from typing import TypedDict
 
 import numpy as np
 from numba import int32
@@ -258,3 +259,16 @@ def expand_asm1(
     if is_1d:
         out = out[0]
     return out
+
+
+class PIDParams(TypedDict):
+    k: float
+    t_i: float
+    t_d: float
+    t_t: float
+    offset: float
+    min_value: float
+    max_value: float
+    setpoint: float
+    aw_init: float
+    use_antiwindup: bool

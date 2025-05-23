@@ -5,7 +5,6 @@ Model file for bsm2 model with primary clarifier,
 adm1-fermenter and sludge storage in dynamic simulation without any controllers.
 """
 
-import csv
 import os
 
 import numpy as np
@@ -29,34 +28,36 @@ from bsm2_python.bsm2.primclar_bsm2 import PrimaryClarifier
 from bsm2_python.bsm2.settler1d_bsm2 import Settler
 from bsm2_python.bsm2.storage_bsm2 import Storage
 from bsm2_python.bsm2.thickener_bsm2 import Thickener
-from bsm2_python.evaluation import Evaluation
-from bsm2_python.log import logger
+from bsm2_python.bsm_base import BSMBase
 
 path_name = os.path.dirname(__file__)
 
 SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = np.arange(21)
 
 
-class BSM2Base:
+class BSM2Base(BSMBase):
     """Creates a BSM2Base object. It is a base class and resembles the BSM2 model without any controllers.
 
     Parameters
     ----------
-    data_in : np.ndarray(n, 21) (optional)
+    data_in : np.ndarray(n, 22) | str (optional)
         Influent data. Has to be a 2D array. <br>
         First column is time [d], the rest are 21 components
         (13 ASM1 components, TSS, Q, T and 5 dummy states).
+        If a string is provided, it is interpreted as a file name.
         If not provided, the influent data from BSM2 is used. \n
         [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5]
     timestep : float (optional)
         Timestep for the simulation [d]. <br>
-        If not provided, the timestep is calculated from the influent data.
+        If not provided, the timestep is set to 1 minute. <br>
+        Please note: Due to sensor sensitivity, the timestep should not be larger than 1 minute.
     endtime : float (optional)
         Endtime for the simulation [d]. <br>
         If not provided, the endtime is the last time step in the influent data.
-    evaltime : np.ndarray(2) (optional)
+    evaltime : int | np.ndarray(2) (optional)
         Evaluation time for the simulation [d]. <br>
-        Needs to be passed as a 1D np.ndarray with two values.
+        When passed as an int, it defines the number of last days of the simulation to be evaluated.
+        When passed as a 1D np.ndarray with two values, it defines the start and end time of the evaluation period.
         If not provided, the last 5 days of the simulation will be assessed. \n
         [starttime, self.simtime[-1]]
     tempmodel : bool (optional)
@@ -65,18 +66,30 @@ class BSM2Base:
     activate : bool (optional)
         If `True`, the dummy states are activated.
         Default is `False`.
+    data_out : str (optional)
+        Path to the output data file. <br>
+        If not provided, no output data is saved.
     """
 
     def __init__(
         self,
-        data_in=None,
-        timestep=None,
-        endtime=None,
-        evaltime=None,
+        data_in: np.ndarray | str | None = None,
+        timestep: float | None = None,
+        endtime: float | None = None,
+        evaltime: int | np.ndarray | None = None,
         *,
-        tempmodel=False,
-        activate=False,
+        tempmodel: bool = False,
+        activate: bool = False,
+        data_out: str | None = None,
     ):
+        super().__init__(
+            data_in=data_in,
+            timestep=timestep,
+            endtime=endtime,
+            evaltime=evaltime,
+            data_out=data_out,
+        )
+
         # definition of the objects:
         self.input_splitter = Splitter(sp_type=2)
         self.bypass_plant = Splitter()
@@ -166,42 +179,6 @@ class BSM2Base:
         self.storage = Storage(storageinit.VOL_S, storageinit.ystinit, tempmodel, activate)
         self.splitter_storage = Splitter()
 
-        if data_in is None:
-            # dyninfluent from BSM2:
-            with open(path_name + '/data/dyninfluent_bsm2.csv', encoding='utf-8-sig') as f:
-                self.data_in = np.array(list(csv.reader(f, delimiter=','))).astype(np.float64)
-        else:
-            self.data_in = data_in
-
-        if timestep is None:
-            # calculate difference between each time step in data_in
-            self.simtime = self.data_in[:, 0]
-            self.timestep = np.diff(self.data_in[:, 0], append=(2 * self.data_in[-1, 0] - self.data_in[-2, 0]))
-        else:
-            self.simtime = np.arange(0, self.data_in[-1, 0], timestep)
-            self.timestep = timestep * np.ones(len(self.simtime) - 1)
-
-        if endtime is None:
-            self.endtime = self.data_in[-1, 0]
-        else:
-            if endtime > self.data_in[-1, 0]:
-                err = 'Endtime is larger than the last time step in data_in.\n \
-                    Please provide a valid endtime.\n Endtime should be given in days.'
-                raise ValueError(err)
-            self.endtime = endtime
-            self.simtime = self.simtime[self.simtime <= endtime]
-        self.data_time = self.data_in[:, 0]
-
-        if evaltime is None:
-            # evaluate the last 5 days of the simulation
-            last_days = 5
-            starttime = self.simtime[np.argmin(np.abs(self.simtime - (self.simtime[-1] - last_days)))]
-            self.evaltime = np.array([starttime, self.simtime[-1]])
-        self.eval_idx = np.array(
-            [np.where(self.simtime <= self.evaltime[0])[0][-1], np.where(self.simtime <= self.evaltime[1])[0][-1]]
-        )
-        self.evaluator = Evaluation(path_name + '/data/output_evaluation.csv')
-
         self.performance = PlantPerformance(pp_init.PP_PAR)
 
         self.y_in = self.data_in[:, 1:]
@@ -285,7 +262,8 @@ class BSM2Base:
         self.perf_factors_all = np.zeros((len(self.simtime), 12))
         self.violation_all = np.zeros(len(self.simtime))
 
-        self.y_out5_r[14] = asm1init.QINTR
+        self.qintr = asm1init.QINTR
+        self.y_out5_r[14] = self.qintr
 
     def step(self, i: int, *args, **kwargs):
         """Simulates one time step of the BSM2 model.
@@ -298,7 +276,7 @@ class BSM2Base:
 
         # timestep = timesteps[i]
         step: float = self.simtime[i]
-        stepsize: float = self.timestep[i]
+        stepsize: float = self.timesteps[i]
 
         self.reactor1.kla, self.reactor2.kla, self.reactor3.kla, self.reactor4.kla, self.reactor5.kla = self.klas
 
@@ -311,7 +289,7 @@ class BSM2Base:
         yp_in_c, y_in_bp = self.input_splitter.output(y_in_timestep, (0, 0), reginit.QBYPASS)
         y_plant_bp, y_in_as_c = self.bypass_plant.output(y_in_bp, (1 - reginit.QBYPASSPLANT, reginit.QBYPASSPLANT))
         yp_in = self.combiner_primclar_pre.output(yp_in_c, self.yst_sp_p, self.yt_sp_p)
-        self.yp_uf, self.yp_of, self.yp_internal = self.primclar.output(self.timestep[i], step, yp_in)
+        self.yp_uf, self.yp_of, self.yp_internal = self.primclar.output(stepsize, step, yp_in)
         y_c_as_bp = self.combiner_primclar_post.output(self.yp_of[:21], y_in_as_c)
         y_bp_as, y_as_bp_c_eff = self.bypass_reactor.output(y_c_as_bp, (1 - reginit.QBYPASSAS, reginit.QBYPASSAS))
 
@@ -321,9 +299,7 @@ class BSM2Base:
         self.y_out3 = self.reactor3.output(stepsize, step, self.y_out2)
         self.y_out4 = self.reactor4.output(stepsize, step, self.y_out3)
         self.y_out5 = self.reactor5.output(stepsize, step, self.y_out4)
-        ys_in, self.y_out5_r = self.splitter_reactor.output(
-            self.y_out5, (self.y_out5[14] - asm1init.QINTR, asm1init.QINTR)
-        )
+        ys_in, self.y_out5_r = self.splitter_reactor.output(self.y_out5, (self.y_out5[14] - self.qintr, self.qintr))
 
         self.ys_r, self.ys_was, self.ys_of, _, self.ys_tss_internal = self.settler.output(stepsize, step, ys_in)
 
@@ -358,7 +334,7 @@ class BSM2Base:
         )
         sosat = np.array([asm1init.SOSAT1, asm1init.SOSAT2, asm1init.SOSAT3, asm1init.SOSAT4, asm1init.SOSAT5])
         self.ae = self.performance.aerationenergy_step(self.klas, vol[0:5], sosat)
-        flows = np.array([asm1init.QINTR, asm1init.QR, asm1init.QW, self.yp_uf[14], self.yt_uf[14], self.ydw_s[14]])
+        flows = np.array([self.qintr, asm1init.QR, asm1init.QW, self.yp_uf[14], self.yt_uf[14], self.ydw_s[14]])
         self.pe = self.performance.pumpingenergy_step(flows, pp_init.PP_PAR[10:16])
         self.me = self.performance.mixingenergy_step(self.klas, vol, pp_init.PP_PAR[16])
 
@@ -460,54 +436,27 @@ class BSM2Base:
         stable : bool
             Returns `True` if plant is stabilized after iterations.
         """
-
-        stable = False
-        i = 0
-        s = 0  # index of the timestep to call repeatedly until stabilization
-        old_check_vars = np.concatenate(
-            [
-                self.y_eff_all[s],
-                self.y_in_bp_all[s],
-                self.to_primary_all[s],
-                self.prim_in_all[s],
-                self.qpass_plant_all[s],
-                self.qpassplant_to_as_all[s],
-                self.qpassAS_all[s],
-                self.to_as_all[s],
-                self.feed_settler_all[s],
-                self.qthick2AS_all[s],
-                self.qthick2prim_all[s],
-                self.qstorage2AS_all[s],
-                self.qstorage2prim_all[s],
-                self.sludge_all[s],
-            ]
-        )
-        while not stable:
-            i += 1
-            logger.debug('Stabilizing iteration %s', i)
-            self.step(s, stabilized=False)
-            check_vars = np.concatenate(
-                [
-                    self.y_eff_all[s],
-                    self.y_in_bp_all[s],
-                    self.to_primary_all[s],
-                    self.prim_in_all[s],
-                    self.qpass_plant_all[s],
-                    self.qpassplant_to_as_all[s],
-                    self.qpassAS_all[s],
-                    self.to_as_all[s],
-                    self.feed_settler_all[s],
-                    self.qthick2AS_all[s],
-                    self.qthick2prim_all[s],
-                    self.qstorage2AS_all[s],
-                    self.qstorage2prim_all[s],
-                    self.sludge_all[s],
-                ]
-            )
-            if np.isclose(check_vars, old_check_vars, atol=atol).all():
-                stable = True
-            old_check_vars = np.array(check_vars)
-        logger.info('Stabilized after %s iterations\n', i)
+        check_vars = [
+            'y_eff',
+            'y_out1',
+            'y_out2',
+            'y_out3',
+            'y_out4',
+            'y_out5',
+            'yt_sp_as',
+            'yt_sp_p',
+            'yst_sp_as',
+            'yst_sp_p',
+            'ydw_s',
+            'y_out1',
+            'y_out2',
+            'y_out3',
+            'y_out4',
+            'y_out5',
+            'ys_of',
+            'yp_uf',
+        ]
+        stable = super()._stabilize(check_vars=check_vars, atol=atol)
         return stable
 
     def simulate(self, *, plot=True, export=True):
@@ -538,9 +487,9 @@ class BSM2Base:
 
         self.oci_final = self.get_final_performance()[-1]
         self.evaluator.update_data('oci_final', self.oci_final, self.evaltime[1])
-        self.finish_evaluation(plot=plot, export=export)
+        self.finish_evaluation(plot=plot)
 
-    def finish_evaluation(self, *, plot=True, export=True):
+    def finish_evaluation(self, *, plot=True):
         """Finishes the evaluation of the plant.
 
         Parameters
@@ -548,15 +497,11 @@ class BSM2Base:
         plot : bool (optional)
             If `True`, the data is plotted. <br>
             Default is `True`.
-        export : bool (optional)
-            If `True`, the data is exported. <br>
-            Default is `True`.
         """
 
         if plot:
             self.evaluator.plot_data()
-        if export:
-            self.evaluator.export_data()
+        self.evaluator.export_data()
 
     def get_violations(self, comp: tuple = ('SNH',), lim: tuple = (4,)):
         """Returns the violations of the given components within the evaluation interval.

@@ -80,12 +80,14 @@ class PlantPerformance:
 
         Parameters
         ----------
-        flows : np.ndarray(6)
+        flows : np.ndarray(n)
             Flow rates at every time step of the evaluation time <br>[m³ ⋅ d⁻¹]. \n
-            [Q_INTR, Q_R, Q_W, Q_PU, Q_TU, Q_DO]
-        pumpfactor : np.ndarray(6)
+            For BSM2: [Q_INTR, Q_R, Q_W, Q_PU, Q_TU, Q_DO]
+            For BSM1: [Q_INTR, Q_R, Q_W]
+        pumpfactor : np.ndarray(n)
             Pumping energy factor for each flow [kWh ⋅ m⁻³]. \n
-            [PF_QINTR, PF_QR, PF_QW, PF_QPU, PF_QTU, PF_QDO]
+            For BSM2: [PF_QINTR, PF_QR, PF_QW, PF_QPU, PF_QTU, PF_QDO]
+            For BSM1: [PF_QINTR, PF_QR, PF_QW]
 
         Returns
         -------
@@ -98,7 +100,7 @@ class PlantPerformance:
         return pe
 
     @staticmethod
-    def mixingenergy_step(kla, vol, me_ad):
+    def mixingenergy_step(kla, vol, me_ad: float | None = None):
         """Returns the mixing energy of the plant during the evaluation time.
 
         Parameters
@@ -109,8 +111,8 @@ class PlantPerformance:
         vol : np.ndarray
             Volume of each activated sludge reactor compartment, including the anaerobic digester unit [m³]. \n
             [VOL1, VOL2, VOL3,..., ADM1_VOL_LIQ]
-        me_ad : float
-            Mixing energy factor for the anaerobic digester unit <br>
+        me_ad : float (optional)
+            Mixing energy factor for the anaerobic digester unit. If not provided, anaerobic digestion is ignored <br>
             [kWh ⋅ m⁻³].
 
         Returns
@@ -121,7 +123,7 @@ class PlantPerformance:
 
         lim = 20
         me_asm = 0.005 * sum((kla[i] < lim) * vol[i] for i in range(len(kla)))
-        me_adm = me_ad * vol[5]
+        me_adm = me_ad * vol[5] if me_ad is not None else 0
         me = me_asm + me_adm
         return me
 
@@ -266,7 +268,7 @@ class PlantPerformance:
 
         return iqi
 
-    def eqi(self, ys_of, y_plant_bp, y_as_bp_c_eff):
+    def eqi(self, ys_of: np.ndarray, y_plant_bp: np.ndarray | None = None, y_as_bp_c_eff: np.ndarray | None = None):
         """Returns the effluent quality index (EQI).
 
         Parameters
@@ -276,13 +278,15 @@ class PlantPerformance:
             (13 ASM1 components, TSS, Q, T and 5 dummy states) after the fifth ASM reactor. \n
             [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
             SD1, SD2, SD3, XD4, XD5]
-        y_plant_bp : np.ndarray(21) or np.ndarray(n, 21)
-            Array containing the values of the 21 components
+        y_plant_bp : np.ndarray(21) or np.ndarray(n, 21) (optional)
+            Array containing the values of the 21 components.
+            If not provided, the plant bypass is assumed to be 0. \n
             (13 ASM1 components, TSS, Q, T and 5 dummy states) after the plant bypass. \n
             [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
             SD1, SD2, SD3, XD4, XD5]
         y_as_bp_c_eff : np.ndarray(21) or np.ndarray(n, 21)
             Array containing the values of the 21 components
+            If not provided, the reactor bypass is assumed to be 0. \n
             (13 ASM1 components, TSS, Q, T and 5 dummy states) after the ASM bypass. \n
             [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
             SD1, SD2, SD3, XD4, XD5]
@@ -292,10 +296,9 @@ class PlantPerformance:
         eqi: float or np.ndarray
             The value of the effluent quality index of the stream <br>[kg(Pollution Units) ⋅ d⁻¹].
         """
-
         ys_of = self._reshape_if_1d(ys_of)
-        y_plant_bp = self._reshape_if_1d(y_plant_bp)
-        y_as_bp_c_eff = self._reshape_if_1d(y_as_bp_c_eff)
+        y_plant_bp = np.zeros(ys_of.shape) if y_plant_bp is None else self._reshape_if_1d(y_plant_bp)
+        y_as_bp_c_eff = np.zeros(ys_of.shape) if y_as_bp_c_eff is None else self._reshape_if_1d(y_as_bp_c_eff)
 
         y_out5_aq = self.advanced_quantities(ys_of, ('kjeldahlN', 'totalN', 'COD', 'BOD5e', 'X_TSS'))
         y_p_bp_aq = self.advanced_quantities(y_plant_bp, ('kjeldahlN', 'totalN', 'COD', 'BOD5', 'X_TSS'))
@@ -668,7 +671,7 @@ class PlantPerformance:
         return tss_cost + ae_cost + me_cost + pe_cost + cm_cost + he_cost - mp_income
 
     @staticmethod
-    def _reshape_if_1d(arr):
+    def _reshape_if_1d(arr: np.ndarray):
         """Reshapes the array to 2D if it's 1D.
 
         Parameters

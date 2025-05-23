@@ -27,7 +27,7 @@ def test_dewatering():
 
     timestep = 15 / (60 * 24)
     endtime = 200
-    simtime = np.arange(0, endtime, timestep)
+    simtime = np.arange(0, endtime, timestep, dtype=float)
 
     ydw_s = np.zeros(21)
     ydw_r = np.zeros(21)
@@ -114,7 +114,7 @@ def test_dewatering_dyn():
     timestep = 15 / 24 / 60  # 15 minutes in days
     endtime = 50  # data_in[-1, 0]
     data_time = data_in[:, 0]
-    simtime = np.arange(0, endtime, timestep)
+    simtime = np.arange(0, endtime, timestep, dtype=float)
     y_in = data_in[:, 1:]
     del data_in
 

@@ -8,8 +8,8 @@
 
 ![BSM2 with Energy Management in Python](/docs/assets/images/bsm2em_python_flowchart.drawio.svg)
 
-A Python implementation of the Benchmark Simulation Model 2 (BSM2) plant layout according to the [IWA](http://iwa-mia.org/) standard.
-A technical description of BSM2 can be found [here](https://iwaponline.com/ebooks/book-pdf/650794/wio9781780401171.pdf).
+A Python implementation of **Benchmark Simulation Model 1** (BSM1) and **2** (BSM2) plant layouts according to the [IWA](http://iwa-mia.org/) standard.
+A technical description of BSM2 can be found [here](https://iwaponline.com/ebooks/book-pdf/650794/wio9781780401171.pdf). A description for BSM1 can be found [here](http://iwa-mia.org/wp-content/uploads/2019/04/BSM_TG_Tech_Report_no_1_BSM1_General_Description.pdf).
 
 ## Installation
 ### Easy way
@@ -184,3 +184,4 @@ We are currently in the publication process of a peer-reviewed paper. In the mea
     year = {2024--},
     url = "https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python"
 }
+```
