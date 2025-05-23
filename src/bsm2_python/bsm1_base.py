@@ -282,6 +282,7 @@ class BSM1Base(BSMBase):
         stable : bool
             Returns `True` if plant is stabilized after iterations.
         """
+        # every element of check_vars must be an equally-sized array as attribute of the class
         check_vars = [
             'ys_eff',
             'ys_in',
@@ -290,7 +291,6 @@ class BSM1Base(BSMBase):
             'y_out3',
             'y_out4',
             'y_out5',
-            'sludge_height',
         ]
         stable = super()._stabilize(check_vars=check_vars, atol=atol)
         return stable

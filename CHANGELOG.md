@@ -1,5 +1,9 @@
 # Changelog
 
+<h2> Version 0.0.15 (development) </h2>
+
+- Bugfix: step method now independent of `stabilize` parameter.
+
 <h2> Version 0.0.14 (development) </h2>
 
 - Add `BSM1` support - currently not validated! Use on your own risk!

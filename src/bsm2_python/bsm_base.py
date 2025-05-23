@@ -36,10 +36,11 @@ class BSMBase:
     endtime : float (optional)
         Endtime for the simulation [d]. <br>
         If not provided, the endtime is the last time step in the influent data.
-    evaltime : int | np.ndarray(2) (optional)
+    evaltime : int | np.ndarray(2) | list[float] | tuple[float] (optional)
         Evaluation time for the simulation [d]. <br>
         When passed as an int, it defines the number of last days of the simulation to be evaluated.
-        When passed as a 1D np.ndarray with two values, it defines the start and end time of the evaluation period.
+        When passed as a 1D np.ndarray or list with two values, it defines
+        the start and end time of the evaluation period.
         If not provided, the last 5 days of the simulation will be assessed. \n
         [starttime, self.simtime[-1]]
     data_out : str (optional)
@@ -52,7 +53,7 @@ class BSMBase:
         data_in: np.ndarray | str | None = None,
         timestep: float | None = None,
         endtime: float | None = None,
-        evaltime: int | np.ndarray | None = None,
+        evaltime: int | np.ndarray | list[float] | tuple[float] | None = None,
         data_out: str | None = None,
     ):
         if data_in is None:
@@ -94,13 +95,18 @@ class BSMBase:
             raise ValueError(err)
         self.data_time = self.data_in[:, 0]
 
-        if isinstance(evaltime, np.ndarray):
-            evaltime_dim = 2
-            if len(evaltime) != evaltime_dim:
-                raise ValueError('evaltime must be a 1D numpy array with two values.')
-            if evaltime[0] < self.simtime[0] or evaltime[1] > self.simtime[-1]:
+        if isinstance(evaltime, np.ndarray | list | tuple):
+            # allow a 1D numpy array or a list/tuple with two float values
+            dim_eval = 2
+            if len(evaltime) != dim_eval:
+                raise ValueError('evaltime must be a 1D numpy array or list with two values.')
+            try:
+                start, end = map(float, evaltime)
+            except Exception as excpt:
+                raise ValueError('evaltime values must be numbers.') from excpt
+            if start < self.simtime[0] or end > self.simtime[-1]:
                 raise ValueError('evaltime must be within the simulation time.')
-            self.evaltime = evaltime
+            self.evaltime = np.array([start, end])
         elif isinstance(evaltime, int):
             # evaluate the last evaltime days of the simulation
             if evaltime > self.simtime[-1]:
@@ -167,7 +173,8 @@ class BSMBase:
         Parameters
         ----------
         check_vars : list[str]
-            List of attribute names (as strings) to check for stabilization.
+            List of attribute names (as strings) to check for stabilization. <br>
+            All attributes must be of the same type and have the same shape.
         atol : float (optional)
             Absolute tolerance for the stabilization. <br>
             Default is 1e-3.
@@ -185,7 +192,7 @@ class BSMBase:
         while not stable:
             i += 1
             logger.debug('Stabilizing iteration %s', i)
-            self.step(s, stabilized=False)
+            self.step(s)
             new_check_vars = np.array([getattr(self, var) for var in check_vars], dtype=float)
             # Check if the absolute difference is within the tolerance
             if np.isclose(new_check_vars, old_check_vars, atol=atol).all():
