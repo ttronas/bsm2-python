@@ -1,4 +1,5 @@
-"""This script will run the plant in an open loop simulation (no control) with dynamic input data together with the energy management system.
+"""This script will run the plant in an open loop simulation (no control) with dynamic input data together with the
+energy management system.
 
 - BSM2 base: Primary clarifier, 5 asm1 reactors, a second clarifier, sludge thickener,
 adm1 fermenter, sludge dewatering and wastewater storage in dynamic simulation without any controllers.

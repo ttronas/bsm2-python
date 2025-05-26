@@ -12,7 +12,8 @@ to the effluent [m³ ⋅ d⁻¹]."""
 QBYPASSPLANT = 1  # type 1, all of this is also bypassed the AS system
 """If 1, all of the bypass flow is bypassed to the activated sludge reactor system, and not to the plant effluent."""
 QBYPASSAS = 0  # type 1, all of primary effluent bypassed for AS
-"""If 1, all of the primary clarifier effluent bypasses the activated sludge reactor system and goes to the plant effluent."""
+"""If 1, all of the primary clarifier effluent bypasses the activated sludge reactor system and goes to
+the plant effluent."""
 QTHICKENER2AS = 0  # type 1, all of thickener effluent to AS, none to primary
 """If 1, all of the thickener effluent goes to the activated sludge reactor system, none goes to the
 primary clarifier."""
