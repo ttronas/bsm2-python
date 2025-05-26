@@ -1,4 +1,4 @@
-"""Initialisation file for all states and parameters related to the wastewater storage.
+"""Initialization file for all states and parameters related to the wastewater storage.
 
 All parameters and specifications are based on BSM2 model.
 This file will be executed when running `bsm2_cl.py`, `bsm2_ol.py` or `bsm2_olem.py`.

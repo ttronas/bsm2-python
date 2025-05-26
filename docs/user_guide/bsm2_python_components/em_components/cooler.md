@@ -3,7 +3,7 @@ hide:
   - toc
 ---
 
-![Cooler](../../assets/icons/bsm2python/cooler.svg){ align=right }
+![Cooler](../../../assets/icons/bsm2python/cooler.svg){ align=right }
 
 ### Introduction and Model
 

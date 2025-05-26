@@ -3,7 +3,7 @@ hide:
   - toc
 ---
 
-![Settler](../../assets/icons/bsm2python/settler.svg){ align=right }
+![Settler](../../../assets/icons/bsm2python/settler.svg){ align=right }
 
 ### Introduction and Model
 
@@ -14,7 +14,7 @@ The implementation is based on the Takács model (1991), which represents the se
 In the mass balances the total suspended solids (TSS) value is used instead of the individual particulate ASM state variables. To convert the calculated TSS values back into particulate ASM state variables for the underflow and overflow streams, it is assumed that the particulate fraction in the overflow and underflow are the same as in the influent fractions.
 
 <figure markdown="span">
-  ![Settler flowchart](../../assets/images/settler_flowchart.drawio.svg)
+  ![Settler flowchart](../../../assets/images/settler_flowchart.drawio.svg)
   <figcaption markdown="1">Schematic model of a 10-layer settler[^1]</figcaption>
 </figure>
 

@@ -1,3 +1,12 @@
+"""This represents the base model in an open loop simulation together with the energy management system.
+
+- BSM2 base: Primary clarifier, 5 asm1 reactors, a second clarifier, sludge thickener,
+adm1 fermenter, sludge dewatering and wastewater storage in dynamic simulation without any controllers.
+
+- BSM2 energy management: Biogas compressor, biogas storage, 2 CHP units, boiler, flare, heat network, cooler
+and a module for economic evaluation.
+"""
+
 import math
 
 import numpy as np

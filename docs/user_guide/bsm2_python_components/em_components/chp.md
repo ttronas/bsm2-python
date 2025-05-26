@@ -3,7 +3,7 @@ hide:
   - toc
 ---
 
-![CHP](../../assets/icons/bsm2python/chp.svg){ align=right }
+![CHP](../../../assets/icons/bsm2python/chp.svg){ align=right }
 
 ### Introduction and Model
 

@@ -3,7 +3,7 @@ hide:
   - toc
 ---
 
-![Dewatering](../../assets/icons/bsm2python/dewatering.svg){ align=right }
+![Dewatering](../../../assets/icons/bsm2python/dewatering.svg){ align=right }
 
 ### Introduction and Model
 

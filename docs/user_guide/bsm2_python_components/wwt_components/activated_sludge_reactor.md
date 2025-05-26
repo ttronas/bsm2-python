@@ -3,7 +3,7 @@ hide:
   - toc
 ---
 
-![Activated sludge reactor](../../assets/icons/bsm2python/activated-sludge-reactor.svg){ align=right }
+![Activated sludge reactor](../../../assets/icons/bsm2python/activated-sludge-reactor.svg){ align=right }
 
 ### Introduction and Model
 

@@ -1,8 +1,11 @@
-"""This script will run the plant in an open loop simulation (no control) with dynamic input data.
+"""This script will run the plant in an open loop simulation (no control) with dynamic input data together with the
+energy management system.
 
-Execution file for bsm2 model with primary clarifier,
-5 asm1-reactors and a second clarifier, sludge thickener,
-adm1-fermenter and sludge storage in steady state simulation.
+- BSM2 base: Primary clarifier, 5 asm1 reactors, a second clarifier, sludge thickener,
+adm1 fermenter, sludge dewatering and wastewater storage in dynamic simulation without any controllers.
+
+- BSM2 energy management: Biogas compressor, biogas storage, 2 CHP units, boiler, flare, heat network, cooler
+and a module for economic evaluation.
 
 This script requires that the packages from requirements.txt are installed
 within the Python environment you are running this script.

@@ -3,7 +3,7 @@ hide:
   - toc
 ---
 
-![Biogas storage](../../assets/icons/bsm2python/biogas-storage.svg){ align=right }
+![Biogas storage](../../../assets/icons/bsm2python/biogas-storage.svg){ align=right }
 
 ### Introduction and Model
 

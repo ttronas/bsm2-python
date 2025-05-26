@@ -61,14 +61,159 @@ that any documentation update is done in the same way was a code contribution.
       which changes have you made and what are the motivations behind them and
       submit your proposal.
 
-When working on documentation changes in your local machine, you can
-build and serve them using [hatch] with `hatch run docs:build` and
-`hatch run docs:serve`, respectively.
 
-### Documentation setup on local machines (windows only)
+### Using the Dev Container for documentation
+With a Dev Container setup, all necessary tools and dependencies are already installed. See the [Clone the repository](contribute/#clone-the-repository) section for instructions on how to get the repository, including the Dev Container setup.
 
-If you want to improve the documentation of this project on your local windows machine,
-there are a few setup-steps before you can begin. In order to use [MkDocs] you have to:
+   Note: It is also possible to work on the documentation locally on your windows machine, without using Dev Container.
+      See the [Documenation setup on local machines (windows only)](contribute/###Decumentation-setup-on-local-machines-(windows-only)) for further information.
+
+## Code Contributions
+
+### Submit an issue
+
+Before you work on any non-trivial code contribution it's best to first create
+a report in the [issue tracker] to start a discussion on the subject.
+This often provides additional considerations and avoids unnecessary work.
+
+### Install the project (recommended way)
+
+#### Set up your Integrated Development Environment (IDE)
+
+Before you can get started you have to install an IDE such as [VSCode](https://code.visualstudio.com/) or [PyCharm](https://www.jetbrains.com/de-de/pycharm/) on your device. Since most of the setup instructions are for VSCode, this IDE is recommended if you are new to programming.
+
+#### Install Git
+
+Git is used as the Version Control System for this project, to track and manage changes to the file system.
+If Git is new to you, you can read [this](https://git-scm.com/book/en/v2/Getting-Started-What-is-Git%3F) Git guide.
+
+ - To install Git download and run the installer from the [Git](https://git-scm.com/) website.
+
+After installation is finished, you have to configure your Git username and email using the following commands in the Git Bash console:
+
+```console
+$ git config --global user.name "Emma Paris"
+$ git config --global user.email "eparis@atlassian.com"
+```
+
+After Git is installed and configured you have to add the GitLab Workflow extension to your IDE:
+
+- Open up VSCode
+- Select "Extensions" on the left side
+- Search for the "GitLab Workflow" extension and install it
+
+#### Register on GitLab
+
+- Create a user account on [GitLab](https://gitlab.rrze.fau.de/users/sign_in) if you do not already have one.
+
+#### Authenticate your IDE with GitLab
+
+To authenticate your IDE to have permission to GitLab you have to create a personal access token:
+
+- Sign in on GitLab
+
+- On the left sidebar, select your avatar
+
+- Select **Edit profile**
+
+- On the left sidebar, select **Access tokens**
+
+- Select the **Add new token** button
+
+- Enter a name and expiry date for the token
+
+- Select the desired scopes (preferably all)
+
+- Select **Create personal access token**
+
+- Select **Copy personal access token**
+
+Now open VSCode:
+
+- Press Ctrl+Shift+P
+
+- Search for **GitLab: Authenticate**
+
+- Enter https://gitlab.rrze.fau.de
+
+- Select **Enter an existing token**
+
+- Enter the copied personal access token with Ctrl+V
+
+#### Clone the repository
+
+- Go to the BSM2-Python repository on [GitLab](https://gitlab.rrze.fau.de/users/sign_in)
+
+- Continue into the **BSM2-Python**-Project and open the folder named **src/bsm2_python**
+
+- In the top right corner: Select the blue highlighted **Code** button and copy the URL from **Clone with HTTPS**
+
+- Optional: Cloning with SSH works as well if you prefer it. Though, it might me necessary to add an SSH key to your profile in order for your computer to establish a secure connection to GitLab
+
+Open VSCode:
+
+- Press Ctrl+Shift+P
+
+- Select **Git: Clone**
+
+- Select **Clone from GitLab**
+
+- Select as Repository name **evt/klaeffizient/bsm2_python**
+
+- Enter the copied URL (from step "Clone with HTTPS/SSH") with Ctrl+V
+
+- Select a folder directory in which the project is to be saved
+
+
+#### Installation via Dev Container (remote)
+(Tested in VS Code)
+1. In order to install the project via Dev Container, you need to have [Docker] installed on your machine.
+   - To install Docker Desktop download and run the installer from the [Docker] website.
+   - Important note: For this to work you actually do not need to sign in to Docker Desktop.
+     After restarting your machine skip the log-in page and you are good to go.
+
+2. Succeeding to installing Docker Desktop you need to add the Dev Containers extension to your IDE
+   - In VS Code: Select "Extensions" on the left side bar
+   - Search for the "Dev Container" extension and install it
+
+3. Open the project folder in [VSCode] and click on the coloured button in the bottom left corner.
+   Choose `Remote-Containers: Reopen in Container` and wait for the container to build.
+   The dev container is preconfigured with all necessary tools and dependencies.
+   These include Python. There is no separate installation necessary.
+
+
+### Installation and Documentation without Dev Container
+
+The following section focus on installing the project as well as contributing to our documentation
+without using Dev Container and Docker Desktop.
+These approaches do not represent the recommended way, but are possible if preferred.
+   
+
+##### Installation via hatch (local)
+1. Make sure [pipx] is installed using [pip] and install [hatch]:
+
+   ```console
+   pip install pipx
+   pipx install hatch
+   ```
+
+2. \[only once\] install [pre-commit] hooks in the default environment with:
+
+   ```console
+   hatch run pre-commit install
+   ```
+
+3. Set `hatch run test` as default environment:
+   Find your path to the `test` environment by running `hatch env find test`.
+   In VSCode, open the `Python: Select Interpreter` command and choose the python executable within the folder structure.
+   Now you can run the code just as you would in a normal python environment.
+
+#### Documentation setup on local machines (windows only)
+
+If you have chosen not to install the project via Dev Container,
+there are a few setup-steps to be done before you will be able to improve
+this project's documentation locally on your windows machine.
+In order to use [MkDocs] you have to:
 
  1. Install the [GTK-Package]:
 
@@ -96,133 +241,10 @@ there are a few setup-steps before you can begin. In order to use [MkDocs] you h
 
     - Click on "Environment Variables" and edit the `PATH` variable by adding the path `C:\msys64\mingw64\bin`.
 
-### Using the Dev Container for documentation
-With a Dev Container setup, all necessary tools and dependencies are already installed. See the [Clone the repository](contribute/#clone-the-repository) section for instructions on how to get the repository, including the Dev Container setup.
+   When working on documentation changes in your local machine, you can
+   build and serve them using [hatch] with `hatch run docs:build` and
+   `hatch run docs:serve`, respectively.
 
-## Code Contributions
-
-### Submit an issue
-
-Before you work on any non-trivial code contribution it's best to first create
-a report in the [issue tracker] to start a discussion on the subject.
-This often provides additional considerations and avoids unnecessary work.
-
-### Install the project
-
-### Set up your Integrated Development Environment (IDE)
-
-Before you can get started you have to install an IDE such as [VSCode](https://code.visualstudio.com/) or [PyCharm](https://www.jetbrains.com/de-de/pycharm/) on your device. Since most of the setup instructions are for VSCode, this IDE is recommended if you are new to programming.
-
-### Install Python
-
-Install a Python Version ($\ge$ 3.10) that works with the dependencies of the project.
-
- - To install Python download and run the installer from the [Python](https://www.python.org/) website.
-
-### Install Git
-
-Git is used as the Version Control System for this project, to track and manage changes to the file system.
-If Git is new to you, you can read [this](https://git-scm.com/book/en/v2/Getting-Started-What-is-Git%3F) Git guide.
-
- - To install Git download and run the installer from the [Git](https://git-scm.com/) website.
-
-After installation is finished, you have to configure your Git username and email using the following commands in the Git Bash console:
-
-```console
-$ git config --global user.name "Emma Paris"
-$ git config --global user.email "eparis@atlassian.com"
-```
-
-After Git is installed and configured you have to add the GitLab Workflow extension to your IDE:
-
-- Open up VSCode
-- Select "Extentions" on the left side
-- Search for the "GitLab Workflow" extention and install it
-
-### Register on GitLab
-
-- Create a user account on [GitLab](https://gitlab.rrze.fau.de/users/sign_in) if you do not already have one.
-
-### Authenticate your IDE with GitLab
-
-To authenticate your IDE to have permission to GitLab you have to create a personal access token:
-
-- Sign in on GitLab
-
-- On the left sidebar, select your avatar
-
-- Select **Edit profile**
-
-- On the left sidebar, select **Access tokens**
-
-- Select on the **Add new token** button
-
-- Enter a name and expiry date for the token
-
-- Select the desired scopes (preferably all)
-
-- Select **Create personal access token**
-
-- Select **Copy personal access token**
-
-Now open VSCode:
-
-- Press Ctrl+Shift+P
-
-- Search for **GitLab: Authenticate**
-
-- Enter https://gitlab.rrze.fau.de
-
-- Select **Enter an existing token**
-
-- Enter the copied personal access token with Ctrl+V
-
-### Clone the repository
-
-- Go to the BSM2-Python repository on [GitLab](https://gitlab.rrze.fau.de/users/sign_in)
-
-- Select the **Code** button and on copy the link from **Clone with SSH**
-
-Open VSCode:
-
-- Press Ctrl+Shift+P
-
-- Select **Git: Clone**
-
-- Select **Clone from GitLab**
-
-- Select as Repository name **evt/klaeffizient/bsm2_python**
-
-- Enter the copied URL (from step with Clone with SSH) with Ctrl+V
-
-- Select a folder directory in which the project is to be saved
-
-You can install the project in two ways:
-#### Installation via Dev Container (remote)
-1. If you want to use a Dev Container (tested with [VSCode]):
-   Open the project folder in [VSCode] and click on the green button in the bottom left corner.
-   Choose `Remote-Containers: Reopen in Container` and wait for the container to build.
-   To make it work, you need to have [Docker] installed on your machine.
-   The dev container is preconfigured with all necessary tools and dependencies.
-
-#### Installation via hatch (local)
-1. Make sure [pipx] is installed using [pip] and install [hatch]:
-
-   ```console
-   pip install pipx
-   pipx install hatch
-   ```
-
-2. \[only once\] install [pre-commit] hooks in the default environment with:
-
-   ```console
-   hatch run pre-commit install
-   ```
-
-3. Set `hatch run test` as default environment:
-   Find your path to the `test` environment by running `hatch env find test`.
-   In VSCode, open the `Python: Select Interpreter` command and choose the python executable within the folder structure.
-   Now you can run the code just as you would in a normal python environment.
 
 ### Implement your changes
 
@@ -268,6 +290,9 @@ You can install the project in two ways:
    `hatch run test:cov` or `hatch run test:no-cov` to run the unittest with
    or without coverage reports, respectively. If you want to run only your newly
    added tests, you can use `hatch run test:cov <path-to-your-test-files>`
+
+
+
 
 ### Submit your contribution
 
