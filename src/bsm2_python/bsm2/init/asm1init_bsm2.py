@@ -475,12 +475,12 @@ VOL5 = VOL3
 
 # oxygen saturation concentration at 15 degC, based on BSM1
 SOSAT1 = 8
-"""Oxygen saturation concentration at 15 °C in reactor 1 [%]."""
+"""Oxygen saturation concentration at 15 °C in reactor 1 [g(O₂) ⋅ m⁻³]."""
 SOSAT2 = SOSAT1
-"""Oxygen saturation concentration at 15 °C in reactor 2 [%]."""
+"""Oxygen saturation concentration at 15 °C in reactor 2 [g(O₂) ⋅ m⁻³]."""
 SOSAT3 = SOSAT1
-"""Oxygen saturation concentration at 15 °C in reactor 3 [%]."""
+"""Oxygen saturation concentration at 15 °C in reactor 3 [g(O₂) ⋅ m⁻³]."""
 SOSAT4 = SOSAT1
-"""Oxygen saturation concentration at 15 °C in reactor 4 [%]."""
+"""Oxygen saturation concentration at 15 °C in reactor 4 [g(O₂) ⋅ m⁻³]."""
 SOSAT5 = SOSAT1
-"""Oxygen saturation concentration at 15 °C in reactor 5 [%]."""
+"""Oxygen saturation concentration at 15 °C in reactor 5 [g(O₂) ⋅ m⁻³]."""

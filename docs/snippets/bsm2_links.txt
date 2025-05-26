@@ -35,3 +35,13 @@
 [Storage.output]: /reference/bsm2_python/bsm2/storage_bsm2/#bsm2_python.bsm2.storage_bsm2.Storage.output
 [PlantPerformance.iqi]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.iqi
 [PlantPerformance.eqi]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.eqi
+[plantperformanceinit_bsm2]: /reference/bsm2_python/bsm2/init/plantperformanceinit_bsm2/
+[aerationenergy_step method]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.aerationenergy_step
+[pumpingenergy_step method]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.pumpingenergy_step
+[mixingenergy_step method]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.mixingenergy_step
+[tss_mass_bsm2 method]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.tss_mass_bsm2
+[tss_flow method]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.tss_flow
+[added_carbon_mass method]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.added_carbon_mass
+[heat_demand_step method]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.heat_demand_step
+[gas_production method]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.gas_production
+[oci method]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.oci

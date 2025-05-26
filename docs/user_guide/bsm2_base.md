@@ -118,13 +118,90 @@ Initialization of the `BSM2Base` object with default parameters, setting up the 
 
 #### Initialization for data collection
 
+Initialization of variables that collect data for later evaluation.
+
 <div class="annotate" markdown>
 
 ```python title="bsm2_base.py", linenums="168"
---8<-- "bsm2_base.py:168:287"
+--8<-- "bsm2_base.py:168:173"
 ```
 
+Ensures that the initialized *BSM2Base* object always has influent data available for the simulation.
+
+```python title="bsm2_base.py", linenums="175"
+--8<-- "bsm2_base.py:175:181"
+```
+
+Ensures that the initialized *BSM2Base* object always has a `timestep` array (time difference between each step) and a `simtime` array (accumulated time since simulation start).
+
+```python title="bsm2_base.py", linenums="183"
+--8<-- "bsm2_base.py:183:192"
+```
+
+Ensures that the initialized *BSM2Base* object always has a `endtime` variable (accumulated time at end of the simulation) and checks for errors.
+
+- `data_time`: Array with the accumulated time for every step, like `simtime`
+
+```python title="bsm2_base.py", linenums="194"
+--8<-- "bsm2_base.py:194:201"
+```
+
+Ensures that the initialized *BSM2Base* object always has a `evaltime` array which marks the last 5 days of the simulation with a starttime and endtime.
+
+- `eval_idx`: Marks the range of simulation steps that is used for evaluation
+
+```python title="bsm2_base.py", linenums="202"
+--8<-- "bsm2_base.py:202:202"
+```
+
+- `evaluator`: Initializes an *Evaluation* object with a file path where data will be exported
+
+```python title="bsm2_base.py", linenums="204"
+--8<-- "bsm2_base.py:204:204"
+```
+
+- `performance`: Initializes an *PlantPerformance* object with some plant performance parameters
+
+```python title="bsm2_base.py", linenums="206"
+--8<-- "bsm2_base.py:206:233"
+```
+
+Initializes arrays and variables for the wastewater or sludge streams that flow between the wastewater treatment plant objects.
+
+```python title="bsm2_base.py", linenums="235"
+--8<-- "bsm2_base.py:235:269"
+```
+
+Initializes arrays to collect data from the wastewater or sludge streams that are to be evaluated later.
+
+```python title="bsm2_base.py", linenums="271"
+--8<-- "bsm2_base.py:271:271"
+```
+
+- `klas`: Initializes an array with all the K~L~a values for every activated sludge reactor  (1)
+
+```python title="bsm2_base.py", linenums="275"
+--8<-- "bsm2_base.py:275:275"
+```
+
+- `sludge_height`: Initializes variable for the continuous signal of sludge blanket level of the *Settler* object
+
+```python title="bsm2_base.py", linenums="277"
+--8<-- "bsm2_base.py:277:285"
+```
+
+Initializes variables for aeration energy, pumping energy and mixing energy and heat demand that are evaluated later on. Also initializes arrays for the collection of the influent quality index, effluent quality index, operation cost index, performance factors and violation data.
+
+```python title="bsm2_base.py", linenums="287"
+--8<-- "bsm2_base.py:287:287"
+```
+
+- `y_out5_r[14]`: Defines the flow rate of the internal recirculation after the fifth activated sludge reactor (2)
+
 </div>
+
+1.  Initialization file for bypass control, K~L~a values and carbon flows *[reginit_bsm2]*
+2.  Initialization file of the activated sludge reactor system *[asm1init_bsm2]*
 
 ---
 
@@ -459,43 +536,177 @@ Splitters of type 1 (default) separate streams into multiple by a given split ra
 
 In the simulation loop (`step` method) data is collected from each timestep to evaluate the plant performance and wastewater treatment parameters.
 
+<div class="annotate" markdown>
+
 ```python title="bsm2_base.py", linenums="348"
 --8<-- "bsm2_base.py:348:357"
 ```
+
+- `vol`: Initializes an array with the volume for each activated sludge reactor and the anaerobic digester
 
 ```python title="bsm2_base.py", linenums="358"
 --8<-- "bsm2_base.py:358:362"
 ```
 
-```python title="bsm2_base.py", linenums="271"
---8<-- "bsm2_base.py:271:271"
-```
+- `sosat`: Initializes an array with the saturated oxygen concentrations for each activated sludge reactor
 
-- `klas`:
+- `flows`: Initializes an array with all flow rates that are operated by a pump
+
+=== "**Object** *PlantPerformance* `performance`"
+    **Method** `aerationenergy_step` evaluates the aeration energy of the plant during the evaluation time.
+
+    | Input/Output (3) | Variable | Description |
+    |--------------|----------|-------------|
+    | Input | `klas` | Array with all the K~L~a values for the activated sludge reactors |
+    | Input | `vol[0:5]` | Array with all the volumes of the activated sludge reactors |
+    | Input | `sosat` | Array with the saturated oxygen concentrations for the activated sludge reactors |
+    | Output | `ae` | Aeration energy during the evaluation time |
+
+=== "**Object** *PlantPerformance* `performance`"
+    **Method** `pumpingenergy_step` evaluates the pumping energy of the plant during the evaluation time.
+
+    | Input/Output (4) | Variable | Description |
+    |--------------|----------|-------------|
+    | Input | `flows` | Array with all the K~L~a values for the activated sludge reactors |
+    | Input | `pp_init.PP_PAR[10:16]` | Array with the pumping energy factors for the individual flows (1) |
+    | Output | `pe` | Pumping energy during the evaluation time |
+
+=== "**Object** *PlantPerformance* `performance`"
+    **Method** `mixingenergy_step` evaluates the mixing energy of the plant during the evaluation time.
+
+    | Input/Output (5) | Variable | Description |
+    |--------------|----------|-------------|
+    | Input | `klas` | Array with all the K~L~a values for the activated sludge reactors and the anaerobic digester |
+    | Input | `vol` | Array with the volume for each activated sludge reactor and the anaerobic digester |
+    | Input | `pp_init.PP_PAR[16]` | Mixing energy factor for anaerobic digester unit (2) |
+    | Output | `me` | Pumping energy during the evaluation time |
 
 ```python title="bsm2_base.py", linenums="364"
 --8<-- "bsm2_base.py:364:377"
 ```
 
+=== "**Object** *PlantPerformance* `performance`"
+    **Method** `tss_mass_bsm2` calculates the sludge production of the BSM2 plant setup.
+
+    | Input/Output (6) | Variable | Description |
+    |--------------|----------|-------------|
+    | Input | `yp_of` | Primary clarifier overflow (effluent) concentrations |
+    | Input | `yp_uf` | Primary clarifier underflow (sludge) concentrations |
+    | Input | `yp_internal` | Primary clarifier internal (basically influent) concentrations |
+    | Input | `y_out1` | Concentrations of the 21 components after the first ASM reactor |
+    | Input | `y_out2` | Concentrations of the 21 components after the second ASM reactor |
+    | Input | `y_out3` | Concentrations of the 21 components after the third ASM reactor |
+    | Input | `y_out4` | Concentrations of the 21 components after the fourth ASM reactor |
+    | Input | `y_out5` | Concentrations of the 21 components after the fifth ASM reactor |
+    | Input | `ys_tss_internal` | Total suspended solids (TSS) concentrations of the internals of the settler |
+    | Input | `yd_out` | Concentrations of the 51 components and gas phase parameters after the digester |
+    | Input | `yst_out` | Concentrations of the 21 components in the effluent of the storage tank |
+    | Input | `yst_vol` | Current volume of the storage tank |
+    | Output | `tss_mass` | Sludge production of the BSM2 plant setup |
+
 ```python title="bsm2_base.py", linenums="378"
 --8<-- "bsm2_base.py:378:379"
 ```
+
+=== "**Object** *PlantPerformance* `performance`"
+    **Method** `tss_flow` calculates the total suspended solids (TSS) flow out of a reactor.
+
+    | Input/Output (7) | Variable | Description |
+    |--------------|----------|-------------|
+    | Input | `ydw_s` | Waste sludge (underflow) concentrations of the dewatering unit |
+    | Output | `ydw_s_tss_flow` | Total suspended solids (TSS) flow of the dewatering waste sludge stream |
+
+=== "**Object** *PlantPerformance* `performance`"
+    **Method** `tss_flow` calculates the total suspended solids (TSS) flow out of a reactor.
+
+    | Input/Output (8) | Variable | Description |
+    |--------------|----------|-------------|
+    | Input | `y_eff` | Effluent wastewater stream |
+    | Output | `y_eff_tss_flow` | Total suspended solids (TSS) flow of the effluent stream |
 
 ```python title="bsm2_base.py", linenums="380"
 --8<-- "bsm2_base.py:380:381"
 ```
 
+- `carb`: Float variable with the sum of external carbon flow rate that goes into the activated sludge system (9)
+
+=== "**Object** *PlantPerformance* `performance`"
+    **Method** `added_carbon_mass` calculates the total added carbon mass.
+
+    | Input/Output (10) | Variable | Description |
+    |--------------|----------|-------------|
+    | Input | `carb` | Sum of external carbon flow rate that goes in AS system |
+    | Input | `reginit.CARBONSOURCECONC` | External carbon source concentration (11) |
+    | Output | `added_carbon_mass` | Total carbon mass added into the AS system |
+
 ```python title="bsm2_base.py", linenums="382"
 --8<-- "bsm2_base.py:382:383"
 ```
+
+=== "**Object** *PlantPerformance* `performance`"
+    **Method** `heat_demand_step` calculates the heating demand of the sludge flow to the anaerobic digester.
+
+    | Input/Output (12) | Variable | Description |
+    |--------------|----------|-------------|
+    | Input | `yd_in` | Sludge stream that goes into the anaerobic digester |
+    | Input | `reginit.T_OP` | Operating temperature of the anaerobic digester (13) |
+    | Output | `heat_demand` | Heat demand of the sludge flow that goes into the anaerobic digester |
+
+=== "**Object** *PlantPerformance* `performance`"
+    **Method** `gas_production` calculates the gas production of the anaerobic digester.
+
+    | Input/Output (14) | Variable | Description |
+    |--------------|----------|-------------|
+    | Input | `yd_out` | Sludge stream that goes out of the anaerobic digester |
+    | Input | `reginit.T_OP` | Operating temperature of the anaerobic digester (15) |
+    | Output | `ch4_prod` | Methane production of the anaerobic digester |
+    | Output | `h2_prod` | Hydrogen production of the anaerobic digester |
+    | Output | `co2_prod` | Carbon dioxide production of the anaerobic digester |
+    | Output | `q_gas` | Total gas flow rate of the anaerobic digester |
 
 ```python title="bsm2_base.py", linenums="384"
 --8<-- "bsm2_base.py:384:394"
 ```
 
+=== "**Object** *PlantPerformance* `performance`"
+    **Method** `oci` calculates the operational cost index of the plant.
+
+    | Input/Output (16) | Variable | Description |
+    |--------------|----------|-------------|
+    | Input | `pe * 24` | Pumping energy of the BSM2 plant setup |
+    | Input | `ae * 24` | Aeration energy of the BSM2 plant setup |
+    | Input | `me * 24` | Mixing energy of the BSM2 plant setup |
+    | Input | `ydw_s_tss_flow` | Total suspended solids (TSS) flow of the dewatering waste sludge stream |
+    | Input | `added_carbon_mass` | Total carbon mass added into the AS system |
+    | Input | `heat_demand * 24` | Heat demand of the sludge flow that goes into the anaerobic digester |
+    | Input | `ch4_prod` | Methane production of the anaerobic digester |
+    | Input | `q_gas` | Total gas flow rate of the anaerobic digester |
+    | Output | `oci_all[i]` | Operational cost index of the plant for a timestep (value is collected for each time step) |
+
 ```python title="bsm2_base.py", linenums="395"
 --8<-- "bsm2_base.py:395:409"
 ```
+
+- `perf_factors_all[i, :12]`: Collects all performance values for each time step in an array. Values are used to calculate the exact performance values at the end of the simulation.
+
+</div>
+
+1.  Initialization file for plantperformance object *[plantperformanceinit_bsm2]*
+2.  Initialization file for plantperformance object *[plantperformanceinit_bsm2]*
+3.  *[aerationenergy_step method]*
+4.  *[pumpingenergy_step method]*
+5.  *[mixingenergy_step method]*
+6.  *[tss_mass_bsm2 method]*
+7.  *[tss_flow method]*
+8.  *[tss_flow method]*
+9.  Initialization file for carbon flows to the AS system *[reginit_bsm2]*
+10.  *[added_carbon_mass method]*
+11.  Initialization file for carbon flows to the AS system *[reginit_bsm2]*
+12.  *[heat_demand_step method]*
+13.  Initialization file for carbon flows to the AS system *[reginit_bsm2]*
+14.  *[gas_production method]*
+15.  Initialization file for carbon flows to the AS system *[reginit_bsm2]*
+16.  *[oci method]*
 
 ---
 
