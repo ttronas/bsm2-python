@@ -197,15 +197,27 @@ cash_flow = bsm2_olem.economics.cum_cash_flow
 
 ---
 
-## Short documentation of the BSM2-Base plant
+## Short documentation of the simulation
+
+A basic simulation (with energy management) in this project always consists of the following steps:
 
 1. Initialization
 
 2. Simulation loop
 
+    - Stabilization of wastewater treatment plant (WWTP)
+
+    - Simulate WWTP
+
+    - Collect data from WWTP
+
+    - Simulate energy management (EM)
+
+    - Collect data from EM
+
 3. Evaluation
 
-For further documentation visit
+A detailed documentation of the BSM2-base module can be found below:
 
 <div class="grid" markdown>
 
@@ -217,7 +229,7 @@ For further documentation visit
 
 ---
 
-## Build a customized BSM2-Python plant layout
+<!-- ## Build a customized BSM2-Python plant layout
 
 Both the wastewater treatment plant layout as well as the energy management layout can be customized by adding, removing or modifying individual process units. To customize the wastewater treatment plant layout the module [`bsm2_base.py`](/reference/bsm2_python/bsm2_base) has to be changed. For the customization of the energy management layout change the module [`bsm2_olem.py`](/reference/bsm2_python/bsm2_olem).
 
@@ -227,3 +239,52 @@ Both the wastewater treatment plant layout as well as the energy management layo
 
 
 ### Adding a process unit to the plant layout
+
+z.B. asm1 reaktor 6
+
+1. Initialisierung
+   
+Initialisiere die gewünschte Prozesseinheit in der `__init__` Methode.
+
+```py title="bsm2_base.py"
+class BSM2Base:
+
+  def __init__(self,...):
+  # Initialization of process units
+
+  self.new_process_unit = 
+  
+  self.reactor6 = ASM1Reactor(
+            reginit.KLA5,
+            asm1init.VOL5,
+            asm1init.YINIT5,
+            asm1init.PAR5,
+            reginit.CARB5,
+            reginit.CARBONSOURCECONC,
+            tempmodel=tempmodel,
+            activate=activate,
+        )
+```
+
+Bei hinzufügen von einem eigenen Modul muss zuvor der Code in das Ordnerverzeichnis src\ eingebunden werden und nachträglich importiert werden.
+
+```py title="bsm2_base.py"
+import <module_path_new> as <short_name>
+```
+
+
+2. In Step funktion einbauen
+
+  Falls notwendig Abwasserströme mit Splitter 
+
+3. 
+
+
+
+
+The most important and also most versatile process unit -> ASM1
+
+### Customizing the wastewater treatment plant layout
+### Customizing the energy management layout -->
+
+
