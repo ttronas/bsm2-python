@@ -199,142 +199,144 @@ class BSM2OLEM(BSM2Base):
 
         super().step(i)
 
-        # Energy Management
-        gas_production, gas_parameters = self.get_gas_production()
-        electricity_demand = self.ae + self.pe + self.me
-        # aeration efficiency in standard conditions in process water (sae),
-        # 25 kgO2/kWh, src: T. Frey, Invent Umwelt- und Verfahrenstechnik AG
-        # alpha_sae = 2.5
-        # oxygen_demand = ae * alpha_sae / O2.rho_norm  # kW * kgO2/kWh / kg/Nm3 = Nm3/h
+        # Needs to be stabilized before running the simulation because of gas management
+        if self.stabilized:
+            # Energy Management
+            gas_production, gas_parameters = self.get_gas_production()
+            electricity_demand = self.ae + self.pe + self.me
+            # aeration efficiency in standard conditions in process water (sae),
+            # 25 kgO2/kWh, src: T. Frey, Invent Umwelt- und Verfahrenstechnik AG
+            # alpha_sae = 2.5
+            # oxygen_demand = ae * alpha_sae / O2.rho_norm  # kW * kgO2/kWh / kg/Nm3 = Nm3/h
 
-        self.fermenter.step(gas_production, gas_parameters, self.heat_demand)
-        biogas = self.biogas_storage.update_inflow(
-            self.fermenter.gas_production, self.fermenter.get_composition(), self.timestep_hour[i]
-        )
-        self.controller.biogas = biogas
-        for chp in self.chps:
-            chp.biogas = biogas
-        for boiler in self.boilers:
-            boiler.biogas = biogas
-        self.compressor.load = self.compressor.calculate_load(self.fermenter.gas_production)
+            self.fermenter.step(gas_production, gas_parameters, self.heat_demand)
+            biogas = self.biogas_storage.update_inflow(
+                self.fermenter.gas_production, self.fermenter.get_composition(), self.timestep_hour[i]
+            )
+            self.controller.biogas = biogas
+            for chp in self.chps:
+                chp.biogas = biogas
+            for boiler in self.boilers:
+                boiler.biogas = biogas
+            self.compressor.load = self.compressor.calculate_load(self.fermenter.gas_production)
 
-        self.controller.control_gas_management(
-            self.timestep_hour[i],
-            self.chps,
-            self.boilers,
-            self.biogas_storage,
-            self.cooler,
-            self.flare,
-            self.heat_net,
-            self.fermenter,
-        )
+            self.controller.control_gas_management(
+                self.timestep_hour[i],
+                self.chps,
+                self.boilers,
+                self.biogas_storage,
+                self.cooler,
+                self.flare,
+                self.heat_net,
+                self.fermenter,
+            )
 
-        [chp.step(self.timestep_hour[i]) for chp in self.chps]
-        [boiler.step(self.timestep_hour[i]) for boiler in self.boilers]
-        self.flare.step(self.timestep_hour[i])
-        self.cooler.step(self.timestep_hour[i])
-        self.compressor.step(self.timestep_hour[i])
+            [chp.step(self.timestep_hour[i]) for chp in self.chps]
+            [boiler.step(self.timestep_hour[i]) for boiler in self.boilers]
+            self.flare.step(self.timestep_hour[i])
+            self.cooler.step(self.timestep_hour[i])
+            self.compressor.step(self.timestep_hour[i])
 
-        # TODO: Lukas, the heat net is encountering serious trouble at some point during the simulation
-        # The temperature is falling to -20 °C. Please fix this - perhaps we have to rescale some component?
-        self.heat_net.update_temperature(
-            np.sum([boiler.products[boiler_init.HEAT] * self.timestep_hour[i] for boiler in self.boilers])
-            + np.sum([chp.products[chp_init.HEAT] * self.timestep_hour[i] for chp in self.chps])
-            - self.fermenter.heat_demand * self.timestep_hour[i]
-            - self.cooler.consumption[cooler_init.HEAT] * self.timestep_hour[i]
-        )
+            # TODO: Lukas, the heat net is encountering serious trouble at some point during the simulation
+            # The temperature is falling to -20 °C. Please fix this - perhaps we have to rescale some component?
+            self.heat_net.update_temperature(
+                np.sum([boiler.products[boiler_init.HEAT] * self.timestep_hour[i] for boiler in self.boilers])
+                + np.sum([chp.products[chp_init.HEAT] * self.timestep_hour[i] for chp in self.chps])
+                - self.fermenter.heat_demand * self.timestep_hour[i]
+                - self.cooler.consumption[cooler_init.HEAT] * self.timestep_hour[i]
+            )
 
-        biogas_net_outflow = (
-            np.sum([chp.consumption[chp_init.BIOGAS] for chp in self.chps])
-            + np.sum([boiler.consumption[boiler_init.BIOGAS] for boiler in self.boilers])
-            + self.flare.consumption[flare_init.BIOGAS]
-        )
+            biogas_net_outflow = (
+                np.sum([chp.consumption[chp_init.BIOGAS] for chp in self.chps])
+                + np.sum([boiler.consumption[boiler_init.BIOGAS] for boiler in self.boilers])
+                + self.flare.consumption[flare_init.BIOGAS]
+            )
 
-        self.biogas_storage.update_outflow(biogas_net_outflow, self.timestep_hour[i])
+            self.biogas_storage.update_outflow(biogas_net_outflow, self.timestep_hour[i])
 
-        self.prices_all[i] = self.controller.electricity_prices[
-            np.where(self.controller.price_times <= self.simtime[i])[0][-1]
-        ]
-        self.klas_all[i] = self.klas
-        self.chps_electricity_all[i] = [chp.products[chp_init.ELECTRICITY] for chp in self.chps]
-        self.chps_heat_all[i] = [chp.products[chp_init.HEAT] for chp in self.chps]
-        self.boilers_heat_all[i] = [boiler.products[boiler_init.HEAT] for boiler in self.boilers]
-        self.flare_gas_all[i] = self.flare.consumption[flare_init.BIOGAS]
-        self.cooler_cool_all[i] = self.cooler.consumption[cooler_init.HEAT]
-        self.biogas_vol_all[i] = self.biogas_storage.vol
-        self.heat_net_temp_all[i] = self.heat_net.temperature
+            self.prices_all[i] = self.controller.electricity_prices[
+                np.where(self.controller.price_times <= self.simtime[i])[0][-1]
+            ]
+            self.klas_all[i] = self.klas
+            self.chps_electricity_all[i] = [chp.products[chp_init.ELECTRICITY] for chp in self.chps]
+            self.chps_heat_all[i] = [chp.products[chp_init.HEAT] for chp in self.chps]
+            self.boilers_heat_all[i] = [boiler.products[boiler_init.HEAT] for boiler in self.boilers]
+            self.flare_gas_all[i] = self.flare.consumption[flare_init.BIOGAS]
+            self.cooler_cool_all[i] = self.cooler.consumption[cooler_init.HEAT]
+            self.biogas_vol_all[i] = self.biogas_storage.vol
+            self.heat_net_temp_all[i] = self.heat_net.temperature
 
-        chp_production = np.sum([chp.products[chp_init.ELECTRICITY] for chp in self.chps])
-        heat_production = np.sum([chp.products[chp_init.HEAT] for chp in self.chps]) + np.sum(
-            [boiler.products[boiler_init.HEAT] for boiler in self.boilers]
-        )
+            chp_production = np.sum([chp.products[chp_init.ELECTRICITY] for chp in self.chps])
+            heat_production = np.sum([chp.products[chp_init.HEAT] for chp in self.chps]) + np.sum(
+                [boiler.products[boiler_init.HEAT] for boiler in self.boilers]
+            )
 
-        net_electricity = electricity_demand - chp_production
+            net_electricity = electricity_demand - chp_production
 
-        el_price_idx = np.argmin(np.abs(self.controller.price_times - self.simtime[i]))
-        self.income_all[i] = self.economics.get_income(net_electricity, self.simtime, i)
-        self.economics.get_expenditures(net_electricity, self.simtime, i)
+            el_price_idx = np.argmin(np.abs(self.controller.price_times - self.simtime[i]))
+            self.income_all[i] = self.economics.get_income(net_electricity, self.simtime, i)
+            self.economics.get_expenditures(net_electricity, self.simtime, i)
 
-        if i == 0:
-            self.evaluator.add_new_data('s_nh', ['s_nh_eff'], ['g/m3'])
-            self.evaluator.add_new_data('kla', ['kla1', 'kla2', 'kla3', 'kla4', 'kla5'], ['1/d'])
-            self.evaluator.add_new_data('electricity', ['demand', 'price'], ['kW', '€/MWh'])
-        self.evaluator.update_data('s_nh', self.y_eff[SNH], self.simtime[i])
-        self.evaluator.update_data('kla', self.klas, self.simtime[i])
-        self.evaluator.update_data(
-            'electricity', [electricity_demand, self.controller.electricity_prices[el_price_idx]], self.simtime[i]
-        )
+            if i == 0:
+                self.evaluator.add_new_data('s_nh', ['s_nh_eff'], ['g/m3'])
+                self.evaluator.add_new_data('kla', ['kla1', 'kla2', 'kla3', 'kla4', 'kla5'], ['1/d'])
+                self.evaluator.add_new_data('electricity', ['demand', 'price'], ['kW', '€/MWh'])
+            self.evaluator.update_data('s_nh', self.y_eff[SNH], self.simtime[i])
+            self.evaluator.update_data('kla', self.klas, self.simtime[i])
+            self.evaluator.update_data(
+                'electricity', [electricity_demand, self.controller.electricity_prices[el_price_idx]], self.simtime[i]
+            )
 
-        tss_mass = self.performance.tss_mass_bsm2(
-            self.yp_of,
-            self.yp_uf,
-            self.yp_internal,
-            self.y_out1,
-            self.y_out2,
-            self.y_out3,
-            self.y_out4,
-            self.y_out5,
-            self.ys_tss_internal,
-            self.yd_out,
-            self.yst_out,
-            self.yst_vol,
-        )
-        ydw_s_tss_flow = self.performance.tss_flow(self.ydw_s)
-        y_eff_tss_flow = self.performance.tss_flow(self.y_eff)
-        carb = reginit.CARB1 + reginit.CARB2 + reginit.CARB3 + reginit.CARB4 + reginit.CARB5
-        added_carbon_mass = self.performance.added_carbon_mass(carb, reginit.CARBONSOURCECONC)
-        self.heat_demand = self.performance.heat_demand_step(self.yd_in, reginit.T_OP)[0]
-        ch4_prod, h2_prod, co2_prod, q_gas = self.performance.gas_production(self.yd_out, reginit.T_OP)
-        # This calculates an approximate oci value for each time step,
-        # neglecting changes in the tss mass inside the whole plant
-        self.oci_all[i] = self.oci_dynamic(
-            self.pe * 24,
-            self.ae * 24,
-            self.me * 24,
-            chp_production * 24,
-            ydw_s_tss_flow,
-            added_carbon_mass,
-            self.heat_demand * 24,
-            heat_production * 24,
-            simtime=self.simtime[i],
-        )
-        # These values are used to calculate the exact performance values at the end of the simulation
-        self.perf_factors_all[i] = [
-            self.pe * 24,
-            self.ae * 24,
-            self.me * 24,
-            chp_production * 24,
-            ydw_s_tss_flow,
-            y_eff_tss_flow,
-            tss_mass,
-            added_carbon_mass,
-            self.heat_demand * 24,
-            heat_production * 24,
-            ch4_prod,
-            h2_prod,
-            co2_prod,
-            q_gas,
-        ]
+            tss_mass = self.performance.tss_mass_bsm2(
+                self.yp_of,
+                self.yp_uf,
+                self.yp_internal,
+                self.y_out1,
+                self.y_out2,
+                self.y_out3,
+                self.y_out4,
+                self.y_out5,
+                self.ys_tss_internal,
+                self.yd_out,
+                self.yst_out,
+                self.yst_vol,
+            )
+            ydw_s_tss_flow = self.performance.tss_flow(self.ydw_s)
+            y_eff_tss_flow = self.performance.tss_flow(self.y_eff)
+            carb = reginit.CARB1 + reginit.CARB2 + reginit.CARB3 + reginit.CARB4 + reginit.CARB5
+            added_carbon_mass = self.performance.added_carbon_mass(carb, reginit.CARBONSOURCECONC)
+            self.heat_demand = self.performance.heat_demand_step(self.yd_in, reginit.T_OP)[0]
+            ch4_prod, h2_prod, co2_prod, q_gas = self.performance.gas_production(self.yd_out, reginit.T_OP)
+            # This calculates an approximate oci value for each time step,
+            # neglecting changes in the tss mass inside the whole plant
+            self.oci_all[i] = self.oci_dynamic(
+                self.pe * 24,
+                self.ae * 24,
+                self.me * 24,
+                chp_production * 24,
+                ydw_s_tss_flow,
+                added_carbon_mass,
+                self.heat_demand * 24,
+                heat_production * 24,
+                simtime=self.simtime[i],
+            )
+            # These values are used to calculate the exact performance values at the end of the simulation
+            self.perf_factors_all[i] = [
+                self.pe * 24,
+                self.ae * 24,
+                self.me * 24,
+                chp_production * 24,
+                ydw_s_tss_flow,
+                y_eff_tss_flow,
+                tss_mass,
+                added_carbon_mass,
+                self.heat_demand * 24,
+                heat_production * 24,
+                ch4_prod,
+                h2_prod,
+                co2_prod,
+                q_gas,
+            ]
 
     def simulate(self):
         """Simulates the plant."""

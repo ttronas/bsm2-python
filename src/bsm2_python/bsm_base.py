@@ -134,6 +134,7 @@ class BSMBase:
             [np.where(self.simtime <= self.evaltime[0])[0][-1], np.where(self.simtime <= self.evaltime[1])[0][-1]]
         )
 
+        self.stabilized = False
         self.evaluator = Evaluation(data_out)
 
     def __repr__(self):
@@ -199,4 +200,32 @@ class BSMBase:
                 stable = True
             old_check_vars = new_check_vars
         logger.info('Stabilized after %s iterations\n', i)
+        self.stabilized = True
         return stable
+
+    @staticmethod
+    def _create_copies(in_arr: np.ndarray | list[np.ndarray], n_copies: int = 1) -> list[np.ndarray]:
+        """Creates copies of the input arrays.
+        Parameters
+        ----------
+        in_arr : np.ndarray(21) | list[np.ndarray(21)]
+            ASM1 array or list of ASM1 arrays to be copied. \n
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+            SD1, SD2, SD3, XD4, XD5]
+        n_copies : int (optional)
+            Number of copies to create. Default is 1.
+
+        Returns
+        -------
+        out : list[np.ndarray(21)]
+            List of copied ASM1 arrays.
+        """
+        if isinstance(in_arr, np.ndarray):
+            in_arr = [in_arr] * n_copies
+        elif isinstance(in_arr, list):
+            in_arr = [np.array(arr) for arr in in_arr]
+        else:
+            raise ValueError('Input must be a numpy array or a list of numpy arrays.')
+
+        out = [np.copy(arr) for arr in in_arr]
+        return out

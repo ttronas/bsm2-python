@@ -68,7 +68,7 @@ class Splitter(Module):
     def __init__(self, sp_type=1):
         self.sp_type = sp_type
 
-    def output(self, in1, splitratio=(0.0, 0.0), qthreshold=0):
+    def output(self, in1: np.ndarray, splitratio: tuple = (0.0, 0.0), qthreshold: float = 0):
         """Splits an array in ASM1 format into multiple arrays in ASM1 format.
 
         Parameters
@@ -77,7 +77,7 @@ class Splitter(Module):
             ASM1 array to be split. \n
             [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
             SD1, SD2, SD3, XD4, XD5]
-        splitratio : tuple(float)
+        splitratio : tuple(float) (optional)
             Split ratio for each component. <br>
             Ideally sums up to 1 (except if sp_type=2, then no split ratio is
             needed and flow is split into two flows).
@@ -86,11 +86,15 @@ class Splitter(Module):
 
         Returns
         -------
-        outs : tuple(np.ndarray(21), np.ndarray(21),...)
-            ASM1 arrays with split volume flows. Tuple of length of splitratio. \n
-            (asm1_flow1, asm1,flow2,...)
+        outs : list(np.ndarray(21), np.ndarray(21),...)
+            ASM1 arrays with split volume flows. list of length of splitratio. \n
+            (asm1_flow1, asm1_flow2,...)
         """
-
+        # sanity checks for input
+        for ratio in splitratio:
+            if ratio < 0.0:
+                err = 'Split ratio must be non-negative.'
+                raise ValueError(err)
         outs = List()
         if in1[14] == 0:  # if no flow, all split flows are 0
             for _ in range(len(splitratio)):
@@ -114,12 +118,13 @@ class Splitter(Module):
                 actual_splitratio = splitratio[i] / sum(splitratio)
                 out = np.zeros(21)
                 out[14] = in1[14] * actual_splitratio
-                if out[14] > 0:  # if there is a physical flow, out is calculated. Otherwise, out is np.zeros(21)
+                if out[14] >= 0:  # if there is a physical flow, out is calculated. Otherwise, throw an error
                     out[:14] = in1[:14]
                     out[15:21] = in1[15:21]
+                    outs.append(out)
                 else:
-                    out[14] = 0
-                outs.append(out)
+                    err = f'Negative flow in splitter output {i + 1} with split ratio {actual_splitratio}.'
+                    raise ValueError(err)
         return outs
 
 

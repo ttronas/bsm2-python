@@ -183,32 +183,33 @@ class BSM2Base(BSMBase):
 
         self.y_in = self.data_in[:, 1:]
 
-        self.yst_sp_p = np.zeros(21)
-        self.yt_sp_p = np.zeros(21)
-        self.y_out1 = np.zeros(21)
-        self.y_out2 = np.zeros(21)
-        self.y_out3 = np.zeros(21)
-        self.y_out4 = np.zeros(21)
-        self.y_out5 = np.zeros(21)
-        self.ys_r = np.zeros(21)
-        self.ys_was = np.zeros(21)
-        self.ys_of = np.zeros(21)
         self.ys_tss_internal = np.zeros(settler1dinit.LAYER[1])
-        self.yp_uf = np.zeros(21)
-        self.yp_of = np.zeros(21)
-        self.yp_internal = np.zeros(21)
-        self.yt_uf = np.zeros(21)
-        self.yd_in = np.zeros(21)
         self.yd_out = np.zeros(51)
-        self.yi_out2 = np.zeros(21)
-        self.ydw_s = np.zeros(21)
-        self.yst_out = np.zeros(21)
         self.yst_vol = 0
-        self.yst_sp_as = np.zeros(21)
-        self.yt_sp_as = np.zeros(21)
-        self.y_out5_r = np.zeros(21)
-
-        self.y_eff = np.zeros(21)
+        (
+            self.yst_sp_p,
+            self.yt_sp_p,
+            self.y_out1,
+            self.y_out2,
+            self.y_out3,
+            self.y_out4,
+            self.y_out5,
+            self.ys_r,
+            self.ys_was,
+            self.ys_of,
+            self.yp_uf,
+            self.yp_of,
+            self.yp_internal,
+            self.yt_uf,
+            self.yd_in,
+            self.yi_out2,
+            self.ydw_s,
+            self.yst_out,
+            self.yst_sp_as,
+            self.yt_sp_as,
+            self.y_out5_r,
+            self.y_eff,
+        ) = self._create_copies(self.y_in[0], 22)
 
         self.y_in_all = np.zeros((len(self.simtime), 21))
         self.y_eff_all = np.zeros((len(self.simtime), 21))
@@ -286,7 +287,7 @@ class BSM2Base(BSMBase):
         iqi = self.performance.iqi(y_in_timestep)[0]
         self.iqi_all[i] = iqi
 
-        yp_in_c, y_in_bp = self.input_splitter.output(y_in_timestep, (0, 0), reginit.QBYPASS)
+        yp_in_c, y_in_bp = self.input_splitter.output(y_in_timestep, (0.0, 0.0), float(reginit.QBYPASS))
         y_plant_bp, y_in_as_c = self.bypass_plant.output(y_in_bp, (1 - reginit.QBYPASSPLANT, reginit.QBYPASSPLANT))
         yp_in = self.combiner_primclar_pre.output(yp_in_c, self.yst_sp_p, self.yt_sp_p)
         self.yp_uf, self.yp_of, self.yp_internal = self.primclar.output(stepsize, step, yp_in)
@@ -299,7 +300,9 @@ class BSM2Base(BSMBase):
         self.y_out3 = self.reactor3.output(stepsize, step, self.y_out2)
         self.y_out4 = self.reactor4.output(stepsize, step, self.y_out3)
         self.y_out5 = self.reactor5.output(stepsize, step, self.y_out4)
-        ys_in, self.y_out5_r = self.splitter_reactor.output(self.y_out5, (self.y_out5[14] - self.qintr, self.qintr))
+        ys_in, self.y_out5_r = self.splitter_reactor.output(
+            self.y_out5, (max(self.y_out5[14] - self.qintr, 0.0), float(self.qintr))
+        )
 
         self.ys_r, self.ys_was, self.ys_of, _, self.ys_tss_internal = self.settler.output(stepsize, step, ys_in)
 

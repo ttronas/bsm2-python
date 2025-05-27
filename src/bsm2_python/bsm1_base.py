@@ -157,16 +157,19 @@ class BSM1Base(BSMBase):
 
         self.y_in = self.data_in[:, 1:]
 
-        self.y_in1 = np.zeros(21)
-        self.y_out1 = np.zeros(21)
-        self.y_out2 = np.zeros(21)
-        self.y_out3 = np.zeros(21)
-        self.y_out4 = np.zeros(21)
-        self.y_out5 = np.zeros(21)
-        self.y_out5_r = np.zeros(21)
-        self.ys_in = np.zeros(21)
-        self.ys_out = np.zeros(21)
-        self.ys_eff = np.zeros(21)
+        (
+            self.y_in1,
+            self.y_out1,
+            self.y_out2,
+            self.y_out3,
+            self.y_out4,
+            self.y_out5,
+            self.y_out5_r,
+            self.ys_in,
+            self.ys_out,
+            self.ys_eff,
+        ) = self._create_copies(self.y_in[0], 10)
+
         self.qintr = asm1init.QINTR
         self.sludge_height = 0
 
@@ -222,7 +225,9 @@ class BSM1Base(BSMBase):
         self.y_out4 = self.reactor4.output(stepsize, step, self.y_out3)
         self.y_out5 = self.reactor5.output(stepsize, step, self.y_out4)
 
-        self.ys_in, self.y_out5_r = self.splitter.output(self.y_out5, (self.y_out5[14] - self.qintr, self.qintr))
+        self.ys_in, self.y_out5_r = self.splitter.output(
+            self.y_out5, (max(self.y_out5[14] - self.qintr, 0.0), float(self.qintr))
+        )
 
         self.ys_out, _, self.ys_eff, self.sludge_height, self.ys_tss_internal = self.settler.output(
             stepsize, step, self.ys_in
