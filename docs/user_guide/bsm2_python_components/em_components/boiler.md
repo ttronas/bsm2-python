@@ -3,7 +3,7 @@ hide:
   - toc
 ---
 
-![Boiler](../../assets/icons/bsm2python/boiler.svg){ align=right }
+![Boiler](../../../assets/icons/bsm2python/boiler.svg){ align=right }
 
 ### Introduction and Model
 

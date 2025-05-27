@@ -3,7 +3,7 @@ hide:
   - toc
 ---
 
-![Wastewater storage](../../assets/icons/bsm2python/wastewater-storage.svg){ align=right }
+![Wastewater storage](../../../assets/icons/bsm2python/wastewater-storage.svg){ align=right }
 
 ### Introduction and Model
 

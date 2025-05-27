@@ -7,9 +7,9 @@ hide:
 
 The module class serves as a base (parent) class for other energy management classes, providing a standardized set of methods that can be inherited.
 
-Energy management instances that inherit from the module class then can use these methods to output useful information or update their attributes to a different state in a simulation with the energy_management system (`bsm2_olem.py`). For example if you want to save the load of chp1 for every simulation step in a readable .csv file (add highlighted lines):
+Energy management instances that inherit from the module class then can use these methods to output useful information or update their attributes to a different state in a simulation with the energy management system (`bsm2_olem.py`). For example if you want to save the load of chp1 for every simulation step in a readable .csv file (add highlighted lines):
 
-``` py title="bsm2_olem.py", hl_lines="10 17 18 21"
+``` py title="example in bsm2_olem.py", hl_lines="10 17 18 21"
 # Initialization of chp1 and chp2
 chp1 = CHP(...)
 chp2 = CHP(...)

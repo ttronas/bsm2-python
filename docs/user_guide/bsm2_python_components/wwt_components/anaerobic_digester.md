@@ -3,7 +3,7 @@ hide:
   - toc
 ---
 
-![Anerobic digester](../../assets/icons/bsm2python/anerobic-digester.svg){ align=right }
+![Anerobic digester](../../../assets/icons/bsm2python/anerobic-digester.svg){ align=right }
 
 ### Introduction and Model
 

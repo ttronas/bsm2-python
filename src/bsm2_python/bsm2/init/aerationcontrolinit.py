@@ -1,4 +1,4 @@
-"""Initialisation file for all states and parameters related to the aeration control system `aerationcontrol.py`
+"""Initialization file for all states and parameters related to the aeration control system `aerationcontrol.py`
 in reactor 3 to 5.
 
 All parameters and specifications are based on BSM1 model.

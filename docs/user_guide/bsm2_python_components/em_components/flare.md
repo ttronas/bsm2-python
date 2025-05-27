@@ -3,7 +3,7 @@ hide:
   - toc
 ---
 
-![Flare](../../assets/icons/bsm2python/flare.svg){ align=right }
+![Flare](../../../assets/icons/bsm2python/flare.svg){ align=right }
 
 ### Introduction and Model
 

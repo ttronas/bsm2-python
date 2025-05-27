@@ -1,4 +1,4 @@
-"""Initialisation file for all states and parameters related to the AS systems (reactors 1-5).
+"""Initialization file for all states and parameters related to the AS systems (reactors 1-5).
 
 All parameters and specifications are based on BSM1 model.
 """

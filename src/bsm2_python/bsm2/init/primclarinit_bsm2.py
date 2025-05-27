@@ -1,4 +1,4 @@
-"""Initialisation file for all states and parameters related to the dewatering.
+"""Initialization file for all states and parameters related to the primary clarifier.
 
 All parameters and specifications are based on BSM1 model.
 This file will be executed when running `bsm2_cl.py`, `bsm2_ol.py` or `bsm2_olem.py`.
