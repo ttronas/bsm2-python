@@ -10,30 +10,26 @@ help you to better understand the wastewater treatment plant layout of BSM2-Pyth
 
 The initialization of the wastewater treatment plant objects and variables takes place in the definition of the `__init__`.
 
-```python title="bsm2_base.py", linenums="73"
---8<-- "bsm2_base.py:73:90"
+```python title="bsm2_base.py"
+--8<-- "bsm2_base.py:step_0"
 ```
 
 - Initiates the `BSM2Base` object with default parameters, setting up the simulation environment for the BSM2 model
 
-```python title="bsm2_base.py", linenums="93"
---8<-- "bsm2_base.py:93:94"
+```python title="bsm2_base.py"
+--8<-- "bsm2_base.py:step_1"
 ```
 
-- Initiates *[Splitter]* `input_splitter` and `bypass_plant`
-
-```python title="bsm2_base.py", linenums="95"
---8<-- "bsm2_base.py:95:105"
-```
-
+- Initiates *[Splitter]* `input_splitter`
+- Initiates *[Splitter]* `bypass_plant`
 - Initiates *[Combiner]* `combiner_primclar_pre`
 - Initiates *[PrimaryClarifier]* `primclar` with
   initial parameters of <code>[primclarinit_bsm2]</code> and <code>[asm1init_bsm2]</code>
 - Initiates *[Combiner]* `combiner_primclar_post`
 
 
-```python title="bsm2_base.py", linenums="106"
---8<-- "bsm2_base.py:106:158"
+```python title="bsm2_base.py"
+--8<-- "bsm2_base.py:step_2"
 ```
 
 - Initiates *[Splitter]* `bypass_reactor`
@@ -42,40 +38,24 @@ The initialization of the wastewater treatment plant objects and variables takes
   initial parameters of <code>[asm1init_bsm2]</code> and <code>[reginit_bsm2]</code>
 - Initiates *[Splitter]* `splitter_reactor`
 
-```python title="bsm2_base.py", linenums="159"
---8<-- "bsm2_base.py:159:170"
-```
-
 - Initiates *[Settler]* `settler` with
   initial parameters of <code>[settler1dinit_bsm2]</code> and <code>[asm1init_bsm2]</code>
 - Initiates *[Combiner]* `combiner_effluent`
 
-```python title="bsm2_base.py", linenums="171"
---8<-- "bsm2_base.py:171:172"
+```python title="bsm2_base.py"
+--8<-- "bsm2_base.py:step_3"
 ```
 
 - Initiates *[Thickener]* `thickener` with
   initial parameters of <code>[thickenerinit_bsm2]</code>
 - Initiates *[Splitter]* `splitter_thickener`
 
-```python title="bsm2_base.py", linenums="173"
---8<-- "bsm2_base.py:173:176"
-```
-
 - Initiates *[Combiner]* `combiner_adm1`
 - Initiates *[ADM1Reactor]* `adm1_reactor` with
   initial parameters of <code>[adm1init_bsm2]</code>
 
-```python title="bsm2_base.py", linenums="177"
---8<-- "bsm2_base.py:177:177"
-```
-
 - Initiates *[Dewatering]* `dewatering` with
   initial parameters of <code>[dewateringinit_bsm2]</code>
-
-```python title="bsm2_base.py", linenums="178"
---8<-- "bsm2_base.py:178:179"
-```
 
 - Initiates *[Storage]* `storage` with
   initial parameters of <code>[storageinit_bsm2]</code>
@@ -85,51 +65,39 @@ The initialization of the wastewater treatment plant objects and variables takes
 
 Initialization of evaluation objects and variables to collect data for later evaluation.
 
-```python title="bsm2_base.py", linenums="181"
---8<-- "bsm2_base.py:181:181"
+```python title="bsm2_base.py"
+--8<-- "bsm2_base.py:step_4"
 ```
 
 - Initializes a *[PlantPerformance]* object `performance` with
   initial parameters of <code>[plantperformanceinit_bsm2]</code>
 
-```python title="bsm2_base.py", linenums="183"
---8<-- "bsm2_base.py:183:211"
+```python title="bsm2_base.py"
+--8<-- "bsm2_base.py:step_5"
 ```
 
 - Initializes arrays and variables for the wastewater or sludge streams that flow between the wastewater treatment plant objects
 
-At first for every wastewater and sludge stream the influent stream is used to prevent that negative flow rates are calculated. 
+At first for every wastewater and sludge stream the influent stream `y_in` is used to prevent that negative flow rates are calculated.
 
-```python title="bsm2_base.py", linenums="213"
---8<-- "bsm2_base.py:213:247"
+```python title="bsm2_base.py"
+--8<-- "bsm2_base.py:step_6"
 ```
 
 - Initializes arrays to collect data from the wastewater or sludge streams
 
-```python title="bsm2_base.py", linenums="249"
---8<-- "bsm2_base.py:249:249"
+```python title="bsm2_base.py"
+--8<-- "bsm2_base.py:step_7"
 ```
 
 - Initializes `klas` array with all the K~L~a values for every activated sludge reactor
   with initial parameters of <code>[reginit_bsm2]</code>
 
-```python title="bsm2_base.py", linenums="253"
---8<-- "bsm2_base.py:253:253"
-```
-
 - Initializes `sludge_height` variable for the continuous signal of sludge blanket level of the *[Settler]* object `settler`
 
-```python title="bsm2_base.py", linenums="255"
---8<-- "bsm2_base.py:255:263"
-```
+- Initializes variable `ae`, `pe`, `me` and `heat_demand` for collection of aeration energy, pumping energy, mixing energy and heat demand data
 
-- Initializes variables for aeration energy, pumping energy, mixing energy and heat demand
-
-- Initializes arrays for the collection of the influent quality index, effluent quality index, operation cost index, performance factors and violation data
-
-```python title="bsm2_base.py", linenums="265"
---8<-- "bsm2_base.py:265:266"
-```
+- Initializes array `iqi_all`, `eqi_all`, `oci_all`, `perf_factors_all`, and `violation_all` for the collection of the influent quality index, effluent quality index, operation cost index, performance factors and violation data
 
 - Defines `y_out5_r[14]`, the flow rate of the internal recirculation after the fifth activated sludge reactor
   with initial parameters of <code>[asm1init_bsm2]</code>
@@ -142,35 +110,29 @@ The simulation loop is defined in the `step` method, where wastewater treatment 
 
 Most wastewater and sludge flows in BSM2 are represented in the ASM1 (Activated Sludge Model No. 1) format as an array, containing 21 standard parameters (concentrations, flow rate, temperature and dummy states) to describe the stream. For more information visit the documentation of the [combiner and splitter](../user_guide/bsm2_python_components/wwt_components/combiner_and_splitter.md).
 
-```python title="bsm2_base.py", linenums="268"
---8<-- "bsm2_base.py:268:268"
+```python title="bsm2_base.py"
+--8<-- "bsm2_base.py:step_8"
 ```
 
 - Defines the `step` method for the simulation loop
 
 It simulates one time step of the BSM2 model with the index of the current time step `i`.
 
-```python title="bsm2_base.py", linenums="278"
---8<-- "bsm2_base.py:278:279"
+```python title="bsm2_base.py"
+--8<-- "bsm2_base.py:step_9"
 ```
 
 - Sets up the current simulation time `step` and the time step size `stepsize` for the `i`&nbsp;th iteration of the simulation
 
-```python title="bsm2_base.py", linenums="281"
---8<-- "bsm2_base.py:281:281"
-```
-
 - Updates all five reactors with the corresponding oxygen transfer coefficients (`kla` attributes) from the `klas` array
 
-```python title="bsm2_base.py", linenums="284"
---8<-- "bsm2_base.py:284:284"
+```python title="bsm2_base.py"
+--8<-- "bsm2_base.py:step_10"
 ```
 
 - Defines the wastewater stream `y_in_timestep` that goes into the plant influent
 
-```python title="bsm2_base.py", linenums="286"
---8<-- "bsm2_base.py:286:287"
-```
+- Collects data of the `iqi` for every time step in the `iqi_all` array
 
 === "**Object** *PlantPerformance* `performance`"
     **Method** <code>[PlantPerformance.iqi]</code> calculates the influent quality index
@@ -180,8 +142,8 @@ It simulates one time step of the BSM2 model with the index of the current time 
     | Input | `y_in_timestep` | Wastewater stream that goes into the plant influent |
     | Output | `iqi` | Influent quality index of the plant influent `y_in_timestep` |
 
-```python title="bsm2_base.py", linenums="289"
---8<-- "bsm2_base.py:289:290"
+```python title="bsm2_base.py"
+--8<-- "bsm2_base.py:step_11"
 ```
 
 Splitters of type 1 (default) separate streams into multiple by a given split ratio and splitters of type 2 separate single streams into two, if a given flow rate threshold is exceeded.
@@ -204,10 +166,6 @@ Splitters of type 1 (default) separate streams into multiple by a given split ra
     | Output | `y_plant_bp` | Bypassed wastewater stream that goes to the plant effluent *Combiner* `combiner_effluent` |
     | Output | `y_in_as_c` | Bypassed wastewater stream that goes to activated sludge system *Combiner* `combiner_primclar_post` |
 
-```python title="bsm2_base.py", linenums="291"
---8<-- "bsm2_base.py:291:292"
-```
-
 === "**Object** *Combiner* `combiner_primclar_pre`"
     **Method** <code>[Combiner.output]</code>; Combiner before primary clarifier
 
@@ -228,10 +186,6 @@ Splitters of type 1 (default) separate streams into multiple by a given split ra
     | Output | `yp_of` | Primary effluent (overflow) that goes to the activated sludge system *[Combiner]* `combiner_primclar_post` |
     | - | `yp_internal` | Internal wastewater for evaluation purposes |
 
-```python title="bsm2_base.py", linenums="293"
---8<-- "bsm2_base.py:293:294"
-```
-
 === "**Object** *Combiner* `combiner_primclar_post`"
     **Method** <code>[Combiner.output]</code>; Combiner after primary clarifier
 
@@ -241,6 +195,10 @@ Splitters of type 1 (default) separate streams into multiple by a given split ra
     | Input | `y_in_as_c` | Bypassed wastewater stream from the plant influent *[Splitter]* `bypass_plant` |
     | Output | `y_c_as_bp` | Wastewater stream that goes to the *[Splitter]* `bypass_reactor` |
 
+```python title="bsm2_base.py"
+--8<-- "bsm2_base.py:step_12"
+```
+
 === "**Object** *Splitter* `bypass_reactor`"
     **Method** <code>[Splitter.output]</code>; Bypass splitter before activated sludge system, that bypasses the entire primary clarifier effluent to the plant effluent if activated (default: not activated); Type 1 *[Splitter]* with split ratio from <code>[reginit_bsm2]</code>
 
@@ -249,10 +207,6 @@ Splitters of type 1 (default) separate streams into multiple by a given split ra
     | Input | `y_c_as_bp` | Combined wastewater stream from the post primary clarifier *[Splitter]* `combiner_primclar_post` |
     | Output | `y_bp_as` | Wastewater stream that goes to the activated sludge system *[Combiner]* `combiner_reactor` |
     | Output | `y_as_bp_c_eff` | Bypassed wastewater stream that goes to the plant effluent *[Combiner]* `combiner_effluent` |
-
-```python title="bsm2_base.py", linenums="296"
---8<-- "bsm2_base.py:296:304"
-```
 
 === "**Object** *Combiner* `combiner_reactor`"
     **Method** <code>[Combiner.output]</code>; Combiner before activated sludge system
@@ -315,10 +269,6 @@ Splitters of type 1 (default) separate streams into multiple by a given split ra
     | Output | `ys_in` | Wastewater stream that goes into the *[Settler]* `settler` |
     | Output | `y_out5_r` | Internal recirculation stream that goes back to the activated sludge system *[Combiner]* `combiner_reactor` |
 
-```python title="bsm2_base.py", linenums="306"
---8<-- "bsm2_base.py:306:306"
-```
-
 === "**Object** *Settler* `settler`"
     **Method** <code>[Settler.output]</code>; Separates wastewater into two streams - effluent (overflow) and sludge (underflow); Further information in the [Settler documentation]
 
@@ -331,9 +281,11 @@ Splitters of type 1 (default) separate streams into multiple by a given split ra
     | Output | `_` | Sludge height for evaluation purposes (not used) |
     | Output | `ys_tss_internal` | Internal total suspended solids (TSS) states of the settler for evaluation purposes |
 
-```python title="bsm2_base.py", linenums="308"
---8<-- "bsm2_base.py:308:311"
+```python title="bsm2_base.py"
+--8<-- "bsm2_base.py:step_13"
 ```
+
+- Collects data of the `eqi` for every time step in the `eqi_all` array
 
 === "**Object** *Combiner* `combiner_effluent`"
     **Method** <code>[Combiner.output]</code>; Combiner before the plant effluent
@@ -355,10 +307,6 @@ Splitters of type 1 (default) separate streams into multiple by a given split ra
     | Input | `y_as_bp_c_eff` | Bypassed wastewater stream from the pre activated sludge system *[Splitter]* `bypass_reactor` |
     | Output | `eqi` | Effluent quality index of the plant effluent |
 
-```python title="bsm2_base.py", linenums="313"
---8<-- "bsm2_base.py:313:316"
-```
-
 === "**Object** *Thickener* `thickener`"
     **Method** <code>[Thickener.output]</code>; Separates the stream into residual effluent (overflow) and thickened sludge (underflow); Further information in the [Thickener documentation]
 
@@ -377,8 +325,8 @@ Splitters of type 1 (default) separate streams into multiple by a given split ra
     | Output | `yt_sp_p` | Residual effluent (overflow) that goes to the pre primary clarifier *[Combiner]* `combiner_primclar_pre`
     | Output | `yt_sp_as` | Residual effluent (overflow) that goes to the pre activated sludge system *[Combiner]* `combiner_reactor` |
 
-```python title="bsm2_base.py", linenums="318"
---8<-- "bsm2_base.py:318:319"
+```python title="bsm2_base.py"
+--8<-- "bsm2_base.py:step_14"
 ```
 
 === "**Object** *Combiner* `combiner_adm1`"
@@ -399,10 +347,6 @@ Splitters of type 1 (default) separate streams into multiple by a given split ra
     | Output | `yi_out2` | Fermented sludge stream (ASM1 format) that goes into the *[Dewatering]* `dewatering` |
     | Output | `yd_out` | Fermented sludge stream (ADM1 format) for evaluation purposes |
     | Output | `_` | Combined sludge stream (turned in ADM1 format) from the anaerobic digester *[Combiner]* `combiner_adm1` (not used) |
-
-```python title="bsm2_base.py", linenums="320"
---8<-- "bsm2_base.py:320:325"
-```
 
 === "**Object** *Dewatering* `dewatering`"
     **Method** <code>[Dewatering.output]</code>; Separates the stream into reject wastewater (overflow) and dewatered/waste sludge (underflow); Further information in the [Dewatering documentation]
@@ -435,15 +379,11 @@ Splitters of type 1 (default) separate streams into multiple by a given split ra
 
 In the simulation loop data is also collected from each time step to evaluate the plant performance and wastewater treatment parameters.
 
-```python title="bsm2_base.py", linenums="327"
---8<-- "bsm2_base.py:327:336"
+```python title="bsm2_base.py"
+--8<-- "bsm2_base.py:step_15"
 ```
 
 - Initializes `vol` array with the volume for each activated sludge reactor and the anaerobic digester
-
-```python title="bsm2_base.py", linenums="337"
---8<-- "bsm2_base.py:337:341"
-```
 
 - Initializes `sosat` array with the saturated oxygen concentrations for each activated sludge reactor
 
@@ -478,8 +418,8 @@ In the simulation loop data is also collected from each time step to evaluate th
     | Input | `pp_init.PP_PAR[16]` | Mixing energy factor for anaerobic digester unit from <code>[plantperformanceinit_bsm2]</code> |
     | Output | `me` | Pumping energy during the evaluation time |
 
-```python title="bsm2_base.py", linenums="343"
---8<-- "bsm2_base.py:343:356"
+```python title="bsm2_base.py"
+--8<-- "bsm2_base.py:step_16"
 ```
 
 === "**Object** *PlantPerformance* `performance`"
@@ -501,9 +441,11 @@ In the simulation loop data is also collected from each time step to evaluate th
     | Input | `yst_vol` | Current volume of the storage tank |
     | Output | `tss_mass` | Sludge production of the BSM2 plant setup |
 
-```python title="bsm2_base.py", linenums="357"
---8<-- "bsm2_base.py:357:358"
+```python title="bsm2_base.py"
+--8<-- "bsm2_base.py:step_17"
 ```
+
+- Calculates float variable `carb` with the sum of external carbon flow rate that goes into the activated sludge system from <code>[reginit_bsm2]</code>
 
 === "**Object** *PlantPerformance* `performance`"
     **Method** <code>[PlantPerformance.tss_flow]</code> calculates the total suspended solids (TSS) flow out of a reactor
@@ -521,12 +463,6 @@ In the simulation loop data is also collected from each time step to evaluate th
     | Input | `y_eff` | Effluent wastewater stream |
     | Output | `y_eff_tss_flow` | Total suspended solids (TSS) flow of the effluent stream |
 
-```python title="bsm2_base.py", linenums="359"
---8<-- "bsm2_base.py:359:360"
-```
-
-- Calculates float variable `carb` with the sum of external carbon flow rate that goes into the activated sludge system from <code>[reginit_bsm2]</code>
-
 === "**Object** *PlantPerformance* `performance`"
     **Method** <code>[PlantPerformance.added_carbon_mass]</code> calculates the total added carbon mass
 
@@ -535,10 +471,6 @@ In the simulation loop data is also collected from each time step to evaluate th
     | Input | `carb` | Sum of external carbon flow rate that goes in AS system |
     | Input | `reginit.CARBONSOURCECONC` | External carbon source concentration from <code>[reginit_bsm2]</code> |
     | Output | `added_carbon_mass` | Total carbon mass added into the AS system |
-
-```python title="bsm2_base.py", linenums="361"
---8<-- "bsm2_base.py:361:362"
-```
 
 === "**Object** *PlantPerformance* `performance`"
     **Method** <code>[PlantPerformance.heat_demand_step]</code> calculates the heating demand of the sludge flow to the anaerobic digester
@@ -561,9 +493,11 @@ In the simulation loop data is also collected from each time step to evaluate th
     | Output | `co2_prod` | Carbon dioxide production of the anaerobic digester |
     | Output | `q_gas` | Total gas flow rate of the anaerobic digester |
 
-```python title="bsm2_base.py", linenums="365"
---8<-- "bsm2_base.py:365:373"
+```python title="bsm2_base.py"
+--8<-- "bsm2_base.py:step_18"
 ```
+
+- Collects `oci` data for every time step in the `oci_all` array
 
 === "**Object** *PlantPerformance* `performance`"
     **Method** <code>[PlantPerformance.oci]</code> calculates the operational cost index of the plant
@@ -578,19 +512,19 @@ In the simulation loop data is also collected from each time step to evaluate th
     | Input | `heat_demand * 24` | Heat demand of the sludge flow that goes into the anaerobic digester |
     | Input | `ch4_prod` | Methane production of the anaerobic digester |
     | Input | `q_gas` | Total gas flow rate of the anaerobic digester |
-    | Output | `oci_all[i]` | Operational cost index of the plant for a timestep (value is collected for each time step) |
+    | Output | `oci_all[i]` | Operational cost index of the plant |
 
-```python title="bsm2_base.py", linenums="375"
---8<-- "bsm2_base.py:375:388"
+```python title="bsm2_base.py"
+--8<-- "bsm2_base.py:step_19"
 ```
 
 - Collects all performance values for each time step in `perf_factors_all` array
 
-```python title="bsm2_base.py", linenums="390"
---8<-- "bsm2_base.py:390:425"
+```python title="bsm2_base.py"
+--8<-- "bsm2_base.py:step_20"
 ```
 
-- Collecting data for the current time step in arrays
+- Collecting all wastewater and sludge stream data for every time step in arrays
 
 ---
 

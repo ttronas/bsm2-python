@@ -70,6 +70,7 @@ class BSM2Base(BSMBase):
         If not provided, no output data is saved.
     """
 
+    # --8<-- [start:step_0]
     def __init__(
         self,
         data_in: np.ndarray | str | None = None,
@@ -88,7 +89,9 @@ class BSM2Base(BSMBase):
             evaltime=evaltime,
             data_out=data_out,
         )
+        # --8<-- [end:step_0]
 
+        # --8<-- [start:step_1]
         # definition of the objects:
         self.input_splitter = Splitter(sp_type=2)
         self.bypass_plant = Splitter()
@@ -103,6 +106,9 @@ class BSM2Base(BSMBase):
             activate=activate,
         )
         self.combiner_primclar_post = Combiner()
+        # --8<-- [end:step_1]
+
+        # --8<-- [start:step_2]
         self.bypass_reactor = Splitter()
         self.combiner_reactor = Combiner()
         self.reactor1 = ASM1Reactor(
@@ -168,6 +174,9 @@ class BSM2Base(BSMBase):
             settler1dinit.MODELTYPE,
         )
         self.combiner_effluent = Combiner()
+        # --8<-- [end:step_2]
+
+        # --8<-- [start:step_3]
         self.thickener = Thickener(thickenerinit.THICKENERPAR)
         self.splitter_thickener = Splitter()
         self.combiner_adm1 = Combiner()
@@ -177,9 +186,13 @@ class BSM2Base(BSMBase):
         self.dewatering = Dewatering(dewateringinit.DEWATERINGPAR)
         self.storage = Storage(storageinit.VOL_S, storageinit.ystinit, tempmodel, activate)
         self.splitter_storage = Splitter()
+        # --8<-- [end:step_3]
 
+        # --8<-- [start:step_4]
         self.performance = PlantPerformance(pp_init.PP_PAR)
+        # --8<-- [end:step_4]
 
+        # --8<-- [start:step_5]
         self.y_in = self.data_in[:, 1:]
 
         self.ys_tss_internal = np.zeros(settler1dinit.LAYER[1])
@@ -209,7 +222,9 @@ class BSM2Base(BSMBase):
             self.y_out5_r,
             self.y_eff,
         ) = self._create_copies(self.y_in[0], 22)
+        # --8<-- [end:step_5]
 
+        # --8<-- [start:step_6]
         self.y_in_all = np.zeros((len(self.simtime), 21))
         self.y_eff_all = np.zeros((len(self.simtime), 21))
         self.y_in_bp_all = np.zeros((len(self.simtime), 21))
@@ -245,7 +260,9 @@ class BSM2Base(BSMBase):
         self.yp_internal_all = np.zeros((len(self.simtime), 21))
         self.yd_out_all = np.zeros((len(self.simtime), 51))
         self.yt_uf_all = np.zeros((len(self.simtime), 21))
+        # --8<-- [end:step_6]
 
+        # --8<-- [start:step_7]
         self.klas = np.array([reginit.KLA1, reginit.KLA2, reginit.KLA3, reginit.KLA4, reginit.KLA5])
         # scenario 5, 75th percentile, 50% reduction when S_NH below 4g/m3
         # self.controller = ControllerOxygen(self.timestep[0], 0.75, klas, 0.5, 4)
@@ -264,8 +281,11 @@ class BSM2Base(BSMBase):
 
         self.qintr = asm1init.QINTR
         self.y_out5_r[14] = self.qintr
+        # --8<-- [end:step_7]
 
+    # --8<-- [start:step_8]
     def step(self, i: int, *args, **kwargs):
+        # --8<-- [end:step_8]
         """Simulates one time step of the BSM2 model.
 
         Parameters
@@ -274,25 +294,33 @@ class BSM2Base(BSMBase):
             Index of the current time step [-].
         """
 
+        # --8<-- [start:step_9]
         # timestep = timesteps[i]
         step: float = self.simtime[i]
         stepsize: float = self.timesteps[i]
 
         self.reactor1.kla, self.reactor2.kla, self.reactor3.kla, self.reactor4.kla, self.reactor5.kla = self.klas
+        # --8<-- [end:step_9]
 
+        # --8<-- [start:step_10]
         # get influent data that is smaller than and closest to current time step
         y_in_timestep = self.y_in[np.where(self.data_time <= step)[0][-1], :]
 
         iqi = self.performance.iqi(y_in_timestep)[0]
         self.iqi_all[i] = iqi
+        # --8<-- [end:step_10]
 
+        # --8<-- [start:step_11]
         yp_in_c, y_in_bp = self.input_splitter.output(y_in_timestep, (0.0, 0.0), float(reginit.QBYPASS))
         y_plant_bp, y_in_as_c = self.bypass_plant.output(y_in_bp, (1 - reginit.QBYPASSPLANT, reginit.QBYPASSPLANT))
+
         yp_in = self.combiner_primclar_pre.output(yp_in_c, self.yst_sp_p, self.yt_sp_p)
         self.yp_uf, self.yp_of, self.yp_internal = self.primclar.output(stepsize, step, yp_in)
         y_c_as_bp = self.combiner_primclar_post.output(self.yp_of[:21], y_in_as_c)
-        y_bp_as, y_as_bp_c_eff = self.bypass_reactor.output(y_c_as_bp, (1 - reginit.QBYPASSAS, reginit.QBYPASSAS))
+        # --8<-- [end:step_11]
 
+        # --8<-- [start:step_12]
+        y_bp_as, y_as_bp_c_eff = self.bypass_reactor.output(y_c_as_bp, (1 - reginit.QBYPASSAS, reginit.QBYPASSAS))
         y_in1 = self.combiner_reactor.output(self.ys_r, y_bp_as, self.yst_sp_as, self.yt_sp_as, self.y_out5_r)
         self.y_out1 = self.reactor1.output(stepsize, step, y_in1)
         self.y_out2 = self.reactor2.output(stepsize, step, self.y_out1)
@@ -302,9 +330,10 @@ class BSM2Base(BSMBase):
         ys_in, self.y_out5_r = self.splitter_reactor.output(
             self.y_out5, (max(self.y_out5[14] - self.qintr, 0.0), float(self.qintr))
         )
-
         self.ys_r, self.ys_was, self.ys_of, _, self.ys_tss_internal = self.settler.output(stepsize, step, ys_in)
+        # --8<-- [end:step_12]
 
+        # --8<-- [start:step_13]
         self.y_eff = self.combiner_effluent.output(y_plant_bp, y_as_bp_c_eff, self.ys_of)
 
         eqi = self.performance.eqi(self.ys_of, y_plant_bp, y_as_bp_c_eff)[0]
@@ -314,16 +343,21 @@ class BSM2Base(BSMBase):
         self.yt_sp_p, self.yt_sp_as = self.splitter_thickener.output(
             yt_of, (1 - reginit.QTHICKENER2AS, reginit.QTHICKENER2AS)
         )
+        # --8<-- [end:step_13]
 
+        # --8<-- [start:step_14]
         self.yd_in = self.combiner_adm1.output(self.yt_uf, self.yp_uf)
         self.yi_out2, self.yd_out, _ = self.adm1_reactor.output(stepsize, step, self.yd_in, reginit.T_OP)
-        self.ydw_s, ydw_r = self.dewatering.output(self.yi_out2)
-        self.yst_out, self.yst_vol = self.storage.output(stepsize, step, ydw_r, reginit.QSTORAGE)
 
+        self.ydw_s, ydw_r = self.dewatering.output(self.yi_out2)
+
+        self.yst_out, self.yst_vol = self.storage.output(stepsize, step, ydw_r, reginit.QSTORAGE)
         self.yst_sp_p, self.yst_sp_as = self.splitter_storage.output(
             self.yst_out, (1 - reginit.QSTORAGE2AS, reginit.QSTORAGE2AS)
         )
+        # --8<-- [end:step_14]
 
+        # --8<-- [start:step_15]
         vol = np.array(
             [
                 self.reactor1.volume,
@@ -339,7 +373,9 @@ class BSM2Base(BSMBase):
         flows = np.array([self.qintr, asm1init.QR, asm1init.QW, self.yp_uf[14], self.yt_uf[14], self.ydw_s[14]])
         self.pe = self.performance.pumpingenergy_step(flows, pp_init.PP_PAR[10:16])
         self.me = self.performance.mixingenergy_step(self.klas, vol, pp_init.PP_PAR[16])
+        # --8<-- [end:step_15]
 
+        # --8<-- [start:step_16]
         tss_mass = self.performance.tss_mass_bsm2(
             self.yp_of,
             self.yp_uf,
@@ -354,12 +390,18 @@ class BSM2Base(BSMBase):
             self.yst_out,
             self.yst_vol,
         )
+        # --8<-- [end:step_16]
+
+        # --8<-- [start:step_17]
         ydw_s_tss_flow = self.performance.tss_flow(self.ydw_s)
         y_eff_tss_flow = self.performance.tss_flow(self.y_eff)
         carb = reginit.CARB1 + reginit.CARB2 + reginit.CARB3 + reginit.CARB4 + reginit.CARB5
         added_carbon_mass = self.performance.added_carbon_mass(carb, reginit.CARBONSOURCECONC)
         self.heat_demand = self.performance.heat_demand_step(self.yd_in, reginit.T_OP)[0]
         ch4_prod, h2_prod, co2_prod, q_gas = self.performance.gas_production(self.yd_out, reginit.T_OP)
+        # --8<-- [end:step_17]
+
+        # --8<-- [start:step_18]
         # This calculates an approximate oci value for each time step,
         # neglecting changes in the tss mass inside the whole plant
         self.oci_all[i] = self.performance.oci(
@@ -371,6 +413,9 @@ class BSM2Base(BSMBase):
             self.heat_demand * 24,
             ch4_prod,
         )
+        # --8<-- [end:step_18]
+
+        # --8<-- [start:step_19]
         # These values are used to calculate the exact performance values at the end of the simulation
         self.perf_factors_all[i, :12] = [
             self.pe * 24,
@@ -386,7 +431,9 @@ class BSM2Base(BSMBase):
             co2_prod,
             q_gas,
         ]
+        # --8<-- [end:step_19]
 
+        # --8<-- [start:step_20]
         self.y_in_all[i] = y_in_timestep
         self.y_eff_all[i] = self.y_eff
         self.y_in_bp_all[i] = y_in_bp
@@ -423,6 +470,7 @@ class BSM2Base(BSMBase):
         self.yst_vol_all[i] = self.yst_vol, step
         self.ydw_s_all[i] = self.ydw_s
         self.yp_internal_all[i] = self.yp_internal
+        # --8<-- [end:step_20]
 
     def stabilize(self, atol: float = 1e-3):
         """Stabilizes the plant.
