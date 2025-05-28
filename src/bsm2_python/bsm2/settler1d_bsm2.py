@@ -523,6 +523,11 @@ class Settler(Module):
             Array containing the internal TSS states of the settler. \n
             [TSS_LAY1, TSS_LAY2, TSS_LAY3,..., TSS_NOOFLAYER]
         """
+        # check if too much sludge is returned
+        if ys_in[Q] < 0:
+            raise ValueError('The influent flow rate (Q) must be greater than 0.')
+        q_r = min(self.q_r, ys_in[Q])
+        q_w = min(self.q_w, ys_in[Q] - q_r)
 
         nooflayers = self.layer[1]
         # ys_TSS = np.zeros(nooflayers)
@@ -533,7 +538,7 @@ class Settler(Module):
             self.ys0,
             t_eval,
             tfirst=True,
-            args=(ys_in, self.sedpar, self.dim, self.layer, self.q_r, self.q_w, self.tempmodel, self.modeltype),
+            args=(ys_in, self.sedpar, self.dim, self.layer, q_r, q_w, self.tempmodel, self.modeltype),
         )
         ys_int = odes[1]
         self.ys0 = ys_int

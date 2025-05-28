@@ -175,7 +175,7 @@ def test_bsm2_ol_not_connected():
         # get influent data that is smaller than and closest to current time step
         y_in_timestep = y_in[np.where(data_time <= step)[0][-1], :]
 
-        yp_in_c, y_in_bp = input_splitter.output(y_in_timestep, (0, 0), reginit.QBYPASS)
+        yp_in_c, y_in_bp = input_splitter.output(y_in_timestep, (0.0, 0.0), float(reginit.QBYPASS))
         y_plant_bp, y_in_as_c = bypass_plant.output(y_in_bp, (1 - reginit.QBYPASSPLANT, reginit.QBYPASSPLANT))
         # yp_in = combiner_primclar_pre.output(yp_in_c, yst_sp_p, yt_sp_p)
         yp_uf, yp_of = primclar.output(timestep, step, yp_in_c)
