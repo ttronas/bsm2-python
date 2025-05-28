@@ -1,7 +1,7 @@
 <!--- Add here bsm2 website links for the bsm2_base.py documentation -->
-# Path of bsm2_base.py
+<!--- Path of bsm2_base.py -->
 [bsm2_base.py]: /reference/bsm2_python/bsm2_base/
-# Link to classes
+<!--- Link to classes -->
 [Splitter]: /reference/bsm2_python/bsm2/helpers_bsm2/#bsm2_python.bsm2.helpers_bsm2.Splitter
 [Combiner]: /reference/bsm2_python/bsm2/helpers_bsm2/#bsm2_python.bsm2.helpers_bsm2.Combiner
 [PrimaryClarifier]: /reference/bsm2_python/bsm2/primclar_bsm2/#bsm2_python.bsm2.primclar_bsm2.PrimaryClarifier
@@ -12,7 +12,7 @@
 [Dewatering]: /reference/bsm2_python/bsm2/dewatering_bsm2/#bsm2_python.bsm2.dewatering_bsm2.Dewatering
 [Storage]: /reference/bsm2_python/bsm2/storage_bsm2/#bsm2_python.bsm2.storage_bsm2.Storage
 [PlantPerformance]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance
-# Link to initialization files
+<!--- Link to initialization files -->
 [primclarinit_bsm2]: /reference/bsm2_python/bsm2/init/primclarinit_bsm2/
 [asm1init_bsm2]: /reference/bsm2_python/bsm2/init/asm1init_bsm2/
 [reginit_bsm2]: /reference/bsm2_python/bsm2/init/reginit_bsm2/
@@ -22,7 +22,7 @@
 [dewateringinit_bsm2]: /reference/bsm2_python/bsm2/init/dewateringinit_bsm2/
 [storageinit_bsm2]: /reference/bsm2_python/bsm2/init/storageinit_bsm2/
 [plantperformanceinit_bsm2]: /reference/bsm2_python/bsm2/init/plantperformanceinit_bsm2/
-# Link to module documentation
+<!--- Link to module documentation -->
 [Primary Clarifier documentation]: /user_guide/bsm2_python_components/wwt_components/primary_clarifier/
 [Activated Sludge Reactor documentation]: /user_guide/bsm2_python_components/wwt_components/activated_sludge_reactor/
 [Settler documentation]: /user_guide/bsm2_python_components/wwt_components/settler/
@@ -30,7 +30,7 @@
 [Anaerobic Digester documentation]: /user_guide/bsm2_python_components/wwt_components/anaerobic_digester/
 [Dewatering documentation]: /user_guide/bsm2_python_components/wwt_components/dewatering/
 [Storage documentation]: /user_guide/bsm2_python_components/wwt_components/wastewater_storage/
-# Link to methods
+<!--- Link to methods -->
 [Splitter.output]: /reference/bsm2_python/bsm2/helpers_bsm2/#bsm2_python.bsm2.helpers_bsm2.Splitter.output
 [Combiner.output]: /reference/bsm2_python/bsm2/helpers_bsm2/#bsm2_python.bsm2.helpers_bsm2.Combiner.output
 [PrimaryClarifier.output]: /reference/bsm2_python/bsm2/primclar_bsm2/#bsm2_python.bsm2.primclar_bsm2.PrimaryClarifier.output
