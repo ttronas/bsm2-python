@@ -9,14 +9,14 @@ src/
      ├── bsm2/
      │   │  └─ All modules for the BSM2 plant layouts
      │   └─── init
-     │        └─ Initialisation files for the BSM2 plant layouts
+     │        └─ Initialization files for the BSM2 plant layouts
      ├── data
      │   └─ Standard datasets for influent data
      │      and sensor noise
      ├── energy_management/
      │   │  └─ Modules for the energy management side of the BSM2 plant
      │   └─── init
-     │        └─ Initialisation files for the gas management side
+     │        └─ Initialization files for the gas management side
      └── gases
          └─ Modules for the physical properties of the gases
 </pre>

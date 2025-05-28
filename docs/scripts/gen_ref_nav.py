@@ -40,7 +40,8 @@ for path in sorted(Path('src').rglob('*.py')):
                 fd.write("""
                     options:
                         show_symbol_type_heading: false
-                        show_root_full_path: true""")
+                        show_root_full_path: true
+                        filters: [__all__]""")
                 
         # Changes local mkdocstring options for init files
         # init_folder_names = ["bsm2_python.bsm2.init", "bsm2_python.energy_management.init"]
