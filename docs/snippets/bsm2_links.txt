@@ -1,29 +1,36 @@
 <!--- Add here bsm2 website links for the bsm2_base.py documentation -->
+# Path of bsm2_base.py
 [bsm2_base.py]: /reference/bsm2_python/bsm2_base/
-[Splitter class]: /reference/bsm2_python/bsm2/helpers_bsm2/#bsm2_python.bsm2.helpers_bsm2.Splitter
-[Combiner class]: /reference/bsm2_python/bsm2/helpers_bsm2/#bsm2_python.bsm2.helpers_bsm2.Combiner
-[PrimaryClarifier class]: /reference/bsm2_python/bsm2/primclar_bsm2/#bsm2_python.bsm2.primclar_bsm2.PrimaryClarifier
+# Link to classes
+[Splitter]: /reference/bsm2_python/bsm2/helpers_bsm2/#bsm2_python.bsm2.helpers_bsm2.Splitter
+[Combiner]: /reference/bsm2_python/bsm2/helpers_bsm2/#bsm2_python.bsm2.helpers_bsm2.Combiner
+[PrimaryClarifier]: /reference/bsm2_python/bsm2/primclar_bsm2/#bsm2_python.bsm2.primclar_bsm2.PrimaryClarifier
+[ASM1Reactor]: /reference/bsm2_python/bsm2/asm1_bsm2/#bsm2_python.bsm2.asm1_bsm2.ASM1Reactor
+[Settler]: /reference/bsm2_python/bsm2/settler1d_bsm2/#bsm2_python.bsm2.settler1d_bsm2.Settler
+[Thickener]: /reference/bsm2_python/bsm2/thickener_bsm2/#bsm2_python.bsm2.thickener_bsm2.Thickener
+[ADM1Reactor]: /reference/bsm2_python/bsm2/adm1_bsm2/#bsm2_python.bsm2.adm1_bsm2.ADM1Reactor
+[Dewatering]: /reference/bsm2_python/bsm2/dewatering_bsm2/#bsm2_python.bsm2.dewatering_bsm2.Dewatering
+[Storage]: /reference/bsm2_python/bsm2/storage_bsm2/#bsm2_python.bsm2.storage_bsm2.Storage
+[PlantPerformance]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance
+# Link to initialization files
 [primclarinit_bsm2]: /reference/bsm2_python/bsm2/init/primclarinit_bsm2/
-[ASM1Reactor class]: /reference/bsm2_python/bsm2/asm1_bsm2/#bsm2_python.bsm2.asm1_bsm2.ASM1Reactor
 [asm1init_bsm2]: /reference/bsm2_python/bsm2/init/asm1init_bsm2/
 [reginit_bsm2]: /reference/bsm2_python/bsm2/init/reginit_bsm2/
-[Settler class]: /reference/bsm2_python/bsm2/settler1d_bsm2/#bsm2_python.bsm2.settler1d_bsm2.Settler
 [settler1dinit_bsm2]: /reference/bsm2_python/bsm2/init/settler1dinit_bsm2/
-[Thickener class]: /reference/bsm2_python/bsm2/thickener_bsm2/#bsm2_python.bsm2.thickener_bsm2.Thickener
 [thickenerinit_bsm2]: /reference/bsm2_python/bsm2/init/thickenerinit_bsm2/
-[ADM1Reactor class]: /reference/bsm2_python/bsm2/adm1_bsm2/#bsm2_python.bsm2.adm1_bsm2.ADM1Reactor
 [adm1init_bsm2]: /reference/bsm2_python/bsm2/init/adm1init_bsm2/
-[Dewatering class]: /reference/bsm2_python/bsm2/dewatering_bsm2/#bsm2_python.bsm2.dewatering_bsm2.Dewatering
 [dewateringinit_bsm2]: /reference/bsm2_python/bsm2/init/dewateringinit_bsm2/
-[Storage class]: /reference/bsm2_python/bsm2/storage_bsm2/#bsm2_python.bsm2.storage_bsm2.Storage
 [storageinit_bsm2]: /reference/bsm2_python/bsm2/init/storageinit_bsm2/
-[Primary Clarifier documentation]: /user_guide/wwt_components/primary_clarifier/
-[Activated Sludge Reactor documentation]: /user_guide/wwt_components/activated_sludge_reactor/
-[Settler documentation]: /user_guide/wwt_components/settler/
-[Thickener documentation]: /user_guide/wwt_components/thickener/
-[Anaerobic Digester documentation]: /user_guide/wwt_components/anaerobic_digester/
-[Dewatering documentation]: /user_guide/wwt_components/dewatering/
-[Storage documentation]: /user_guide/wwt_components/wastewater_storage/
+[plantperformanceinit_bsm2]: /reference/bsm2_python/bsm2/init/plantperformanceinit_bsm2/
+# Link to module documentation
+[Primary Clarifier documentation]: /user_guide/bsm2_python_components/wwt_components/primary_clarifier/
+[Activated Sludge Reactor documentation]: /user_guide/bsm2_python_components/wwt_components/activated_sludge_reactor/
+[Settler documentation]: /user_guide/bsm2_python_components/wwt_components/settler/
+[Thickener documentation]: /user_guide/bsm2_python_components/wwt_components/thickener/
+[Anaerobic Digester documentation]: /user_guide/bsm2_python_components/wwt_components/anaerobic_digester/
+[Dewatering documentation]: /user_guide/bsm2_python_components/wwt_components/dewatering/
+[Storage documentation]: /user_guide/bsm2_python_components/wwt_components/wastewater_storage/
+# Link to methods
 [Splitter.output]: /reference/bsm2_python/bsm2/helpers_bsm2/#bsm2_python.bsm2.helpers_bsm2.Splitter.output
 [Combiner.output]: /reference/bsm2_python/bsm2/helpers_bsm2/#bsm2_python.bsm2.helpers_bsm2.Combiner.output
 [PrimaryClarifier.output]: /reference/bsm2_python/bsm2/primclar_bsm2/#bsm2_python.bsm2.primclar_bsm2.PrimaryClarifier.output
@@ -35,13 +42,12 @@
 [Storage.output]: /reference/bsm2_python/bsm2/storage_bsm2/#bsm2_python.bsm2.storage_bsm2.Storage.output
 [PlantPerformance.iqi]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.iqi
 [PlantPerformance.eqi]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.eqi
-[plantperformanceinit_bsm2]: /reference/bsm2_python/bsm2/init/plantperformanceinit_bsm2/
-[aerationenergy_step method]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.aerationenergy_step
-[pumpingenergy_step method]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.pumpingenergy_step
-[mixingenergy_step method]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.mixingenergy_step
-[tss_mass_bsm2 method]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.tss_mass_bsm2
-[tss_flow method]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.tss_flow
-[added_carbon_mass method]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.added_carbon_mass
-[heat_demand_step method]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.heat_demand_step
-[gas_production method]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.gas_production
-[oci method]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.oci
+[PlantPerformance.aerationenergy_step]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.aerationenergy_step
+[PlantPerformance.pumpingenergy_step]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.pumpingenergy_step
+[PlantPerformance.mixingenergy_step]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.mixingenergy_step
+[PlantPerformance.tss_mass_bsm2]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.tss_mass_bsm2
+[PlantPerformance.tss_flow]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.tss_flow
+[PlantPerformance.added_carbon_mass]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.added_carbon_mass
+[PlantPerformance.heat_demand_step]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.heat_demand_step
+[PlantPerformance.gas_production]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.gas_production
+[PlantPerformance.oci]: /reference/bsm2_python/bsm2/plantperformance/#bsm2_python.bsm2.plantperformance.PlantPerformance.oci
