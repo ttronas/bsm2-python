@@ -13,15 +13,6 @@ jobs:
       image: ghcr.io/${{ github.repository }}:latest
     steps:
       - uses: actions/checkout@v3
-      - name: Check for pre-commit log
-        id: precommitlog
-        run: |
-          if [ -f /github/home/.cache/pre-commit/pre-commit.log ]; then
-            echo "found=true" >> $GITHUB_OUTPUT
-          else
-            echo "found=false" >> $GITHUB_OUTPUT
-          fi
-
       - name: Lint Code
         run: |
           echo "Current working directory:"
@@ -30,11 +21,11 @@ jobs:
           hatch run lint:style
 
       - name: Upload pre-commit log
-        if: steps.precommitlog.outputs.found == 'true' || failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pre-commit-log
           path: /github/home/.cache/pre-commit/pre-commit.log
+          if-no-files-found: warn
 
   test:
     needs: lint
