@@ -4,8 +4,8 @@
 [black]: https://pypi.org/project/black/
 [pre-commit]: https://pre-commit.com/
 [PyPI]: https://pypi.org/
-[repository]: https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python
-[issue tracker]: https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python/issues
+[repository]: https://github.com/FAU-EVT/bsm2-python
+[issue tracker]: https://github.com/FAU-EVT/bsm2-python/issues
 [mkdocs]: https://www.mkdocs.org/
 [hatch]: https://hatch.pypa.io/
 [virtualenv]: https://virtualenv.pypa.io/en/stable/

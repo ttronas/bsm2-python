@@ -1,10 +1,9 @@
 # BSM2-Python
-
-[![pipeline status](https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python/badges/main/pipeline.svg)](https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python/-/commits/main)
+[![CI](https://github.com/fau-evt/bsm2-python/actions/workflows/ci.yml/badge.svg)](https://github.com/fau-evt/bsm2-python/actions/workflows/ci.yml)
 [![coverage report](https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python/badges/main/coverage.svg)](https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python/-/commits/main)
 [![PyPI version](https://badge.fury.io/py/bsm2-python.svg)](https://badge.fury.io/py/bsm2-python)
 ![PyPI Downloads](https://static.pepy.tech/badge/bsm2-python)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5555555.svg)](https://doi.org/10.5281/zenodo.5555555)
+[![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.egyr.2025.05.045-blue)](https://doi.org/10.1016/j.egyr.2025.05.045)
 
 ![BSM2 with Energy Management in Python](/docs/assets/images/bsm2em_python_flowchart.drawio.svg)
 
@@ -100,19 +99,12 @@ cash_flow = bsm2_olem.economics.cum_cash_flow
 You can also implement your own plant layout. Lots of classes are available to choose from. See the [Documentation](docs/) for more information.
 The [`tests`](tests/) folder contains a lot of examples on how to use the plant layouts.
 
-## Dev container
-There is also a fully functional Dev Container image available for development.
-Just open the repo in VSCode and install the Remote Containers extension.
-Then, open the repo in a container and you are ready to go.
-
 ## Project structure
 The project is structured as follows:
 ```
 bsm2-python
 ├───docs
 │   └────Documentation of the project
-├───notebooks
-|   └────Jupyter notebooks as explanatory examples
 ├───src
 │   └────bsm2_python
 │        |      └─Root folder of the project code
@@ -135,10 +127,13 @@ bsm2-python
          └─Reference files for validation purposes
 ```
 ## Usage
-At the moment, you can choose between 3 different ready-to-use configurations of the plant:
+At the moment, you can choose between different ready-to-use configurations of the plant:
 1. BSM2OL: BSM2 without any control (dynamic or static influent data - you choose)
-2. BSM2CL: BSM2 with aeration control in tanks 3-5
+2. BSM2CL: BSM2 with aeration in tanks 3-5 (controlled by a PID controller in tank 4)
 3. BSM2OLEM: BSM2OL with energy management model and a default gas management.
+4. BSM1OL: BSM1 without any control
+5. BSM1AC: BSM1 with aeration control in tanks 3-5 (each tank is controlled by an individual controller)
+
 You can as well create your own plant layout. Just use the classes in the `bsm2` folder and mix them as you like.
 
 The results of the pre-made configurations are saved inside the objects and can be accessed via calling the attribute names. For the plant effluent, just call `bsm2.y_eff_all`.
@@ -149,6 +144,10 @@ If you want to create your own plant layout, use the `bsm2_xx.py` files as templ
 Your help is highly appreciated! Please read through the [CONTRIBUTING.md](CONTRIBUTING.md) file for details on our code of conduct, and the process for submitting pull requests to us.
 If you find any issues inside the repo, don't hesitate to raise an Issue.
 
+## Dev container
+There is also a fully functional Dev Container image available for development.
+Just open the repo in VSCode and install the Remote Containers extension.
+Then, open the repo in a container and you are ready to go.
 
 ## Roadmap
 In the future, this repo will be extended by the following features:
@@ -165,7 +164,7 @@ Thanks as well to Lukas Meier for implementing the Gas management side of the BS
 The development of this package was done in the context of the [KLÄFFIZIENT] and [KLÄFFIZIENTER] projects. Both are funded by the German Federal Ministry for Economic Affairs and Climate Action ([BMWK]) and are part of the 7th and 8th Energy Research Program of the Federal Government.
 
 ## License
-This project is licensed under [BSD 3 Clause](LICENSE.txt).
+This project is licensed under [BSD 3 Clause](LICENSE).
 
 ## Project status
 As we are maintaining this repo in our free time, don't expect rapid development. However, if any Issues are popping up, we will try to fix them in time.
@@ -176,12 +175,15 @@ As we are maintaining this repo in our free time, don't expect rapid development
 [BMWK]: http://bmwk.de/
 
 ## Citation
-We are currently in the publication process of a peer-reviewed paper. In the meantime, please reference our work with
-```
-@misc{miederer2024bsm2python,
-    title={Energy Management Model for Wastewater Treatment Plants},
-    author={Jonas Miederer and Lukas Meier and Nora Elhaus and Simon Markthaler and J{\"u}rgen Karl},
-    year = {2024--},
-    url = "https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python"
-}
+If you use this code in your research, please cite the following paper:
+```bibtex
+@article{miederer2025,
+title = {Energy Management Model for Wastewater Treatment Plants},
+journal = {Energy Reports},
+volume = {13},
+pages = {6349-6361},
+year = {2025},
+issn = {2352-4847},
+doi = {10.1016/j.egyr.2025.05.045},
+author = {Jonas Miederer and Lukas Meier and Nora Elhaus and Simon Markthaler and Jürgen Karl}}
 ```
