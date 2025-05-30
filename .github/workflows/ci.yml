@@ -19,6 +19,13 @@ jobs:
           pwd
           ls -la
           hatch run lint:style
+      - name: Upload pre-commit log
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: pre-commit-log
+          path: /github/home/.cache/pre-commit/pre-commit.log
+
 
   test:
     needs: lint
