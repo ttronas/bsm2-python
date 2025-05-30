@@ -2,6 +2,13 @@ name: Publish Docker image
 on:
   push:
     branches: [ "*" ]
+    paths:
+      - '.devcontainer/**'
+      - 'pyproject.toml'
+      - 'Dockerfile'
+      - '.mkdocs*'
+      - '.pre-commit-config*'
+      - '.github/workflows/publish.yml'
   release:
     types: [published]
 
@@ -31,6 +38,10 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            ref=main:latest
+            type=semver
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
