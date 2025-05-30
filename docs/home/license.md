@@ -1,4 +1,4 @@
 
 {%
-   include-markdown "../../LICENSE.txt"
+   include-markdown "../../LICENSE"
 %}

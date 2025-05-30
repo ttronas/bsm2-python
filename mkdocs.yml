@@ -7,7 +7,7 @@ copyright: 'Copyright &copy; 2024-present, BSM2-Python Developers'
 
 # Repository
 repo_name: bsm2-python
-repo_url: https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python
+repo_url: https://github.com/FAU-EVT/bsm2-python
 edit_uri: blob/master/docs
 
 # Navigation
@@ -56,7 +56,7 @@ theme:
   favicon: assets/images/logo.svg
   logo: assets/images/logo.svg
   icon:
-    repo: fontawesome/brands/gitlab
+    repo: fontawesome/brands/github
   font:
     text: Roboto Flex
     code: Roboto Mono
@@ -194,5 +194,5 @@ extra_javascript:
 
 extra:
   social:
-    - icon: fontawesome/brands/gitlab
-      link: https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python
+    - icon: fontawesome/brands/github
+      link: https://github.com/FAU-EVT/bsm2-python
