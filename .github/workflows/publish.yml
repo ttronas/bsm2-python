@@ -40,7 +40,8 @@ jobs:
           images: ghcr.io/${{ github.repository }}
           tags: |
             type=ref,event=branch
-            ref=main:latest
+            type=ref,event=branch,pattern=main
+            type=raw,value=latest
             type=semver
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
