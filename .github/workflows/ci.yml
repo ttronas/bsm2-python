@@ -5,10 +5,11 @@ on:
   pull_request:
     branches: [ "*" ]
 
+defaults:
+  run:
+    working-directory: ../
+
 jobs:
-  defaults:
-    run:
-      working-directory: ../
 
   lint:
     runs-on: ubuntu-latest
