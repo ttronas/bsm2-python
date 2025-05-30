@@ -15,9 +15,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Lint Code
         run: |
-          echo "Current working directory:"
-          pwd
-          ls -la
+          git config --global --add safe.directory /__w/bsm2-python/bsm2-python
           hatch run lint:style
 
       - name: Upload pre-commit log
