@@ -1,0 +1,68 @@
+variables:
+  DOCKER_TLS_CERTDIR: "/certs"
+  IMAGE_REG: gitlab.rrze.fau.de:4567
+  IMAGE_NAME: evt/klaeffizient/bsm2-python
+  IMAGE_TAG: latest
+
+stages:
+  - build
+  - test
+
+build_image:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  tags:
+    - docker
+  rules:
+    - changes:
+      - makefile
+      - Dockerfile
+      - .gitlab-ci.yml
+      - pyproject.toml
+      - .devcontainer/devcontainer.json
+
+  before_script:
+    - apk add --update nodejs npm python3 make g++
+    - npm install -g @devcontainers/cli
+    - docker login $IMAGE_REG -u $REGISTRY_USER -p $REGISTRY_PASS
+  script:
+    - devcontainer build --workspace-folder . --push true --image-name ${IMAGE_REG}/${IMAGE_NAME}:${IMAGE_TAG}
+
+run_checks:
+  stage: test
+  image: ${IMAGE_REG}/${IMAGE_NAME}:${IMAGE_TAG}
+  tags:
+    - docker
+  rules:
+    - changes:
+      - makefile
+      - Dockerfile
+      - .gitlab-ci.yml
+      - pyproject.toml
+      - .devcontainer/devcontainer.json
+      - src/*
+      - tests/*
+      - pyproject.toml
+  script:
+    - hatch run lint:style
+
+run_tests:
+  stage: test
+  image: ${IMAGE_REG}/${IMAGE_NAME}:${IMAGE_TAG}
+  tags:
+    - docker
+  rules:
+    - changes:
+      - makefile
+      - Dockerfile
+      - .gitlab-ci.yml
+      - pyproject.toml
+      - .devcontainer/devcontainer.json
+      - src/*
+      - tests/*
+      - pyproject.toml
+  script:
+    - hatch run test:cov
+  coverage: /TOTAL.*? (100(?:\.0+)?\%\|[1-9]?\d(?:\.\d+)?\%)$/

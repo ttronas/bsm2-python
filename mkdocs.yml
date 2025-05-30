@@ -1,0 +1,198 @@
+# Project information
+site_name: BSM2-Python
+site_description: A Python implementation of the Benchmark Simulation Model 2 (BSM2) plant layout according to the IWA standard.
+site_author: Jonas Miederer
+site_url: https://bsm2-python.readthedocs.io
+copyright: 'Copyright &copy; 2024-present, BSM2-Python Developers'
+
+# Repository
+repo_name: bsm2-python
+repo_url: https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python
+edit_uri: blob/master/docs
+
+# Navigation
+nav:
+  - Home:
+    - Overview: index.md
+    - Changelog: home/changelog.md
+    - Authors: home/authors.md
+    - Copyright: home/copyright.md
+    - License: home/license.md
+  - Install: install.md
+  - User guide:
+    - user_guide/index.md
+    - BSM2-Python components:
+      - Wastewater treatment components:
+        - Primary clarifier: user_guide/bsm2_python_components/wwt_components/primary_clarifier.md
+        - Activated sludge reactor: user_guide/bsm2_python_components/wwt_components/activated_sludge_reactor.md
+        - Settler: user_guide/bsm2_python_components/wwt_components/settler.md
+        - Thickener: user_guide/bsm2_python_components/wwt_components/thickener.md
+        - Anaerobic digester: user_guide/bsm2_python_components/wwt_components/anaerobic_digester.md
+        - Dewatering: user_guide/bsm2_python_components/wwt_components/dewatering.md
+        - Wastewater storage: user_guide/bsm2_python_components/wwt_components/wastewater_storage.md
+        - Combiner and Splitter: user_guide/bsm2_python_components/wwt_components/combiner_and_splitter.md
+      - Energy management components:
+        - Biogas storage: user_guide/bsm2_python_components/em_components/biogas_storage.md
+        - Combined heat and power unit: user_guide/bsm2_python_components/em_components/chp.md
+        - Boiler: user_guide/bsm2_python_components/em_components/boiler.md
+        - Flare: user_guide/bsm2_python_components/em_components/flare.md
+        - Cooler: user_guide/bsm2_python_components/em_components/cooler.md
+        - Heating network: user_guide/bsm2_python_components/em_components/heat_net.md
+        - Compressor: user_guide/bsm2_python_components/em_components/compressor.md
+        - Fermenter interface: user_guide/bsm2_python_components/em_components/fermenter_interface.md
+        - Module: user_guide/bsm2_python_components/em_components/module.md
+        - Economics: user_guide/bsm2_python_components/em_components/economics.md
+    - user_guide/bsm2_base.md
+  - Contribute: contribute.md
+  # defer to gen-files + literate-nav
+  - Source code documentation: reference/
+
+# Configuration
+docs_dir: docs
+site_dir: site
+theme:
+  name: material
+  language: en
+  favicon: assets/images/logo.svg
+  logo: assets/images/logo.svg
+  icon:
+    repo: fontawesome/brands/gitlab
+  font:
+    text: Roboto Flex
+    code: Roboto Mono
+  palette:
+    - scheme: slate
+      primary: teal
+      accent: green
+      toggle:
+        icon: material/lightbulb-outline
+        name: Switch to light mode
+    - scheme: default
+      primary: teal
+      accent: green
+      toggle:
+        icon: material/lightbulb
+        name: Switch to dark mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.instant
+    - content.code.annotate
+
+watch:
+- src/bsm2_python
+
+# Extensions
+plugins:
+  - search
+  - autorefs
+  - glightbox
+  - include-markdown
+  - minify:
+      minify_html: true
+  - gen-files:
+      scripts:
+        - docs/scripts/gen_ref_nav.py
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - section-index
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths:
+            - src
+          options:
+            # General
+            show_bases: false
+            # Headings
+            heading_level: 1
+            show_root_heading: true
+            show_root_full_path: false
+            show_root_toc_entry: true
+            show_category_heading: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            # Members
+            members_order: source
+            show_submodules: false
+            show_labels: false
+            # Docstrings
+            docstring_style: numpy
+            docstring_section_style: table
+            docstring_options:
+              ignore_init_summary: true
+            merge_init_into_class: true
+            show_if_no_docstring: false # Show the object heading even if it has no docstring (shows all)
+            # Signatures/annotations
+            separate_signature: true
+            show_signature_annotations: false
+
+markdown_extensions:
+  # Built-in
+  - markdown.extensions.abbr:
+  - markdown.extensions.admonition:
+  - markdown.extensions.attr_list:
+  - markdown.extensions.md_in_html:
+  - markdown.extensions.footnotes:
+  - markdown.extensions.meta:
+  - markdown.extensions.tables:
+  - markdown.extensions.toc:
+      permalink: true
+  # Extra
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret:
+  - pymdownx.critic:
+  - pymdownx.details:
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      options:
+        custom_icons:
+          - docs/assets/icons
+  - pymdownx.highlight:
+      guess_lang: false
+      linenums_style: pymdownx-inline
+      use_pygments: true
+  - pymdownx.inlinehilite:
+  - pymdownx.keys:
+  - pymdownx.magiclink:
+      repo_url_shortener: true
+      repo_url_shorthand: true
+      social_url_shortener: true
+      social_url_shorthand: true
+      normalize_issue_symbols: true
+      provider: github
+      user: pypa
+      repo: hatch
+  - pymdownx.mark:
+  - pymdownx.progressbar:
+  - pymdownx.saneheaders:
+  - pymdownx.smartsymbols:
+  - pymdownx.snippets:
+      check_paths: true
+      base_path:
+        - docs/snippets
+        - src/bsm2_python
+      auto_append:
+        - links.txt
+        # - abbrs.txt
+  - pymdownx.superfences:
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde:
+
+extra_javascript:
+  - scripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+
+extra:
+  social:
+    - icon: fontawesome/brands/gitlab
+      link: https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python
