@@ -3,7 +3,7 @@
 [![coverage report](https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python/badges/main/coverage.svg)](https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python/-/commits/main)
 [![PyPI version](https://badge.fury.io/py/bsm2-python.svg)](https://badge.fury.io/py/bsm2-python)
 ![PyPI Downloads](https://static.pepy.tech/badge/bsm2-python)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5555555.svg)](https://doi.org/10.5281/zenodo.5555555)
+[![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.egyr.2025.05.045-blue)](https://doi.org/10.1016/j.egyr.2025.05.045)
 
 ![BSM2 with Energy Management in Python](/docs/assets/images/bsm2em_python_flowchart.drawio.svg)
 
