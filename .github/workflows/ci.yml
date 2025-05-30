@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Lint Code
-        run: hatch run lint:style
+        run: hatch run lint:style ../
 
   test:
     needs: lint
@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Run Tests
-        run: hatch run test:cov
+        run: hatch run test:cov ../
       - name: Upload coverage report
         if: success()
         uses: actions/upload-artifact@v3

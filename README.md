@@ -1,6 +1,5 @@
 # BSM2-Python
-
-[![pipeline status](https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python/badges/main/pipeline.svg)](https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python/-/commits/main)
+[![CI](https://github.com/fau-evt/bsm2-python/actions/workflows/ci.yml/badge.svg)](https://github.com/fau-evt/bsm2-python/actions/workflows/ci.yml)
 [![coverage report](https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python/badges/main/coverage.svg)](https://gitlab.rrze.fau.de/evt/klaeffizient/bsm2-python/-/commits/main)
 [![PyPI version](https://badge.fury.io/py/bsm2-python.svg)](https://badge.fury.io/py/bsm2-python)
 ![PyPI Downloads](https://static.pepy.tech/badge/bsm2-python)
