@@ -17,6 +17,7 @@ jobs:
         run: |
           echo "Current working directory:"
           pwd
+          ls -la
           hatch run lint:style
 
   test:
@@ -30,6 +31,7 @@ jobs:
         run: |
           echo "Current working directory:"
           pwd
+          ls -la
           hatch run test:cov
       - name: Upload coverage report
         if: success()
