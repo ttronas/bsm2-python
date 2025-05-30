@@ -248,7 +248,6 @@ dependencies = [
 # Test environment with test-only dependencies
 [tool.hatch.envs.test]
 installer = "uv"
-post-install-commands = ["pre-commit install"]
 dependencies = [
     # required test dependencies
     "coverage[toml]>=6.2",
@@ -278,7 +277,6 @@ debug =  "cov --no-cov -s --pdb --pdbcls=IPython.core.debugger:Pdb {args}"
 # Docs environment
 [tool.hatch.envs.docs]
 installer = "uv"
-post-install-commands = ["pre-commit install"]
 dependencies = [
     # Don't forget to update the version in the
     #docs/requirements.txt file if changes are made here
@@ -322,7 +320,6 @@ build-check = [
 # Lint environment
 [tool.hatch.envs.lint]
 installer = "uv"
-post-install-commands = ["pre-commit install"]
 dependencies = [
     "mypy~=1.9.0",
     "ruff~=0.3.2",

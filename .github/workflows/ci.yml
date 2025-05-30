@@ -13,9 +13,6 @@ jobs:
       image: ghcr.io/${{ github.repository }}:latest
     steps:
       - uses: actions/checkout@v3
-      - name: Install git
-        run: |
-          apt-get update && apt-get install -y git
       - name: Lint Code
         run: hatch run lint:style
 
@@ -26,9 +23,6 @@ jobs:
       image: ghcr.io/${{ github.repository }}:latest
     steps:
       - uses: actions/checkout@v3
-      - name: Install git
-        run: |
-          apt-get update && apt-get install -y git
       - name: Run Tests
         run: hatch run test:cov
       - name: Upload coverage report
