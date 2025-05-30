@@ -178,7 +178,7 @@ def test_bsm2_ol_not_connected():
         yp_in_c, y_in_bp = input_splitter.output(y_in_timestep, (0.0, 0.0), float(reginit.QBYPASS))
         y_plant_bp, y_in_as_c = bypass_plant.output(y_in_bp, (1 - reginit.QBYPASSPLANT, reginit.QBYPASSPLANT))
         # yp_in = combiner_primclar_pre.output(yp_in_c, yst_sp_p, yt_sp_p)
-        yp_uf, yp_of = primclar.output(timestep, step, yp_in_c)
+        yp_uf, yp_of, _ = primclar.output(timestep, step, yp_in_c)
         y_c_as_bp = combiner_primclar_post.output(yp_of, y_in_as_c)
         y_bp_as, y_as_bp_c_eff = bypass_reactor.output(y_c_as_bp, (1 - reginit.QBYPASSAS, reginit.QBYPASSAS))
 
