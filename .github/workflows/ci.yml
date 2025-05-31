@@ -33,7 +33,18 @@ jobs:
       image: ghcr.io/${{ github.repository }}:latest
     steps:
       - uses: actions/checkout@v3
+      - name: Filter paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            run_tests:
+              - 'src/**'
+              - 'tests/**'
+              - 'Dockerfile'
+              - '.github/workflows/ci.yml'
       - name: Run Tests
+        if: steps.filter.outputs.run_tests == 'true'
         run: |
           git config --global --add safe.directory /__w/bsm2-python/bsm2-python
           hatch run test:cov

@@ -1,5 +1,9 @@
 # Changelog
 
+<h2> Version 0.0.16 (development) </h2>
+- Bugfix: `step` method for BSM2OLEM fixed. Now works with attribute instead of parameter `stabilize`.
+- Moving to GitHub for development and issue tracking.
+
 <h2> Version 0.0.15 (development) </h2>
 
 - Bugfix: step method now independent of `stabilize` parameter.
