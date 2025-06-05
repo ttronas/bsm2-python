@@ -67,6 +67,9 @@ Further details about the components used for wastewater treatment and energy ma
 
 :material-call-merge: :material-call-split: __[Combiner and Splitter](/user_guide/bsm2_python_components/wwt_components/combiner_and_splitter)__
 { .card }
+
+__[Aerationcontrol](/user_guide/bsm2_pyhton_components/wwt_components/aerationcontrol)__
+{ .card }
 </div>
 
 
