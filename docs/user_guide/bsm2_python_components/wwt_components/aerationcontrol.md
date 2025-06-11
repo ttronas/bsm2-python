@@ -3,53 +3,76 @@ hide:
   - toc
 ---
 
-
+![Aeration control](../../../assets/icons/bsm2python/aerationcontrol.svg){ align=right }
 
 ### Introduction and Model
-The aerationcontrol system aims to maintain a constant dissolved oxygen (DO) concentration in all sludge reactors using real time feedback. Hereby the DO concentration is measured in the 5th reactor compartment to adjust the airflow into all other compartments accordingly. This ensures that microorganisms have enough oxygen for metabolism while avoiding over-aeration, which wastes energy.
+The aeration control system aims to maintain a constant dissolved oxygen (DO) concentration in all sludge reactors using real time feedback. This ensures that microorganisms have enough oxygen for metabolism while avoiding over-aeration, which wastes energy.
 
-The implementation of the aerationsystem is based on Benchmark Simulation Model no.2 (BSM2) by J.Alex et al (2008), with only a small deviation ensuring better performance. It consists of a sensor, a PID-controller and an actuator.  Broken down to the key aspects, the sensor measures the DO concentration, passes it on the PID controller which then sends a signal to the acutator controlling the airflow into the tank. Both sensor and actuator are modeled as dynamic systems.
+The implementation of the aeration system is based on Benchmark Simulation Model no.2 (BSM2) by J.Alex et al. (2008), with only a small deviation ensuring better performance. It consists of a sensor, a PID controller and an actuator. 
+
+Broken down to the key aspects, the sensor measures the DO concentration, passes it on the PID controller which then sends a control signal to the actuator controlling the airflow into the tank. Both sensor and actuator are modeled as dynamic systems.
+
+#### Sensor and Actuator
+
+Both the sensor and the actuators are modelled as realistic and dynamic systems with a set of [equations](#sensor-and-actuator-model) using a state space system and transfer function.
+The desired behavior is achieved by transforming the original input signal $u(t)$ into a delayed input signal $u_{2}(t)$ with a desired time response $t_{r}$. This is implemented by using a first-order delay transfer function $G_{S}(s)$. In order to to simulate the components in a time domain, $G_{S}(s)$ is transformed into a state space system $y_1(t)$. 
+Further enhancing the realistic behaviour of the sensor noise is modelled with a constant noise level and added to the delayed sensor signal. The noise signal is white noise with a standard deviation of $\delta = 1$ multiplied with the noise level $nl$ and the maximum value of the measurement interval $y_{max}$. Note, that the actuator is not equipped with a noise model.
+Lastly, within both components, the signal is checked against a maximum and minimum value resulting in a final output signal $y$.
+
+<figure markdown="span">
+  ![Sensor flowchart](../../../assets/images/aerationcontrol_sensor_flowchart.drawio.svg)
+  <figcaption markdown="1">Flowchart of the sensor model[^3]<br></figcaption>
+</figure>
 
 
-The sensor is equipped with a transfer functions $G_{S}(s)$ which models its response time $t_{r}$ and noise model, which is further transformed into a state space system $y$ in order to simulate the sensor in a time domain.
-After measuring the DO concentration in the 5th tank, the original sensor signal $u(t)$ is transformed into a delayed sensor signal $u_{2}(t)$. The transfer function is used to implement the expected time response of the sensor. Enhancing its realistic behaviour noise is modelled with a constant noise level and added to the delayed sensor signal. Before the signal is forwarded to the controller, the limit is checked as the sensor has a minimum and maximum value as well.
+#### PID controller
 
+The PID controller consists of a proportional, an integral and a derivative term, as well as an anti-windup-mechanism. The primary control objective is to maintain the dissolved oxygen concentration in the 5th reactor at a predetermined set point by manipulating the oxygen transfer coefficient in the 4th reactor in such a way that: $K_{L}a_{3} = K_{L}a_{4}; K_{L}a_{5} = \frac{K_{L}a_{4}}{2}$.
+This is achieved by calculating the error value by comparing the measured process value to the desired setpoint. After that the error is evaluated with the proportional, integral and derivative [component](#pid-controller-model), as well as limit checked with the anti-windup mechanism - forming the final control value $y(t)$.
 
-The PID controller consists of a proportional, an integral and a deritative term, as well as an antiwindup-mechanism. The primary control objective is to maintain the dissolved oxygen concentration in the 5th reactor at a predetermined set point by manipulating the oxygen transfer coefficient in the 4th reactor in such a way that: $K_{L}a_{3} = K_{L}a_{4}; K_{L}a_{5} = /frac{K_{L}a_{4}}{2}$.
-This is achieved by calculating the error value by comparing the measured process value and comparing it to the desired setpoint. After that the error is evaluated with the proportional, integral and deritative component, as well as limit checked with the anti-windup mechansim - forming the ouput value passed on to the acutator.
-
-
-The actuator also has a transfer function $G_{S}(s)$ modelling its response time  $t_{r}$, which again is transformed into a state space system $y$.
-According to the magnitude of the signal given by the PID controller the actuator changes the $K_{L}a$ value for each reactor compartment. This eventually leads to an increase in the DO concentration in the 5th compartment. Furthermore the acutator has a minimum and a maximum value in order to not overshoot, in case the PID signal increases above a ceratain point.
+<figure markdown="span">
+  ![Sensor flowchart](../../../assets/images/aerationcontrol_pid_flowchart.drawio.svg)
+  <figcaption markdown="1">Flowchart of the PID controller[^4]<br></figcaption>
+</figure>
 
 
 ### Equations
 
 #### Components
 
-| $i$ | Component                       | Symbol    | Unit                 |
-| --- | ------------------------------- | --------- | -------------------- |
-| 1   | Dissolved oxygen                | $S_O$     | g(O~2~)$\cdot$m^-3^  |
-| 2   | Mass transfer coefficient       | $K_{L}a$  | d^-1                 | 
-| 3   | Original sensor signal          | $u(t)$    | -                    |
-| 4   | Delayed sensor signal           | $u_{2}(t)$| -                    |
-| 5   | Response time                   | $t_{r}$   | s                    |
+| $i$ | Component                        | Symbol    | Unit                 |
+| --- | -------------------------------- | --------- | -------------------- |
+| 1   | Dissolved oxygen                 | $S_O$     | g(O~2~)$\cdot$m^-3^  |
+| 2   | Mass transfer coefficient        | $K_{L}a$  | d^-1                 | 
+| 3   | Original input signal            | $u(t)$    | -                    |
+| 4   | Delayed input signal             | $u_{2}(t)$| -                    |
+| 5   | Response time                    | $t_{r}$   | s                    |
+| 6   | Maximum value of the measurement | $y_{max}$ | -                    |
+| 7   | Noise level                      | $nl$      | -                    |
 
-**Sensor and Actuator**
+
+#### Sensor and Actuator model
 | Symbol        | Description                 | Equation                                   |
 | ------------- | --------------------------- | ------------------------------------------ |
-| $G_{S}(s)$   | Transfer function for class A| $(/frac{1}{1+/tau s})^2$                   |
-| $y$          | state space system           | $1-(1+/frax{t}{/tau})exp(-/frac{t}{/tau})$ |
+| $G_{S}(s)$    | Transfer function for class A| $(\frac{1}{1+\tau s})^2$                  |
+| $y_1(t)$      | state space function        | $u_{2}(t) + y_{max} * nl* n(t)$            |
+| $y(t)$        | state space function        | $y(t) =\begin{cases} y_{max}, & y_1(t) > y_{max} \\ y_1(t), & y_{min} \leq y_1(t) \leq y_{max} \\ y_{min}, & y_1(t) < y_{min} \end{cases}$ |
 
 
-**PID controller**
-| Symbol        | Description                     | Equation                        | 
-| ------------- | --------------------------------| ------------------------------- |
-| $e$           | Error                           | Z^{setpoint}-Z^{meas}           |
-| $IAE$         | Integral of Absolute Error      | $/int_{t_{f}}^{t_{0}} |e| \,dt$ |
-| $ISE$         | Integral of Squared Error       | $/int_{t_{f}}^{t_{0}} e^2 \,dt$ |
-| $Dev^{max}$   | Maxmial deviation from set point| $max(|e|)$                      |
-| $Var(e)$      | Error variance                  |                                 |
+#### PID controller model
+| Symbol                    | Description                       | Equation                                                         | 
+| ------------------------- | ----------------------------------| -----------------------------------------------------------------|
+| $e$                       | Error                             | $Z^{setpoint} - Z^{meas}$                                        |
+| $IAE$                     | Integral of Absolute Error        | $\int_{t_{f}}^{t_{0}}  ∣e∣ \,dt$                                  |
+| $ISE$                     | Integral of Squared Error         | $\int_{t_{f}}^{t_{0}} e^2 \,dt$                                  |
+| $Dev^{max}$               | Maximal deviation from set point  | $max(∣e∣)$                                                        |
+| $Var(e)$                  | Error variance                    | $\overline{e^2} - \left( \overline{e} \right)^2$                 |
+| $\overline{e}$            | Mean of $e$                       | $\frac{\int_{t_{f}}^{t_{0}} e \,dt}{t_{obs}}$                    |
+| $\overline{e^2}$          | Mean of $e^2$                     | $\frac{\int_{t_{f}}^{t_{0}} e^2 \,dt}{t_{obs}}$                  |
+| $Var(\Delta u)$           | Variance of manipulated variable ($u_{i}$) variations| $\overline{(\Delta u)^2} - \left( \overline{\Delta u} \right)^2$ |
+| $\Delta u$                | Difference of manipulated variable| $∣u(t + \Delta t) - u(t)∣$                                        |
+| $\overline{\Delta u}$     | Mean of $\delta u$                | $\frac{1}{t_{\mathrm{obs}}} \int_{t_0}^{t_r} \Delta u \, dt$     |
+| $\overline{(\Delta u)^2}$ | Mean of $(\delta u)^2$            | $\frac{1}{t_{\mathrm{obs}}} \int_{t_0}^{t_r} (\Delta u)^2 \, dt$ |
 
 
 ### Source code documentation
