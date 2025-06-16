@@ -44,31 +44,31 @@ Further details about the components used for wastewater treatment and energy ma
 
 <div class="grid" markdown>
 
-:bsm2python-primary-clarifier: __[Primary clarifier](/user_guide/bsm2_python_components/wwt_components/primary_clarifier)__
+:bsm2python-primary-clarifier: __[Primary clarifier](/user_guide/bsm2_python_components/wwt_components/primary_clarifier/)__
 { .card }
 
-:bsm2python-activated-sludge-reactor: __[Activated sludge reactor](/user_guide/bsm2_python_components/wwt_components/activated_sludge_reactor)__
+:bsm2python-activated-sludge-reactor: __[Activated sludge reactor](/user_guide/bsm2_python_components/wwt_components/activated_sludge_reactor/)__
 { .card }
 
-:bsm2python-settler: __[Settler](/user_guide/bsm2_python_components/wwt_components/settler)__
+:bsm2python-settler: __[Settler](/user_guide/bsm2_python_components/wwt_components/settler/)__
 { .card }
 
-:bsm2python-thickener: __[Thickener](/user_guide/bsm2_python_components/wwt_components/thickener)__
+:bsm2python-thickener: __[Thickener](/user_guide/bsm2_python_components/wwt_components/thickener/)__
 { .card }
 
-:bsm2python-anerobic-digester: __[Anaerobic digester](/user_guide/bsm2_python_components/wwt_components/anaerobic_digester)__
+:bsm2python-anerobic-digester: __[Anaerobic digester](/user_guide/bsm2_python_components/wwt_components/anaerobic_digester/)__
 { .card }
 
-:bsm2python-dewatering: __[Dewatering](/user_guide/bsm2_python_components/wwt_components/dewatering)__
+:bsm2python-dewatering: __[Dewatering](/user_guide/bsm2_python_components/wwt_components/dewatering/)__
 { .card }
 
-:bsm2python-wastewater-storage: __[Wastewater storage](/user_guide/bsm2_python_components/wwt_components/wastewater_storage)__
+:bsm2python-wastewater-storage: __[Wastewater storage](/user_guide/bsm2_python_components/wwt_components/wastewater_storage/)__
 { .card }
 
-:material-call-merge: :material-call-split: __[Combiner and Splitter](/user_guide/bsm2_python_components/wwt_components/combiner_and_splitter)__
+:material-call-merge: :material-call-split: __[Combiner and Splitter](/user_guide/bsm2_python_components/wwt_components/combiner_and_splitter/)__
 { .card }
 
-:bsm2python-aerationcontrol: __[Aeration control](/user_guide/bsm2_python_components/wwt_components/aerationcontrol)__
+:bsm2python-aerationcontrol: __[Aeration control](/user_guide/bsm2_python_components/wwt_components/aerationcontrol/)__
 { .card }
 </div>
 
@@ -77,34 +77,34 @@ Further details about the components used for wastewater treatment and energy ma
 
 <div class="grid" markdown>
 
-:bsm2python-biogas-storage: __[Biogas storage](/user_guide/bsm2_python_components/em_components/biogas_storage)__
+:bsm2python-biogas-storage: __[Biogas storage](/user_guide/bsm2_python_components/em_components/biogas_storage/)__
 { .card }
 
-:bsm2python-chp: __[Combined heat and power unit](/user_guide/bsm2_python_components/em_components/chp)__
+:bsm2python-chp: __[Combined heat and power unit](/user_guide/bsm2_python_components/em_components/chp/)__
 { .card }
 
-:bsm2python-boiler: __[Boiler](/user_guide/bsm2_python_components/em_components/boiler)__
+:bsm2python-boiler: __[Boiler](/user_guide/bsm2_python_components/em_components/boiler/)__
 { .card }
 
-:bsm2python-flare: __[Flare](/user_guide/bsm2_python_components/em_components/flare)__
+:bsm2python-flare: __[Flare](/user_guide/bsm2_python_components/em_components/flare/)__
 { .card }
 
-:bsm2python-cooler: __[Cooler](/user_guide/bsm2_python_components/em_components/cooler)__
+:bsm2python-cooler: __[Cooler](/user_guide/bsm2_python_components/em_components/cooler/)__
 { .card }
 
-:material-heating-coil: __[Heating network](/user_guide/bsm2_python_components/em_components/heat_net)__
+:material-heating-coil: __[Heating network](/user_guide/bsm2_python_components/em_components/heat_net/)__
 { .card }
 
-:material-arrow-collapse: __[Compressor](/user_guide/bsm2_python_components/em_components/compressor)__
+:material-arrow-collapse: __[Compressor](/user_guide/bsm2_python_components/em_components/compressor/)__
 { .card }
 
-:material-transit-connection-horizontal: __[Fermenter interface](/user_guide/bsm2_python_components/em_components/fermenter_interface)__
+:material-transit-connection-horizontal: __[Fermenter interface](/user_guide/bsm2_python_components/em_components/fermenter_interface/)__
 { .card }
 
-:material-cube: __[Module](/user_guide/bsm2_python_components/em_components/module)__
+:material-cube: __[Module](/user_guide/bsm2_python_components/em_components/module/)__
 { .card }
 
-:material-calculator: __[Economics](/user_guide/bsm2_python_components/em_components/economics)__
+:material-calculator: __[Economics](/user_guide/bsm2_python_components/em_components/economics/)__
 { .card }
 </div>
 

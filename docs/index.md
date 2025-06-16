@@ -14,7 +14,7 @@ A Python implementation of the **Benchmark Simulation Model No. 2 (BSM2)** plant
     <br>
     <br>
 
-    [:octicons-arrow-right-24: Install BSM2-Python](../install)
+    [:octicons-arrow-right-24: Install BSM2-Python](../install/)
 
 -   :material-book-open-variant:{ .lg .middle } __User guide__
 
@@ -22,7 +22,7 @@ A Python implementation of the **Benchmark Simulation Model No. 2 (BSM2)** plant
 
     Learn how to get started with the **<code>User&nbsp;Guide</code>** and how to set up your own BSM2-Python project.
 
-    [:octicons-arrow-right-24: Getting started](../user_guide)
+    [:octicons-arrow-right-24: Getting started](../user_guide/)
 
 -   :material-puzzle-plus-outline:{ .lg .middle } __Contribute__
 
@@ -31,7 +31,7 @@ A Python implementation of the **Benchmark Simulation Model No. 2 (BSM2)** plant
     Want to add codebase, documentation or help us improve BSM2-Python?
     The **`Contribute Guide`** will show you how.
 
-    [:octicons-arrow-right-24: Contribute](../contribute)
+    [:octicons-arrow-right-24: Contribute](../contribute/)
 
 -   :material-book-information-variant:{ .lg .middle } __Documentation__
 
@@ -39,6 +39,6 @@ A Python implementation of the **Benchmark Simulation Model No. 2 (BSM2)** plant
 
     The **`Source Code Documentation`** provides in-depth information about the codebase of BSM2-Python.
 
-    [:octicons-arrow-right-24: Documentation](../reference/bsm2_python)
+    [:octicons-arrow-right-24: Documentation](../reference/bsm2_python/)
 
 </div>

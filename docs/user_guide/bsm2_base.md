@@ -1,5 +1,3 @@
-
-
 # BSM2-base plant documentation
 
 This documentation of BSM2-Python's base class `bsm2_base.py` will guide you through the source code and

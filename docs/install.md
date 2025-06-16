@@ -22,4 +22,4 @@ To install the latest release of the project via [PyPI](https://pypi.org/), open
 
 ### Build from source
 
-If you want the bleeding edge version from the repo, build it yourself via the prompt `hatch build`. See the [Contribution Guide](../contribute) for more details on how to install hatch (or simply use the Docker image). Then you can install it to arbitrary environments via <br> `pip install dist/bsm2_python<version-hash>.whl`.
+If you want the bleeding edge version from the repo, build it yourself via the prompt `hatch build`. See the [Contribution Guide](../contribute/) for more details on how to install hatch (or simply use the Docker image). Then you can install it to arbitrary environments via <br> `pip install dist/bsm2_python<version-hash>.whl`.
