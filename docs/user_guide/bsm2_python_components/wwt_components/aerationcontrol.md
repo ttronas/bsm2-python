@@ -27,8 +27,8 @@ Lastly, within both components, the signal is checked against a maximum and mini
 
 #### PID controller
 
-The PID controller consists of a proportional, an integral and a derivative term, as well as an anti-windup-mechanism. The primary control objective is to maintain the dissolved oxygen concentration in the 5th reactor at a predetermined set point by manipulating the oxygen transfer coefficient in the 4th reactor in such a way that: $K_{L}a_{3} = K_{L}a_{4}; K_{L}a_{5} = \frac{K_{L}a_{4}}{2}$.
-This is achieved by calculating the error value by comparing the measured process value to the desired setpoint. After that the error is evaluated with the proportional, integral and derivative [component](#pid-controller-model), as well as limit checked with the anti-windup mechanism - forming the final control value $y(t)$.
+The PID controller consists of a proportional, an integral and a derivative term, as well as an anti-windup-mechanism. The primary control objective is to maintain a constant DO concentration within the reactor, for example by manipulating the K~L~a parameter.
+This is achieved by calculating the error as the difference of the measured process value and the desired setpoint. The error is then evaluated with the proportional, integral and derivative [component](#pid-controller-model), and subject to limit checking via the anti-windup mechanism - resulting in the final control output $y(t)$.
 
 <figure markdown="span">
   ![Sensor flowchart](../../../assets/images/aerationcontrol_pid_flowchart.drawio.svg)
@@ -43,7 +43,7 @@ This is achieved by calculating the error value by comparing the measured proces
 | $i$ | Component                        | Symbol    | Unit                 |
 | --- | -------------------------------- | --------- | -------------------- |
 | 1   | Dissolved oxygen                 | $S_O$     | g(O~2~)$\cdot$m^-3^  |
-| 2   | Mass transfer coefficient        | $K_{L}a$  | d^-1                 | 
+| 2   | Mass transfer coefficient        | $K_{L}a$  | $d^{-1}$             | 
 | 3   | Original input signal            | $u(t)$    | -                    |
 | 4   | Delayed input signal             | $u_{2}(t)$| -                    |
 | 5   | Response time                    | $t_{r}$   | s                    |
@@ -52,11 +52,11 @@ This is achieved by calculating the error value by comparing the measured proces
 
 
 #### Sensor and Actuator model
-| Symbol        | Description                 | Equation                                   |
-| ------------- | --------------------------- | ------------------------------------------ |
-| $G_{S}(s)$    | Transfer function for class A| $(\frac{1}{1+\tau s})^2$                  |
-| $y_1(t)$      | state space function        | $u_{2}(t) + y_{max} * nl* n(t)$            |
-| $y(t)$        | state space function        | $y(t) =\begin{cases} y_{max}, & y_1(t) > y_{max} \\ y_1(t), & y_{min} \leq y_1(t) \leq y_{max} \\ y_{min}, & y_1(t) < y_{min} \end{cases}$ |
+| Symbol        | Description                  | Equation                                   |
+| ------------- | ---------------------------- | ------------------------------------------ |
+| $G_{S}(s)$    | Transfer function for class A| $(\frac{1}{1+\tau s})^2$                   |
+| $y_1(t)$      | state space function         | $u_{2}(t) + y_{max}\times nl \times n(t)$  |
+| $y(t)$        | state space function         | $y(t) =\begin{cases} y_{max}, & y_1(t) > y_{max} \\ y_1(t), & y_{min} \leq y_1(t) \leq y_{max} \\ y_{min}, & y_1(t) < y_{min} \end{cases}$ |
 
 
 #### PID controller model
