@@ -31,6 +31,7 @@ nav:
         - Dewatering: user_guide/bsm2_python_components/wwt_components/dewatering.md
         - Wastewater storage: user_guide/bsm2_python_components/wwt_components/wastewater_storage.md
         - Combiner and Splitter: user_guide/bsm2_python_components/wwt_components/combiner_and_splitter.md
+        - Aerationcontrol: user_guide/bsm2_python_components/wwt_components/aerationcontrol.md
       - Energy management components:
         - Biogas storage: user_guide/bsm2_python_components/em_components/biogas_storage.md
         - Combined heat and power unit: user_guide/bsm2_python_components/em_components/chp.md
