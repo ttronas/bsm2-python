@@ -32,6 +32,8 @@ jobs:
     container:
       image: ghcr.io/${{ github.repository }}:latest
     steps:
+      - name: Add safe Git directory
+        run: git config --global --add safe.directory /__w/bsm2-python/bsm2-python
       - uses: actions/checkout@v3
       - name: Filter paths
         id: filter
@@ -46,5 +48,4 @@ jobs:
       - name: Run Tests
         if: steps.filter.outputs.run_tests == 'true'
         run: |
-          git config --global --add safe.directory /__w/bsm2-python/bsm2-python
           hatch run test:cov
