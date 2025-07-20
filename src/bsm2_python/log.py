@@ -43,4 +43,4 @@ logging.basicConfig(
 logging.root.setLevel(log_level)
 
 logger = logging.getLogger('')
-logger.addHandler(TqdmLoggingHandler(level=tqdm_log_level, tqdm_level_is_lower=log_level > tqdm_log_level))
+# logger.addHandler(TqdmLoggingHandler(level=tqdm_log_level, tqdm_level_is_lower=log_level > tqdm_log_level))
