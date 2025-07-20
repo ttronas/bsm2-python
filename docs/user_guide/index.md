@@ -162,7 +162,7 @@ oci = bsm2_ol.get_final_performance()[-1]
 
 ### Run Closed Loop simulation with custom DO setpoint
 You can also run the BSM2 Closed Loop model with your own dissolved oxygen (DO) setpoints.
-Please note: The Closed Loop model runs with a resolution of 1 minute to ensure sensor stability. 
+Please note: The Closed Loop model runs with a resolution of 1 minute to ensure sensor stability.
 As a result, the simulation might take a while to complete.
 
 ```python
@@ -232,62 +232,19 @@ A detailed documentation of the BSM2-base module can be found below:
 
 ---
 
-<!-- ## Build a customized BSM2-Python plant layout
+## Build a customized BSM2-Python plant layout
 
-Both the wastewater treatment plant layout as well as the energy management layout can be customized by adding, removing or modifying individual process units. To customize the wastewater treatment plant layout the module [`bsm2_base.py`](/reference/bsm2_python/bsm2_base) has to be changed. For the customization of the energy management layout change the module [`bsm2_olem.py`](/reference/bsm2_python/bsm2_olem).
-
-### Examples for activated sludge flow schemes
-
-![Examples for activated sludge flow schemes](../assets/images/Examples_activated_sludge_flow_schemes.png)
-
-
-### Adding a process unit to the plant layout
-
-z.B. asm1 reaktor 6
-
-1. Initialisierung
-   
-Initialisiere die gewünschte Prozesseinheit in der `__init__` Methode.
-
-```py title="bsm2_base.py"
-class BSM2Base:
-
-  def __init__(self,...):
-  # Initialization of process units
-
-  self.new_process_unit = 
-  
-  self.reactor6 = ASM1Reactor(
-            reginit.KLA5,
-            asm1init.VOL5,
-            asm1init.YINIT5,
-            asm1init.PAR5,
-            reginit.CARB5,
-            reginit.CARBONSOURCECONC,
-            tempmodel=tempmodel,
-            activate=activate,
-        )
-```
-
-Bei hinzufügen von einem eigenen Modul muss zuvor der Code in das Ordnerverzeichnis src\ eingebunden werden und nachträglich importiert werden.
-
-```py title="bsm2_base.py"
-import <module_path_new> as <short_name>
-```
-
-
-2. In Step funktion einbauen
-
-  Falls notwendig Abwasserströme mit Splitter 
-
-3. 
-
-
-
-
-The most important and also most versatile process unit -> ASM1
+Both the WWTP layout as well as the energy management layout can be customized by adding, removing or modifying individual process units. To customize the WWTP layout the module [`bsm2_base.py`](/reference/bsm2_python/bsm2_base) has to be changed. For the customization of the energy management layout change the module [`bsm2_olem.py`](/reference/bsm2_python/bsm2_olem).
 
 ### Customizing the wastewater treatment plant layout
-### Customizing the energy management layout -->
+
+To showcase how to customize the WWTP layout, a real-world WWTP with population equivalent (PE) of 435,000 was re-created with BSM2-Python from the case study *Plant-wide modelling for assessment and optimization of upgraded full-scale wastewater treatment plant performance* [^1]. The WWTP layout from the study consists of a mechanical treatment (screens, grit and grease chamber), a biological stage with a suspended biomass activated sludge process (three parallel plug-flow aerobic reactors and four parallel secondary clarifiers) and sludge treatment (sludge thickening, anaerobic digestion, dewatering and sludge drying).
+
+The WWTP layout is implemented in the BSM2-Python module [`bsm2_custom_layout.py`](/reference/bsm2_python/bsm2_custom_layout), along with a customized initialization file [`bsm2_custom_layoutinit.py`](/reference/bsm2_python/bsm2_custom_layoutinit), a customized influent data file `dyncustominfluent_bsm2.csv` and a file to run the simulation [`custom_simulation.py`](/reference/bsm2_python/custom_simulation). The implementation only uses BSM2-Python modules to simulate the WWTP layout. Therefore it is not possible to implement a perfectly identical model of the WWTP (without modelling of: screens, grits and grease chambers). Sludge inflows from outside into the WWTP were also not taken into account (but are still possible to implement). The biological stage is modelled with four activated sludge reactors in series with a single secondary clarifier/settler to simplify the layout and reduce the simulation time. For the simulation of the influent (flow rate (Q)&nbsp;[m³/d], total suspended solids (TSS)&nbsp;[g/m³], chemical oxygen demand (COD)&nbsp;[g(COD)/m³], biological oxygen demand after 5 days (BOD~5~)&nbsp;[g(O~2~)/m³], total Kjeldahl nitrogen (TKN)&nbsp;[g(N)/m³]) the [*BSM2-Influent-Generator*](https://github.com/wwtmodels/Influent-Generator-Models?tab=readme-ov-file) was used.
+
+We thank Nadja Hvala for her contribution by providing us with data and insights for the new implementation of the WWTP.
+
+[^1]: Hvala, Nadja & Vrecko, Darko & Bordon, Cirila. (2018). [Plant-wide modelling for assessment and optimization of upgraded full-scale wastewater treatment plant performance](https://iwaponline.com/wpt/article-abstract/13/3/566/63732/Plant-wide-modelling-for-assessment-and?redirectedFrom=fulltext). Water Practice and Technology. ([ResearchGate-Link](https://www.researchgate.net/publication/327377909_Plant-wide_modelling_for_assessment_and_optimization_of_upgraded_full-scale_wastewater_treatment_plant_performance/citations))
 
 
+<!-- ### Customizing the energy management layout -->
