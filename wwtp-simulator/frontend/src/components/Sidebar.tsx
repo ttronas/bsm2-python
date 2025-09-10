@@ -20,7 +20,7 @@ interface SidebarProps {
 const tabs: { id: SidebarTab; label: string; icon: string }[] = [
   { id: 'components', label: 'Components', icon: '🧩' },
   { id: 'details', label: 'Details', icon: '⚙️' },
-  { id: 'settings', label: 'Settings', icon: '🎯' },
+  { id: 'settings', label: 'Simulation', icon: '🎯' },
   { id: 'results', label: 'Results', icon: '📊' },
 ];
 

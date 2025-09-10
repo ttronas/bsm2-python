@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { FlowNode, FlowEdge } from '@/types';
 import { BSM2_COMPONENTS } from '@/lib/components';
-import { Edit3, Save, X } from 'lucide-react';
+import { Edit3, Save, X, Upload, FileText, AlertCircle } from 'lucide-react';
 
 interface DetailsTabProps {
   selectedNode: FlowNode | null;
@@ -18,6 +18,9 @@ export default function DetailsTab({
 }: DetailsTabProps) {
   const [editingParams, setEditingParams] = useState<Record<string, string | number | boolean>>({});
   const [isEditing, setIsEditing] = useState(false);
+  const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [csvError, setCsvError] = useState<string | null>(null);
+  const [showCsvDialog, setShowCsvDialog] = useState(false);
 
   if (!selectedNode && !selectedEdge) {
     return (
@@ -122,6 +125,141 @@ export default function DetailsTab({
       setEditingParams(prev => ({ ...prev, [paramId]: value }));
     };
 
+    const handleCsvUpload = useCallback((file: File, resolution: number) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const csvText = e.target?.result as string;
+          const lines = csvText.trim().split('\n');
+          
+          // Validate CSV format - should have 22 columns (time + 21 state variables)
+          const firstDataLine = lines[0].split(',');
+          if (firstDataLine.length !== 22) {
+            setCsvError(`Invalid CSV format. Expected 22 columns, found ${firstDataLine.length}. CSV should contain: time, SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5`);
+            return;
+          }
+
+          // Update the node parameters
+          handleParamChange('csv_file', file.name);
+          handleParamChange('timestep_resolution', resolution);
+          handleParamChange('influent_type', 'dynamic');
+          
+          setCsvError(null);
+          setCsvFile(file);
+          setShowCsvDialog(false);
+        } catch (error) {
+          setCsvError('Error reading CSV file. Please check the file format.');
+        }
+      };
+      reader.readAsText(file);
+    }, []);
+
+    const CsvUploadDialog = () => {
+      const [dragOver, setDragOver] = useState(false);
+      const [tempResolution, setTempResolution] = useState(15);
+
+      const handleDrop = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        setDragOver(false);
+        
+        const files = Array.from(e.dataTransfer.files);
+        const csvFile = files.find(f => f.name.toLowerCase().endsWith('.csv'));
+        
+        if (csvFile) {
+          handleCsvUpload(csvFile, tempResolution);
+        } else {
+          setCsvError('Please upload a CSV file.');
+        }
+      }, [tempResolution]);
+
+      const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+          handleCsvUpload(file, tempResolution);
+        }
+      };
+
+      return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-lg font-medium">Upload Influent CSV</h4>
+              <button
+                onClick={() => setShowCsvDialog(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Timestep Resolution (minutes)
+                </label>
+                <select
+                  value={tempResolution}
+                  onChange={(e) => setTempResolution(parseInt(e.target.value))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value={1}>1 minute</option>
+                  <option value={5}>5 minutes</option>
+                  <option value={15}>15 minutes (BSM2 default)</option>
+                  <option value={30}>30 minutes</option>
+                  <option value={60}>1 hour</option>
+                </select>
+              </div>
+
+              <div
+                onDrop={handleDrop}
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                onDragLeave={() => setDragOver(false)}
+                className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                  dragOver 
+                    ? 'border-blue-500 bg-blue-50' 
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                <Upload size={24} className="mx-auto mb-2 text-gray-400" />
+                <p className="text-sm text-gray-600 mb-2">
+                  Drag and drop your CSV file here, or
+                </p>
+                <input
+                  type="file"
+                  accept=".csv"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                  id="csv-upload"
+                />
+                <label
+                  htmlFor="csv-upload"
+                  className="cursor-pointer text-blue-600 hover:text-blue-800 text-sm font-medium"
+                >
+                  browse files
+                </label>
+              </div>
+
+              <div className="text-xs text-gray-500">
+                <p className="font-medium mb-1">CSV Format Requirements:</p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li>22 columns: time, SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5</li>
+                  <li>Time column should be in days</li>
+                  <li>Each row represents one timestep</li>
+                </ul>
+              </div>
+
+              {csvError && (
+                <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-md">
+                  <AlertCircle size={16} className="text-red-600 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-red-700">{csvError}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
     return (
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
@@ -194,7 +332,48 @@ export default function DetailsTab({
                         {param.unit && <span className="text-gray-500"> ({param.unit})</span>}
                       </label>
                       
-                      {param.type === 'number' ? (
+                      {/* Special handling for Influent component */}
+                      {component.id === 'influent' && param.id === 'influent_type' ? (
+                        <select
+                          value={String(currentValue)}
+                          onChange={(e) => handleParamChange(param.id, e.target.value)}
+                          disabled={!isEditing}
+                          className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
+                            isEditing 
+                              ? 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500' 
+                              : 'bg-gray-50 text-gray-600'
+                          }`}
+                        >
+                          <option value="constant">Constant</option>
+                          <option value="dynamic">Dynamic</option>
+                        </select>
+                      ) : component.id === 'influent' && param.id === 'csv_file' ? (
+                        <div className="space-y-2">
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={String(currentValue)}
+                              disabled
+                              placeholder={currentValue ? String(currentValue) : "No file selected"}
+                              className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600"
+                            />
+                            {isEditing && (
+                              <button
+                                onClick={() => setShowCsvDialog(true)}
+                                className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-1"
+                              >
+                                <FileText size={16} />
+                                Browse
+                              </button>
+                            )}
+                          </div>
+                          {String(editingParams['influent_type'] ?? selectedNode.data.parameters['influent_type'] ?? 'constant') === 'constant' && (
+                            <p className="text-xs text-amber-600">
+                              💡 Set type to "Dynamic" to upload custom CSV file
+                            </p>
+                          )}
+                        </div>
+                      ) : param.type === 'number' ? (
                         <input
                           type="number"
                           value={typeof currentValue === 'number' ? currentValue : 0}
@@ -272,6 +451,9 @@ export default function DetailsTab({
             </div>
           </div>
         </div>
+
+        {/* CSV Upload Dialog */}
+        {showCsvDialog && <CsvUploadDialog />}
       </div>
     );
   }

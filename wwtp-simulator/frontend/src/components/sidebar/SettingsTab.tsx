@@ -288,6 +288,31 @@ export default function SettingsTab({ nodes, edges }: SettingsTabProps) {
           <Download size={16} />
           Export Configuration
         </button>
+
+        <div className="border-t border-gray-200 pt-3">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Import Predefined Flowsheets
+          </label>
+          <select
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-2"
+            defaultValue=""
+          >
+            <option value="" disabled>Select a predefined flowsheet...</option>
+            <option value="bsm2-ol">BSM2 Open Loop</option>
+            <option value="bsm2-cl">BSM2 Closed Loop</option>
+            <option value="bsm1-ol">BSM1 Open Loop</option>
+            <option value="bsm1-cl">BSM1 Closed Loop</option>
+            <option value="single-asm1">Single ASM1 Reactor</option>
+            <option value="single-adm1">Single ADM1 Reactor</option>
+          </select>
+          <button
+            className="w-full py-2 px-4 bg-purple-600 text-white rounded-md font-medium hover:bg-purple-700 flex items-center justify-center gap-2"
+            onClick={() => alert('Import predefined flowsheets functionality will be implemented')}
+          >
+            <Upload size={16} />
+            Import Predefined
+          </button>
+        </div>
       </div>
     </div>
   );

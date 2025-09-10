@@ -50,9 +50,24 @@ function BSM2Node({ data, selected }: NodeProps & { data: BSM2NodeData }) {
     }
   };
 
+  // Calculate input positions for proper alignment
+  const getInputPosition = (index: number, total: number) => {
+    if (total === 1) return 50;
+    return ((index + 1) * 100) / (total + 1);
+  };
+
+  // Calculate output positions for proper alignment based on position
+  const getOutputPosition = (output: any, outputs: any[]) => {
+    const samePositionOutputs = outputs.filter(o => o.position === output.position);
+    const index = samePositionOutputs.findIndex(o => o.id === output.id);
+    
+    if (samePositionOutputs.length === 1) return 50;
+    return ((index + 1) * 100) / (samePositionOutputs.length + 1);
+  };
+
   return (
     <div
-      className={`bg-white border-2 rounded-lg min-w-[160px] shadow-lg transition-all ${
+      className={`group bg-white border-2 rounded-lg min-w-[120px] shadow-lg transition-all ${
         selected ? 'border-blue-500 shadow-xl' : 'border-gray-300'
       }`}
     >
@@ -64,7 +79,7 @@ function BSM2Node({ data, selected }: NodeProps & { data: BSM2NodeData }) {
           position={Position.Left}
           id={input.id}
           style={{
-            top: component.inputs.length === 1 ? '50%' : `${((index + 1) * 100) / (component.inputs.length + 1)}%`,
+            top: `${getInputPosition(index, component.inputs.length)}%`,
             background: '#3b82f6',
           }}
           className="w-3 h-3"
@@ -72,45 +87,49 @@ function BSM2Node({ data, selected }: NodeProps & { data: BSM2NodeData }) {
       ))}
 
       {/* Output Handles */}
-      {component.outputs.map((output) => (
-        <Handle
-          key={output.id}
-          type="source"
-          position={output.position === 'right' ? Position.Right : 
-                   output.position === 'top' ? Position.Top : Position.Bottom}
-          id={output.id}
-          style={{
-            ...(output.position === 'right' ? {
-              top: component.outputs.filter(o => o.position === 'right').length === 1 ? '50%' : 
-                   `${((component.outputs.filter(o => o.position === 'right').findIndex(o => o.id === output.id) + 1) * 100) / 
-                     (component.outputs.filter(o => o.position === 'right').length + 1)}%`
-            } : output.position === 'top' ? {
-              left: '50%',
-              top: 0,
-            } : {
-              left: '50%',
-              bottom: 0,
-            }),
-            background: '#10b981',
-          }}
-          className="w-3 h-3"
-        />
-      ))}
+      {component.outputs.map((output) => {
+        const position = output.position === 'right' ? Position.Right : 
+                        output.position === 'top' ? Position.Top : Position.Bottom;
+        
+        const style = output.position === 'right' ? {
+          top: `${getOutputPosition(output, component.outputs)}%`,
+        } : output.position === 'top' ? {
+          left: `${getOutputPosition(output, component.outputs)}%`,
+          top: 0,
+        } : {
+          left: `${getOutputPosition(output, component.outputs)}%`,
+          bottom: 0,
+        };
 
-      <div className="p-3">
-        {/* Node Header with Icon and Label */}
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded">
+        return (
+          <Handle
+            key={output.id}
+            type="source"
+            position={position}
+            id={output.id}
+            style={{
+              ...style,
+              background: '#10b981',
+            }}
+            className="w-3 h-3"
+          />
+        );
+      })}
+
+      <div className="p-2">
+        {/* Simplified Node Header - Only Icon and Label */}
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 flex items-center justify-center bg-gray-100 rounded">
             {component.icon.endsWith('.svg') ? (
               <Image
                 src={component.icon}
                 alt={component.name}
-                width={24}
-                height={24}
-                className="w-6 h-6"
+                width={20}
+                height={20}
+                className="w-5 h-5"
               />
             ) : (
-              <div className="w-6 h-6 bg-gray-400 rounded"></div>
+              <div className="w-5 h-5 bg-gray-400 rounded"></div>
             )}
           </div>
           
@@ -121,58 +140,35 @@ function BSM2Node({ data, selected }: NodeProps & { data: BSM2NodeData }) {
                   value={editLabel}
                   onChange={(e) => setEditLabel(e.target.value)}
                   onKeyDown={handleLabelKeyDown}
-                  className="flex-1 px-1 py-0.5 text-sm border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                  className="flex-1 px-1 py-0.5 text-xs border border-gray-300 rounded focus:outline-none focus:border-blue-500"
                   autoFocus
                 />
                 <button
                   onClick={handleLabelEdit}
                   className="p-0.5 text-green-600 hover:bg-green-100 rounded"
                 >
-                  <Check size={12} />
+                  <Check size={10} />
                 </button>
                 <button
                   onClick={handleLabelCancel}
                   className="p-0.5 text-red-600 hover:bg-red-100 rounded"
                 >
-                  <X size={12} />
+                  <X size={10} />
                 </button>
               </div>
             ) : (
               <div className="flex items-center gap-1 flex-1">
-                <span className="text-sm font-medium truncate">{data.label}</span>
+                <span className="text-xs font-medium truncate">{data.label}</span>
                 <button
                   onClick={handleLabelEdit}
-                  className="p-0.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+                  className="p-0.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded opacity-0 group-hover:opacity-100"
                 >
-                  <Edit3 size={12} />
+                  <Edit3 size={10} />
                 </button>
               </div>
             )}
           </div>
         </div>
-
-        {/* Input/Output Labels */}
-        <div className="space-y-1">
-          {component.inputs.map((input) => (
-            <div key={input.id} className="text-xs text-blue-600 text-left">
-              ● {input.name}
-            </div>
-          ))}
-          {component.outputs.map((output) => (
-            <div key={output.id} className="text-xs text-green-600 text-right">
-              {output.name} ●
-            </div>
-          ))}
-        </div>
-
-        {/* Parameter Summary */}
-        {component.parameters.length > 0 && (
-          <div className="mt-2 pt-2 border-t border-gray-200">
-            <div className="text-xs text-gray-500">
-              {component.parameters.length} parameter{component.parameters.length !== 1 ? 's' : ''}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
