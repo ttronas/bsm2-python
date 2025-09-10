@@ -87,6 +87,14 @@ async def get_available_components():
     
     components = [
         {
+            "id": "influent",
+            "name": "Influent",
+            "description": "Wastewater influent source",
+            "inputs": [],
+            "outputs": ["outlet"],
+            "parameters": ["influent_type", "flow_rate", "csv_file", "timestep_resolution"]
+        },
+        {
             "id": "asm1-reactor",
             "name": "ASM1 Reactor",
             "description": "Activated Sludge Model No. 1 reactor",

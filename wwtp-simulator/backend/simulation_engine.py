@@ -46,13 +46,14 @@ class SimulationEngine:
     def __init__(self):
         """Initialize the simulation engine."""
         self.component_registry = {
+            'influent': self._create_influent,
             'asm1-reactor': self._create_asm1_reactor,
             'adm1-reactor': self._create_adm1_reactor,
             'primary-clarifier': self._create_primary_clarifier,
             'settler': self._create_settler,
             'thickener': self._create_thickener,
             'dewatering': self._create_dewatering,
-            'storage': self._create_storage,
+            'storage-tank': self._create_storage,
             'combiner': self._create_combiner,
             'splitter': self._create_splitter,
         }
@@ -296,6 +297,20 @@ class SimulationEngine:
         return False
     
     # Component creation methods
+    def _create_influent(self, parameters: Dict) -> Any:
+        """Create an influent component."""
+        influent_type = parameters.get('influent_type', 'constant')
+        flow_rate = parameters.get('flow_rate', 20959)
+        csv_file = parameters.get('csv_file', '')
+        timestep_resolution = parameters.get('timestep_resolution', 15)
+        
+        if influent_type == 'dynamic' and csv_file:
+            # Load dynamic influent data from CSV
+            return MockInfluent(influent_type, flow_rate, csv_file, timestep_resolution)
+        else:
+            # Use constant influent
+            return MockInfluent('constant', flow_rate)
+    
     def _create_asm1_reactor(self, parameters: Dict) -> Any:
         """Create an ASM1 reactor component."""
         if not BSM2_AVAILABLE:
@@ -438,3 +453,153 @@ class MockSplitter(MockComponent):
     def __init__(self, fraction: float):
         super().__init__('splitter', {'fraction': fraction})
         self.fraction = fraction
+
+class MockInfluent(MockComponent):
+    def __init__(self, influent_type: str, flow_rate: float, csv_file: str = '', timestep_resolution: int = 15):
+        super().__init__('influent', {
+            'influent_type': influent_type,
+            'flow_rate': flow_rate,
+            'csv_file': csv_file,
+            'timestep_resolution': timestep_resolution
+        })
+        self.influent_type = influent_type
+        self.flow_rate = flow_rate
+        self.csv_file = csv_file
+        self.timestep_resolution = timestep_resolution
+        self.influent_data = None
+        
+        if influent_type == 'constant':
+            self.influent_data = self._create_constant_influent()
+        elif influent_type == 'dynamic':
+            if csv_file:
+                self.influent_data = self._load_csv_influent()
+            else:
+                self.influent_data = self._create_bsm2_dynamic_influent()
+    
+    def _create_constant_influent(self):
+        """Create constant influent from first line of BSM2 dynamic data."""
+        import os
+        import numpy as np
+        
+        # Load the first line from BSM2 dynamic influent data
+        data_path = os.path.join(os.path.dirname(__file__), '..', '..', 'src', 'bsm2_python', 'data', 'dyninfluent_bsm2.csv')
+        
+        try:
+            # Try to load from the actual BSM2 data file
+            data = np.loadtxt(data_path, delimiter=',', max_rows=1)
+            if len(data) >= 22:
+                constant_data = data[1:]  # Skip time column
+                constant_data[Q] = self.flow_rate  # Use user-specified flow rate
+                return constant_data
+        except (FileNotFoundError, OSError):
+            # Fall back to default values
+            pass
+        
+        # Default constant influent values
+        influent = np.zeros(21)
+        influent[SI] = 30      # Inert soluble substrate
+        influent[SS] = 69.5    # Readily biodegradable substrate
+        influent[XI] = 51.2    # Inert particulate substrate
+        influent[XS] = 202.3   # Slowly biodegradable substrate
+        influent[XBH] = 28.2   # Heterotrophic biomass
+        influent[XBA] = 0      # Autotrophic biomass
+        influent[XP] = 0       # Particulate inert products
+        influent[SO] = 0       # Dissolved oxygen
+        influent[SNO] = 0      # Nitrate and nitrite nitrogen
+        influent[SNH] = 31.6   # Ammonium nitrogen
+        influent[SND] = 6.95   # Soluble biodegradable nitrogen
+        influent[XND] = 10.6   # Particulate biodegradable nitrogen
+        influent[SALK] = 7     # Alkalinity
+        influent[TSS] = 211.7  # Total suspended solids
+        influent[Q] = self.flow_rate    # User-specified flow rate
+        influent[TEMP] = 15    # Temperature
+        
+        return influent
+    
+    def _create_bsm2_dynamic_influent(self):
+        """Create BSM2 dynamic influent data."""
+        import os
+        import numpy as np
+        
+        data_path = os.path.join(os.path.dirname(__file__), '..', '..', 'src', 'bsm2_python', 'data', 'dyninfluent_bsm2.csv')
+        
+        try:
+            # Load the full BSM2 dynamic influent data
+            data = np.loadtxt(data_path, delimiter=',')
+            return data
+        except (FileNotFoundError, OSError):
+            # Fall back to creating synthetic dynamic data
+            return self._create_synthetic_dynamic_influent()
+    
+    def _create_synthetic_dynamic_influent(self):
+        """Create synthetic dynamic influent when BSM2 data is not available."""
+        import numpy as np
+        
+        # Create 14 days of data at 15-minute intervals
+        timesteps = 14 * 24 * 4  # 14 days * 24 hours * 4 (15-min intervals)
+        time = np.linspace(0, 14, timesteps)
+        
+        data = np.zeros((timesteps, 22))  # time + 21 state variables
+        data[:, 0] = time  # Time column
+        
+        for i in range(timesteps):
+            t = time[i]
+            
+            # Create daily and weekly patterns
+            daily_pattern = np.sin(t * 2 * np.pi) * 0.3 + 1  # Daily variation
+            weekly_pattern = np.sin(t * 2 * np.pi / 7) * 0.1 + 1  # Weekly variation
+            base_multiplier = daily_pattern * weekly_pattern
+            
+            # Base influent composition with variations
+            data[i, 1:] = [
+                30 * base_multiplier,      # SI
+                69.5 * base_multiplier,    # SS
+                51.2 * base_multiplier,    # XI
+                202.3 * base_multiplier,   # XS
+                28.2 * base_multiplier,    # XBH
+                0,                         # XBA
+                0,                         # XP
+                0,                         # SO
+                0,                         # SNO
+                31.6 * base_multiplier,    # SNH
+                6.95 * base_multiplier,    # SND
+                10.6 * base_multiplier,    # XND
+                7 * base_multiplier,       # SALK
+                211.7 * base_multiplier,   # TSS
+                self.flow_rate * base_multiplier,  # Q
+                15 + 5 * np.sin(t * 2 * np.pi / 365),  # TEMP (seasonal)
+                0, 0, 0, 0, 0              # SD1, SD2, SD3, XD4, XD5
+            ]
+        
+        return data
+    
+    def _load_csv_influent(self):
+        """Load custom CSV influent data."""
+        # For now, return synthetic data
+        # In a full implementation, this would load the actual uploaded CSV
+        return self._create_synthetic_dynamic_influent()
+    
+    def get_influent_at_time(self, time: float):
+        """Get influent data at a specific time."""
+        if self.influent_type == 'constant':
+            return self.influent_data
+        else:
+            # For dynamic influent, interpolate between data points
+            if self.influent_data is not None and len(self.influent_data) > 0:
+                time_column = self.influent_data[:, 0]
+                
+                # Find closest time points
+                idx = np.searchsorted(time_column, time)
+                if idx == 0:
+                    return self.influent_data[0, 1:]
+                elif idx >= len(time_column):
+                    return self.influent_data[-1, 1:]
+                else:
+                    # Linear interpolation
+                    t0, t1 = time_column[idx-1], time_column[idx]
+                    w = (time - t0) / (t1 - t0)
+                    data0, data1 = self.influent_data[idx-1, 1:], self.influent_data[idx, 1:]
+                    return (1 - w) * data0 + w * data1
+            
+            # Fall back to constant
+            return self._create_constant_influent()

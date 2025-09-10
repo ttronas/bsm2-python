@@ -1,0 +1,107 @@
+{
+  "name": "BSM2 Open Loop Test Configuration",
+  "description": "Recreation of BSM2 Open Loop test case from the BSM2-Python tests",
+  "nodes": [
+    {
+      "id": "influent-1",
+      "type": "bsm2-node",
+      "position": {
+        "x": 100,
+        "y": 200
+      },
+      "data": {
+        "label": "Influent",
+        "componentType": "influent",
+        "parameters": {
+          "influent_type": "dynamic",
+          "flow_rate": 20959,
+          "csv_file": "",
+          "timestep_resolution": 15
+        },
+        "isSelected": false
+      }
+    },
+    {
+      "id": "primary-clarifier-1",
+      "type": "bsm2-node", 
+      "position": {
+        "x": 300,
+        "y": 200
+      },
+      "data": {
+        "label": "Primary Clarifier",
+        "componentType": "primary-clarifier",
+        "parameters": {
+          "surface_area": 1500,
+          "height": 4
+        },
+        "isSelected": false
+      }
+    },
+    {
+      "id": "asm1-reactor-1",
+      "type": "bsm2-node",
+      "position": {
+        "x": 500,
+        "y": 200
+      },
+      "data": {
+        "label": "ASM1 Reactor 1",
+        "componentType": "asm1-reactor",
+        "parameters": {
+          "volume": 1000,
+          "kla": 10,
+          "so_sat": 8,
+          "temp": 15
+        },
+        "isSelected": false
+      }
+    },
+    {
+      "id": "settler-1",
+      "type": "bsm2-node",
+      "position": {
+        "x": 700,
+        "y": 200
+      },
+      "data": {
+        "label": "Settler",
+        "componentType": "settler",
+        "parameters": {
+          "surface_area": 6000,
+          "height": 4
+        },
+        "isSelected": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-1",
+      "source": "influent-1",
+      "target": "primary-clarifier-1",
+      "sourceHandle": "outlet",
+      "targetHandle": "inlet"
+    },
+    {
+      "id": "edge-2", 
+      "source": "primary-clarifier-1",
+      "target": "asm1-reactor-1",
+      "sourceHandle": "effluent",
+      "targetHandle": "inlet"
+    },
+    {
+      "id": "edge-3",
+      "source": "asm1-reactor-1", 
+      "target": "settler-1",
+      "sourceHandle": "outlet",
+      "targetHandle": "inlet"
+    }
+  ],
+  "settings": {
+    "timestep": 15,
+    "endTime": 5,
+    "startTime": 0
+  },
+  "createdAt": "2024-01-01T00:00:00Z"
+}
