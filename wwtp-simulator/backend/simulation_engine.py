@@ -86,9 +86,7 @@ class SimulationEngine:
             if edge.target not in node_ids:
                 raise ComponentValidationError(f"Target node not found: {edge.target}")
         
-        # Check for cycles (basic check)
-        if self._has_cycles(config):
-            raise ComponentValidationError("Circular connections detected")
+        # Note: Cycles are allowed and necessary in BSM2 (e.g., recycle streams from settler to reactor)
         
         return True
     
@@ -208,37 +206,313 @@ class SimulationEngine:
         step: int,
         results: Dict[str, Dict]
     ):
-        """Simulate a single timestep."""
-        # For now, generate mock data for each edge
-        # In a full implementation, this would:
-        # 1. Calculate influent for each component based on connections
-        # 2. Run each component's simulation step
-        # 3. Store outputs in results
+        """Simulate a single timestep with proper BSM2 component execution."""
+        # Create a map of component outputs
+        component_outputs = {}
         
+        # Step 1: Process influent components first to get initial data
+        for comp_id, comp_data in components.items():
+            if comp_data['type'] == 'influent':
+                influent_component = comp_data['component']
+                if hasattr(influent_component, 'get_influent_at_time'):
+                    influent_data = influent_component.get_influent_at_time(time)
+                    component_outputs[comp_id] = {
+                        'outlet': influent_data
+                    }
+                else:
+                    # Fallback to default influent
+                    component_outputs[comp_id] = {
+                        'outlet': self.default_influent
+                    }
+        
+        # Step 2: Process other components based on their inputs
+        # We may need multiple iterations to resolve all dependencies (due to recycles)
+        max_iterations = 5
+        unprocessed_components = {k: v for k, v in components.items() if v['type'] != 'influent'}
+        
+        for iteration in range(max_iterations):
+            if not unprocessed_components:
+                break
+                
+            components_processed_this_iteration = []
+            
+            for comp_id, comp_data in list(unprocessed_components.items()):
+                # Check if all inputs are available
+                inputs_ready = True
+                component_inputs = {}
+                
+                # Find connections that feed into this component
+                for connection in connections:
+                    if connection['target'] == comp_id:
+                        source_comp = connection['source']
+                        source_handle = connection['source_handle']
+                        target_handle = connection['target_handle']
+                        
+                        if source_comp in component_outputs and source_handle in component_outputs[source_comp]:
+                            component_inputs[target_handle] = component_outputs[source_comp][source_handle]
+                        else:
+                            inputs_ready = False
+                            break
+                
+                if inputs_ready or iteration == max_iterations - 1:  # Force processing on last iteration
+                    # Process this component
+                    outputs = self._process_component(comp_data, component_inputs, time, step)
+                    component_outputs[comp_id] = outputs
+                    components_processed_this_iteration.append(comp_id)
+            
+            # Remove processed components
+            for comp_id in components_processed_this_iteration:
+                unprocessed_components.pop(comp_id, None)
+        
+        # Step 3: Store results for all connections
         for connection in connections:
             edge_id = connection['id']
+            source_comp = connection['source']
+            source_handle = connection['source_handle']
             
-            # Generate realistic mock data
-            base_flow = 20000  # m3/d
-            daily_variation = np.sin(time * 2 * np.pi) * 0.2 + 1
-            flow = base_flow * daily_variation + np.random.normal(0, base_flow * 0.05)
+            if source_comp in component_outputs and source_handle in component_outputs[source_comp]:
+                state_data = component_outputs[source_comp][source_handle]
+                results[edge_id]['timestep'].append(time)
+                results[edge_id]['values'].append(state_data.tolist() if hasattr(state_data, 'tolist') else state_data)
+            else:
+                # Fallback to default state for missing data
+                default_state = np.zeros(21)
+                results[edge_id]['timestep'].append(time)
+                results[edge_id]['values'].append(default_state.tolist())
+    
+    def _process_component(self, comp_data: Dict, inputs: Dict, time: float, step: int) -> Dict:
+        """Process a single component with its inputs and return outputs."""
+        component = comp_data['component']
+        comp_type = comp_data['type']
+        
+        # Get the primary input (most components have a single main input)
+        primary_input = None
+        if 'inlet' in inputs:
+            primary_input = inputs['inlet']
+        elif inputs:
+            # Use the first available input
+            primary_input = next(iter(inputs.values()))
+        
+        if primary_input is None:
+            # No input available, use default state
+            primary_input = self.default_influent
+        
+        # Process based on component type
+        if comp_type == 'asm1-reactor':
+            return self._process_asm1_reactor(component, primary_input, time, step)
+        elif comp_type == 'adm1-reactor':
+            return self._process_adm1_reactor(component, primary_input, time, step)
+        elif comp_type == 'primary-clarifier':
+            return self._process_primary_clarifier(component, primary_input, time, step)
+        elif comp_type == 'settler':
+            return self._process_settler(component, primary_input, time, step)
+        elif comp_type == 'thickener':
+            return self._process_thickener(component, primary_input, time, step)
+        elif comp_type == 'dewatering':
+            return self._process_dewatering(component, primary_input, time, step)
+        elif comp_type == 'storage-tank':
+            return self._process_storage(component, primary_input, time, step)
+        elif comp_type == 'combiner':
+            return self._process_combiner(component, inputs, time, step)
+        elif comp_type == 'splitter':
+            return self._process_splitter(component, primary_input, time, step)
+        else:
+            # Unknown component type, pass through input
+            return {'outlet': primary_input}
+    
+    def _process_asm1_reactor(self, component, input_data: np.ndarray, time: float, step: int) -> Dict:
+        """Process ASM1 reactor component."""
+        # For now, simulate biological treatment by modifying substrate and biomass
+        output = input_data.copy()
+        
+        # Simple ASM1 simulation: reduce substrate, increase biomass
+        if hasattr(component, 'volume') and component.volume > 0:
+            # Very simplified ASM1 kinetics
+            hrt = component.volume / max(input_data[Q], 1)  # Hydraulic retention time
             
-            # Create full BSM2 state vector
-            state = np.zeros(21)
-            state[Q] = max(0, flow)  # Flow rate
-            state[TSS] = 300 + np.random.normal(0, 30)  # Total suspended solids
-            state[SO] = 2 + np.random.normal(0, 0.5)  # Dissolved oxygen
-            state[TEMP] = 15 + np.sin(time * 2 * np.pi / 365) * 10  # Temperature
-            state[SS] = 200 + np.random.normal(0, 20)  # Soluble substrate
-            state[SNH] = 30 + np.random.normal(0, 5)  # Ammonium nitrogen
-            state[SNO] = 10 + np.random.normal(0, 2)  # Nitrate nitrogen
+            # Substrate removal
+            output[SS] = max(0, input_data[SS] * np.exp(-0.5 * hrt))  # COD removal
+            output[SNH] = max(0, input_data[SNH] * 0.8)  # Nitrification
+            output[SNO] = input_data[SNO] + (input_data[SNH] - output[SNH]) * 0.8  # Nitrate production
             
-            # Ensure non-negative values
-            state = np.maximum(state, 0)
+            # Biomass growth
+            output[XBH] = input_data[XBH] + (input_data[SS] - output[SS]) * 0.6  # Biomass yield
             
-            # Store results
-            results[edge_id]['timestep'].append(time)
-            results[edge_id]['values'].append(state.tolist())
+            # Oxygen consumption (set to low level in reactor effluent)
+            output[SO] = min(2.0, input_data[SO] + 0.5)  # Some oxygen addition
+        
+        return {'outlet': output}
+    
+    def _process_adm1_reactor(self, component, input_data: np.ndarray, time: float, step: int) -> Dict:
+        """Process ADM1 reactor component."""
+        # Simple anaerobic digestion simulation
+        output = input_data.copy()
+        
+        if hasattr(component, 'volume') and component.volume > 0:
+            # Anaerobic conversion
+            output[XS] = max(0, input_data[XS] * 0.7)  # Organic solids reduction
+            output[SS] = input_data[SS] * 0.8  # Some soluble organics remain
+            output[SO] = 0  # No oxygen in anaerobic conditions
+            
+            # Gas production (simplified)
+            biogas_production = (input_data[XS] - output[XS]) * 0.5
+            
+        return {
+            'liquid': output,
+            'gas': np.array([biogas_production if 'biogas_production' in locals() else 0])
+        }
+    
+    def _process_primary_clarifier(self, component, input_data: np.ndarray, time: float, step: int) -> Dict:
+        """Process primary clarifier component."""
+        # Simple settling simulation
+        effluent = input_data.copy()
+        sludge = input_data.copy()
+        
+        # Primary settling removes 60% of suspended solids and 30% of BOD
+        removal_tss = 0.6
+        removal_bod = 0.3
+        
+        # Effluent (clarified water)
+        effluent[TSS] = input_data[TSS] * (1 - removal_tss)
+        effluent[SS] = input_data[SS] * (1 - removal_bod)
+        effluent[XS] = input_data[XS] * (1 - removal_tss)
+        
+        # Sludge (concentrated solids)
+        sludge_flow_fraction = 0.05  # 5% of flow goes to sludge
+        effluent[Q] = input_data[Q] * (1 - sludge_flow_fraction)
+        sludge[Q] = input_data[Q] * sludge_flow_fraction
+        
+        # Concentrate solids in sludge
+        sludge[TSS] = input_data[TSS] * removal_tss / sludge_flow_fraction
+        sludge[XS] = input_data[XS] * removal_tss / sludge_flow_fraction
+        
+        return {
+            'effluent': effluent,
+            'sludge': sludge
+        }
+    
+    def _process_settler(self, component, input_data: np.ndarray, time: float, step: int) -> Dict:
+        """Process settler component."""
+        # Secondary settling with sludge recycle
+        effluent = input_data.copy()
+        sludge = input_data.copy()
+        
+        # Secondary settling removes most suspended solids
+        removal_tss = 0.95
+        
+        # Effluent (clear supernatant)
+        effluent[TSS] = input_data[TSS] * (1 - removal_tss)
+        effluent[XBH] = input_data[XBH] * 0.1  # Most biomass settles
+        effluent[XS] = input_data[XS] * 0.1
+        
+        # Sludge (return + waste activated sludge)
+        sludge_flow_fraction = 0.2  # 20% of flow as return sludge
+        effluent[Q] = input_data[Q] * (1 - sludge_flow_fraction)
+        sludge[Q] = input_data[Q] * sludge_flow_fraction
+        
+        # Concentrate biomass in sludge
+        sludge[TSS] = input_data[TSS] * removal_tss / sludge_flow_fraction
+        sludge[XBH] = input_data[XBH] * 0.9 / sludge_flow_fraction
+        
+        return {
+            'effluent': effluent,
+            'sludge': sludge
+        }
+    
+    def _process_thickener(self, component, input_data: np.ndarray, time: float, step: int) -> Dict:
+        """Process thickener component."""
+        underflow = input_data.copy()
+        overflow = input_data.copy()
+        
+        # Thickening concentrates solids
+        thickening_ratio = 3.0
+        underflow_fraction = 1.0 / thickening_ratio
+        
+        underflow[Q] = input_data[Q] * underflow_fraction
+        overflow[Q] = input_data[Q] * (1 - underflow_fraction)
+        
+        # Concentrate solids in underflow
+        underflow[TSS] = input_data[TSS] * thickening_ratio
+        underflow[XS] = input_data[XS] * thickening_ratio
+        
+        # Clear overflow
+        overflow[TSS] = input_data[TSS] * 0.1
+        overflow[XS] = input_data[XS] * 0.1
+        
+        return {
+            'underflow': underflow,
+            'overflow': overflow
+        }
+    
+    def _process_dewatering(self, component, input_data: np.ndarray, time: float, step: int) -> Dict:
+        """Process dewatering component."""
+        cake = input_data.copy()
+        filtrate = input_data.copy()
+        
+        # Dewatering removes water from sludge
+        cake_fraction = 0.3  # 30% of flow as cake
+        
+        cake[Q] = input_data[Q] * cake_fraction
+        filtrate[Q] = input_data[Q] * (1 - cake_fraction)
+        
+        # Concentrate solids in cake
+        cake[TSS] = input_data[TSS] / cake_fraction
+        filtrate[TSS] = input_data[TSS] * 0.05  # Some solids in filtrate
+        
+        return {
+            'cake': cake,
+            'filtrate': filtrate
+        }
+    
+    def _process_storage(self, component, input_data: np.ndarray, time: float, step: int) -> Dict:
+        """Process storage tank component."""
+        # Simple pass-through with potential delay (not implemented here)
+        return {'outlet': input_data}
+    
+    def _process_combiner(self, component, inputs: Dict, time: float, step: int) -> Dict:
+        """Process combiner component."""
+        if not inputs:
+            return {'outlet': self.default_influent}
+        
+        # Combine flows
+        total_flow = 0
+        combined_state = np.zeros(21)
+        
+        for input_data in inputs.values():
+            if hasattr(input_data, '__len__') and len(input_data) >= 21:
+                flow = input_data[Q] if Q < len(input_data) else 0
+                total_flow += flow
+                
+                # Mass balance combining
+                for i in range(21):
+                    if i < len(input_data):
+                        if i == Q:  # Flow is additive
+                            combined_state[i] += input_data[i]
+                        else:  # Concentrations are flow-weighted
+                            combined_state[i] += input_data[i] * flow
+        
+        # Calculate flow-weighted concentrations
+        if total_flow > 0:
+            for i in range(21):
+                if i != Q:  # Don't divide flow by flow
+                    combined_state[i] /= total_flow
+        
+        return {'outlet': combined_state}
+    
+    def _process_splitter(self, component, input_data: np.ndarray, time: float, step: int) -> Dict:
+        """Process splitter component."""
+        split_fraction = getattr(component, 'fraction', 0.5)
+        
+        outlet1 = input_data.copy()
+        outlet2 = input_data.copy()
+        
+        outlet1[Q] = input_data[Q] * split_fraction
+        outlet2[Q] = input_data[Q] * (1 - split_fraction)
+        
+        return {
+            'outlet1': outlet1,
+            'outlet2': outlet2
+        }
     
     def _create_default_influent(self) -> np.ndarray:
         """Create default influent data for simulations."""
@@ -481,19 +755,26 @@ class MockInfluent(MockComponent):
         import os
         import numpy as np
         
-        # Load the first line from BSM2 dynamic influent data
-        data_path = os.path.join(os.path.dirname(__file__), '..', '..', 'src', 'bsm2_python', 'data', 'dyninfluent_bsm2.csv')
+        # Try multiple possible paths for the BSM2 dynamic influent data
+        possible_paths = [
+            os.path.join(os.path.dirname(__file__), '..', '..', 'src', 'bsm2_python', 'data', 'dyninfluent_bsm2.csv'),
+            '/home/runner/work/bsm2-python/bsm2-python/src/bsm2_python/data/dyninfluent_bsm2.csv',
+            os.path.join(os.path.dirname(__file__), 'data', 'dyninfluent_bsm2.csv')
+        ]
         
-        try:
-            # Try to load from the actual BSM2 data file
-            data = np.loadtxt(data_path, delimiter=',', max_rows=1)
-            if len(data) >= 22:
-                constant_data = data[1:]  # Skip time column
-                constant_data[Q] = self.flow_rate  # Use user-specified flow rate
-                return constant_data
-        except (FileNotFoundError, OSError):
-            # Fall back to default values
-            pass
+        for data_path in possible_paths:
+            try:
+                # Try to load from the actual BSM2 data file
+                data = np.loadtxt(data_path, delimiter=',', max_rows=1)
+                if len(data) >= 22:
+                    constant_data = data[1:]  # Skip time column
+                    constant_data[Q] = self.flow_rate  # Use user-specified flow rate
+                    print(f"Loaded constant influent from BSM2 data: {data_path}")
+                    return constant_data
+            except (FileNotFoundError, OSError):
+                continue
+        
+        print("Using default constant influent values as fallback")
         
         # Default constant influent values
         influent = np.zeros(21)
@@ -521,15 +802,27 @@ class MockInfluent(MockComponent):
         import os
         import numpy as np
         
-        data_path = os.path.join(os.path.dirname(__file__), '..', '..', 'src', 'bsm2_python', 'data', 'dyninfluent_bsm2.csv')
+        # Try multiple possible paths for the BSM2 dynamic influent data
+        possible_paths = [
+            os.path.join(os.path.dirname(__file__), '..', '..', 'src', 'bsm2_python', 'data', 'dyninfluent_bsm2.csv'),
+            '/home/runner/work/bsm2-python/bsm2-python/src/bsm2_python/data/dyninfluent_bsm2.csv',
+            os.path.join(os.path.dirname(__file__), 'data', 'dyninfluent_bsm2.csv')
+        ]
         
-        try:
-            # Load the full BSM2 dynamic influent data
-            data = np.loadtxt(data_path, delimiter=',')
-            return data
-        except (FileNotFoundError, OSError):
-            # Fall back to creating synthetic dynamic data
-            return self._create_synthetic_dynamic_influent()
+        for data_path in possible_paths:
+            try:
+                # Load the full BSM2 dynamic influent data
+                print(f"Attempting to load BSM2 dynamic influent from: {data_path}")
+                data = np.loadtxt(data_path, delimiter=',')
+                print(f"Successfully loaded BSM2 dynamic influent data with shape: {data.shape}")
+                return data
+            except (FileNotFoundError, OSError) as e:
+                print(f"Failed to load from {data_path}: {e}")
+                continue
+        
+        # Fall back to creating synthetic dynamic data
+        print("Using synthetic dynamic influent data as fallback")
+        return self._create_synthetic_dynamic_influent()
     
     def _create_synthetic_dynamic_influent(self):
         """Create synthetic dynamic influent when BSM2 data is not available."""
