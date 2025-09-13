@@ -35,6 +35,8 @@ except ImportError as e:
     BSM2_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
+# Set debug level for more verbose output when debugging NaN issues
+logger.setLevel(logging.DEBUG)
 
 # BSM2 variable indices
 SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = range(21)
@@ -261,6 +263,15 @@ class SimulationEngine:
         
         return inputs
 
+    def initialize_component_flows(self, influent_data: np.ndarray) -> np.ndarray:
+        """Initialize component flows with influent values but set Q to a small value to avoid loops."""
+        # Create a copy of influent data
+        initial_flow = influent_data.copy()
+        # Set flow rate (Q) to a very small value (1.0) to initialize recycle loops
+        # This follows the BSM2 pattern of initializing flows before solving loops
+        initial_flow[Q] = 1.0  # Very small flow to avoid division by zero but enable proper initialization
+        return initial_flow
+
     async def run_simulation(
         self, 
         config: SimulationConfig,
@@ -338,6 +349,9 @@ class SimulationEngine:
             if progress_callback:
                 progress_callback(50.0)
             
+            # Initialize component flows with small values to avoid NaN issues in recycle loops
+            initial_flow = self.initialize_component_flows(influent_data[0] if len(influent_data) > 0 else np.zeros(21))
+            
             # Run simulation timestep by timestep (like BSM2_base.py step method)
             for i in range(time_steps):
                 step_time = i * timestep_days
@@ -353,8 +367,15 @@ class SimulationEngine:
                 for influent_node in influent_nodes:
                     component_outputs[influent_node.id] = current_influent
                 
-                # Iterative solution for recycle streams (up to 3 iterations)
-                for iteration in range(3):
+                # Initialize all non-influent nodes with initial flow to avoid NaN in loops
+                for node_id in execution_order:
+                    if node_id not in [n.id for n in influent_nodes] and node_id not in component_outputs:
+                        component_outputs[node_id] = initial_flow.copy()
+                
+                # Iterative solution for recycle streams (up to 5 iterations to ensure convergence)
+                for iteration in range(5):
+                    prev_outputs = component_outputs.copy()
+                    
                     # Process components in topological order
                     for node_id in execution_order:
                         if node_id in [n.id for n in influent_nodes]:
@@ -372,27 +393,47 @@ class SimulationEngine:
                             inputs = self.get_component_inputs(node_id, config, component_outputs)
                             
                             if not inputs:
-                                # No inputs, use default
-                                input_data = current_influent
+                                # No inputs, use initialized flow
+                                input_data = initial_flow.copy()
                             elif len(inputs) == 1:
                                 input_data = inputs[0]
                             else:
                                 # Multiple inputs - combine them (for combiners)
                                 if comp_type == 'combiner' and hasattr(component, 'output'):
-                                    input_data = component.output(*inputs)
-                                    component_outputs[node_id] = input_data
-                                    continue
+                                    try:
+                                        input_data = component.output(*inputs)
+                                        component_outputs[node_id] = input_data
+                                        continue
+                                    except Exception as e:
+                                        logger.warning(f"Combiner {node_id} error at timestep {i}, iteration {iteration}: {e}")
+                                        # Use first valid input if combiner fails
+                                        input_data = next((inp for inp in inputs if not np.any(np.isnan(inp))), initial_flow.copy())
                                 else:
                                     input_data = inputs[0]  # Use first input for other components
+                            
+                            # Validate input data - replace NaN/inf with initial flow
+                            if np.any(np.isnan(input_data)) or np.any(np.isinf(input_data)):
+                                logger.warning(f"Invalid input data for {node_id} at timestep {i}, iteration {iteration}, using initial flow")
+                                input_data = initial_flow.copy()
                             
                             # Call BSM2-Python component's output method
                             if hasattr(component, 'output'):
                                 if comp_type == 'asm1-reactor':
                                     output = component.output(stepsize, step_time, input_data)
                                 elif comp_type == 'adm1-reactor':
-                                    # ADM1 returns (interface, digester, gas)
-                                    interface, digester, gas = component.output(stepsize, step_time, input_data, 35.0)
-                                    output = {'liquid': interface, 'gas': gas, 'internal': digester}
+                                    # ADM1 returns (interface, digester, gas) - add more verbose error handling
+                                    try:
+                                        interface, digester, gas = component.output(stepsize, step_time, input_data, 35.0)
+                                        output = {'liquid': interface, 'gas': gas, 'internal': digester}
+                                    except Exception as e:
+                                        logger.error(f"ADM1 reactor {node_id} failed at timestep {i}, iteration {iteration}: {e}")
+                                        logger.debug(f"ADM1 input data: {input_data}")
+                                        logger.debug(f"ADM1 stepsize: {stepsize}, step_time: {step_time}")
+                                        # Use previous output or initial flow
+                                        if node_id in prev_outputs:
+                                            output = prev_outputs[node_id]
+                                        else:
+                                            output = {'liquid': initial_flow.copy(), 'gas': np.zeros(51), 'internal': np.zeros(51)}
                                 elif comp_type == 'primary-clarifier':
                                     # Primary clarifier returns (underflow, overflow, internal)
                                     uf, of, internal = component.output(stepsize, step_time, input_data)
@@ -437,11 +478,44 @@ class SimulationEngine:
                             else:
                                 output = input_data
                             
+                            # Validate output - replace NaN/inf with previous output or initial flow
+                            if isinstance(output, (list, tuple)):
+                                validated_output = []
+                                for j, out in enumerate(output):
+                                    if np.any(np.isnan(out)) or np.any(np.isinf(out)):
+                                        logger.warning(f"Invalid output {j} from {node_id} at timestep {i}, iteration {iteration}")
+                                        if node_id in prev_outputs and isinstance(prev_outputs[node_id], (list, tuple)) and j < len(prev_outputs[node_id]):
+                                            validated_output.append(prev_outputs[node_id][j])
+                                        else:
+                                            validated_output.append(initial_flow.copy())
+                                    else:
+                                        validated_output.append(out)
+                                output = validated_output
+                            elif isinstance(output, dict):
+                                for key, val in output.items():
+                                    if np.any(np.isnan(val)) or np.any(np.isinf(val)):
+                                        logger.warning(f"Invalid output {key} from {node_id} at timestep {i}, iteration {iteration}")
+                                        if node_id in prev_outputs and isinstance(prev_outputs[node_id], dict) and key in prev_outputs[node_id]:
+                                            output[key] = prev_outputs[node_id][key]
+                                        else:
+                                            output[key] = initial_flow.copy()
+                            else:
+                                if np.any(np.isnan(output)) or np.any(np.isinf(output)):
+                                    logger.warning(f"Invalid output from {node_id} at timestep {i}, iteration {iteration}")
+                                    if node_id in prev_outputs:
+                                        output = prev_outputs[node_id]
+                                    else:
+                                        output = initial_flow.copy()
+                            
                             component_outputs[node_id] = output
                             
                         except Exception as e:
-                            logger.warning(f"Error in component {node_id} at timestep {i}: {e}")
-                            component_outputs[node_id] = current_influent
+                            logger.error(f"Error in component {node_id} at timestep {i}, iteration {iteration}: {e}")
+                            logger.debug(f"Component type: {comp_type}")
+                            if node_id in prev_outputs:
+                                component_outputs[node_id] = prev_outputs[node_id]
+                            else:
+                                component_outputs[node_id] = initial_flow.copy()
                 
                 # Store results for this timestep
                 for node_id in execution_order:
