@@ -431,19 +431,22 @@ export default function DetailsTab({
               <div>
                 <span className="text-sm text-gray-600">Inputs:</span>
                 <div className="ml-4">
-                  {component.inputs.map((input) => (
-                    <div key={input.id} className="text-sm text-blue-600">
-                      • {input.name}
+                  {Array.from({ length: component.inputs }, (_, index) => (
+                    <div key={`input-${index}`} className="text-sm text-blue-600">
+                      • Inlet
                     </div>
                   ))}
+                  {component.inputs === 0 && (
+                    <div className="text-sm text-gray-400">• None</div>
+                  )}
                 </div>
               </div>
               <div>
                 <span className="text-sm text-gray-600">Outputs:</span>
                 <div className="ml-4">
-                  {component.outputs.map((output) => (
-                    <div key={output.id} className="text-sm text-green-600">
-                      • {output.name}
+                  {Array.from({ length: component.outputs }, (_, index) => (
+                    <div key={`output-${index}`} className="text-sm text-green-600">
+                      • {index === 0 ? 'Effluent' : index === 1 ? 'Sludge' : `Outlet ${index + 1}`}
                     </div>
                   ))}
                 </div>

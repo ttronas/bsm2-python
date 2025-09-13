@@ -56,13 +56,10 @@ function BSM2Node({ data, selected }: NodeProps & { data: BSM2NodeData }) {
     return ((index + 1) * 100) / (total + 1);
   };
 
-  // Calculate output positions for proper alignment based on position
-  const getOutputPosition = (output: any, outputs: any[]) => {
-    const samePositionOutputs = outputs.filter(o => o.position === output.position);
-    const index = samePositionOutputs.findIndex(o => o.id === output.id);
-    
-    if (samePositionOutputs.length === 1) return 50;
-    return ((index + 1) * 100) / (samePositionOutputs.length + 1);
+  // Calculate output positions for proper alignment
+  const getOutputPosition = (index: number, total: number) => {
+    if (total === 1) return 50;
+    return ((index + 1) * 100) / (total + 1);
   };
 
   return (
@@ -72,14 +69,14 @@ function BSM2Node({ data, selected }: NodeProps & { data: BSM2NodeData }) {
       }`}
     >
       {/* Input Handles */}
-      {component.inputs.map((input, index) => (
+      {Array.from({ length: component.inputs }, (_, index) => (
         <Handle
-          key={input.id}
+          key={`input-${index}`}
           type="target"
           position={Position.Left}
-          id={input.id}
+          id={`input-${index}`}
           style={{
-            top: `${getInputPosition(index, component.inputs.length)}%`,
+            top: `${getInputPosition(index, component.inputs)}%`,
             background: '#3b82f6',
           }}
           className="w-3 h-3"
@@ -87,40 +84,25 @@ function BSM2Node({ data, selected }: NodeProps & { data: BSM2NodeData }) {
       ))}
 
       {/* Output Handles */}
-      {component.outputs.map((output) => {
-        const position = output.position === 'right' ? Position.Right : 
-                        output.position === 'top' ? Position.Top : Position.Bottom;
-        
-        const style = output.position === 'right' ? {
-          top: `${getOutputPosition(output, component.outputs)}%`,
-        } : output.position === 'top' ? {
-          left: `${getOutputPosition(output, component.outputs)}%`,
-          top: 0,
-        } : {
-          left: `${getOutputPosition(output, component.outputs)}%`,
-          bottom: 0,
-        };
-
-        return (
-          <Handle
-            key={output.id}
-            type="source"
-            position={position}
-            id={output.id}
-            style={{
-              ...style,
-              background: '#10b981',
-            }}
-            className="w-3 h-3"
-          />
-        );
-      })}
+      {Array.from({ length: component.outputs }, (_, index) => (
+        <Handle
+          key={`output-${index}`}
+          type="source"
+          position={Position.Right}
+          id={`output-${index}`}
+          style={{
+            top: `${getOutputPosition(index, component.outputs)}%`,
+            background: '#10b981',
+          }}
+          className="w-3 h-3"
+        />
+      ))}
 
       <div className="p-2">
         {/* Simplified Node Header - Only Icon and Label */}
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 flex items-center justify-center bg-gray-100 rounded">
-            {component.icon.endsWith('.svg') ? (
+            {component.icon && component.icon.endsWith('.svg') ? (
               <Image
                 src={component.icon}
                 alt={component.name}
@@ -129,7 +111,7 @@ function BSM2Node({ data, selected }: NodeProps & { data: BSM2NodeData }) {
                 className="w-5 h-5"
               />
             ) : (
-              <div className="w-5 h-5 bg-gray-400 rounded"></div>
+              <span className="text-xs font-bold">{component.name[0]}</span>
             )}
           </div>
           

@@ -27,7 +27,7 @@ export default function ComponentsTab() {
           >
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 flex items-center justify-center bg-white rounded border border-gray-300">
-                {component.icon.endsWith('.svg') ? (
+                {component.icon && component.icon.endsWith('.svg') ? (
                   <Image
                     src={component.icon}
                     alt={component.name}
@@ -36,7 +36,7 @@ export default function ComponentsTab() {
                     className="w-6 h-6"
                   />
                 ) : (
-                  <div className="w-6 h-6 bg-gray-400 rounded"></div>
+                  <span className="text-lg">{component.name[0]}</span>
                 )}
               </div>
               
@@ -47,8 +47,8 @@ export default function ComponentsTab() {
                 </p>
                 
                 <div className="mt-2 flex items-center gap-4 text-xs text-gray-500">
-                  <span>📥 {component.inputs.length} input{component.inputs.length !== 1 ? 's' : ''}</span>
-                  <span>📤 {component.outputs.length} output{component.outputs.length !== 1 ? 's' : ''}</span>
+                  <span>📥 {component.inputs} input{component.inputs !== 1 ? 's' : ''}</span>
+                  <span>📤 {component.outputs} output{component.outputs !== 1 ? 's' : ''}</span>
                   {component.parameters.length > 0 && (
                     <span>⚙️ {component.parameters.length} param{component.parameters.length !== 1 ? 's' : ''}</span>
                   )}
