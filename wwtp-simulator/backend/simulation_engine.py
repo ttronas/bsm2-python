@@ -104,8 +104,8 @@ class SimulationEngine:
     
     def create_bsm2_component(self, node: FlowNode):
         """Create BSM2-Python component instance based on node configuration."""
-        comp_type = node.data.componentType
-        params = node.data.parameters
+        comp_type = node.data.get('componentType')
+        params = node.data.get('parameters', {})
         
         try:
             if comp_type == 'influent':
@@ -169,8 +169,15 @@ class SimulationEngine:
                 return Combiner()
                 
             elif comp_type == 'splitter':
-                # Create splitter
-                return Splitter()
+                # Create splitter with proper type based on node configuration
+                node_label = node.data.get('label', '')
+                
+                if 'Input Splitter' in node_label:
+                    # Input splitter is type 2 (flow threshold)
+                    return Splitter(sp_type=2)
+                else:
+                    # Default type 1 splitter
+                    return Splitter()
                 
         except Exception as e:
             logger.error(f"Failed to create BSM2 component {comp_type}: {e}")
@@ -178,6 +185,82 @@ class SimulationEngine:
             
         return None
     
+    def topological_sort(self, config: SimulationConfig) -> List[str]:
+        """Perform topological sorting to determine component execution order."""
+        # Build adjacency list
+        graph = {node.id: [] for node in config.nodes}
+        in_degree = {node.id: 0 for node in config.nodes}
+        
+        for edge in config.edges:
+            graph[edge.source].append(edge.target)
+            in_degree[edge.target] += 1
+        
+        # Kahn's algorithm for topological sorting
+        queue = [node_id for node_id, degree in in_degree.items() if degree == 0]
+        result = []
+        
+        while queue:
+            current = queue.pop(0)
+            result.append(current)
+            
+            for neighbor in graph[current]:
+                in_degree[neighbor] -= 1
+                if in_degree[neighbor] == 0:
+                    queue.append(neighbor)
+        
+        # Handle cycles (recycle streams) - add remaining nodes
+        remaining = [node_id for node_id, degree in in_degree.items() if degree > 0]
+        result.extend(remaining)
+        
+        return result
+    
+    def get_component_inputs(self, node_id: str, config: SimulationConfig, component_outputs: Dict[str, Any]) -> List[np.ndarray]:
+        """Get inputs for a component based on its connections."""
+        inputs = []
+        
+        # Find all edges targeting this node
+        input_edges = [edge for edge in config.edges if edge.target == node_id]
+        
+        if not input_edges:
+            return inputs
+        
+        # Sort by target handle to maintain input order
+        input_edges.sort(key=lambda e: e.targetHandle if hasattr(e, 'targetHandle') else 'input-0')
+        
+        for edge in input_edges:
+            source_id = edge.source
+            source_handle = getattr(edge, 'sourceHandle', 'output-0')
+            
+            if source_id in component_outputs:
+                output_data = component_outputs[source_id]
+                
+                # Handle different output types (single output vs multiple outputs)
+                if isinstance(output_data, dict):
+                    # Multiple named outputs
+                    handle_key = source_handle.replace('output-', '').replace('effluent', 'effluent').replace('sludge', 'sludge').replace('recycle', 'recycle')
+                    if handle_key in output_data:
+                        inputs.append(output_data[handle_key])
+                    elif 'output' in output_data:
+                        inputs.append(output_data['output'])
+                    else:
+                        # Use first available output
+                        inputs.append(list(output_data.values())[0])
+                elif isinstance(output_data, (list, tuple)):
+                    # Multiple indexed outputs
+                    output_idx = int(source_handle.replace('output-', '')) if 'output-' in source_handle else 0
+                    if output_idx < len(output_data):
+                        inputs.append(output_data[output_idx])
+                    else:
+                        inputs.append(output_data[0] if output_data else np.zeros(21))
+                else:
+                    # Single output
+                    inputs.append(output_data)
+            else:
+                # Default to zeros if source not found
+                inputs.append(np.zeros(21))
+        
+        return inputs
+
     async def run_simulation(
         self, 
         config: SimulationConfig,
@@ -197,21 +280,19 @@ class SimulationEngine:
             # Build BSM2 components
             components = {}
             influent_nodes = []
+            node_map = {node.id: node for node in config.nodes}
             
             for node in config.nodes:
-                if node.data.componentType == 'influent':
+                if node.data.get('componentType') == 'influent':
                     influent_nodes.append(node)
                 else:
                     component = self.create_bsm2_component(node)
                     if component:
                         components[node.id] = component
             
-            if progress_callback:
-                progress_callback(30.0)
-            
             # Load influent data
             if influent_nodes:
-                influent_params = influent_nodes[0].data.parameters
+                influent_params = influent_nodes[0].data.get('parameters', {})
                 influent_data = self.load_influent_data(influent_params)
             else:
                 # Default influent if none specified
@@ -237,12 +318,12 @@ class SimulationEngine:
                     influent_data = influent_data[:time_steps, :]
             
             if progress_callback:
-                progress_callback(50.0)
+                progress_callback(30.0)
             
-            # Run simplified simulation 
-            # Note: This is a basic implementation. A full BSM2 simulation would require
-            # proper topology sorting, iterative solving for recycles, etc.
+            # Get component execution order through topology sorting
+            execution_order = self.topological_sort(config)
             
+            # Initialize result storage
             results = {
                 'time': np.arange(0, time_steps) * timestep_days,
                 'influent': influent_data,
@@ -251,43 +332,131 @@ class SimulationEngine:
                 'message': 'Simulation completed using BSM2-Python components'
             }
             
-            # For each component, simulate basic behavior
-            for node_id, component in components.items():
-                try:
-                    node = next(n for n in config.nodes if n.id == node_id)
-                    comp_type = node.data.componentType
-                    
-                    # Use BSM2-Python component output methods
-                    component_results = []
-                    
-                    for i in range(min(10, time_steps)):  # Limit for demo
-                        time_point = i * timestep_days
-                        input_data = influent_data[i] if i < len(influent_data) else influent_data[-1]
+            # Initialize component outputs storage for each timestep
+            all_component_results = {node_id: [] for node_id in execution_order}
+            
+            if progress_callback:
+                progress_callback(50.0)
+            
+            # Run simulation timestep by timestep (like BSM2_base.py step method)
+            for i in range(time_steps):
+                step_time = i * timestep_days
+                stepsize = timestep_days
+                
+                # Current timestep component outputs
+                component_outputs = {}
+                
+                # Get influent data for current timestep
+                current_influent = influent_data[i] if i < len(influent_data) else influent_data[-1]
+                
+                # Process influent nodes first
+                for influent_node in influent_nodes:
+                    component_outputs[influent_node.id] = current_influent
+                
+                # Iterative solution for recycle streams (up to 3 iterations)
+                for iteration in range(3):
+                    # Process components in topological order
+                    for node_id in execution_order:
+                        if node_id in [n.id for n in influent_nodes]:
+                            continue  # Already processed influent
                         
-                        # Call BSM2-Python component's output method
-                        if hasattr(component, 'output'):
-                            if comp_type in ['asm1-reactor', 'adm1-reactor']:
-                                output = component.output(timestep_days, time_point, input_data)
-                            elif comp_type in ['primary-clarifier', 'settler', 'thickener']:
-                                output = component.output(input_data)
-                            elif comp_type == 'dewatering':
-                                output = component.output(input_data)
-                            elif comp_type == 'storage-tank':
-                                output = component.output(timestep_days, time_point, input_data, 0)
-                            elif comp_type in ['combiner', 'splitter']:
-                                output = component.output(input_data)
+                        node = node_map[node_id]
+                        comp_type = node.data.get('componentType')
+                        component = components.get(node_id)
+                        
+                        if not component:
+                            continue
+                        
+                        try:
+                            # Get inputs for this component
+                            inputs = self.get_component_inputs(node_id, config, component_outputs)
+                            
+                            if not inputs:
+                                # No inputs, use default
+                                input_data = current_influent
+                            elif len(inputs) == 1:
+                                input_data = inputs[0]
+                            else:
+                                # Multiple inputs - combine them (for combiners)
+                                if comp_type == 'combiner' and hasattr(component, 'output'):
+                                    input_data = component.output(*inputs)
+                                    component_outputs[node_id] = input_data
+                                    continue
+                                else:
+                                    input_data = inputs[0]  # Use first input for other components
+                            
+                            # Call BSM2-Python component's output method
+                            if hasattr(component, 'output'):
+                                if comp_type == 'asm1-reactor':
+                                    output = component.output(stepsize, step_time, input_data)
+                                elif comp_type == 'adm1-reactor':
+                                    # ADM1 returns (interface, digester, gas)
+                                    interface, digester, gas = component.output(stepsize, step_time, input_data, 35.0)
+                                    output = {'liquid': interface, 'gas': gas, 'internal': digester}
+                                elif comp_type == 'primary-clarifier':
+                                    # Primary clarifier returns (underflow, overflow, internal)
+                                    uf, of, internal = component.output(stepsize, step_time, input_data)
+                                    output = {'effluent': of, 'sludge': uf, 'internal': internal}
+                                elif comp_type == 'settler':
+                                    # Settler returns (recycle, waste, overflow, tss_internal)
+                                    recycle, waste, overflow, _, tss = component.output(stepsize, step_time, input_data)
+                                    output = {'recycle': recycle, 'sludge': waste, 'effluent': overflow}
+                                elif comp_type == 'thickener':
+                                    # Thickener returns (underflow, overflow)
+                                    uf, of = component.output(input_data)
+                                    output = {'output-0': uf, 'output-1': of}
+                                elif comp_type == 'dewatering':
+                                    # Dewatering returns (solid, liquid)
+                                    solid, liquid = component.output(input_data)
+                                    output = {'output-0': solid, 'output-1': liquid}
+                                elif comp_type == 'storage-tank':
+                                    # Storage tank returns (output, volume)
+                                    out, vol = component.output(stepsize, step_time, input_data, 0)
+                                    output = out
+                                elif comp_type == 'splitter':
+                                    # BSM2 splitter - handle different types properly
+                                    node_label = node.data.get('label', '')
+                                    
+                                    if 'Input Splitter' in node_label:
+                                        # Type 2 splitter - uses flow threshold
+                                        # Everything below 60000 goes to first output, above goes to second
+                                        out1, out2 = component.output(input_data, (0.0, 0.0), float(60000))
+                                        output = [out1, out2]
+                                    else:
+                                        # Type 1 splitter with fixed ratio
+                                        split_ratio = node.data.get('parameters', {}).get('split_ratio', 0.5)
+                                        if split_ratio == 0.0:
+                                            # All to first output
+                                            out1, out2 = component.output(input_data, (1.0, 0.0))
+                                        else:
+                                            # Regular split
+                                            out1, out2 = component.output(input_data, (1 - split_ratio, split_ratio))
+                                        output = [out1, out2]
+                                else:
+                                    output = component.output(input_data)
                             else:
                                 output = input_data
                             
-                            component_results.append(output)
-                        else:
-                            component_results.append(input_data)
-                    
-                    results['components'][node_id] = component_results
-                    
-                except Exception as e:
-                    logger.warning(f"Error simulating component {node_id}: {e}")
-                    results['components'][node_id] = []
+                            component_outputs[node_id] = output
+                            
+                        except Exception as e:
+                            logger.warning(f"Error in component {node_id} at timestep {i}: {e}")
+                            component_outputs[node_id] = current_influent
+                
+                # Store results for this timestep
+                for node_id in execution_order:
+                    if node_id in component_outputs:
+                        all_component_results[node_id].append(component_outputs[node_id])
+                    else:
+                        all_component_results[node_id].append(current_influent)
+                
+                # Update progress
+                if progress_callback and i % max(1, time_steps // 20) == 0:
+                    progress = 50.0 + (i / time_steps) * 45.0
+                    progress_callback(progress)
+            
+            # Store all results
+            results['components'] = all_component_results
             
             if progress_callback:
                 progress_callback(100.0)
