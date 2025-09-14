@@ -36,7 +36,7 @@ except ImportError as e:
 
 logger = logging.getLogger(__name__)
 # Set debug level for more verbose output when debugging NaN issues
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.DEBUG)  # Increase to DEBUG to see ADM1 details
 
 # BSM2 variable indices
 SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP, SD1, SD2, SD3, XD4, XD5 = range(21)
@@ -411,10 +411,10 @@ class SimulationEngine:
                                 else:
                                     input_data = inputs[0]  # Use first input for other components
                             
-                            # Validate input data - replace NaN/inf with initial flow
+                            # Check for invalid input data - do not replace, let it fail to identify issues
                             if np.any(np.isnan(input_data)) or np.any(np.isinf(input_data)):
-                                logger.warning(f"Invalid input data for {node_id} at timestep {i}, iteration {iteration}, using initial flow")
-                                input_data = initial_flow.copy()
+                                logger.error(f"Invalid input data for {node_id} at timestep {i}, iteration {iteration}: {input_data}")
+                                raise SimulationError(f"Component {node_id} received invalid input data (NaN/inf) at timestep {i}")
                             
                             # Call BSM2-Python component's output method
                             if hasattr(component, 'output'):
@@ -423,17 +423,25 @@ class SimulationEngine:
                                 elif comp_type == 'adm1-reactor':
                                     # ADM1 returns (interface, digester, gas) - add more verbose error handling
                                     try:
+                                        logger.debug(f"ADM1 reactor {node_id} at timestep {i}, iteration {iteration}")
+                                        logger.debug(f"ADM1 input shape: {input_data.shape if hasattr(input_data, 'shape') else 'no shape'}")
+                                        logger.debug(f"ADM1 input data: {input_data}")
+                                        logger.debug(f"ADM1 input types: {[type(x) for x in input_data] if hasattr(input_data, '__iter__') else type(input_data)}")
+                                        logger.debug(f"ADM1 input NaN check: {np.any(np.isnan(input_data))}")
+                                        logger.debug(f"ADM1 input inf check: {np.any(np.isinf(input_data))}")
                                         interface, digester, gas = component.output(stepsize, step_time, input_data, 35.0)
+                                        logger.debug(f"ADM1 output interface shape: {interface.shape}, NaN: {np.any(np.isnan(interface))}")
+                                        logger.debug(f"ADM1 output digester shape: {digester.shape}, NaN: {np.any(np.isnan(digester))}")
+                                        logger.debug(f"ADM1 output gas shape: {gas.shape}, NaN: {np.any(np.isnan(gas))}")
                                         output = {'liquid': interface, 'gas': gas, 'internal': digester}
+                                        logger.debug(f"ADM1 final output keys: {output.keys()}")
+                                        logger.debug(f"ADM1 final output types: {[(k, type(v), v.shape if hasattr(v, 'shape') else 'no shape') for k, v in output.items()]}")
                                     except Exception as e:
                                         logger.error(f"ADM1 reactor {node_id} failed at timestep {i}, iteration {iteration}: {e}")
                                         logger.debug(f"ADM1 input data: {input_data}")
                                         logger.debug(f"ADM1 stepsize: {stepsize}, step_time: {step_time}")
-                                        # Use previous output or initial flow
-                                        if node_id in prev_outputs:
-                                            output = prev_outputs[node_id]
-                                        else:
-                                            output = {'liquid': initial_flow.copy(), 'gas': np.zeros(51), 'internal': np.zeros(51)}
+                                        # Do not hide the error - let it propagate to identify the underlying issue
+                                        raise SimulationError(f"ADM1 reactor {node_id} failed: {e}")
                                 elif comp_type == 'primary-clarifier':
                                     # Primary clarifier returns (underflow, overflow, internal)
                                     uf, of, internal = component.output(stepsize, step_time, input_data)
@@ -478,44 +486,29 @@ class SimulationEngine:
                             else:
                                 output = input_data
                             
-                            # Validate output - replace NaN/inf with previous output or initial flow
+                            # Check for invalid output - do not replace, let it fail to identify issues
                             if isinstance(output, (list, tuple)):
-                                validated_output = []
                                 for j, out in enumerate(output):
                                     if np.any(np.isnan(out)) or np.any(np.isinf(out)):
-                                        logger.warning(f"Invalid output {j} from {node_id} at timestep {i}, iteration {iteration}")
-                                        if node_id in prev_outputs and isinstance(prev_outputs[node_id], (list, tuple)) and j < len(prev_outputs[node_id]):
-                                            validated_output.append(prev_outputs[node_id][j])
-                                        else:
-                                            validated_output.append(initial_flow.copy())
-                                    else:
-                                        validated_output.append(out)
-                                output = validated_output
+                                        logger.error(f"Invalid output {j} from {node_id} at timestep {i}, iteration {iteration}: {out}")
+                                        raise SimulationError(f"Component {node_id} produced invalid output {j} (NaN/inf) at timestep {i}")
                             elif isinstance(output, dict):
                                 for key, val in output.items():
                                     if np.any(np.isnan(val)) or np.any(np.isinf(val)):
-                                        logger.warning(f"Invalid output {key} from {node_id} at timestep {i}, iteration {iteration}")
-                                        if node_id in prev_outputs and isinstance(prev_outputs[node_id], dict) and key in prev_outputs[node_id]:
-                                            output[key] = prev_outputs[node_id][key]
-                                        else:
-                                            output[key] = initial_flow.copy()
+                                        logger.error(f"Invalid output {key} from {node_id} at timestep {i}, iteration {iteration}: {val}")
+                                        raise SimulationError(f"Component {node_id} produced invalid output {key} (NaN/inf) at timestep {i}")
                             else:
                                 if np.any(np.isnan(output)) or np.any(np.isinf(output)):
-                                    logger.warning(f"Invalid output from {node_id} at timestep {i}, iteration {iteration}")
-                                    if node_id in prev_outputs:
-                                        output = prev_outputs[node_id]
-                                    else:
-                                        output = initial_flow.copy()
+                                    logger.error(f"Invalid output from {node_id} at timestep {i}, iteration {iteration}: {output}")
+                                    raise SimulationError(f"Component {node_id} produced invalid output (NaN/inf) at timestep {i}")
                             
                             component_outputs[node_id] = output
                             
                         except Exception as e:
                             logger.error(f"Error in component {node_id} at timestep {i}, iteration {iteration}: {e}")
                             logger.debug(f"Component type: {comp_type}")
-                            if node_id in prev_outputs:
-                                component_outputs[node_id] = prev_outputs[node_id]
-                            else:
-                                component_outputs[node_id] = initial_flow.copy()
+                            # Do not hide the error - let it propagate to identify the underlying issue
+                            raise SimulationError(f"Component {node_id} failed: {e}")
                 
                 # Store results for this timestep
                 for node_id in execution_order:
