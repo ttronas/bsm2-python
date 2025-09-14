@@ -187,8 +187,161 @@ class SimulationEngine:
             
         return None
     
+    def bsm2_topology_sort(self, config: SimulationConfig) -> List[str]:
+        """Perform BSM2-specific topology sorting to match BSM2_base.py execution order.
+        
+        This method attempts to follow the exact execution sequence from BSM2_base.py step() method:
+        1. Input splitter
+        2. Bypass plant splitter  
+        3. Primary clarifier pre-combiner
+        4. Primary clarifier
+        5. Primary clarifier post-combiner
+        6. Bypass reactor splitter
+        7. Reactor combiner
+        8. Reactors 1-5 in sequence
+        9. Reactor splitter
+        10. Settler
+        11. Effluent combiner
+        12. Thickener
+        13. Thickener splitter
+        14. ADM1 combiner
+        15. ADM1 reactor
+        16. Dewatering
+        17. Storage
+        18. Storage splitter
+        """
+        # Create node map for easy lookup
+        node_map = {node.id: node for node in config.nodes}
+        
+        # Define BSM2-specific execution priorities based on component types and labels
+        bsm2_order = []
+        
+        # Phase 1: Input processing
+        for node in config.nodes:
+            if node.data.get('componentType') == 'influent':
+                bsm2_order.append(node.id)
+        
+        # Phase 2: Input splitting and bypass
+        for node in config.nodes:
+            comp_type = node.data.get('componentType')
+            label = node.data.get('label', '').lower()
+            if comp_type == 'splitter' and 'input' in label:
+                bsm2_order.append(node.id)
+        
+        for node in config.nodes:
+            comp_type = node.data.get('componentType')
+            label = node.data.get('label', '').lower()
+            if comp_type == 'splitter' and 'bypass' in label and 'plant' in label:
+                bsm2_order.append(node.id)
+        
+        # Phase 3: Primary clarifier section
+        for node in config.nodes:
+            comp_type = node.data.get('componentType')
+            label = node.data.get('label', '').lower()
+            if comp_type == 'combiner' and 'primary' in label and 'pre' in label:
+                bsm2_order.append(node.id)
+        
+        for node in config.nodes:
+            if node.data.get('componentType') == 'primary-clarifier':
+                bsm2_order.append(node.id)
+        
+        for node in config.nodes:
+            comp_type = node.data.get('componentType')
+            label = node.data.get('label', '').lower()
+            if comp_type == 'combiner' and 'primary' in label and 'post' in label:
+                bsm2_order.append(node.id)
+        
+        # Phase 4: Reactor section
+        for node in config.nodes:
+            comp_type = node.data.get('componentType')
+            label = node.data.get('label', '').lower()
+            if comp_type == 'splitter' and 'bypass' in label and 'reactor' in label:
+                bsm2_order.append(node.id)
+        
+        for node in config.nodes:
+            comp_type = node.data.get('componentType')
+            label = node.data.get('label', '').lower()
+            if comp_type == 'combiner' and 'reactor' in label:
+                bsm2_order.append(node.id)
+        
+        # Add reactors in sequence (1-5)
+        for i in range(1, 6):
+            for node in config.nodes:
+                comp_type = node.data.get('componentType')
+                label = node.data.get('label', '').lower()
+                if comp_type == 'asm1-reactor' and f'reactor {i}' in label:
+                    bsm2_order.append(node.id)
+        
+        # Reactor splitter
+        for node in config.nodes:
+            comp_type = node.data.get('componentType')
+            label = node.data.get('label', '').lower()
+            if comp_type == 'splitter' and 'reactor' in label and 'bypass' not in label:
+                bsm2_order.append(node.id)
+        
+        # Phase 5: Settler
+        for node in config.nodes:
+            if node.data.get('componentType') == 'settler':
+                bsm2_order.append(node.id)
+        
+        # Phase 6: Effluent
+        for node in config.nodes:
+            comp_type = node.data.get('componentType')
+            label = node.data.get('label', '').lower()
+            if comp_type == 'combiner' and 'effluent' in label:
+                bsm2_order.append(node.id)
+        
+        # Phase 7: Sludge treatment
+        for node in config.nodes:
+            if node.data.get('componentType') == 'thickener':
+                bsm2_order.append(node.id)
+        
+        for node in config.nodes:
+            comp_type = node.data.get('componentType')
+            label = node.data.get('label', '').lower()
+            if comp_type == 'splitter' and 'thickener' in label:
+                bsm2_order.append(node.id)
+        
+        for node in config.nodes:
+            comp_type = node.data.get('componentType')
+            label = node.data.get('label', '').lower()
+            if comp_type == 'combiner' and 'adm1' in label:
+                bsm2_order.append(node.id)
+        
+        for node in config.nodes:
+            if node.data.get('componentType') == 'adm1-reactor':
+                bsm2_order.append(node.id)
+        
+        for node in config.nodes:
+            if node.data.get('componentType') == 'dewatering':
+                bsm2_order.append(node.id)
+        
+        for node in config.nodes:
+            if node.data.get('componentType') == 'storage-tank':
+                bsm2_order.append(node.id)
+        
+        for node in config.nodes:
+            comp_type = node.data.get('componentType')
+            label = node.data.get('label', '').lower()
+            if comp_type == 'splitter' and 'storage' in label:
+                bsm2_order.append(node.id)
+        
+        # Add any remaining nodes not yet included
+        all_node_ids = {node.id for node in config.nodes}
+        remaining_nodes = all_node_ids - set(bsm2_order)
+        bsm2_order.extend(remaining_nodes)
+        
+        logger.info(f"BSM2 topology order: {bsm2_order}")
+        return bsm2_order
+
     def topological_sort(self, config: SimulationConfig) -> List[str]:
         """Perform topological sorting to determine component execution order."""
+        # Try BSM2-specific ordering first
+        bsm2_order = self.bsm2_topology_sort(config)
+        if len(bsm2_order) == len(config.nodes):
+            return bsm2_order
+        
+        # Fallback to standard topological sort
         # Build adjacency list
         graph = {node.id: [] for node in config.nodes}
         in_degree = {node.id: 0 for node in config.nodes}
@@ -263,14 +416,46 @@ class SimulationEngine:
         
         return inputs
 
-    def initialize_component_flows(self, influent_data: np.ndarray) -> np.ndarray:
-        """Initialize component flows with influent values but set Q to a small value to avoid loops."""
-        # Create a copy of influent data
-        initial_flow = influent_data.copy()
-        # Set flow rate (Q) to a very small value (1.0) to initialize recycle loops
-        # This follows the BSM2 pattern of initializing flows before solving loops
-        initial_flow[Q] = 1.0  # Very small flow to avoid division by zero but enable proper initialization
-        return initial_flow
+    def _create_copies(self, in_arr: np.ndarray, n_copies: int = 1) -> List[np.ndarray]:
+        """Create copies of input arrays following BSM2_base.py pattern.
+        
+        This method replicates the _create_copies functionality from BSM2_base.py
+        to properly initialize component flows with influent composition.
+        
+        Parameters
+        ----------
+        in_arr : np.ndarray(21)
+            BSM2 state array to be copied. 
+            [SI, SS, XI, XS, XBH, XBA, XP, SO, SNO, SNH, SND, XND, SALK, TSS, Q, TEMP,
+            SD1, SD2, SD3, XD4, XD5]
+        n_copies : int (optional)
+            Number of copies to create. Default is 1.
+
+        Returns
+        -------
+        out : List[np.ndarray(21)]
+            List of copied BSM2 state arrays.
+        """
+        out = [np.copy(in_arr) for _ in range(n_copies)]
+        return out
+
+    def initialize_component_flows(self, influent_data: np.ndarray, num_components: int) -> Dict[str, np.ndarray]:
+        """Initialize component flows using BSM2_base.py _create_copies approach.
+        
+        This method follows the exact pattern used in BSM2_base.py to initialize
+        all intermediate flows with the influent composition, maintaining proper
+        mass balance while enabling recycle loop convergence.
+        """
+        # Create copies of influent data for each component that needs initialization
+        # This preserves the influent composition across all components at startup
+        copies = self._create_copies(influent_data, num_components)
+        
+        # Return a dictionary for easy component access
+        initialized_flows = {}
+        for i, copy in enumerate(copies):
+            initialized_flows[f"flow_{i}"] = copy
+            
+        return initialized_flows
 
     async def run_simulation(
         self, 
@@ -349,8 +534,13 @@ class SimulationEngine:
             if progress_callback:
                 progress_callback(50.0)
             
-            # Initialize component flows with small values to avoid NaN issues in recycle loops
-            initial_flow = self.initialize_component_flows(influent_data[0] if len(influent_data) > 0 else np.zeros(21))
+            # Initialize component flows using BSM2_base.py _create_copies approach
+            # This creates proper copies of influent data for all components to maintain mass balance
+            num_components = len([n for n in config.nodes if n.data.get('componentType') != 'influent'])
+            initialized_flows = self.initialize_component_flows(
+                influent_data[0] if len(influent_data) > 0 else np.zeros(21), 
+                num_components
+            )
             
             # Run simulation timestep by timestep (like BSM2_base.py step method)
             for i in range(time_steps):
@@ -367,14 +557,21 @@ class SimulationEngine:
                 for influent_node in influent_nodes:
                     component_outputs[influent_node.id] = current_influent
                 
-                # Initialize all non-influent nodes with initial flow to avoid NaN in loops
+                # Initialize all non-influent nodes with proper influent composition copies
+                # This follows BSM2_base.py pattern where all flows start with influent composition
+                flow_idx = 0
                 for node_id in execution_order:
                     if node_id not in [n.id for n in influent_nodes] and node_id not in component_outputs:
-                        component_outputs[node_id] = initial_flow.copy()
+                        if flow_idx < len(initialized_flows):
+                            component_outputs[node_id] = initialized_flows[f"flow_{flow_idx}"].copy()
+                            flow_idx += 1
+                        else:
+                            # Fallback to influent composition if we run out of initialized flows
+                            component_outputs[node_id] = current_influent.copy()
                 
-                # Iterative solution for recycle streams (up to 5 iterations to ensure convergence)
-                for iteration in range(5):
-                    prev_outputs = component_outputs.copy()
+                # Iterative solution for recycle streams (up to 10 iterations to ensure convergence)
+                for iteration in range(10):
+                    prev_outputs = {k: (v.copy() if isinstance(v, np.ndarray) else v) for k, v in component_outputs.items()}
                     
                     # Process components in topological order
                     for node_id in execution_order:
@@ -393,8 +590,8 @@ class SimulationEngine:
                             inputs = self.get_component_inputs(node_id, config, component_outputs)
                             
                             if not inputs:
-                                # No inputs, use initialized flow
-                                input_data = initial_flow.copy()
+                                # No inputs, use current influent composition (maintaining BSM2 pattern)
+                                input_data = current_influent.copy()
                             elif len(inputs) == 1:
                                 input_data = inputs[0]
                             else:
@@ -406,8 +603,8 @@ class SimulationEngine:
                                         continue
                                     except Exception as e:
                                         logger.warning(f"Combiner {node_id} error at timestep {i}, iteration {iteration}: {e}")
-                                        # Use first valid input if combiner fails
-                                        input_data = next((inp for inp in inputs if not np.any(np.isnan(inp))), initial_flow.copy())
+                                        # Use current influent composition if combiner fails (maintains mass balance)
+                                        input_data = next((inp for inp in inputs if not np.any(np.isnan(inp))), current_influent.copy())
                                 else:
                                     input_data = inputs[0]  # Use first input for other components
                             
@@ -423,19 +620,20 @@ class SimulationEngine:
                                 elif comp_type == 'adm1-reactor':
                                     # ADM1 returns (interface, digester, gas) - add more verbose error handling
                                     try:
-                                        logger.debug(f"ADM1 reactor {node_id} at timestep {i}, iteration {iteration}")
-                                        logger.debug(f"ADM1 input shape: {input_data.shape if hasattr(input_data, 'shape') else 'no shape'}")
-                                        logger.debug(f"ADM1 input data: {input_data}")
-                                        logger.debug(f"ADM1 input types: {[type(x) for x in input_data] if hasattr(input_data, '__iter__') else type(input_data)}")
-                                        logger.debug(f"ADM1 input NaN check: {np.any(np.isnan(input_data))}")
-                                        logger.debug(f"ADM1 input inf check: {np.any(np.isinf(input_data))}")
+                                        if logger.level <= logging.DEBUG and iteration == 0:
+                                            logger.debug(f"ADM1 reactor {node_id} at timestep {i}, iteration {iteration}")
+                                            logger.debug(f"ADM1 input data: {input_data}")
+                                            logger.debug(f"ADM1 input NaN check: {np.any(np.isnan(input_data))}")
+                                            logger.debug(f"ADM1 input inf check: {np.any(np.isinf(input_data))}")
+                                        
                                         interface, digester, gas = component.output(stepsize, step_time, input_data, 35.0)
-                                        logger.debug(f"ADM1 output interface shape: {interface.shape}, NaN: {np.any(np.isnan(interface))}")
-                                        logger.debug(f"ADM1 output digester shape: {digester.shape}, NaN: {np.any(np.isnan(digester))}")
-                                        logger.debug(f"ADM1 output gas shape: {gas.shape}, NaN: {np.any(np.isnan(gas))}")
+                                        
+                                        if logger.level <= logging.DEBUG and iteration == 0:
+                                            logger.debug(f"ADM1 output interface shape: {interface.shape}, NaN: {np.any(np.isnan(interface))}")
+                                            logger.debug(f"ADM1 output digester shape: {digester.shape}, NaN: {np.any(np.isnan(digester))}")
+                                            logger.debug(f"ADM1 output gas shape: {gas.shape}, NaN: {np.any(np.isnan(gas))}")
+                                        
                                         output = {'liquid': interface, 'gas': gas, 'internal': digester}
-                                        logger.debug(f"ADM1 final output keys: {output.keys()}")
-                                        logger.debug(f"ADM1 final output types: {[(k, type(v), v.shape if hasattr(v, 'shape') else 'no shape') for k, v in output.items()]}")
                                     except Exception as e:
                                         logger.error(f"ADM1 reactor {node_id} failed at timestep {i}, iteration {iteration}: {e}")
                                         logger.debug(f"ADM1 input data: {input_data}")
@@ -509,6 +707,45 @@ class SimulationEngine:
                             logger.debug(f"Component type: {comp_type}")
                             # Do not hide the error - let it propagate to identify the underlying issue
                             raise SimulationError(f"Component {node_id} failed: {e}")
+                    
+                    # Check for convergence (compare changes between iterations)
+                    converged = True
+                    for node_id in component_outputs:
+                        if node_id in prev_outputs:
+                            curr_out = component_outputs[node_id]
+                            prev_out = prev_outputs[node_id]
+                            
+                            # Handle different output types for convergence check
+                            if isinstance(curr_out, np.ndarray) and isinstance(prev_out, np.ndarray):
+                                if not np.allclose(curr_out, prev_out, rtol=1e-6, atol=1e-8):
+                                    converged = False
+                                    break
+                            elif isinstance(curr_out, dict) and isinstance(prev_out, dict):
+                                for key in curr_out:
+                                    if key in prev_out:
+                                        if isinstance(curr_out[key], np.ndarray) and isinstance(prev_out[key], np.ndarray):
+                                            if not np.allclose(curr_out[key], prev_out[key], rtol=1e-6, atol=1e-8):
+                                                converged = False
+                                                break
+                                if not converged:
+                                    break
+                            elif isinstance(curr_out, (list, tuple)) and isinstance(prev_out, (list, tuple)):
+                                for j, (curr_item, prev_item) in enumerate(zip(curr_out, prev_out)):
+                                    if isinstance(curr_item, np.ndarray) and isinstance(prev_item, np.ndarray):
+                                        if not np.allclose(curr_item, prev_item, rtol=1e-6, atol=1e-8):
+                                            converged = False
+                                            break
+                                if not converged:
+                                    break
+                    
+                    if converged and iteration > 0:
+                        if logger.level <= logging.DEBUG:
+                            logger.debug(f"Converged after {iteration + 1} iterations at timestep {i}")
+                        break
+                else:
+                    if logger.level <= logging.DEBUG:
+                        logger.debug(f"Did not converge within 10 iterations at timestep {i}")
+                
                 
                 # Store results for this timestep
                 for node_id in execution_order:
