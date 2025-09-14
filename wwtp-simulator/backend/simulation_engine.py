@@ -557,19 +557,54 @@ class SimulationEngine:
                 for influent_node in influent_nodes:
                     component_outputs[influent_node.id] = current_influent
                 
-                # Initialize all non-influent nodes with proper influent composition copies
-                # This follows BSM2_base.py pattern where all flows start with influent composition
-                flow_idx = 0
+                # Initialize ALL component outputs with influent composition following BSM2_base.py pattern
+                # This ensures proper mass balance and avoids extreme concentrations during first iteration
                 for node_id in execution_order:
-                    if node_id not in [n.id for n in influent_nodes] and node_id not in component_outputs:
-                        if flow_idx < len(initialized_flows):
-                            component_outputs[node_id] = initialized_flows[f"flow_{flow_idx}"].copy()
-                            flow_idx += 1
-                        else:
-                            # Fallback to influent composition if we run out of initialized flows
-                            component_outputs[node_id] = current_influent.copy()
+                    if node_id not in [n.id for n in influent_nodes]:
+                        # Initialize all non-influent components with influent composition
+                        # This matches BSM2_base.py where all intermediate flows start as influent copies
+                        component_outputs[node_id] = current_influent.copy()
+                        
+                        # For components with multiple outputs, initialize all outputs
+                        node = node_map[node_id]
+                        comp_type = node.data.get('componentType')
+                        
+                        if comp_type in ['splitter', 'primary-clarifier', 'settler', 'thickener', 'dewatering', 'adm1-reactor']:
+                            # These components have multiple outputs - initialize all with influent composition
+                            if comp_type == 'splitter':
+                                component_outputs[node_id] = [current_influent.copy(), current_influent.copy()]
+                            elif comp_type == 'primary-clarifier':
+                                component_outputs[node_id] = {
+                                    'effluent': current_influent.copy(), 
+                                    'sludge': current_influent.copy(), 
+                                    'internal': current_influent.copy()
+                                }
+                            elif comp_type == 'settler':
+                                component_outputs[node_id] = {
+                                    'recycle': current_influent.copy(),
+                                    'sludge': current_influent.copy(), 
+                                    'effluent': current_influent.copy()
+                                }
+                            elif comp_type == 'thickener':
+                                component_outputs[node_id] = {
+                                    'output-0': current_influent.copy(),
+                                    'output-1': current_influent.copy()
+                                }
+                            elif comp_type == 'dewatering':
+                                component_outputs[node_id] = {
+                                    'output-0': current_influent.copy(),
+                                    'output-1': current_influent.copy()
+                                }
+                            elif comp_type == 'adm1-reactor':
+                                component_outputs[node_id] = {
+                                    'liquid': current_influent.copy(),
+                                    'gas': current_influent.copy(),
+                                    'internal': current_influent.copy()
+                                }
                 
                 # Iterative solution for recycle streams (up to 10 iterations to ensure convergence)
+                # First iteration: Only process influent and initialize all other outputs as influent composition
+                # Subsequent iterations: Process components normally to converge recycle streams
                 for iteration in range(10):
                     prev_outputs = {k: (v.copy() if isinstance(v, np.ndarray) else v) for k, v in component_outputs.items()}
                     
@@ -577,6 +612,13 @@ class SimulationEngine:
                     for node_id in execution_order:
                         if node_id in [n.id for n in influent_nodes]:
                             continue  # Already processed influent
+                        
+                        # For the first iteration, keep all non-influent components as influent composition
+                        # This prevents artificial concentration buildup during initialization
+                        if iteration == 0:
+                            # Skip processing non-influent components in first iteration
+                            # They remain initialized as influent composition
+                            continue
                         
                         node = node_map[node_id]
                         comp_type = node.data.get('componentType')
@@ -626,7 +668,7 @@ class SimulationEngine:
                                             logger.debug(f"ADM1 input NaN check: {np.any(np.isnan(input_data))}")
                                             logger.debug(f"ADM1 input inf check: {np.any(np.isinf(input_data))}")
                                         
-                                        interface, digester, gas = component.output(stepsize, step_time, input_data, 35.0)
+                                        interface, digester, gas = component.output(stepsize, step_time, input_data, 308.15)  # 35°C in Kelvin
                                         
                                         if logger.level <= logging.DEBUG and iteration == 0:
                                             logger.debug(f"ADM1 output interface shape: {interface.shape}, NaN: {np.any(np.isnan(interface))}")
