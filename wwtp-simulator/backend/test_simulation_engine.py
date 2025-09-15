@@ -20,7 +20,7 @@ from bsm2_python.log import logger
 
 def load_bsm2_test_config():
     """Load the BSM2 test configuration from JSON."""
-    json_path = '/home/runner/work/bsm2-python/bsm2-python/wwtp-simulator/backend/predefined_flowsheets/bsm2_ol_test.json'
+    json_path = '/home/runner/work/bsm2-python/bsm2-python/wwtp-simulator/backend/predefined_flowsheets/bsm2_ol.json'
     
     with open(json_path, 'r') as f:
         config_data = json.load(f)

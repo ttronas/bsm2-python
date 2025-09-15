@@ -597,9 +597,9 @@ class SimulationEngine:
                                 }
                             elif comp_type == 'adm1-reactor':
                                 component_outputs[node_id] = {
-                                    'liquid': current_influent.copy(),
-                                    'gas': current_influent.copy(),
-                                    'internal': current_influent.copy()
+                                    'adm2asm': current_influent.copy(),
+                                    'digester': current_influent.copy(),
+                                    'asm2adm': current_influent.copy()
                                 }
                 
                 # Iterative solution for recycle streams (up to 10 iterations to ensure convergence)
@@ -660,7 +660,7 @@ class SimulationEngine:
                                 if comp_type == 'asm1-reactor':
                                     output = component.output(stepsize, step_time, input_data)
                                 elif comp_type == 'adm1-reactor':
-                                    # ADM1 returns (interface, digester, gas) - add more verbose error handling
+                                    # ADM1 returns (yi_out2/ADM2ASM, yd_out/digester, yi_out1/ASM2ADM) - add more verbose error handling
                                     try:
                                         if logger.level <= logging.DEBUG and iteration == 0:
                                             logger.debug(f"ADM1 reactor {node_id} at timestep {i}, iteration {iteration}")
@@ -668,14 +668,14 @@ class SimulationEngine:
                                             logger.debug(f"ADM1 input NaN check: {np.any(np.isnan(input_data))}")
                                             logger.debug(f"ADM1 input inf check: {np.any(np.isinf(input_data))}")
                                         
-                                        interface, digester, gas = component.output(stepsize, step_time, input_data, 308.15)  # 35°C in Kelvin
+                                        adm2asm, digester, asm2adm = component.output(stepsize, step_time, input_data, 308.15)  # 35°C in Kelvin
                                         
                                         if logger.level <= logging.DEBUG and iteration == 0:
-                                            logger.debug(f"ADM1 output interface shape: {interface.shape}, NaN: {np.any(np.isnan(interface))}")
+                                            logger.debug(f"ADM1 output adm2asm shape: {adm2asm.shape}, NaN: {np.any(np.isnan(adm2asm))}")
                                             logger.debug(f"ADM1 output digester shape: {digester.shape}, NaN: {np.any(np.isnan(digester))}")
-                                            logger.debug(f"ADM1 output gas shape: {gas.shape}, NaN: {np.any(np.isnan(gas))}")
+                                            logger.debug(f"ADM1 output asm2adm shape: {asm2adm.shape}, NaN: {np.any(np.isnan(asm2adm))}")
                                         
-                                        output = {'liquid': interface, 'gas': gas, 'internal': digester}
+                                        output = {'adm2asm': adm2asm, 'digester': digester, 'asm2adm': asm2adm}
                                     except Exception as e:
                                         logger.error(f"ADM1 reactor {node_id} failed at timestep {i}, iteration {iteration}: {e}")
                                         logger.debug(f"ADM1 input data: {input_data}")

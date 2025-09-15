@@ -24,7 +24,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 def load_bsm2_json_config():
     """Load the BSM2 open loop configuration from JSON."""
-    json_path = Path("predefined_flowsheets/bsm2_ol_test.json")
+    json_path = Path("predefined_flowsheets/bsm2_ol.json")
     
     with open(json_path, 'r') as f:
         data = json.load(f)

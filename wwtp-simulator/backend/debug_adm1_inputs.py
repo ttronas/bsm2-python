@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 def load_bsm2_config():
     """Load BSM2 config."""
-    json_path = Path("predefined_flowsheets/bsm2_ol_test.json")
+    json_path = Path("predefined_flowsheets/bsm2_ol.json")
     
     with open(json_path, 'r') as f:
         data = json.load(f)
