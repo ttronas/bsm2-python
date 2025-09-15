@@ -105,20 +105,17 @@ class SimulationEngine:
         # Default BSM2 influent values (constant)
         return np.array([30, 69.5, 51.2, 202.3, 28.2, 0, 0, 0, 0, 31.6, 16, 6.95, 7, 125.6, 20959, 15, 0, 0, 0, 0, 0])
     
-    def detect_simulation_type(self, config: SimulationConfig) -> str:
-        """Detect if this is a BSM1 or BSM2 simulation based on configuration name/description."""
-        name_lower = config.name.lower()
-        desc_lower = config.description.lower()
-        
-        if 'bsm1' in name_lower or 'bsm1' in desc_lower:
-            return 'BSM1'
-        elif 'bsm2' in name_lower or 'bsm2' in desc_lower:
-            return 'BSM2'
-        else:
-            # Default to BSM2 for backwards compatibility
-            return 'BSM2'
+    def get_default_init_params(self, component_type: str, param_type: str = 'bsm2'):
+        """Get default initialization parameters for a component type."""
+        if component_type == 'asm1-reactor':
+            if param_type == 'bsm1':
+                return asm1init_bsm1.YINIT1, asm1init_bsm1.PAR1
+            else:
+                return asm1init_bsm2.YINIT1, asm1init_bsm2.PAR1
+        # Add more component types as needed
+        return None, None
     
-    def create_bsm2_component(self, node: FlowNode, simulation_type: str = 'BSM2'):
+    def create_bsm2_component(self, node: FlowNode):
         """Create BSM2-Python component instance based on node configuration."""
         comp_type = node.data.get('componentType')
         params = node.data.get('parameters', {})
@@ -129,27 +126,22 @@ class SimulationEngine:
                 return None
                 
             elif comp_type == 'asm1-reactor':
-                # Create ASM1 reactor using appropriate initialization based on simulation type
+                # Create ASM1 reactor with parameters directly from frontend
                 volume = params.get('volume', 1000)
                 kla = params.get('kla', 10)
                 
-                # Select initialization files based on simulation type
-                if simulation_type == 'BSM1':
-                    asm1init = asm1init_bsm1
-                    logger.info(f"Creating ASM1 reactor {node.id} with BSM1 initialization")
-                else:
-                    asm1init = asm1init_bsm2
-                    logger.info(f"Creating ASM1 reactor {node.id} with BSM2 initialization")
+                # Get default initialization parameters (BSM2 by default)
+                default_yinit, default_par = self.get_default_init_params('asm1-reactor', 'bsm2')
                 
-                # Use custom parameters if provided, otherwise use defaults
-                yinit = params.get('yinit', asm1init.YINIT1)
+                # Use custom initial conditions if provided, otherwise use defaults
+                yinit = params.get('yinit', default_yinit)
                 
                 # Build custom parameter array if advanced parameters are provided
                 if any(key in params for key in ['mu_h', 'k_s', 'k_oh', 'k_no', 'b_h', 'mu_a', 'k_nh', 'k_oa', 'b_a', 'ny_g', 'k_a', 'k_h', 'k_x', 'ny_h', 'y_h', 'y_a', 'f_p', 'i_xb', 'i_xp']):
                     # Create custom parameter array with provided values
-                    par = asm1init.PAR1.copy()  # Start with defaults
+                    par = default_par.copy()  # Start with defaults
                     
-                    # Map advanced parameters to PAR1 array indices (based on BSM1 init structure)
+                    # Map advanced parameters to PAR1 array indices (consistent with BSM2 init structure)
                     param_mapping = {
                         'mu_h': 0,   # Maximum heterotrophic growth rate
                         'k_s': 1,    # Substrate half-saturation coefficient
@@ -172,7 +164,7 @@ class SimulationEngine:
                         'i_xp': 18,  # Fraction of nitrogen in organic particulate inerts
                     }
                     
-                    # Update parameter array with custom values
+                    # Update parameter array with custom values from frontend
                     for param_key, array_index in param_mapping.items():
                         if param_key in params:
                             par[array_index] = float(params[param_key])
@@ -180,11 +172,12 @@ class SimulationEngine:
                     
                     logger.info(f"ASM1 reactor {node.id}: Using custom parameters")
                 else:
-                    par = asm1init.PAR1
+                    par = default_par
                 
                 carb = params.get('carb', False)
                 carbonsource_conc = params.get('carbonsource_conc', 0.0)
                 
+                logger.info(f"Creating ASM1 reactor {node.id} with volume={volume}, kla={kla}")
                 reactor = ASM1Reactor(
                     kla, volume, yinit, par, 
                     carb, carbonsource_conc, tempmodel=False, activate=False
@@ -192,7 +185,11 @@ class SimulationEngine:
                 return reactor
                 
             elif comp_type == 'adm1-reactor':
-                # Create ADM1 reactor
+                # Create ADM1 reactor with parameters from frontend
+                volume = params.get('volume', 3400)
+                temperature = params.get('temperature', 308.15)  # 35°C in Kelvin
+                
+                logger.info(f"Creating ADM1 reactor {node.id} with volume={volume}, temp={temperature}K")
                 reactor = ADM1Reactor(
                     adm1init.DIGESTERINIT, adm1init.DIGESTERPAR, 
                     adm1init.INTERFACEPAR, adm1init.DIM_D
@@ -200,29 +197,32 @@ class SimulationEngine:
                 return reactor
                 
             elif comp_type == 'settler':
-                # Create settler - use appropriate ASM1 init based on simulation type
-                if simulation_type == 'BSM1':
-                    asm1init = asm1init_bsm1
-                else:
-                    asm1init = asm1init_bsm2
-                    
+                # Create settler with default BSM2 initialization (can be extended with parameters)
+                default_yinit, default_par = self.get_default_init_params('asm1-reactor', 'bsm2')
+                
+                layers = params.get('layers', 10)
+                area = params.get('area', 1500)
+                height = params.get('height', 4)
+                
+                logger.info(f"Creating settler {node.id} with {layers} layers, area={area}m², height={height}m")
                 settler = Settler(
                     settler1dinit.DIM, settler1dinit.LAYER, 
-                    asm1init.QR, asm1init.QW, settler1dinit.settlerinit,
-                    settler1dinit.SETTLERPAR, asm1init.PAR1, False, settler1dinit.MODELTYPE
+                    asm1init_bsm2.QR, asm1init_bsm2.QW, settler1dinit.settlerinit,
+                    settler1dinit.SETTLERPAR, default_par, False, settler1dinit.MODELTYPE
                 )
                 return settler
                 
             elif comp_type == 'primary-clarifier':
-                # Create primary clarifier - use appropriate ASM1 init based on simulation type
-                if simulation_type == 'BSM1':
-                    asm1init = asm1init_bsm1
-                else:
-                    asm1init = asm1init_bsm2
-                    
+                # Create primary clarifier with default BSM2 initialization (can be extended with parameters)
+                default_yinit, default_par = self.get_default_init_params('asm1-reactor', 'bsm2')
+                
+                volume = params.get('volume', 900)
+                underflow_ratio = params.get('underflow_ratio', 0.006)
+                
+                logger.info(f"Creating primary clarifier {node.id} with volume={volume}m³, underflow_ratio={underflow_ratio}")
                 clarifier = PrimaryClarifier(
                     primclarinit.VOL_P, primclarinit.YINIT1, primclarinit.PAR_P,
-                    asm1init.PAR1, primclarinit.XVECTOR_P, tempmodel=False, activate=False
+                    default_par, primclarinit.XVECTOR_P, tempmodel=False, activate=False
                 )
                 return clarifier
                 
@@ -554,15 +554,11 @@ class SimulationEngine:
             influent_nodes = []
             node_map = {node.id: node for node in config.nodes}
             
-            # Detect simulation type (BSM1 or BSM2)
-            simulation_type = self.detect_simulation_type(config)
-            logger.info(f"Detected simulation type: {simulation_type}")
-            
             for node in config.nodes:
                 if node.data.get('componentType') == 'influent':
                     influent_nodes.append(node)
                 else:
-                    component = self.create_bsm2_component(node, simulation_type)
+                    component = self.create_bsm2_component(node)
                     if component:
                         components[node.id] = component
             
