@@ -22,7 +22,8 @@ try:
     from bsm2_python.bsm2.dewatering_bsm2 import Dewatering
     from bsm2_python.bsm2.storage_bsm2 import Storage
     from bsm2_python.bsm2.helpers_bsm2 import Combiner, Splitter
-    import bsm2_python.bsm2.init.asm1init_bsm2 as asm1init
+    import bsm2_python.bsm2.init.asm1init_bsm2 as asm1init_bsm2
+    import bsm2_python.bsm2.init.asm1init_bsm1 as asm1init_bsm1
     import bsm2_python.bsm2.init.adm1init_bsm2 as adm1init
     import bsm2_python.bsm2.init.primclarinit_bsm2 as primclarinit
     import bsm2_python.bsm2.init.settler1dinit_bsm2 as settler1dinit
@@ -104,7 +105,20 @@ class SimulationEngine:
         # Default BSM2 influent values (constant)
         return np.array([30, 69.5, 51.2, 202.3, 28.2, 0, 0, 0, 0, 31.6, 16, 6.95, 7, 125.6, 20959, 15, 0, 0, 0, 0, 0])
     
-    def create_bsm2_component(self, node: FlowNode):
+    def detect_simulation_type(self, config: SimulationConfig) -> str:
+        """Detect if this is a BSM1 or BSM2 simulation based on configuration name/description."""
+        name_lower = config.name.lower()
+        desc_lower = config.description.lower()
+        
+        if 'bsm1' in name_lower or 'bsm1' in desc_lower:
+            return 'BSM1'
+        elif 'bsm2' in name_lower or 'bsm2' in desc_lower:
+            return 'BSM2'
+        else:
+            # Default to BSM2 for backwards compatibility
+            return 'BSM2'
+    
+    def create_bsm2_component(self, node: FlowNode, simulation_type: str = 'BSM2'):
         """Create BSM2-Python component instance based on node configuration."""
         comp_type = node.data.get('componentType')
         params = node.data.get('parameters', {})
@@ -115,13 +129,27 @@ class SimulationEngine:
                 return None
                 
             elif comp_type == 'asm1-reactor':
-                # Create ASM1 reactor using BSM2-Python
+                # Create ASM1 reactor using appropriate initialization based on simulation type
                 volume = params.get('volume', 1000)
                 kla = params.get('kla', 10)
                 
+                # Select initialization files based on simulation type
+                if simulation_type == 'BSM1':
+                    asm1init = asm1init_bsm1
+                    logger.info(f"Creating ASM1 reactor {node.id} with BSM1 initialization")
+                else:
+                    asm1init = asm1init_bsm2
+                    logger.info(f"Creating ASM1 reactor {node.id} with BSM2 initialization")
+                
+                # Use custom parameters if provided, otherwise use defaults
+                yinit = params.get('yinit', asm1init.YINIT1)
+                par = params.get('parameters_asm1', asm1init.PAR1)
+                carb = params.get('carb', False)
+                carbonsource_conc = params.get('carbonsource_conc', 0.0)
+                
                 reactor = ASM1Reactor(
-                    kla, volume, asm1init.YINIT1, asm1init.PAR1, 
-                    False, 0.0, tempmodel=False, activate=False
+                    kla, volume, yinit, par, 
+                    carb, carbonsource_conc, tempmodel=False, activate=False
                 )
                 return reactor
                 
@@ -133,22 +161,32 @@ class SimulationEngine:
                 )
                 return reactor
                 
-            elif comp_type == 'primary-clarifier':
-                # Create primary clarifier
-                clarifier = PrimaryClarifier(
-                    primclarinit.VOL_P, primclarinit.YINIT1, primclarinit.PAR_P,
-                    asm1init.PAR1, primclarinit.XVECTOR_P, tempmodel=False, activate=False
-                )
-                return clarifier
-                
             elif comp_type == 'settler':
-                # Create settler
+                # Create settler - use appropriate ASM1 init based on simulation type
+                if simulation_type == 'BSM1':
+                    asm1init = asm1init_bsm1
+                else:
+                    asm1init = asm1init_bsm2
+                    
                 settler = Settler(
                     settler1dinit.DIM, settler1dinit.LAYER, 
                     asm1init.QR, asm1init.QW, settler1dinit.settlerinit,
                     settler1dinit.SETTLERPAR, asm1init.PAR1, False, settler1dinit.MODELTYPE
                 )
                 return settler
+                
+            elif comp_type == 'primary-clarifier':
+                # Create primary clarifier - use appropriate ASM1 init based on simulation type
+                if simulation_type == 'BSM1':
+                    asm1init = asm1init_bsm1
+                else:
+                    asm1init = asm1init_bsm2
+                    
+                clarifier = PrimaryClarifier(
+                    primclarinit.VOL_P, primclarinit.YINIT1, primclarinit.PAR_P,
+                    asm1init.PAR1, primclarinit.XVECTOR_P, tempmodel=False, activate=False
+                )
+                return clarifier
                 
             elif comp_type == 'thickener':
                 # Create thickener
@@ -478,11 +516,15 @@ class SimulationEngine:
             influent_nodes = []
             node_map = {node.id: node for node in config.nodes}
             
+            # Detect simulation type (BSM1 or BSM2)
+            simulation_type = self.detect_simulation_type(config)
+            logger.info(f"Detected simulation type: {simulation_type}")
+            
             for node in config.nodes:
                 if node.data.get('componentType') == 'influent':
                     influent_nodes.append(node)
                 else:
-                    component = self.create_bsm2_component(node)
+                    component = self.create_bsm2_component(node, simulation_type)
                     if component:
                         components[node.id] = component
             
