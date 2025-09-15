@@ -21,15 +21,15 @@ from pathlib import Path
 repo_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(repo_root / "src"))
 
-from webapp.backend.simulation_engine import SimulationEngine
-from webapp.backend.models import (
+from simulation_engine import SimulationEngine
+from models import (
     SimulationConfig,
     SimulationResult,
     NodeConfig,
     EdgeConfig,
     ComponentType
 )
-from webapp.backend.supabase_client import SupabaseClient
+from supabase_client import SupabaseClient
 
 app = FastAPI(
     title="BSM2 Simulation API",

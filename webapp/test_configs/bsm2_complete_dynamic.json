@@ -1,0 +1,151 @@
+{
+  "name": "BSM2 Complete Plant - Dynamic",
+  "description": "Complete BSM2 wastewater treatment plant configuration with ASM1 reactors, ADM1 digester, and clarifiers",
+  "nodes": [
+    {
+      "id": "influent_1",
+      "type": "influent",
+      "name": "Influent",
+      "position": { "x": 50, "y": 300 },
+      "parameters": {
+        "flow_rate": 18446.0,
+        "cod": 381.0,
+        "bod": 200.0
+      }
+    },
+    {
+      "id": "primary_clarifier_1",
+      "type": "primary_clarifier",
+      "name": "Primary Clarifier",
+      "position": { "x": 200, "y": 300 },
+      "parameters": {
+        "area": 1500.0,
+        "depth": 4.0
+      }
+    },
+    {
+      "id": "asm1_reactor_1",
+      "type": "asm1_reactor",
+      "name": "ASM1 Reactor 1",
+      "position": { "x": 400, "y": 200 },
+      "parameters": {
+        "kla": 240.0,
+        "volume": 1333.0,
+        "activate": true
+      }
+    },
+    {
+      "id": "asm1_reactor_2",
+      "type": "asm1_reactor",
+      "name": "ASM1 Reactor 2",
+      "position": { "x": 600, "y": 200 },
+      "parameters": {
+        "kla": 240.0,
+        "volume": 1333.0,
+        "activate": true
+      }
+    },
+    {
+      "id": "secondary_clarifier_1",
+      "type": "settler",
+      "name": "Secondary Clarifier",
+      "position": { "x": 800, "y": 200 },
+      "parameters": {
+        "area": 6000.0,
+        "depth": 4.0
+      }
+    },
+    {
+      "id": "thickener_1",
+      "type": "thickener",
+      "name": "Thickener",
+      "position": { "x": 400, "y": 500 },
+      "parameters": {
+        "area": 250.0,
+        "depth": 3.0
+      }
+    },
+    {
+      "id": "adm1_digester_1",
+      "type": "adm1_reactor",
+      "name": "ADM1 Digester",
+      "position": { "x": 600, "y": 500 },
+      "parameters": {
+        "volume": 3400.0,
+        "temperature": 35.0
+      }
+    },
+    {
+      "id": "dewatering_1",
+      "type": "dewatering",
+      "name": "Dewatering",
+      "position": { "x": 800, "y": 500 },
+      "parameters": {
+        "efficiency": 0.95
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_1",
+      "source": "influent_1",
+      "target": "primary_clarifier_1",
+      "source_handle": "effluent",
+      "target_handle": "influent"
+    },
+    {
+      "id": "edge_2",
+      "source": "primary_clarifier_1",
+      "target": "asm1_reactor_1",
+      "source_handle": "effluent",
+      "target_handle": "influent"
+    },
+    {
+      "id": "edge_3",
+      "source": "asm1_reactor_1",
+      "target": "asm1_reactor_2",
+      "source_handle": "effluent",
+      "target_handle": "influent"
+    },
+    {
+      "id": "edge_4",
+      "source": "asm1_reactor_2",
+      "target": "secondary_clarifier_1",
+      "source_handle": "effluent",
+      "target_handle": "influent"
+    },
+    {
+      "id": "edge_5",
+      "source": "primary_clarifier_1",
+      "target": "thickener_1",
+      "source_handle": "sludge",
+      "target_handle": "influent"
+    },
+    {
+      "id": "edge_6",
+      "source": "secondary_clarifier_1",
+      "target": "thickener_1",
+      "source_handle": "underflow",
+      "target_handle": "influent"
+    },
+    {
+      "id": "edge_7",
+      "source": "thickener_1",
+      "target": "adm1_digester_1",
+      "source_handle": "underflow",
+      "target_handle": "influent"
+    },
+    {
+      "id": "edge_8",
+      "source": "adm1_digester_1",
+      "target": "dewatering_1",
+      "source_handle": "effluent",
+      "target_handle": "influent"
+    }
+  ],
+  "influent": {
+    "type": "dynamic"
+  },
+  "timestep": 0.0104166667,
+  "end_time": 14.0
+}

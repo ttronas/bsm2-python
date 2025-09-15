@@ -21,6 +21,25 @@ class ComponentType(str, Enum):
     INFLUENT = "influent"
 
 
+class ComponentParameter(BaseModel):
+    """Parameter definition for a component"""
+    type: str  # 'float', 'boolean', 'select', 'file'
+    default: Any
+    description: str
+    options: Optional[List[str]] = None
+
+
+class ComponentDefinition(BaseModel):
+    """Definition of a BSM2 component type"""
+    id: str
+    name: str
+    type: ComponentType
+    icon: str
+    inputs: List[str]
+    outputs: List[str]
+    parameters: Dict[str, ComponentParameter]
+
+
 class NodeConfig(BaseModel):
     """Configuration for a single node in the flowsheet"""
     id: str
