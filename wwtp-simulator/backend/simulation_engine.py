@@ -143,7 +143,45 @@ class SimulationEngine:
                 
                 # Use custom parameters if provided, otherwise use defaults
                 yinit = params.get('yinit', asm1init.YINIT1)
-                par = params.get('parameters_asm1', asm1init.PAR1)
+                
+                # Build custom parameter array if advanced parameters are provided
+                if any(key in params for key in ['mu_h', 'k_s', 'k_oh', 'k_no', 'b_h', 'mu_a', 'k_nh', 'k_oa', 'b_a', 'ny_g', 'k_a', 'k_h', 'k_x', 'ny_h', 'y_h', 'y_a', 'f_p', 'i_xb', 'i_xp']):
+                    # Create custom parameter array with provided values
+                    par = asm1init.PAR1.copy()  # Start with defaults
+                    
+                    # Map advanced parameters to PAR1 array indices (based on BSM1 init structure)
+                    param_mapping = {
+                        'mu_h': 0,   # Maximum heterotrophic growth rate
+                        'k_s': 1,    # Substrate half-saturation coefficient
+                        'k_oh': 2,   # Oxygen half-saturation coefficient for heterotrophs
+                        'k_no': 3,   # Nitrate half-saturation coefficient
+                        'b_h': 4,    # Heterotrophic decay rate
+                        'mu_a': 5,   # Maximum autotrophic growth rate
+                        'k_nh': 6,   # Ammonia half-saturation coefficient
+                        'k_oa': 7,   # Oxygen half-saturation coefficient for autotrophs
+                        'b_a': 8,    # Autotrophic decay rate
+                        'ny_g': 9,   # Anoxic growth rate correction factor
+                        'k_a': 10,   # Ammonification rate
+                        'k_h': 11,   # Maximum specific hydrolysis rate
+                        'k_x': 12,   # Particulate substrate half-saturation coefficient
+                        'ny_h': 13,  # Anoxic hydrolysis rate correction factor
+                        'y_h': 14,   # Heterotrophic yield
+                        'y_a': 15,   # Autotrophic yield
+                        'f_p': 16,   # Fraction of biomass leading to particulate inert products
+                        'i_xb': 17,  # Fraction of nitrogen in biomass
+                        'i_xp': 18,  # Fraction of nitrogen in organic particulate inerts
+                    }
+                    
+                    # Update parameter array with custom values
+                    for param_key, array_index in param_mapping.items():
+                        if param_key in params:
+                            par[array_index] = float(params[param_key])
+                            logger.debug(f"ASM1 reactor {node.id}: Using custom {param_key} = {params[param_key]}")
+                    
+                    logger.info(f"ASM1 reactor {node.id}: Using custom parameters")
+                else:
+                    par = asm1init.PAR1
+                
                 carb = params.get('carb', False)
                 carbonsource_conc = params.get('carbonsource_conc', 0.0)
                 

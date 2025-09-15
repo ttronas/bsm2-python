@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { FlowNode, FlowEdge } from '@/types';
 import { BSM2_COMPONENTS } from '@/lib/components';
-import { Edit3, Save, X, Upload, FileText, AlertCircle } from 'lucide-react';
+import { Edit3, Save, X, Upload, FileText, AlertCircle, ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
 
 interface DetailsTabProps {
   selectedNode: FlowNode | null;
@@ -21,6 +21,7 @@ export default function DetailsTab({
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [csvError, setCsvError] = useState<string | null>(null);
   const [showCsvDialog, setShowCsvDialog] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   if (!selectedNode && !selectedEdge) {
     return (
@@ -260,6 +261,167 @@ export default function DetailsTab({
       );
     };
 
+    // Helper function to render individual parameters
+    const renderParameter = (param: any) => {
+      const currentValue = isEditing 
+        ? (editingParams[param.id] ?? param.defaultValue)
+        : (selectedNode.data.parameters[param.id] ?? param.defaultValue);
+
+      return (
+        <div key={param.id} className="group">
+          <div className="flex items-center gap-2 mb-1">
+            <label className="block text-sm text-gray-600">
+              {param.name}
+              {param.unit && <span className="text-gray-500"> ({param.unit})</span>}
+            </label>
+            {param.description && (
+              <div className="relative">
+                <HelpCircle 
+                  size={14} 
+                  className="text-gray-400 hover:text-gray-600 cursor-help" 
+                  title={param.description}
+                />
+                {/* Tooltip */}
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity z-10 whitespace-nowrap max-w-xs">
+                  {param.description}
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {/* Special handling for Influent component */}
+          {component.id === 'influent' && param.id === 'influent_type' ? (
+            <select
+              value={String(currentValue)}
+              onChange={(e) => handleParamChange(param.id, e.target.value)}
+              disabled={!isEditing}
+              className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
+                isEditing 
+                  ? 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500' 
+                  : 'bg-gray-50 text-gray-600'
+              }`}
+            >
+              <option value="constant">Constant</option>
+              <option value="dynamic">Dynamic</option>
+            </select>
+          ) : component.id === 'influent' && param.id === 'csv_file' ? (
+            <div className="space-y-2">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={String(currentValue)}
+                  disabled
+                  placeholder={currentValue ? String(currentValue) : "No file selected"}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600"
+                />
+                {isEditing && (
+                  <button
+                    onClick={() => setShowCsvDialog(true)}
+                    className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-1"
+                  >
+                    <FileText size={16} />
+                    Browse
+                  </button>
+                )}
+              </div>
+              {String(editingParams['influent_type'] ?? selectedNode.data.parameters['influent_type'] ?? 'constant') === 'constant' && (
+                <p className="text-xs text-amber-600">
+                  💡 Set type to "Dynamic" to upload custom CSV file
+                </p>
+              )}
+            </div>
+          ) : param.type === 'select' ? (
+            <select
+              value={String(currentValue)}
+              onChange={(e) => handleParamChange(param.id, e.target.value)}
+              disabled={!isEditing}
+              className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
+                isEditing 
+                  ? 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500' 
+                  : 'bg-gray-50 text-gray-600'
+              }`}
+            >
+              {param.options?.map((option: string) => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+          ) : param.type === 'number' ? (
+            <input
+              type="number"
+              value={typeof currentValue === 'number' ? currentValue : 0}
+              onChange={(e) => handleParamChange(param.id, parseFloat(e.target.value) || 0)}
+              disabled={!isEditing}
+              min={param.min}
+              max={param.max}
+              step="any"
+              className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
+                isEditing 
+                  ? 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500' 
+                  : 'bg-gray-50 text-gray-600'
+              }`}
+            />
+          ) : param.type === 'boolean' ? (
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={Boolean(currentValue)}
+                onChange={(e) => handleParamChange(param.id, e.target.checked)}
+                disabled={!isEditing}
+                className="mr-2"
+              />
+              <span className="text-sm text-gray-700">Enabled</span>
+            </label>
+          ) : (
+            <input
+              type="text"
+              value={String(currentValue)}
+              onChange={(e) => handleParamChange(param.id, e.target.value)}
+              disabled={!isEditing}
+              className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
+                isEditing 
+                  ? 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500' 
+                  : 'bg-gray-50 text-gray-600'
+              }`}
+            />
+          )}
+        </div>
+      );
+    };
+
+    // Advanced Parameters Section Component
+    const AdvancedParametersSection = ({ component, isEditing, renderParameter }: any) => {
+      return (
+        <div className="border border-gray-200 rounded-lg">
+          <button
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 transition-colors"
+            type="button"
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-700">Advanced Parameters</span>
+              <span className="text-xs text-gray-500">
+                ({component.parameters.filter((p: any) => p.category === 'advanced').length} parameters)
+              </span>
+            </div>
+            {showAdvanced ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </button>
+          
+          {showAdvanced && (
+            <div className="p-3 border-t border-gray-200">
+              <div className="space-y-3">
+                {component.parameters
+                  .filter((param: any) => param.category === 'advanced')
+                  .map((param: any) => renderParameter(param))}
+              </div>
+              <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-700">
+                ⚠️ Advanced parameters control the underlying biokinetic model. Modify only if you understand their impact on simulation results.
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    };
+
     return (
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
@@ -317,111 +479,27 @@ export default function DetailsTab({
           </div>
 
           {component.parameters.length > 0 && (
-            <div>
-              <h5 className="text-sm font-medium text-gray-700 mb-3">Parameters</h5>
-              <div className="space-y-3">
-                {component.parameters.map((param) => {
-                  const currentValue = isEditing 
-                    ? (editingParams[param.id] ?? param.defaultValue)
-                    : (selectedNode.data.parameters[param.id] ?? param.defaultValue);
+            <div className="space-y-4">
+              {/* Basic Parameters */}
+              {component.parameters.filter(p => p.category !== 'advanced').length > 0 && (
+                <div>
+                  <h5 className="text-sm font-medium text-gray-700 mb-3">Parameters</h5>
+                  <div className="space-y-3">
+                    {component.parameters
+                      .filter(param => param.category !== 'advanced')
+                      .map((param) => renderParameter(param))}
+                  </div>
+                </div>
+              )}
 
-                  return (
-                    <div key={param.id}>
-                      <label className="block text-sm text-gray-600 mb-1">
-                        {param.name}
-                        {param.unit && <span className="text-gray-500"> ({param.unit})</span>}
-                      </label>
-                      
-                      {/* Special handling for Influent component */}
-                      {component.id === 'influent' && param.id === 'influent_type' ? (
-                        <select
-                          value={String(currentValue)}
-                          onChange={(e) => handleParamChange(param.id, e.target.value)}
-                          disabled={!isEditing}
-                          className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
-                            isEditing 
-                              ? 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500' 
-                              : 'bg-gray-50 text-gray-600'
-                          }`}
-                        >
-                          <option value="constant">Constant</option>
-                          <option value="dynamic">Dynamic</option>
-                        </select>
-                      ) : component.id === 'influent' && param.id === 'csv_file' ? (
-                        <div className="space-y-2">
-                          <div className="flex gap-2">
-                            <input
-                              type="text"
-                              value={String(currentValue)}
-                              disabled
-                              placeholder={currentValue ? String(currentValue) : "No file selected"}
-                              className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600"
-                            />
-                            {isEditing && (
-                              <button
-                                onClick={() => setShowCsvDialog(true)}
-                                className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-1"
-                              >
-                                <FileText size={16} />
-                                Browse
-                              </button>
-                            )}
-                          </div>
-                          {String(editingParams['influent_type'] ?? selectedNode.data.parameters['influent_type'] ?? 'constant') === 'constant' && (
-                            <p className="text-xs text-amber-600">
-                              💡 Set type to "Dynamic" to upload custom CSV file
-                            </p>
-                          )}
-                        </div>
-                      ) : param.type === 'number' ? (
-                        <input
-                          type="number"
-                          value={typeof currentValue === 'number' ? currentValue : 0}
-                          onChange={(e) => handleParamChange(param.id, parseFloat(e.target.value) || 0)}
-                          disabled={!isEditing}
-                          min={param.min}
-                          max={param.max}
-                          step="any"
-                          className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
-                            isEditing 
-                              ? 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500' 
-                              : 'bg-gray-50 text-gray-600'
-                          }`}
-                        />
-                      ) : param.type === 'boolean' ? (
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={Boolean(currentValue)}
-                            onChange={(e) => handleParamChange(param.id, e.target.checked)}
-                            disabled={!isEditing}
-                            className="mr-2"
-                          />
-                          <span className="text-sm text-gray-700">
-                            {currentValue ? 'Enabled' : 'Disabled'}
-                          </span>
-                        </label>
-                      ) : (
-                        <input
-                          type="text"
-                          value={String(currentValue)}
-                          onChange={(e) => handleParamChange(param.id, e.target.value)}
-                          disabled={!isEditing}
-                          className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
-                            isEditing 
-                              ? 'focus:ring-2 focus:ring-blue-500 focus:border-blue-500' 
-                              : 'bg-gray-50 text-gray-600'
-                          }`}
-                        />
-                      )}
-                      
-                      {param.description && (
-                        <p className="text-xs text-gray-500 mt-1">{param.description}</p>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+              {/* Advanced Parameters Section */}
+              {component.parameters.filter(p => p.category === 'advanced').length > 0 && (
+                <AdvancedParametersSection 
+                  component={component}
+                  isEditing={isEditing}
+                  renderParameter={renderParameter}
+                />
+              )}
             </div>
           )}
 
