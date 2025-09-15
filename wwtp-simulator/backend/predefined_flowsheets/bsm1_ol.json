@@ -1,0 +1,216 @@
+{
+  "name": "BSM1 Open Loop",
+  "description": "BSM1 model with 5 ASM1 reactors in series and secondary settler based on bsm1_base.py",
+  "nodes": [
+    {
+      "id": "influent-1",
+      "type": "bsm2-node",
+      "position": { "x": 50, "y": 300 },
+      "data": {
+        "label": "Influent",
+        "componentType": "influent",
+        "parameters": {
+          "influent_type": "dynamic",
+          "flow_rate": 18446,
+          "csv_file": "",
+          "timestep_resolution": 15
+        },
+        "isSelected": false
+      }
+    },
+    {
+      "id": "combiner-reactor-in-1",
+      "type": "bsm2-node",
+      "position": { "x": 200, "y": 300 },
+      "data": {
+        "label": "Reactor Input Combiner",
+        "componentType": "combiner",
+        "parameters": {},
+        "isSelected": false
+      }
+    },
+    {
+      "id": "asm1-reactor-1",
+      "type": "bsm2-node",
+      "position": { "x": 350, "y": 300 },
+      "data": {
+        "label": "ASM1 Reactor 1",
+        "componentType": "asm1-reactor",
+        "parameters": {
+          "volume": 1000,
+          "kla": 200,
+          "so_sat": 8,
+          "temp": 15
+        },
+        "isSelected": false
+      }
+    },
+    {
+      "id": "asm1-reactor-2",
+      "type": "bsm2-node",
+      "position": { "x": 500, "y": 300 },
+      "data": {
+        "label": "ASM1 Reactor 2",
+        "componentType": "asm1-reactor",
+        "parameters": {
+          "volume": 1000,
+          "kla": 0,
+          "so_sat": 8,
+          "temp": 15
+        },
+        "isSelected": false
+      }
+    },
+    {
+      "id": "asm1-reactor-3",
+      "type": "bsm2-node",
+      "position": { "x": 650, "y": 300 },
+      "data": {
+        "label": "ASM1 Reactor 3",
+        "componentType": "asm1-reactor",
+        "parameters": {
+          "volume": 1333,
+          "kla": 0,
+          "so_sat": 8,
+          "temp": 15
+        },
+        "isSelected": false
+      }
+    },
+    {
+      "id": "asm1-reactor-4",
+      "type": "bsm2-node",
+      "position": { "x": 800, "y": 300 },
+      "data": {
+        "label": "ASM1 Reactor 4",
+        "componentType": "asm1-reactor",
+        "parameters": {
+          "volume": 1333,
+          "kla": 0,
+          "so_sat": 8,
+          "temp": 15
+        },
+        "isSelected": false
+      }
+    },
+    {
+      "id": "asm1-reactor-5",
+      "type": "bsm2-node",
+      "position": { "x": 950, "y": 300 },
+      "data": {
+        "label": "ASM1 Reactor 5",
+        "componentType": "asm1-reactor",
+        "parameters": {
+          "volume": 1333,
+          "kla": 240,
+          "so_sat": 8,
+          "temp": 15
+        },
+        "isSelected": false
+      }
+    },
+    {
+      "id": "splitter-reactor-out-1",
+      "type": "bsm2-node",
+      "position": { "x": 1100, "y": 300 },
+      "data": {
+        "label": "Reactor Output Splitter",
+        "componentType": "splitter",
+        "parameters": { "split_ratio": 0.4 },
+        "isSelected": false
+      }
+    },
+    {
+      "id": "settler-1",
+      "type": "bsm2-node",
+      "position": { "x": 1250, "y": 250 },
+      "data": {
+        "label": "Secondary Settler",
+        "componentType": "settler",
+        "parameters": {
+          "surface_area": 6000,
+          "height": 4
+        },
+        "isSelected": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-1",
+      "source": "influent-1",
+      "target": "combiner-reactor-in-1",
+      "sourceHandle": "output-0",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge-2",
+      "source": "combiner-reactor-in-1",
+      "target": "asm1-reactor-1",
+      "sourceHandle": "output-0",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge-3",
+      "source": "asm1-reactor-1",
+      "target": "asm1-reactor-2",
+      "sourceHandle": "output-0",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge-4",
+      "source": "asm1-reactor-2",
+      "target": "asm1-reactor-3",
+      "sourceHandle": "output-0",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge-5",
+      "source": "asm1-reactor-3",
+      "target": "asm1-reactor-4",
+      "sourceHandle": "output-0",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge-6",
+      "source": "asm1-reactor-4",
+      "target": "asm1-reactor-5",
+      "sourceHandle": "output-0",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge-7",
+      "source": "asm1-reactor-5",
+      "target": "splitter-reactor-out-1",
+      "sourceHandle": "output-0",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge-8",
+      "source": "splitter-reactor-out-1",
+      "target": "settler-1",
+      "sourceHandle": "output-0",
+      "targetHandle": "input-0"
+    },
+    {
+      "id": "edge-9",
+      "source": "settler-1",
+      "target": "combiner-reactor-in-1",
+      "sourceHandle": "recycle",
+      "targetHandle": "input-1"
+    },
+    {
+      "id": "edge-10",
+      "source": "splitter-reactor-out-1",
+      "target": "combiner-reactor-in-1",
+      "sourceHandle": "output-1",
+      "targetHandle": "input-2"
+    }
+  ],
+  "settings": {
+    "timestep": 15,
+    "endTime": 14,
+    "startTime": 0
+  },
+  "createdAt": "2024-01-01T00:00:00Z"
+}
