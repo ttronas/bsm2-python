@@ -219,31 +219,23 @@ class SimulationEngine:
             )
         
         elif node.type == ComponentType.THICKENER:
-            # Use proper BSM2 Thickener initialization
-            vol_t = params.get('vol_t', thickenerinit.VOL_T)
-            area_t = params.get('area_t', thickenerinit.AREA_T)
-            height_t = params.get('height_t', thickenerinit.HEIGHT_T)
-            y_0 = params.get('y_0', thickenerinit.YINIT_T.copy())
-            par_t = params.get('par_t', thickenerinit.PAR_T.copy())
-            
-            if isinstance(y_0, list):
-                y_0 = np.array(y_0)
-            if isinstance(par_t, list):
-                par_t = np.array(par_t)
-                
-            return Thickener(
-                vol_t=vol_t,
-                area_t=area_t,
-                height_t=height_t,
-                y0=y_0.copy(),
-                par_t=par_t.copy()
-            )
+            # Use proper BSM2 Thickener initialization - only needs THICKENERPAR
+            component = Thickener(thickenerinit.THICKENERPAR)
+            time_series = {
+                'time': [],
+                'thickened_sludge': [],
+                'supernatant': []
+            }
         
         elif node.type == ComponentType.DEWATERING:
             # Use proper BSM2 Dewatering initialization
             dry_solids = params.get('dry_solids', dewateringinit.DRYSOLIDS)
-            
-            return Dewatering(dry_solids=dry_solids)
+            component = Dewatering(dry_solids=dry_solids)
+            time_series = {
+                'time': [],
+                'solid_stream': [],
+                'liquid_stream': []
+            }
         
         elif node.type == ComponentType.STORAGE:
             # Use proper BSM2 Storage initialization
@@ -604,6 +596,7 @@ class SimulationEngine:
                 component_result = {
                     "component_id": node_id,
                     "component_name": component_data['config'].name,
+                    "component_type": component_data['config'].type.value,  # Add component type
                     "outputs": {},
                     "time": component_data['time_series'].get('time', [])
                 }

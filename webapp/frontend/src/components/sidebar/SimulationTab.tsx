@@ -4,16 +4,23 @@ import React, { useState } from 'react'
 import { Play, StopCircle, Upload } from 'lucide-react'
 import { validateCSVFile, parseCSVFile } from '@/lib/utils'
 
-export default function SimulationTab() {
+interface SimulationTabProps {
+  onRunSimulation: () => void
+  simulationRunning: boolean
+  simulationProgress: number
+}
+
+export default function SimulationTab({
+  onRunSimulation,
+  simulationRunning,
+  simulationProgress,
+}: SimulationTabProps) {
   const [simulationSettings, setSimulationSettings] = useState({
     timestep: 1, // minutes
     endTime: 7, // days
     influentType: 'dynamic' as 'constant' | 'dynamic',
     influentFile: null as File | null,
   })
-
-  const [simulationRunning, setSimulationRunning] = useState(false)
-  const [progress, setProgress] = useState(0)
 
   const handleSettingChange = (key: string, value: any) => {
     setSimulationSettings(prev => ({
@@ -35,30 +42,6 @@ export default function SimulationTab() {
         alert('Invalid CSV file. Please check the format.')
         event.target.value = ''
       }
-    }
-  }
-
-  const handleRunSimulation = () => {
-    if (simulationRunning) {
-      // Stop simulation
-      setSimulationRunning(false)
-      setProgress(0)
-    } else {
-      // Start simulation
-      setSimulationRunning(true)
-      // TODO: Implement actual simulation logic
-      
-      // Simulate progress for demo
-      let currentProgress = 0
-      const interval = setInterval(() => {
-        currentProgress += 2
-        setProgress(currentProgress)
-        if (currentProgress >= 100) {
-          clearInterval(interval)
-          setSimulationRunning(false)
-          setProgress(100)
-        }
-      }, 100)
     }
   }
 
@@ -160,7 +143,7 @@ export default function SimulationTab() {
       {/* Run Simulation */}
       <div className="border-t border-gray-200 pt-4">
         <button
-          onClick={handleRunSimulation}
+          onClick={onRunSimulation}
           disabled={false} // TODO: Add validation
           className={`w-full flex items-center justify-center px-4 py-3 text-sm font-medium rounded-md transition-colors ${
             simulationRunning
@@ -186,12 +169,12 @@ export default function SimulationTab() {
           <div className="mt-3">
             <div className="flex justify-between text-xs text-gray-600 mb-1">
               <span>Progress</span>
-              <span>{progress}%</span>
+              <span>{Math.round(simulationProgress * 100)}%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
                 className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${progress}%` }}
+                style={{ width: `${simulationProgress * 100}%` }}
               />
             </div>
           </div>

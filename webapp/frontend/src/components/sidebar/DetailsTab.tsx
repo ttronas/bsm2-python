@@ -130,7 +130,86 @@ export default function DetailsTab({
         </div>
 
         {/* Parameters */}
-        {nodeData?.parameters && Object.keys(nodeData.parameters).length > 0 && (
+        {nodeData?.type === 'influent' ? (
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-2">
+              Influent Configuration
+            </label>
+            <div className="space-y-3">
+              {/* Influent Type */}
+              <div>
+                <label className="block text-xs text-gray-600 mb-2">
+                  Influent Type
+                </label>
+                <div className="space-y-2">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name={`influentType-${nodeData.id}`}
+                      value="constant"
+                      checked={nodeData.parameters?.type === 'constant'}
+                      onChange={(e) => handleParameterChange('type', e.target.value)}
+                      className="mr-2"
+                    />
+                    <span className="text-sm text-gray-700">Constant (first line of default file)</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name={`influentType-${nodeData.id}`}
+                      value="dynamic"
+                      checked={nodeData.parameters?.type === 'dynamic'}
+                      onChange={(e) => handleParameterChange('type', e.target.value)}
+                      className="mr-2"
+                    />
+                    <span className="text-sm text-gray-700">Dynamic (time series)</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Dynamic Influent File Upload */}
+              {nodeData.parameters?.type === 'dynamic' && (
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">
+                    Influent Data File (CSV)
+                  </label>
+                  <div className="flex items-center space-x-2">
+                    <label className="flex-1 flex items-center justify-center px-3 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer">
+                      <span>{nodeData.parameters?.fileName || 'Choose file'}</span>
+                      <input
+                        type="file"
+                        accept=".csv"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          if (file) {
+                            handleParameterChange('fileName', file.name)
+                            handleParameterChange('fileData', file) // Store file reference
+                          }
+                        }}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Leave empty to use default BSM2 dynamic influent data
+                  </p>
+                </div>
+              )}
+
+              {/* Constant Values (if constant type) */}
+              {nodeData.parameters?.type === 'constant' && (
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">
+                    Constant Values
+                  </label>
+                  <p className="text-xs text-gray-500">
+                    Uses first line of default BSM2 influent data
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : nodeData?.parameters && Object.keys(nodeData.parameters).length > 0 ? (
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-2">
               Parameters
@@ -172,7 +251,7 @@ export default function DetailsTab({
               ))}
             </div>
           </div>
-        )}
+        ) : null}
 
         {/* Inputs/Outputs */}
         <div className="grid grid-cols-2 gap-4">

@@ -39,6 +39,9 @@ interface SidebarProps {
   onEdgeDelete: (edgeId: string) => void
   onExportFlowsheet: () => void
   onImportFlowsheet: (file: File) => void
+  onRunSimulation: () => void
+  simulationRunning: boolean
+  simulationProgress: number
 }
 
 export default function Sidebar({
@@ -52,6 +55,9 @@ export default function Sidebar({
   onEdgeDelete,
   onExportFlowsheet,
   onImportFlowsheet,
+  onRunSimulation,
+  simulationRunning,
+  simulationProgress,
 }: SidebarProps) {
   const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -82,7 +88,13 @@ export default function Sidebar({
           />
         )
       case 'simulation':
-        return <SimulationTab />
+        return (
+          <SimulationTab
+            onRunSimulation={onRunSimulation}
+            simulationRunning={simulationRunning}
+            simulationProgress={simulationProgress}
+          />
+        )
       case 'results':
         return <ResultsTab />
       default:

@@ -21,7 +21,6 @@ import { apiClient } from '@/lib/api'
 
 import ComponentNode from './nodes/ComponentNode'
 import Sidebar from './Sidebar'
-import SimulationControls from './SimulationControls'
 
 const nodeTypes = {
   component: ComponentNode,
@@ -249,15 +248,6 @@ export default function FlowEditor() {
         {/* Header */}
         <div className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4">
           <h1 className="text-xl font-bold">BSM2 Simulator</h1>
-          <SimulationControls
-            onRunSimulation={() => {
-              const config = createSimulationConfig()
-              console.log('Starting simulation with config:', config)
-              // TODO: Implement simulation execution
-            }}
-            simulationRunning={simulationRunning}
-            progress={simulationProgress}
-          />
         </div>
 
         {/* Flow Editor */}
@@ -297,6 +287,13 @@ export default function FlowEditor() {
         onEdgeDelete={deleteEdge}
         onExportFlowsheet={exportFlowsheet}
         onImportFlowsheet={importFlowsheet}
+        onRunSimulation={() => {
+          const config = createSimulationConfig()
+          console.log('Starting simulation with config:', config)
+          // TODO: Implement simulation execution
+        }}
+        simulationRunning={simulationRunning}
+        simulationProgress={simulationProgress}
       />
     </div>
   )
