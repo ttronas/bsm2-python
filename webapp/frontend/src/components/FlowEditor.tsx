@@ -17,7 +17,7 @@ import 'reactflow/dist/style.css'
 
 import { ComponentType, ComponentDefinition, NodeData, SimulationConfig } from '@/types'
 import { generateId } from '@/lib/utils'
-import { ApiClient } from '@/lib/api'
+import { apiClient } from '@/lib/api'
 
 import ComponentNode from './nodes/ComponentNode'
 import Sidebar from './Sidebar'
@@ -41,7 +41,6 @@ export default function FlowEditor() {
   const [simulationProgress, setSimulationProgress] = useState(0)
   
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
-  const apiClient = ApiClient.getInstance()
 
   // Load available components on mount
   useEffect(() => {
@@ -50,8 +49,8 @@ export default function FlowEditor() {
 
   const loadComponents = async () => {
     try {
-      const components = await apiClient.getComponents()
-      setAvailableComponents(components)
+      const response = await apiClient.getComponents()
+      setAvailableComponents(response.components)
     } catch (error) {
       console.error('Failed to load components:', error)
     }
