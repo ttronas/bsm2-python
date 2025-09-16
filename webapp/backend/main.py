@@ -60,7 +60,7 @@ async def root():
 
 @app.get("/api/components")
 async def get_available_components():
-    """Get list of available BSM2 components for the frontend"""
+    """Get list of available BSM2 components for the frontend with proper BSM2 parameters"""
     components = [
         {
             "id": "asm1_reactor",
@@ -70,9 +70,12 @@ async def get_available_components():
             "inputs": ["influent"],
             "outputs": ["effluent"],
             "parameters": {
-                "kla": {"type": "float", "default": 240.0, "description": "Oxygen transfer coefficient"},
-                "volume": {"type": "float", "default": 1333.0, "description": "Reactor volume (m³)"},
-                "activate": {"type": "boolean", "default": True, "description": "Activate aeration"}
+                "kla": {"type": "float", "default": 120.0, "description": "Oxygen transfer coefficient [d⁻¹]"},
+                "volume": {"type": "float", "default": 1333.0, "description": "Reactor volume [m³]"},
+                "carb": {"type": "float", "default": 2.0, "description": "External carbon flow rate [kg(COD)⋅d⁻¹]"},
+                "csourceconc": {"type": "float", "default": 400000.0, "description": "Carbon source concentration [g(COD)⋅m⁻³]"},
+                "tempmodel": {"type": "boolean", "default": False, "description": "Use temperature model"},
+                "activate": {"type": "boolean", "default": True, "description": "Activate dummy states"}
             }
         },
         {
@@ -83,8 +86,8 @@ async def get_available_components():
             "inputs": ["influent"],
             "outputs": ["effluent", "sludge"],
             "parameters": {
-                "area": {"type": "float", "default": 1500.0, "description": "Clarifier area (m²)"},
-                "height": {"type": "float", "default": 4.0, "description": "Clarifier height (m)"}
+                "vol_p": {"type": "float", "default": 900.0, "description": "Primary clarifier volume [m³]"},
+                "area_p": {"type": "float", "default": 1500.0, "description": "Primary clarifier area [m²]"}
             }
         },
         {
@@ -95,8 +98,10 @@ async def get_available_components():
             "inputs": ["influent"],
             "outputs": ["effluent", "sludge"],
             "parameters": {
-                "area": {"type": "float", "default": 6000.0, "description": "Settler area (m²)"},
-                "height": {"type": "float", "default": 4.0, "description": "Settler height (m)"}
+                "vol_s": {"type": "float", "default": 6000.0, "description": "Settler volume [m³]"},
+                "area_s": {"type": "float", "default": 1500.0, "description": "Settler area [m²]"},
+                "height_s": {"type": "float", "default": 4.0, "description": "Settler height [m]"},
+                "tempmodel": {"type": "boolean", "default": False, "description": "Use temperature model"}
             }
         },
         {
@@ -107,8 +112,8 @@ async def get_available_components():
             "inputs": ["sludge"],
             "outputs": ["effluent", "biogas"],
             "parameters": {
-                "volume": {"type": "float", "default": 3400.0, "description": "Digester volume (m³)"},
-                "temperature": {"type": "float", "default": 35.0, "description": "Temperature (°C)"}
+                "volume": {"type": "float", "default": 3400.0, "description": "Digester volume [m³]"},
+                "tempmodel": {"type": "boolean", "default": False, "description": "Use temperature model"}
             }
         },
         {
@@ -119,7 +124,9 @@ async def get_available_components():
             "inputs": ["sludge"],
             "outputs": ["thickened_sludge", "filtrate"],
             "parameters": {
-                "area": {"type": "float", "default": 250.0, "description": "Thickener area (m²)"}
+                "vol_t": {"type": "float", "default": 1000.0, "description": "Thickener volume [m³]"},
+                "area_t": {"type": "float", "default": 250.0, "description": "Thickener area [m²]"},
+                "height_t": {"type": "float", "default": 4.0, "description": "Thickener height [m]"}
             }
         },
         {
@@ -130,7 +137,7 @@ async def get_available_components():
             "inputs": ["sludge"],
             "outputs": ["dewatered_sludge", "filtrate"],
             "parameters": {
-                "dry_solids": {"type": "float", "default": 0.25, "description": "Target dry solids content"}
+                "dry_solids": {"type": "float", "default": 0.25, "description": "Target dry solids content [-]"}
             }
         },
         {
@@ -141,7 +148,9 @@ async def get_available_components():
             "inputs": ["influent"],
             "outputs": ["effluent"],
             "parameters": {
-                "volume": {"type": "float", "default": 6000.0, "description": "Storage volume (m³)"}
+                "vol_st": {"type": "float", "default": 6000.0, "description": "Storage volume [m³]"},
+                "area_st": {"type": "float", "default": 1500.0, "description": "Storage area [m²]"},
+                "height_st": {"type": "float", "default": 4.0, "description": "Storage height [m]"}
             }
         },
         {
@@ -152,7 +161,7 @@ async def get_available_components():
             "inputs": ["influent"],
             "outputs": ["output1", "output2"],
             "parameters": {
-                "split_ratio": {"type": "float", "default": 0.5, "description": "Split ratio for output1"}
+                "sp_type": {"type": "int", "default": 1, "description": "Splitter type (1 or 2)"}
             }
         },
         {

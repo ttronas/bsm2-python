@@ -7,7 +7,7 @@ import json
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 from supabase import create_client, Client
-from webapp.backend.models import SimulationConfig
+from models import SimulationConfig
 
 
 class SupabaseClient:
