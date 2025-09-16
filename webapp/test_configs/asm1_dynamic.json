@@ -1,0 +1,42 @@
+{
+  "name": "ASM1 Reactor Test - Dynamic Influent",
+  "description": "Simple ASM1 reactor test with dynamic influent based on tests/asm1_test.py",
+  "nodes": [
+    {
+      "id": "influent_1",
+      "type": "influent",
+      "name": "Influent",
+      "position": { "x": 100, "y": 200 },
+      "parameters": {
+        "flow_rate": 18446.0,
+        "cod": 202.32,
+        "bod": 150.0
+      }
+    },
+    {
+      "id": "asm1_reactor_1",
+      "type": "asm1_reactor",
+      "name": "ASM1 Reactor",
+      "position": { "x": 400, "y": 200 },
+      "parameters": {
+        "kla": 240.0,
+        "volume": 1333.0,
+        "activate": true
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_1",
+      "source": "influent_1",
+      "target": "asm1_reactor_1",
+      "source_handle": "effluent",
+      "target_handle": "influent"
+    }
+  ],
+  "influent": {
+    "type": "dynamic"
+  },
+  "timestep": 0.000694444,
+  "end_time": 50.0
+}
