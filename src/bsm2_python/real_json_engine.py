@@ -180,13 +180,16 @@ class JSONSimulationEngine:
             
     def _setup_simulation(self):
         """Setup simulation parameters to match BSM1OL."""
-        # Create the exact same influent data as BSM1OL test
-        self.y_in = np.array([
+        # Create the exact same influent data as BSM1OL test (with time)
+        data_in_full = np.array([
             [0.0, 30, 69.5, 51.2, 202.32, 28.17, 0, 0, 0, 0, 31.56, 6.95, 10.59, 7, 211.2675, 18446, 15, 0, 0, 0, 0, 0],
             [200.1, 30, 69.5, 51.2, 202.32, 28.17, 0, 0, 0, 0, 31.56, 6.95, 10.59, 7, 211.2675, 18446, 15, 0, 0, 0, 0, 0],
         ])
         
-        self.data_time = self.y_in[:, 0]
+        # Follow BSM1Base exactly: separate time and data
+        self.data_time = data_in_full[:, 0]
+        self.y_in = data_in_full[:, 1:]  # Exclude time column, just like BSM1Base!
+        
         self.timestep = self.simulation_settings.get('steady_timestep', 15 / (60 * 24))
         self.endtime = self.simulation_settings.get('steady_endtime', 200)
         
@@ -198,8 +201,8 @@ class JSONSimulationEngine:
         self.qintr = asm1init.QINTR
         
         # Initialize recycle streams with influent values (same as BSM1OL!)
-        # This is crucial - BSM1OL starts with influent values, not zeros
-        influent_values = self.y_in[0, 1:]  # Remove time column
+        # Use first row of y_in (which now excludes time, just like BSM1Base)
+        influent_values = self.y_in[0].copy()  # First influent row without time
         self.ys_out = influent_values.copy()  # Settler return sludge
         self.y_out5_r = influent_values.copy()  # Internal recycle
         

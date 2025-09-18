@@ -50,12 +50,12 @@
       "component_type_id": "reactor",
       "label": "Reactor 1",
       "parameters": {
-        "KLA": "reginit.KLA1",
+        "KLA": "asm1init.KLA1",
         "VOL": "asm1init.VOL1",
         "YINIT": "asm1init.YINIT1",
         "PAR": "asm1init.PAR1",
-        "CARB": "reginit.CARB1",
-        "CARBONSOURCECONC": "reginit.CARBONSOURCECONC",
+        "CARB": "asm1init.CARB1",
+        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
       }
@@ -65,12 +65,12 @@
       "component_type_id": "reactor",
       "label": "Reactor 2",
       "parameters": {
-        "KLA": "reginit.KLA2",
+        "KLA": "asm1init.KLA2",
         "VOL": "asm1init.VOL2",
         "YINIT": "asm1init.YINIT2",
         "PAR": "asm1init.PAR2",
-        "CARB": "reginit.CARB2",
-        "CARBONSOURCECONC": "reginit.CARBONSOURCECONC",
+        "CARB": "asm1init.CARB2",
+        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
       }
@@ -80,12 +80,12 @@
       "component_type_id": "reactor",
       "label": "Reactor 3",
       "parameters": {
-        "KLA": "reginit.KLA3",
+        "KLA": "asm1init.KLA3",
         "VOL": "asm1init.VOL3",
         "YINIT": "asm1init.YINIT3",
         "PAR": "asm1init.PAR3",
-        "CARB": "reginit.CARB3",
-        "CARBONSOURCECONC": "reginit.CARBONSOURCECONC",
+        "CARB": "asm1init.CARB3",
+        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
       }
@@ -95,12 +95,12 @@
       "component_type_id": "reactor",
       "label": "Test",
       "parameters": {
-        "KLA": "reginit.KLA4",
+        "KLA": "asm1init.KLA4",
         "VOL": "asm1init.VOL4",
         "YINIT": "asm1init.YINIT4",
         "PAR": "asm1init.PAR4",
-        "CARB": "reginit.CARB4",
-        "CARBONSOURCECONC": "reginit.CARBONSOURCECONC",
+        "CARB": "asm1init.CARB4",
+        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
       }
@@ -110,12 +110,12 @@
       "component_type_id": "reactor",
       "label": "Reactor 5",
       "parameters": {
-        "KLA": "reginit.KLA5",
+        "KLA": "asm1init.KLA5",
         "VOL": "asm1init.VOL5",
         "YINIT": "asm1init.YINIT5",
         "PAR": "asm1init.PAR5",
-        "CARB": "reginit.CARB5",
-        "CARBONSOURCECONC": "reginit.CARBONSOURCECONC",
+        "CARB": "asm1init.CARB5",
+        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
       }
