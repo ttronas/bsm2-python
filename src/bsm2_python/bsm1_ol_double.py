@@ -273,23 +273,36 @@ class BSM1OLDouble(BSM1Base):
         import bsm2_python.bsm2.init.asm1init_bsm1 as asm1init
         import bsm2_python.bsm2.init.plantperformanceinit_bsm1 as pp_init
         
-        vol = np.array([
-            self.reactor1.volume + self.reactor1_2.volume,
-            self.reactor2.volume + self.reactor2_2.volume,
-            self.reactor3.volume + self.reactor3_2.volume,
-            self.reactor4.volume + self.reactor4_2.volume,
-            self.reactor5.volume + self.reactor5_2.volume,
+        # Calculate energy for each WWTP separately and sum them
+        vol1 = np.array([
+            self.reactor1.volume,
+            self.reactor2.volume,
+            self.reactor3.volume,
+            self.reactor4.volume,
+            self.reactor5.volume,
+        ])
+        
+        vol2 = np.array([
+            self.reactor1_2.volume,
+            self.reactor2_2.volume,
+            self.reactor3_2.volume,
+            self.reactor4_2.volume,
+            self.reactor5_2.volume,
         ])
         
         sosat = np.array([asm1init.SOSAT1, asm1init.SOSAT2, asm1init.SOSAT3, asm1init.SOSAT4, asm1init.SOSAT5])
         
-        # Combined KLA values for energy calculation
-        combined_klas = self.klas + self.klas_2
+        # Calculate energy for each WWTP and sum
+        ae1 = self.performance.aerationenergy_step(self.klas, vol1[0:5], sosat)
+        ae2 = self.performance.aerationenergy_step(self.klas_2, vol2[0:5], sosat)
+        self.ae = ae1 + ae2
         
-        self.ae = self.performance.aerationenergy_step(combined_klas, vol[0:5], sosat)
+        me1 = self.performance.mixingenergy_step(self.klas, vol1)
+        me2 = self.performance.mixingenergy_step(self.klas_2, vol2)
+        self.me = me1 + me2
+        
         flows = np.array([self.qintr, asm1init.QR*2, asm1init.QW*2])  # Double flows for two WWTPs
         self.pe = self.performance.pumpingenergy_step(flows, pp_init.PP_PAR[10:13])
-        self.me = self.performance.mixingenergy_step(combined_klas, vol)
 
         # Performance factors
         self.perf_factors_all[i] = [
