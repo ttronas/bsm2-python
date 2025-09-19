@@ -1,0 +1,443 @@
+{
+  "simulation_settings": {
+    "mode": "steady",
+    "steady_timestep": 0.010416667,
+    "steady_endtime": 200
+  },
+  "global_options": {
+    "tempmodel": false,
+    "activate": false
+  },
+  "nodes": [
+    {
+      "id": "influent_s",
+      "component_type_id": "influent_static",
+      "label": "Influent (Static)",
+      "parameters": {
+        "y_in_constant": [
+          30,
+          69.5,
+          51.2,
+          202.32,
+          28.17,
+          0,
+          0,
+          0,
+          0,
+          31.56,
+          6.95,
+          10.59,
+          7,
+          211.2675,
+          18446,
+          15,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "input_splitter",
+      "component_type_id": "splitter",
+      "label": "Input Splitter",
+      "parameters": {
+        "split_ratio": [0.5, 0.5]
+      }
+    },
+    {
+      "id": "combiner1",
+      "component_type_id": "combiner",
+      "label": "Combiner WWTP1",
+      "parameters": {}
+    },
+    {
+      "id": "reactor1_1",
+      "component_type_id": "reactor",
+      "label": "Reactor 1 WWTP1",
+      "parameters": {
+        "KLA": "asm1init.KLA1",
+        "VOL": "asm1init.VOL1",
+        "YINIT": "asm1init.YINIT1",
+        "PAR": "asm1init.PAR1",
+        "CARB": "asm1init.CARB1",
+        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
+        "tempmodel": false,
+        "activate": false
+      }
+    },
+    {
+      "id": "reactor2_1",
+      "component_type_id": "reactor",
+      "label": "Reactor 2 WWTP1",
+      "parameters": {
+        "KLA": "asm1init.KLA2",
+        "VOL": "asm1init.VOL2",
+        "YINIT": "asm1init.YINIT2",
+        "PAR": "asm1init.PAR2",
+        "CARB": "asm1init.CARB2",
+        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
+        "tempmodel": false,
+        "activate": false
+      }
+    },
+    {
+      "id": "reactor3_1",
+      "component_type_id": "reactor",
+      "label": "Reactor 3 WWTP1",
+      "parameters": {
+        "KLA": "asm1init.KLA3",
+        "VOL": "asm1init.VOL3",
+        "YINIT": "asm1init.YINIT3",
+        "PAR": "asm1init.PAR3",
+        "CARB": "asm1init.CARB3",
+        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
+        "tempmodel": false,
+        "activate": false
+      }
+    },
+    {
+      "id": "reactor4_1",
+      "component_type_id": "reactor",
+      "label": "Reactor 4 WWTP1",
+      "parameters": {
+        "KLA": "asm1init.KLA4",
+        "VOL": "asm1init.VOL4",
+        "YINIT": "asm1init.YINIT4",
+        "PAR": "asm1init.PAR4",
+        "CARB": "asm1init.CARB4",
+        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
+        "tempmodel": false,
+        "activate": false
+      }
+    },
+    {
+      "id": "reactor5_1",
+      "component_type_id": "reactor",
+      "label": "Reactor 5 WWTP1",
+      "parameters": {
+        "KLA": "asm1init.KLA5",
+        "VOL": "asm1init.VOL5",
+        "YINIT": "asm1init.YINIT5",
+        "PAR": "asm1init.PAR5",
+        "CARB": "asm1init.CARB5",
+        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
+        "tempmodel": false,
+        "activate": false
+      }
+    },
+    {
+      "id": "splitter1",
+      "component_type_id": "splitter",
+      "label": "Splitter WWTP1",
+      "parameters": {
+        "qintr": "asm1init.QINTR"
+      }
+    },
+    {
+      "id": "settler1",
+      "component_type_id": "settler",
+      "label": "Settler WWTP1 (1D Model)",
+      "parameters": {
+        "DIM": "settler1dinit.DIM",
+        "LAYER": "settler1dinit.LAYER",
+        "QR": "asm1init.QR",
+        "QW": "asm1init.QW",
+        "settlerinit": "settler1dinit.settlerinit",
+        "SETTLERPAR": "settler1dinit.SETTLERPAR",
+        "PAR_ASM": "asm1init.PAR1",
+        "MODELTYPE_SETTLER": "settler1dinit.MODELTYPE",
+        "tempmodel_settler": false
+      }
+    },
+    {
+      "id": "combiner2",
+      "component_type_id": "combiner",
+      "label": "Combiner WWTP2",
+      "parameters": {}
+    },
+    {
+      "id": "reactor1_2",
+      "component_type_id": "reactor",
+      "label": "Reactor 1 WWTP2",
+      "parameters": {
+        "KLA": "asm1init.KLA1",
+        "VOL": "asm1init.VOL1",
+        "YINIT": "asm1init.YINIT1",
+        "PAR": "asm1init.PAR1",
+        "CARB": "asm1init.CARB1",
+        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
+        "tempmodel": false,
+        "activate": false
+      }
+    },
+    {
+      "id": "reactor2_2",
+      "component_type_id": "reactor",
+      "label": "Reactor 2 WWTP2",
+      "parameters": {
+        "KLA": "asm1init.KLA2",
+        "VOL": "asm1init.VOL2",
+        "YINIT": "asm1init.YINIT2",
+        "PAR": "asm1init.PAR2",
+        "CARB": "asm1init.CARB2",
+        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
+        "tempmodel": false,
+        "activate": false
+      }
+    },
+    {
+      "id": "reactor3_2",
+      "component_type_id": "reactor",
+      "label": "Reactor 3 WWTP2",
+      "parameters": {
+        "KLA": "asm1init.KLA3",
+        "VOL": "asm1init.VOL3",
+        "YINIT": "asm1init.YINIT3",
+        "PAR": "asm1init.PAR3",
+        "CARB": "asm1init.CARB3",
+        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
+        "tempmodel": false,
+        "activate": false
+      }
+    },
+    {
+      "id": "reactor4_2",
+      "component_type_id": "reactor",
+      "label": "Reactor 4 WWTP2",
+      "parameters": {
+        "KLA": "asm1init.KLA4",
+        "VOL": "asm1init.VOL4",
+        "YINIT": "asm1init.YINIT4",
+        "PAR": "asm1init.PAR4",
+        "CARB": "asm1init.CARB4",
+        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
+        "tempmodel": false,
+        "activate": false
+      }
+    },
+    {
+      "id": "reactor5_2",
+      "component_type_id": "reactor",
+      "label": "Reactor 5 WWTP2",
+      "parameters": {
+        "KLA": "asm1init.KLA5",
+        "VOL": "asm1init.VOL5",
+        "YINIT": "asm1init.YINIT5",
+        "PAR": "asm1init.PAR5",
+        "CARB": "asm1init.CARB5",
+        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
+        "tempmodel": false,
+        "activate": false
+      }
+    },
+    {
+      "id": "splitter2",
+      "component_type_id": "splitter",
+      "label": "Splitter WWTP2",
+      "parameters": {
+        "qintr": "asm1init.QINTR"
+      }
+    },
+    {
+      "id": "settler2",
+      "component_type_id": "settler",
+      "label": "Settler WWTP2 (1D Model)",
+      "parameters": {
+        "DIM": "settler1dinit.DIM",
+        "LAYER": "settler1dinit.LAYER",
+        "QR": "asm1init.QR",
+        "QW": "asm1init.QW",
+        "settlerinit": "settler1dinit.settlerinit",
+        "SETTLERPAR": "settler1dinit.SETTLERPAR",
+        "PAR_ASM": "asm1init.PAR1",
+        "MODELTYPE_SETTLER": "settler1dinit.MODELTYPE",
+        "tempmodel_settler": false
+      }
+    },
+    {
+      "id": "final_combiner",
+      "component_type_id": "combiner",
+      "label": "Final Effluent Combiner",
+      "parameters": {}
+    },
+    {
+      "id": "effluent",
+      "component_type_id": "effluent",
+      "label": "Final Effluent",
+      "parameters": {}
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_influent_to_splitter",
+      "source_node_id": "influent_s",
+      "source_handle_id": "out_main",
+      "target_node_id": "input_splitter",
+      "target_handle_id": "in_main"
+    },
+    {
+      "id": "e_splitter_to_combiner1",
+      "source_node_id": "input_splitter",
+      "source_handle_id": "out_split1",
+      "target_node_id": "combiner1",
+      "target_handle_id": "in_fresh"
+    },
+    {
+      "id": "e_combiner1_to_reactor1_1",
+      "source_node_id": "combiner1",
+      "source_handle_id": "out_combined",
+      "target_node_id": "reactor1_1",
+      "target_handle_id": "in_main"
+    },
+    {
+      "id": "e_reactor1_1_to_reactor2_1",
+      "source_node_id": "reactor1_1",
+      "source_handle_id": "out_main",
+      "target_node_id": "reactor2_1",
+      "target_handle_id": "in_main"
+    },
+    {
+      "id": "e_reactor2_1_to_reactor3_1",
+      "source_node_id": "reactor2_1",
+      "source_handle_id": "out_main",
+      "target_node_id": "reactor3_1",
+      "target_handle_id": "in_main"
+    },
+    {
+      "id": "e_reactor3_1_to_reactor4_1",
+      "source_node_id": "reactor3_1",
+      "source_handle_id": "out_main",
+      "target_node_id": "reactor4_1",
+      "target_handle_id": "in_main"
+    },
+    {
+      "id": "e_reactor4_1_to_reactor5_1",
+      "source_node_id": "reactor4_1",
+      "source_handle_id": "out_main",
+      "target_node_id": "reactor5_1",
+      "target_handle_id": "in_main"
+    },
+    {
+      "id": "e_reactor5_1_to_splitter1",
+      "source_node_id": "reactor5_1",
+      "source_handle_id": "out_main",
+      "target_node_id": "splitter1",
+      "target_handle_id": "in_main"
+    },
+    {
+      "id": "e_splitter1_to_settler1",
+      "source_node_id": "splitter1",
+      "source_handle_id": "out_to_settler",
+      "target_node_id": "settler1",
+      "target_handle_id": "in_main"
+    },
+    {
+      "id": "e_settler1_to_final_combiner",
+      "source_node_id": "settler1",
+      "source_handle_id": "out_effluent",
+      "target_node_id": "final_combiner",
+      "target_handle_id": "in_effluent1"
+    },
+    {
+      "id": "e_splitter1_recycle_to_combiner1",
+      "source_node_id": "splitter1",
+      "source_handle_id": "out_recycle_to_combiner",
+      "target_node_id": "combiner1",
+      "target_handle_id": "in_recycle_process"
+    },
+    {
+      "id": "e_settler1_recycle_to_combiner1",
+      "source_node_id": "settler1",
+      "source_handle_id": "out_sludge_recycle",
+      "target_node_id": "combiner1",
+      "target_handle_id": "in_recycle_settler"
+    },
+    {
+      "id": "e_splitter_to_combiner2",
+      "source_node_id": "input_splitter",
+      "source_handle_id": "out_split2",
+      "target_node_id": "combiner2",
+      "target_handle_id": "in_fresh"
+    },
+    {
+      "id": "e_combiner2_to_reactor1_2",
+      "source_node_id": "combiner2",
+      "source_handle_id": "out_combined",
+      "target_node_id": "reactor1_2",
+      "target_handle_id": "in_main"
+    },
+    {
+      "id": "e_reactor1_2_to_reactor2_2",
+      "source_node_id": "reactor1_2",
+      "source_handle_id": "out_main",
+      "target_node_id": "reactor2_2",
+      "target_handle_id": "in_main"
+    },
+    {
+      "id": "e_reactor2_2_to_reactor3_2",
+      "source_node_id": "reactor2_2",
+      "source_handle_id": "out_main",
+      "target_node_id": "reactor3_2",
+      "target_handle_id": "in_main"
+    },
+    {
+      "id": "e_reactor3_2_to_reactor4_2",
+      "source_node_id": "reactor3_2",
+      "source_handle_id": "out_main",
+      "target_node_id": "reactor4_2",
+      "target_handle_id": "in_main"
+    },
+    {
+      "id": "e_reactor4_2_to_reactor5_2",
+      "source_node_id": "reactor4_2",
+      "source_handle_id": "out_main",
+      "target_node_id": "reactor5_2",
+      "target_handle_id": "in_main"
+    },
+    {
+      "id": "e_reactor5_2_to_splitter2",
+      "source_node_id": "reactor5_2",
+      "source_handle_id": "out_main",
+      "target_node_id": "splitter2",
+      "target_handle_id": "in_main"
+    },
+    {
+      "id": "e_splitter2_to_settler2",
+      "source_node_id": "splitter2",
+      "source_handle_id": "out_to_settler",
+      "target_node_id": "settler2",
+      "target_handle_id": "in_main"
+    },
+    {
+      "id": "e_settler2_to_final_combiner",
+      "source_node_id": "settler2",
+      "source_handle_id": "out_effluent",
+      "target_node_id": "final_combiner",
+      "target_handle_id": "in_effluent2"
+    },
+    {
+      "id": "e_splitter2_recycle_to_combiner2",
+      "source_node_id": "splitter2",
+      "source_handle_id": "out_recycle_to_combiner",
+      "target_node_id": "combiner2",
+      "target_handle_id": "in_recycle_process"
+    },
+    {
+      "id": "e_settler2_recycle_to_combiner2",
+      "source_node_id": "settler2",
+      "source_handle_id": "out_sludge_recycle",
+      "target_node_id": "combiner2",
+      "target_handle_id": "in_recycle_settler"
+    },
+    {
+      "id": "e_final_combiner_to_effluent",
+      "source_node_id": "final_combiner",
+      "source_handle_id": "out_combined",
+      "target_node_id": "effluent",
+      "target_handle_id": "in_main"
+    }
+  ]
+}
