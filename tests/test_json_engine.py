@@ -34,41 +34,10 @@ def run_json_engine_test():
     
     from bsm2_python.real_json_engine import JSONSimulationEngine
     
-    # Complete JSON configuration matching BSM1OL structure exactly
-    config = {
-        "simulation_settings": {
-            "mode": "steady",
-            "steady_timestep": 0.010416667,  # 15/(60*24) 
-            "steady_endtime": 200
-        },
-        "nodes": [
-            {"id": "influent_s", "component_type_id": "influent_static", "parameters": {"y_in_constant": [30, 69.5, 51.2, 202.32, 28.17, 0, 0, 0, 0, 31.56, 6.95, 10.59, 7, 211.2675, 18446, 15, 0, 0, 0, 0, 0]}},
-            {"id": "combiner", "component_type_id": "combiner", "parameters": {}},
-            {"id": "reactor1", "component_type_id": "reactor", "parameters": {"KLA": "asm1init.KLA1", "VOL": "asm1init.VOL1", "YINIT": "asm1init.YINIT1", "PAR": "asm1init.PAR1", "CARB": "asm1init.CARB1", "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC", "tempmodel": False, "activate": False}},
-            {"id": "reactor2", "component_type_id": "reactor", "parameters": {"KLA": "asm1init.KLA2", "VOL": "asm1init.VOL2", "YINIT": "asm1init.YINIT2", "PAR": "asm1init.PAR2", "CARB": "asm1init.CARB2", "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC", "tempmodel": False, "activate": False}},
-            {"id": "reactor3", "component_type_id": "reactor", "parameters": {"KLA": "asm1init.KLA3", "VOL": "asm1init.VOL3", "YINIT": "asm1init.YINIT3", "PAR": "asm1init.PAR3", "CARB": "asm1init.CARB3", "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC", "tempmodel": False, "activate": False}},
-            {"id": "reactor4", "component_type_id": "reactor", "parameters": {"KLA": "asm1init.KLA4", "VOL": "asm1init.VOL4", "YINIT": "asm1init.YINIT4", "PAR": "asm1init.PAR4", "CARB": "asm1init.CARB4", "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC", "tempmodel": False, "activate": False}},
-            {"id": "reactor5", "component_type_id": "reactor", "parameters": {"KLA": "asm1init.KLA5", "VOL": "asm1init.VOL5", "YINIT": "asm1init.YINIT5", "PAR": "asm1init.PAR5", "CARB": "asm1init.CARB5", "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC", "tempmodel": False, "activate": False}},
-            {"id": "splitter", "component_type_id": "splitter", "parameters": {}},
-            {"id": "settler", "component_type_id": "settler", "parameters": {"DIM": "settler1dinit.DIM", "LAYER": "settler1dinit.LAYER", "QR": "asm1init.QR", "QW": "asm1init.QW", "settlerinit": "settler1dinit.settlerinit", "SETTLERPAR": "settler1dinit.SETTLERPAR", "PAR_ASM": "asm1init.PAR1", "MODELTYPE_SETTLER": "settler1dinit.MODELTYPE", "tempmodel_settler": False}},
-            {"id": "effluent", "component_type_id": "effluent", "parameters": {}}
-        ],
-        "edges": [
-            {"source_node_id": "influent_s", "target_node_id": "combiner"},
-            {"source_node_id": "combiner", "target_node_id": "reactor1"},
-            {"source_node_id": "reactor1", "target_node_id": "reactor2"},
-            {"source_node_id": "reactor2", "target_node_id": "reactor3"},
-            {"source_node_id": "reactor3", "target_node_id": "reactor4"},
-            {"source_node_id": "reactor4", "target_node_id": "reactor5"},
-            {"source_node_id": "reactor5", "target_node_id": "splitter"},
-            {"source_node_id": "splitter", "target_node_id": "settler"},
-            {"source_node_id": "settler", "target_node_id": "effluent"},
-            {"source_node_id": "splitter", "target_node_id": "combiner"},  # Internal recycle
-            {"source_node_id": "settler", "target_node_id": "combiner"}   # Return sludge
-        ]
-    }
+    # Use the existing bsm1_simulation_config.json file
+    config_path = '/home/runner/work/bsm2-python/bsm2-python/bsm1_simulation_config.json'
     
-    engine = JSONSimulationEngine(config)
+    engine = JSONSimulationEngine(config_path)
     results = engine.simulate()
     
     return results['effluent'], results['sludge_height'], results['tss_internal']
