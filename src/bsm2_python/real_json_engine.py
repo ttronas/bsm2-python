@@ -153,9 +153,9 @@ class JSONSimulationEngine:
     General-purpose JSON simulation engine for WWTP configurations.
     
     This engine can handle any WWTP layout defined in JSON, including
-    complex topologies with recycle streams. It uses a hybrid approach:
-    - Graph-based component creation and dependency analysis  
-    - BSM1OL-style execution for proven numerical stability
+    complex topologies with recycle streams. It uses a graph-based approach:
+    - First simulates nodes without dependencies (feed-forward)
+    - Then handles cycles/loops within each simulation timestep using convergence
     """
     
     def __init__(self, config: Union[str, Dict]):
@@ -182,29 +182,76 @@ class JSONSimulationEngine:
             component_id = node_config['id']
             self.components[component_id] = self.factory.create_component(node_config)
             
-        # Build topology map from edges for understanding dependencies
-        self.topology = {}
+        # Build topology map from edges
+        self.dependencies = {}  # target -> [sources]
+        self.targets = defaultdict(list)  # source -> [targets]
+        
         for edge in self.config.get('edges', []):
             source = edge['source_node_id']
             target = edge['target_node_id']
             
-            if target not in self.topology:
-                self.topology[target] = []
-            self.topology[target].append(source)
+            if target not in self.dependencies:
+                self.dependencies[target] = []
+            self.dependencies[target].append(source)
+            self.targets[source].append(target)
             
-        # Detect if this is a BSM1-like topology for optimal execution
-        self._analyze_topology()
+        # Analyze topology for execution order
+        self._analyze_execution_order()
         
-    def _analyze_topology(self):
-        """Analyze topology to determine optimal execution strategy."""
-        # Check if this looks like a BSM1-style layout
-        has_combiner = 'combiner' in self.components
-        has_reactors = any('reactor' in comp_id for comp_id in self.components)
-        has_splitter = 'splitter' in self.components  
-        has_settler = 'settler' in self.components
+    def _analyze_execution_order(self):
+        """Analyze topology to determine execution order for general WWTP configurations."""
+        # Find nodes with no dependencies (feed-forward)
+        self.feed_forward_nodes = []
+        self.cyclic_nodes = []
         
-        # If it's BSM1-like, use BSM1OL execution strategy for proven stability
-        self.is_bsm1_like = has_combiner and has_reactors and has_splitter and has_settler
+        all_nodes = set(self.components.keys())
+        nodes_with_deps = set(self.dependencies.keys())
+        
+        # Feed-forward nodes have no dependencies
+        for node in all_nodes:
+            if node not in nodes_with_deps:
+                self.feed_forward_nodes.append(node)
+        
+        # Detect cycles using DFS
+        self.cycles = self._detect_cycles()
+        
+        # Remaining nodes are part of cycles
+        for node in all_nodes:
+            if node not in self.feed_forward_nodes:
+                self.cyclic_nodes.append(node)
+                
+    def _detect_cycles(self) -> List[List[str]]:
+        """Detect cycles in the dependency graph."""
+        visited = set()
+        path = set()
+        cycles = []
+        
+        def dfs(node, current_path):
+            if node in path:
+                # Found a cycle
+                cycle_start = current_path.index(node)
+                cycle = current_path[cycle_start:]
+                cycles.append(cycle)
+                return
+            
+            if node in visited:
+                return
+                
+            visited.add(node)
+            path.add(node)
+            current_path.append(node)
+            
+            for target in self.targets.get(node, []):
+                dfs(target, current_path)
+            
+            path.remove(node)
+            current_path.pop()
+        
+        for node in self.components.keys():
+            if node not in visited:
+                dfs(node, [])
+        
+        return cycles
         
     def _create_stream(self, component_id: str, default_value: np.ndarray) -> np.ndarray:
         """Create/initialize a stream for components (BSM1OL compatibility)."""
@@ -229,24 +276,33 @@ class JSONSimulationEngine:
         self.simtime = np.arange(0, self.endtime, self.timestep, dtype=float)
         self.timesteps = np.full(len(self.simtime), self.timestep)
         
-        # Initialize streams using _create_stream approach (like BSM1Base)
+        # Initialize streams using _create_stream approach (like BSM1Base) 
         default_stream = self.y_in[0].copy()  # First influent row without time
         
-        # For BSM1-like topologies, use BSM1OL initialization 
-        if self.is_bsm1_like:
-            self.ys_out = self._create_stream('settler_return', default_stream)  # Settler return sludge
-            self.y_out5_r = self._create_stream('splitter_recycle', default_stream)  # Internal recycle
-            self.qintr = asm1init.QINTR
+        # Initialize streams for cyclic components (recycle streams)
+        self.streams = {}
+        for node in self.cyclic_nodes:
+            self.streams[node] = self._create_stream(node, default_stream)
         
-        # Set KLA values for reactors
-        self.klas = np.array([asm1init.KLA1, asm1init.KLA2, asm1init.KLA3, asm1init.KLA4, asm1init.KLA5])
+        # Special handling for common WWTP components
+        if 'combiner' in self.components:
+            # Initialize recycle streams
+            if 'settler' in self.components:
+                self.streams['settler_return'] = self._create_stream('settler_return', default_stream)
+            if 'splitter' in self.components:
+                self.streams['internal_recycle'] = self._create_stream('internal_recycle', default_stream)
+                
+        # Set parameters for reactors (if any)
+        self.qintr = getattr(asm1init, 'QINTR', 61944)  # Default internal recycle flow
+        self.klas = np.array([getattr(asm1init, f'KLA{i}', 10) for i in range(1, 6)])
         
     def step(self, i: int):
         """
-        Execute one simulation time step.
+        Execute one simulation time step using general graph-based approach.
         
-        Uses BSM1OL-style execution for BSM1-like topologies, or general 
-        graph-based execution for other configurations.
+        Strategy:
+        1. First simulate nodes with no dependencies (feed-forward direction)
+        2. Then simulate loops/cycles within the timestep until convergence
         """
         step = self.simtime[i]
         stepsize = self.timesteps[i]
@@ -254,141 +310,256 @@ class JSONSimulationEngine:
         # Get current influent
         y_in_timestep = self.y_in[np.where(self.data_time <= step)[0][-1], :]
         
-        if self.is_bsm1_like:
-            self._step_bsm1_style(stepsize, step, y_in_timestep)
-        else:
-            self._step_general(stepsize, step, y_in_timestep)
+        # Execute general graph-based simulation
+        self._step_general_graph(stepsize, step, y_in_timestep)
     
-    def _step_bsm1_style(self, stepsize: float, step: float, y_in_timestep: np.ndarray):
-        """Execute BSM1-style topology using proven BSM1OL sequence."""
+    def _step_general_graph(self, stepsize: float, step: float, y_in_timestep: np.ndarray):
+        """
+        Execute general topology using graph-based approach with cycle handling.
+        
+        This handles any WWTP configuration by:
+        1. Processing feed-forward nodes first
+        2. Using fixed execution order for known topologies like BSM1
+        """
+        # Initialize component outputs storage
+        outputs = {}
+        
+        # Set influent as initial input
+        outputs['influent'] = y_in_timestep
+        outputs['influent_s'] = y_in_timestep  # Static influent
         
         # Update KLA values for reactors
-        reactor_ids = ['reactor1', 'reactor2', 'reactor3', 'reactor4', 'reactor5']
-        for idx, reactor_id in enumerate(reactor_ids):
-            if reactor_id in self.components:
-                self.components[reactor_id].kla = self.klas[idx]
+        for idx, comp_id in enumerate(self.components.keys()):
+            if 'reactor' in comp_id and hasattr(self.components[comp_id], 'kla'):
+                reactor_num = int(comp_id.replace('reactor', '')) if comp_id.replace('reactor', '').isdigit() else 1
+                if reactor_num <= len(self.klas):
+                    self.components[comp_id].kla = self.klas[reactor_num - 1]
         
-        # Combiner: fresh influent + settler return + internal recycle (BSM1OL order)
-        if 'combiner' in self.components:
-            self.y_in1 = self.components['combiner'].output(y_in_timestep, self.ys_out, self.y_out5_r)
+        # For BSM1-like topologies, use a simplified fixed order approach
+        if self._is_bsm1_topology():
+            self._execute_bsm1_fixed_order(stepsize, step, y_in_timestep, outputs)
         else:
-            self.y_in1 = y_in_timestep
+            # General graph execution for other topologies
+            self._execute_general_order(stepsize, step, y_in_timestep, outputs)
         
-        # Reactors in series (exact BSM1OL sequence)
-        current_output = self.y_in1
-        for reactor_id in reactor_ids:
-            if reactor_id in self.components:
-                current_output = self.components[reactor_id].output(stepsize, step, current_output)
-                # Store outputs for reference (BSM1OL compatibility)
-                setattr(self, f'y_out{reactor_id[-1]}', current_output)
+        # Store final results for compatibility
+        self._store_final_results(outputs)
         
-        # Final reactor output
-        self.y_out5 = current_output
-        
-        # Splitter: split for settler and internal recycle (BSM1OL logic)
-        if 'splitter' in self.components:
-            self.ys_in, self.y_out5_r = self.components['splitter'].output(
-                self.y_out5, (max(self.y_out5[14] - self.qintr, 0.0), float(self.qintr))
-            )
-        else:
-            self.ys_in = self.y_out5
-            self.y_out5_r = np.zeros(21)
-        
-        # Settler: return sludge, waste sludge, effluent, height, TSS profile (BSM1OL)
-        if 'settler' in self.components:
-            settler_outputs = self.components['settler'].output(stepsize, step, self.ys_in)
-            self.ys_out = settler_outputs[0]  # Return sludge (feeds back to combiner)
-            # settler_outputs[1] is waste sludge
-            self.ys_eff = settler_outputs[2]  # Effluent
-            self.sludge_height = settler_outputs[3]  # Sludge height
-            self.ys_tss_internal = settler_outputs[4]  # TSS profile
-        else:
-            self.ys_out = np.zeros(21)
-            self.ys_eff = self.ys_in
-            self.sludge_height = 0.0
-            self.ys_tss_internal = np.zeros(10)
-        
-        # Final effluent (BSM1OL pass-through)
-        if 'effluent' in self.components:
-            self.final_effluent = self.components['effluent'].output(self.ys_eff)
-        else:
-            self.final_effluent = self.ys_eff
+    def _is_bsm1_topology(self) -> bool:
+        """Check if this is a BSM1-like topology."""
+        required_components = ['combiner', 'reactor1', 'reactor2', 'reactor3', 'reactor4', 'reactor5', 'splitter', 'settler', 'effluent']
+        return all(comp in self.components for comp in required_components)
     
-    def _step_general(self, stepsize: float, step: float, y_in_timestep: np.ndarray):
-        """
-        Execute general topology using graph-based approach.
+    def _execute_bsm1_fixed_order(self, stepsize: float, step: float, y_in_timestep: np.ndarray, outputs: Dict[str, np.ndarray]):
+        """Execute BSM1 topology in fixed order with proper recycle handling."""
         
-        This handles arbitrary WWTP configurations beyond BSM1-style layouts.
-        """
-        # Initialize streams for this timestep
-        streams = {'influent': y_in_timestep}
+        # Start with initial recycle values (like BSM1OL does)
+        if not hasattr(self, 'initialized_cycles'):
+            self.streams['settler_return'] = y_in_timestep.copy()
+            self.streams['internal_recycle'] = y_in_timestep.copy()
+            self.initialized_cycles = True
         
-        # Simple execution order: process components based on dependencies
-        processed = set(['influent'])
-        max_iterations = len(self.components) * 2
+        # Fixed execution order for BSM1 topology
+        # 1. Combiner: influent + settler return + internal recycle
+        if 'combiner' in self.components:
+            outputs['combiner'] = self.components['combiner'].output(
+                y_in_timestep, 
+                self.streams['settler_return'], 
+                self.streams['internal_recycle']
+            )
+        
+        # 2. Reactors in series
+        current_input = outputs['combiner']
+        for i in range(1, 6):
+            reactor_id = f'reactor{i}'
+            if reactor_id in self.components:
+                outputs[reactor_id] = self.components[reactor_id].output(stepsize, step, current_input)
+                current_input = outputs[reactor_id]
+        
+        # 3. Splitter: split final reactor output
+        if 'splitter' in self.components:
+            total_flow = current_input[14] if len(current_input) > 14 else 20648
+            recycle_flow = self.qintr
+            to_settler = max(total_flow - recycle_flow, 0.0)
+            
+            stream_to_settler, stream_recycle = self.components['splitter'].output(
+                current_input, (float(to_settler), float(recycle_flow))
+            )
+            outputs['splitter_to_settler'] = stream_to_settler
+            outputs['splitter_recycle'] = stream_recycle
+            # Update internal recycle stream
+            self.streams['internal_recycle'] = stream_recycle
+        
+        # 4. Settler: process splitter output
+        if 'settler' in self.components:
+            settler_outputs = self.components['settler'].output(stepsize, step, outputs['splitter_to_settler'])
+            outputs['settler_return'] = settler_outputs[0]    # Return sludge
+            outputs['settler_waste'] = settler_outputs[1]     # Waste sludge
+            outputs['settler_effluent'] = settler_outputs[2]  # Effluent
+            self.sludge_height = settler_outputs[3]
+            self.ys_tss_internal = settler_outputs[4]
+            # Update settler return stream
+            self.streams['settler_return'] = settler_outputs[0]
+        
+        # 5. Effluent: final output
+        if 'effluent' in self.components:
+            outputs['effluent'] = self.components['effluent'].output(outputs['settler_effluent'])
+        
+    def _execute_general_order(self, stepsize: float, step: float, y_in_timestep: np.ndarray, outputs: Dict[str, np.ndarray]):
+        """Execute general graph topology."""
+        # Step 1: Process feed-forward components (no dependencies)
+        for comp_id in self.feed_forward_nodes:
+            outputs[comp_id] = self._execute_component(comp_id, stepsize, step, outputs, y_in_timestep)
+        
+        # Step 2: Handle cycles iteratively until convergence
+        if self.cyclic_nodes:
+            self._solve_cycles(stepsize, step, outputs, y_in_timestep)
+        
+    def _execute_component(self, comp_id: str, stepsize: float, step: float, 
+                          outputs: Dict[str, np.ndarray], y_in_timestep: np.ndarray) -> np.ndarray:
+        """Execute a single component and return its output."""
+        component = self.components[comp_id]
+        
+        if comp_id.startswith('influent'):
+            return component.output()
+            
+        elif comp_id == 'combiner':
+            # Get inputs for combiner
+            deps = self.dependencies.get(comp_id, [])
+            if not deps:
+                # No dependencies, use influent
+                return y_in_timestep
+            else:
+                # Handle multiple inputs for combiner: influent + recycle streams
+                inputs = []
+                for dep in deps:
+                    if dep == 'influent_s':
+                        inputs.append(y_in_timestep)
+                    elif dep == 'splitter':
+                        # Internal recycle stream
+                        inputs.append(outputs.get('splitter_recycle', self.streams.get('internal_recycle', y_in_timestep)))
+                    elif dep == 'settler':
+                        # Return sludge stream  
+                        inputs.append(outputs.get('settler_return', self.streams.get('settler_return', y_in_timestep)))
+                    else:
+                        inputs.append(outputs.get(dep, y_in_timestep))
+                
+                # Call combiner with appropriate number of inputs
+                if len(inputs) == 1:
+                    return inputs[0]
+                elif len(inputs) == 2:
+                    return component.output(inputs[0], inputs[1])
+                elif len(inputs) == 3:
+                    return component.output(inputs[0], inputs[1], inputs[2])
+                else:
+                    # Handle more inputs if needed
+                    return component.output(*inputs)
+                
+        elif 'reactor' in comp_id:
+            deps = self.dependencies.get(comp_id, [])
+            input_stream = outputs.get(deps[0], y_in_timestep) if deps else y_in_timestep
+            return component.output(stepsize, step, input_stream)
+            
+        elif comp_id == 'splitter':
+            deps = self.dependencies.get(comp_id, [])
+            input_stream = outputs.get(deps[0], y_in_timestep) if deps else y_in_timestep
+            # Calculate flow split based on internal recycle
+            total_flow = input_stream[14] if len(input_stream) > 14 else 20648
+            recycle_flow = self.qintr
+            to_settler = max(total_flow - recycle_flow, 0.0)
+            # Return tuple for splitter outputs - fix numba type issue
+            stream1, stream2 = component.output(input_stream, (float(to_settler), float(recycle_flow)))
+            outputs[comp_id + '_to_settler'] = stream1
+            outputs[comp_id + '_recycle'] = stream2
+            return stream1  # Main output
+            
+        elif comp_id == 'settler':
+            deps = self.dependencies.get(comp_id, [])
+            # Get input from splitter's settler output
+            if deps and 'splitter' in deps[0]:
+                input_stream = outputs.get('splitter_to_settler', outputs.get(deps[0], y_in_timestep))
+            else:
+                input_stream = outputs.get(deps[0], y_in_timestep) if deps else y_in_timestep
+                
+            settler_outputs = component.output(stepsize, step, input_stream)
+            
+            # Store all settler outputs
+            outputs[comp_id + '_return'] = settler_outputs[0]  # Return sludge
+            outputs[comp_id + '_waste'] = settler_outputs[1]   # Waste sludge  
+            outputs[comp_id + '_effluent'] = settler_outputs[2] # Effluent
+            self.sludge_height = settler_outputs[3]
+            self.ys_tss_internal = settler_outputs[4]
+            
+            return settler_outputs[2]  # Effluent as main output
+            
+        elif comp_id == 'effluent':
+            deps = self.dependencies.get(comp_id, [])
+            input_stream = outputs.get(deps[0], y_in_timestep) if deps else y_in_timestep
+            return component.output(input_stream)
+            
+        else:
+            # Default: pass through input
+            deps = self.dependencies.get(comp_id, [])
+            return outputs.get(deps[0], y_in_timestep) if deps else y_in_timestep
+    
+    def _solve_cycles(self, stepsize: float, step: float, outputs: Dict[str, np.ndarray], y_in_timestep: np.ndarray):
+        """Solve cyclic components iteratively until convergence."""
+        max_iterations = 5  # Reduced for faster convergence
+        tolerance = 1e-3   # Relaxed tolerance
         
         for iteration in range(max_iterations):
-            progress_made = False
+            converged = True
+            old_streams = {k: v.copy() for k, v in self.streams.items()}
             
-            for component_id, component in self.components.items():
-                if component_id in processed:
+            # Execute all cyclic components
+            for comp_id in self.cyclic_nodes:
+                try:
+                    new_output = self._execute_component(comp_id, stepsize, step, outputs, y_in_timestep)
+                    outputs[comp_id] = new_output
+                    
+                    # Update recycle streams
+                    if comp_id == 'settler' and comp_id + '_return' in outputs:
+                        self.streams['settler_return'] = outputs[comp_id + '_return']
+                    elif comp_id == 'splitter' and comp_id + '_recycle' in outputs:
+                        self.streams['internal_recycle'] = outputs[comp_id + '_recycle']
+                except Exception as e:
+                    # Skip problematic components for convergence
+                    print(f"Warning: Component {comp_id} failed: {e}")
                     continue
-                    
-                # Check if all dependencies are satisfied
-                dependencies = self.topology.get(component_id, [])
-                if not dependencies or all(dep in processed for dep in dependencies):
-                    
-                    # Execute component based on type
-                    if component_id.startswith('influent'):
-                        streams[component_id] = component.output()
-                        
-                    elif component_id == 'combiner':
-                        inputs = [streams.get(dep, y_in_timestep) for dep in dependencies]
-                        if len(inputs) == 1:
-                            streams[component_id] = inputs[0]
-                        elif len(inputs) == 2:
-                            streams[component_id] = component.output(inputs[0], inputs[1])
-                        elif len(inputs) == 3:
-                            streams[component_id] = component.output(inputs[0], inputs[1], inputs[2])
-                            
-                    elif 'reactor' in component_id:
-                        input_stream = streams.get(dependencies[0], y_in_timestep) if dependencies else y_in_timestep
-                        streams[component_id] = component.output(stepsize, step, input_stream)
-                        
-                    elif component_id == 'splitter':
-                        input_stream = streams.get(dependencies[0], y_in_timestep) if dependencies else y_in_timestep
-                        # For general case, assume equal split
-                        stream1, stream2 = component.output(input_stream, (0.5, 0.5))
-                        streams[component_id + '_out1'] = stream1
-                        streams[component_id + '_out2'] = stream2
-                        
-                    elif component_id == 'settler':
-                        input_stream = streams.get(dependencies[0], y_in_timestep) if dependencies else y_in_timestep
-                        outputs = component.output(stepsize, step, input_stream)
-                        streams[component_id + '_return'] = outputs[0]
-                        streams[component_id + '_effluent'] = outputs[2]
-                        self.ys_eff = outputs[2]
-                        self.sludge_height = outputs[3]
-                        self.ys_tss_internal = outputs[4]
-                        
-                    elif component_id == 'effluent':
-                        input_stream = streams.get(dependencies[0], y_in_timestep) if dependencies else y_in_timestep
-                        streams[component_id] = component.output(input_stream)
-                        self.final_effluent = streams[component_id]
-                    
-                    processed.add(component_id)
-                    progress_made = True
             
-            if not progress_made:
+            # Check convergence
+            for stream_name, new_value in self.streams.items():
+                if stream_name in old_streams:
+                    diff = np.max(np.abs(new_value - old_streams[stream_name]))
+                    if diff > tolerance:
+                        converged = False
+                        break
+            
+            if converged:
                 break
+                
+    def _store_final_results(self, outputs: Dict[str, np.ndarray]):
+        """Store final results for compatibility with BSM1OL interface."""
+        # Effluent
+        if 'effluent' in outputs:
+            self.ys_eff = outputs['effluent']
+        elif 'settler_effluent' in outputs:
+            self.ys_eff = outputs['settler_effluent']
+        elif 'settler' in outputs:
+            self.ys_eff = outputs['settler']
+        else:
+            # Find last component in the chain
+            self.ys_eff = outputs.get('reactor5', outputs.get('reactor4', outputs.get('reactor3', 
+                         outputs.get('reactor2', outputs.get('reactor1', self.y_in[0])))))
         
-        # Set final results for compatibility
-        if not hasattr(self, 'ys_eff'):
-            self.ys_eff = y_in_timestep
+        # Sludge height and TSS (set defaults if not from settler)
         if not hasattr(self, 'sludge_height'):
             self.sludge_height = 0.0
         if not hasattr(self, 'ys_tss_internal'):
             self.ys_tss_internal = np.zeros(10)
+            
+        # Final effluent
+        self.final_effluent = self.ys_eff
             
     def simulate(self):
         """

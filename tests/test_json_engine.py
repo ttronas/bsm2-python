@@ -53,7 +53,19 @@ def run_json_engine_test():
             {"id": "settler", "component_type_id": "settler", "parameters": {"DIM": "settler1dinit.DIM", "LAYER": "settler1dinit.LAYER", "QR": "asm1init.QR", "QW": "asm1init.QW", "settlerinit": "settler1dinit.settlerinit", "SETTLERPAR": "settler1dinit.SETTLERPAR", "PAR_ASM": "asm1init.PAR1", "MODELTYPE_SETTLER": "settler1dinit.MODELTYPE", "tempmodel_settler": False}},
             {"id": "effluent", "component_type_id": "effluent", "parameters": {}}
         ],
-        "edges": []  # Not used in this implementation
+        "edges": [
+            {"source_node_id": "influent_s", "target_node_id": "combiner"},
+            {"source_node_id": "combiner", "target_node_id": "reactor1"},
+            {"source_node_id": "reactor1", "target_node_id": "reactor2"},
+            {"source_node_id": "reactor2", "target_node_id": "reactor3"},
+            {"source_node_id": "reactor3", "target_node_id": "reactor4"},
+            {"source_node_id": "reactor4", "target_node_id": "reactor5"},
+            {"source_node_id": "reactor5", "target_node_id": "splitter"},
+            {"source_node_id": "splitter", "target_node_id": "settler"},
+            {"source_node_id": "settler", "target_node_id": "effluent"},
+            {"source_node_id": "splitter", "target_node_id": "combiner"},  # Internal recycle
+            {"source_node_id": "settler", "target_node_id": "combiner"}   # Return sludge
+        ]
     }
     
     engine = JSONSimulationEngine(config)
