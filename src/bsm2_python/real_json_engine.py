@@ -436,24 +436,29 @@ class JSONSimulationEngine:
         if comp_id.startswith('influent'):
             return component.output()
             
-        elif comp_id == 'combiner':
-            # Get inputs for combiner
+        elif 'combiner' in comp_id:
+            # Handle any combiner component (combiner, combiner1, combiner2, final_combiner, etc.)
             deps = self.dependencies.get(comp_id, [])
             if not deps:
-                # No dependencies, use influent
                 return y_in_timestep
             else:
                 # Handle multiple inputs for combiner: influent + recycle streams
                 inputs = []
                 for dep in deps:
-                    if dep == 'influent_s':
+                    if dep.startswith('influent'):
                         inputs.append(y_in_timestep)
-                    elif dep == 'splitter':
-                        # Internal recycle stream
-                        inputs.append(outputs.get('splitter_recycle', self.streams.get('internal_recycle', y_in_timestep)))
-                    elif dep == 'settler':
-                        # Return sludge stream  
-                        inputs.append(outputs.get('settler_return', self.streams.get('settler_return', y_in_timestep)))
+                    elif 'splitter' in dep:
+                        # Internal recycle stream - try multiple naming patterns
+                        inputs.append(outputs.get(dep + '_recycle', 
+                                    outputs.get(dep + '_to_combiner', 
+                                    outputs.get(dep + '_to_' + comp_id,
+                                    self.streams.get('internal_recycle', y_in_timestep)))))
+                    elif 'settler' in dep:
+                        # Return sludge stream - try multiple naming patterns
+                        inputs.append(outputs.get(dep + '_return', 
+                                    outputs.get(dep + '_to_combiner',
+                                    outputs.get(dep + '_to_' + comp_id,
+                                    self.streams.get('settler_return', y_in_timestep)))))
                     else:
                         inputs.append(outputs.get(dep, y_in_timestep))
                 
@@ -473,35 +478,64 @@ class JSONSimulationEngine:
             input_stream = outputs.get(deps[0], y_in_timestep) if deps else y_in_timestep
             return component.output(stepsize, step, input_stream)
             
-        elif comp_id == 'splitter':
+        elif 'splitter' in comp_id:
             deps = self.dependencies.get(comp_id, [])
             input_stream = outputs.get(deps[0], y_in_timestep) if deps else y_in_timestep
-            # Calculate flow split based on internal recycle
-            total_flow = input_stream[14] if len(input_stream) > 14 else 20648
-            recycle_flow = self.qintr
-            to_settler = max(total_flow - recycle_flow, 0.0)
-            # Return tuple for splitter outputs - fix numba type issue
-            stream1, stream2 = component.output(input_stream, (float(to_settler), float(recycle_flow)))
-            outputs[comp_id + '_to_settler'] = stream1
-            outputs[comp_id + '_recycle'] = stream2
-            return stream1  # Main output
             
-        elif comp_id == 'settler':
-            deps = self.dependencies.get(comp_id, [])
-            # Get input from splitter's settler output
-            if deps and 'splitter' in deps[0]:
-                input_stream = outputs.get('splitter_to_settler', outputs.get(deps[0], y_in_timestep))
+            # Determine split type based on component name and context
+            targets = self.targets.get(comp_id, [])
+            
+            if 'input_splitter' in comp_id:
+                # Input splitter for parallel WWTPs - equal split
+                stream1, stream2 = component.output(input_stream, (0.5, 0.5))
+                # Store outputs for both targets
+                if len(targets) >= 2:
+                    outputs[comp_id + '_to_' + targets[0]] = stream1
+                    outputs[comp_id + '_to_' + targets[1]] = stream2
+                else:
+                    outputs[comp_id + '_out1'] = stream1
+                    outputs[comp_id + '_out2'] = stream2
+                return stream1
             else:
-                input_stream = outputs.get(deps[0], y_in_timestep) if deps else y_in_timestep
-                
+                # Process splitter - handle internal recycle
+                total_flow = input_stream[14] if len(input_stream) > 14 else 20648
+                recycle_flow = self.qintr
+                to_settler = max(total_flow - recycle_flow, 0.0)
+                # Return tuple for splitter outputs - fix numba type issue
+                stream1, stream2 = component.output(input_stream, (float(to_settler), float(recycle_flow)))
+                outputs[comp_id + '_to_settler'] = stream1
+                outputs[comp_id + '_recycle'] = stream2
+                return stream1  # Main output
+            
+        elif 'settler' in comp_id:
+            deps = self.dependencies.get(comp_id, [])
+            # Get input from splitter's settler output - try multiple naming patterns
+            input_stream = y_in_timestep
+            if deps:
+                dep = deps[0]
+                # Try various ways the input might be named
+                possible_inputs = [
+                    dep + '_to_settler',
+                    dep + '_to_' + comp_id,
+                    dep + '_out1',
+                    dep
+                ]
+                for possible_input in possible_inputs:
+                    if possible_input in outputs:
+                        input_stream = outputs[possible_input]
+                        break
+                        
             settler_outputs = component.output(stepsize, step, input_stream)
             
             # Store all settler outputs
             outputs[comp_id + '_return'] = settler_outputs[0]  # Return sludge
             outputs[comp_id + '_waste'] = settler_outputs[1]   # Waste sludge  
             outputs[comp_id + '_effluent'] = settler_outputs[2] # Effluent
-            self.sludge_height = settler_outputs[3]
-            self.ys_tss_internal = settler_outputs[4]
+            
+            # For compatibility, store some specific values
+            if comp_id == 'settler':
+                self.sludge_height = settler_outputs[3]
+                self.ys_tss_internal = settler_outputs[4]
             
             return settler_outputs[2]  # Effluent as main output
             
@@ -518,15 +552,19 @@ class JSONSimulationEngine:
     
     def _store_final_results(self, outputs: Dict[str, np.ndarray]):
         """Store final results for compatibility with BSM1OL interface."""
-        # Effluent
-        if 'effluent' in outputs:
-            self.ys_eff = outputs['effluent']
-        elif 'settler_effluent' in outputs:
-            self.ys_eff = outputs['settler_effluent']
-        elif 'settler' in outputs:
-            self.ys_eff = outputs['settler']
-        else:
-            # Find last component in the chain
+        # Find effluent - try multiple naming patterns
+        effluent_candidates = [
+            'effluent', 'final_combiner', 'settler_effluent', 'settler1_effluent', 'settler2_effluent', 'settler'
+        ]
+        
+        self.ys_eff = None
+        for candidate in effluent_candidates:
+            if candidate in outputs:
+                self.ys_eff = outputs[candidate]
+                break
+                
+        if self.ys_eff is None:
+            # Fallback: find last component in the chain
             self.ys_eff = outputs.get('reactor5', outputs.get('reactor4', outputs.get('reactor3', 
                          outputs.get('reactor2', outputs.get('reactor1', self.y_in[0])))))
         
