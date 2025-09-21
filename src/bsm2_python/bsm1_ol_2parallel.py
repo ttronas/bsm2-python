@@ -75,56 +75,56 @@ class BSM1OL2Parallel(BSM1Base):
         self.combiner1 = Combiner()
         self.reactor1_1 = ASM1Reactor(
             asm1init.KLA1, asm1init.VOL1, asm1init.YINIT1, asm1init.PAR1, asm1init.CARB1,
-            asm1init.CARBONSOURCECONC, tempmodel, activate
+            asm1init.CARBONSOURCECONC, tempmodel=tempmodel, activate=activate
         )
         self.reactor2_1 = ASM1Reactor(
             asm1init.KLA2, asm1init.VOL2, asm1init.YINIT2, asm1init.PAR2, asm1init.CARB2,
-            asm1init.CARBONSOURCECONC, tempmodel, activate
+            asm1init.CARBONSOURCECONC, tempmodel=tempmodel, activate=activate
         )
         self.reactor3_1 = ASM1Reactor(
             asm1init.KLA3, asm1init.VOL3, asm1init.YINIT3, asm1init.PAR3, asm1init.CARB3,
-            asm1init.CARBONSOURCECONC, tempmodel, activate
+            asm1init.CARBONSOURCECONC, tempmodel=tempmodel, activate=activate
         )
         self.reactor4_1 = ASM1Reactor(
             asm1init.KLA4, asm1init.VOL4, asm1init.YINIT4, asm1init.PAR4, asm1init.CARB4,
-            asm1init.CARBONSOURCECONC, tempmodel, activate
+            asm1init.CARBONSOURCECONC, tempmodel=tempmodel, activate=activate
         )
         self.reactor5_1 = ASM1Reactor(
             asm1init.KLA5, asm1init.VOL5, asm1init.YINIT5, asm1init.PAR5, asm1init.CARB5,
-            asm1init.CARBONSOURCECONC, tempmodel, activate
+            asm1init.CARBONSOURCECONC, tempmodel=tempmodel, activate=activate
         )
         self.splitter1 = Splitter()
         self.settler1 = Settler(
             settler1dinit.DIM, settler1dinit.LAYER, asm1init.QR, asm1init.QW,
-            settler1dinit.settlerinit, settler1dinit.SETTLERPAR, asm1init.PAR1, tempmodel
+            settler1dinit.settlerinit, settler1dinit.SETTLERPAR, asm1init.PAR1, tempmodel, settler1dinit.MODELTYPE
         )
 
         # WWTP 2 Components
         self.combiner2 = Combiner()
         self.reactor1_2 = ASM1Reactor(
             asm1init.KLA1, asm1init.VOL1, asm1init.YINIT1, asm1init.PAR1, asm1init.CARB1,
-            asm1init.CARBONSOURCECONC, tempmodel, activate
+            asm1init.CARBONSOURCECONC, tempmodel=tempmodel, activate=activate
         )
         self.reactor2_2 = ASM1Reactor(
             asm1init.KLA2, asm1init.VOL2, asm1init.YINIT2, asm1init.PAR2, asm1init.CARB2,
-            asm1init.CARBONSOURCECONC, tempmodel, activate
+            asm1init.CARBONSOURCECONC, tempmodel=tempmodel, activate=activate
         )
         self.reactor3_2 = ASM1Reactor(
             asm1init.KLA3, asm1init.VOL3, asm1init.YINIT3, asm1init.PAR3, asm1init.CARB3,
-            asm1init.CARBONSOURCECONC, tempmodel, activate
+            asm1init.CARBONSOURCECONC, tempmodel=tempmodel, activate=activate
         )
         self.reactor4_2 = ASM1Reactor(
             asm1init.KLA4, asm1init.VOL4, asm1init.YINIT4, asm1init.PAR4, asm1init.CARB4,
-            asm1init.CARBONSOURCECONC, tempmodel, activate
+            asm1init.CARBONSOURCECONC, tempmodel=tempmodel, activate=activate
         )
         self.reactor5_2 = ASM1Reactor(
             asm1init.KLA5, asm1init.VOL5, asm1init.YINIT5, asm1init.PAR5, asm1init.CARB5,
-            asm1init.CARBONSOURCECONC, tempmodel, activate
+            asm1init.CARBONSOURCECONC, tempmodel=tempmodel, activate=activate
         )
         self.splitter2 = Splitter()
         self.settler2 = Settler(
             settler1dinit.DIM, settler1dinit.LAYER, asm1init.QR, asm1init.QW,
-            settler1dinit.settlerinit, settler1dinit.SETTLERPAR, asm1init.PAR1, tempmodel
+            settler1dinit.settlerinit, settler1dinit.SETTLERPAR, asm1init.PAR1, tempmodel, settler1dinit.MODELTYPE
         )
 
         # Initialize arrays to store results for both WWTPs
@@ -286,15 +286,12 @@ class BSM1OL2Parallel(BSM1Base):
         self.me = me1 + me2
         
         # Pumping energy calculations
-        pump_e_in_1 = self.performance.pumpingenergy_infl(y_in_wwtp1[14])
-        pump_e_ras_1 = self.performance.pumpingenergy_ras(asm1init.QR)
-        pump_e_was_1 = self.performance.pumpingenergy_was(asm1init.QW)
-        
-        pump_e_in_2 = self.performance.pumpingenergy_infl(y_in_wwtp2[14])
-        pump_e_ras_2 = self.performance.pumpingenergy_ras(asm1init.QR)
-        pump_e_was_2 = self.performance.pumpingenergy_was(asm1init.QW)
-        
-        self.pe = pump_e_in_1 + pump_e_ras_1 + pump_e_was_1 + pump_e_in_2 + pump_e_ras_2 + pump_e_was_2
+        import bsm2_python.bsm2.init.plantperformanceinit_bsm1 as pp_init
+        flows1 = np.array([y_in_wwtp1[14], asm1init.QR, asm1init.QW])
+        flows2 = np.array([y_in_wwtp2[14], asm1init.QR, asm1init.QW])
+        pe1 = self.performance.pumpingenergy_step(flows1, pp_init.PP_PAR[10:13])
+        pe2 = self.performance.pumpingenergy_step(flows2, pp_init.PP_PAR[10:13])
+        self.pe = pe1 + pe2
 
         # For the base class compatibility, set ys_eff to WWTP 1 effluent by default
         # Users can access both effluents via ys_eff_1 and ys_eff_2

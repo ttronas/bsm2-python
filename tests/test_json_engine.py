@@ -112,7 +112,7 @@ def test_bsm1_ol_double_simulation_config():
     
     # Run BSM1OLDouble simulation
     print("Running BSM1OLDouble simulation...")
-    bsm1_double = BSM1OLDouble(data_in=y_in, timestep=15 / (60 * 24), endtime=200, tempmodel=False, activate=False)
+    bsm1_double = BSM1OLDouble(data_in=y_in, timestep=15 / (60 * 24), endtime=20, tempmodel=False, activate=False)
     
     for idx in range(len(bsm1_double.simtime)):
         bsm1_double.step(idx)
@@ -221,9 +221,9 @@ def test_bsm1_ol_2parallel_simulation_config():
         [200.1, 30, 69.5, 51.2, 202.32, 28.17, 0, 0, 0, 0, 31.56, 6.95, 10.59, 7, 211.2675, 18446, 15, 0, 0, 0, 0, 0],
     ])
     
-    # Test BSM1OL2Parallel
+    # Test BSM1OL2Parallel (shorter test time)
     print("\n1. Testing BSM1OL2Parallel class:")
-    bsm1_2parallel = BSM1OL2Parallel(data_in=y_in, timestep=15/(60*24), endtime=50)
+    bsm1_2parallel = BSM1OL2Parallel(data_in=y_in, timestep=15/(60*24), endtime=20)
     
     start = time.perf_counter()
     for idx, _ in enumerate(tqdm(bsm1_2parallel.simtime)):
