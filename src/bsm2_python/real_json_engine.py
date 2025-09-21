@@ -313,11 +313,14 @@ class JSONSimulationEngine:
         # Get current influent
         y_in_timestep = self.y_in[np.where(self.data_time <= step)[0][-1], :]
         
-        print(f"\n--- Executing Timestep {i} using Scheduled Order ---")
+        # Minimal debug output for performance
+        if i < 3 or i >= len(self.simtime) - 3:
+            print(f"\n--- Executing Timestep {i} using Scheduled Order ---")
         
         # Execute components in scheduled order
         for stage_idx, stage in enumerate(self.schedule_plan['stages']):
-            print(f"Stage {stage_idx}: {stage['type']} - {stage['nodes']}")
+            if i < 3 or i >= len(self.simtime) - 3:
+                print(f"Stage {stage_idx}: {stage['type']} - {stage['nodes']}")
             
             if stage['type'] == 'acyclic':
                 # Single acyclic node - execute directly
@@ -325,15 +328,15 @@ class JSONSimulationEngine:
                 self._execute_node(node_id, y_in_timestep, stepsize, step)
             else:
                 # Cyclic component - handle tear edges and iteration
-                print(f"  Cyclic stage with tear edges: {stage.get('tear_edges', [])}")
-                print(f"  Internal order: {stage.get('internal_order', [])}")
+                # print(f"  Cyclic stage with tear edges: {stage.get('tear_edges', [])}")  # Commented out for performance
+                # print(f"  Internal order: {stage.get('internal_order', [])}")  # Commented out for performance
                 self._execute_cyclic_stage(stage, y_in_timestep, stepsize, step)
                 
         # Store results 
         self._store_timestep_results(i)
     def _execute_node(self, node_id: str, y_in_timestep: np.ndarray, stepsize: float, step: float):
         """Execute a single node component."""
-        print(f"  Executing node: {node_id}")
+        # print(f"  Executing node: {node_id}")  # Commented out for performance
         
         if node_id in self.components:
             component = self.components[node_id]
@@ -346,8 +349,25 @@ class JSONSimulationEngine:
                     # Influent node
                     result = component.output()
                     self.streams[node_id] = result
-                elif component_name in ['ASM1Reactor', 'Settler']:
-                    # Components that need timestep, step, and input
+                elif component_name == 'Settler':
+                    # Settler needs timestep, step, and input, returns 5 values
+                    inputs = self._get_node_inputs(node_id)
+                    if inputs is not None:
+                        ys_ret, ys_was, ys_eff, sludge_height, ys_tss_internal = component.output(stepsize, step, inputs)
+                        self.streams[node_id] = ys_ret  # Return sludge (primary output for recycle)
+                        self.streams[f"{node_id}_was"] = ys_was  # Waste sludge
+                        self.streams[f"{node_id}_eff"] = ys_eff  # Effluent
+                        # Store important data in component for later retrieval
+                        component.sludge_height = sludge_height
+                        component.ys_tss_internal = ys_tss_internal
+                        # Debug first few timesteps (disabled for performance)
+                        # if stepsize > 0:  # Use stepsize as a proxy for early timesteps
+                        #     print(f"    Settler {node_id} input flow: {inputs[14] if hasattr(inputs, '__getitem__') else 'N/A'}")
+                        #     print(f"    Settler {node_id} return flow: {ys_ret[14] if hasattr(ys_ret, '__getitem__') else 'N/A'}")
+                        #     print(f"    Settler {node_id} effluent flow: {ys_eff[14] if hasattr(ys_eff, '__getitem__') else 'N/A'}")
+                        #     print(f"    Settler {node_id} sludge height: {sludge_height}")
+                elif component_name == 'ASM1Reactor':
+                    # ASM1Reactor needs timestep, step, and input
                     inputs = self._get_node_inputs(node_id)
                     if inputs is not None:
                         result = component.output(stepsize, step, inputs)
@@ -379,6 +399,17 @@ class JSONSimulationEngine:
                         self.streams[node_id] = result1  # Primary output
                         # Store secondary output with special key
                         self.streams[f"{node_id}_2"] = result2
+                elif 'effluent' in node_id:
+                    # Effluent node - should just pass through the input
+                    inputs = self._get_node_inputs(node_id)
+                    if inputs is not None:
+                        self.streams[node_id] = inputs  # Pass through
+                        # Debug first few timesteps (disabled for performance)
+                        # if stepsize > 0:  # Use stepsize as a proxy for early timesteps
+                        #     print(f"    Effluent {node_id} input: {inputs[:5] if hasattr(inputs, '__getitem__') else 'N/A'}")
+                        #     print(f"    Effluent {node_id} flow: {inputs[14] if hasattr(inputs, '__getitem__') else 'N/A'}")
+                    else:
+                        print(f"    Warning: Effluent {node_id} has no input!")
                 else:
                     # Other components - use single input
                     inputs = self._get_node_inputs(node_id)
@@ -406,7 +437,7 @@ class JSONSimulationEngine:
         # Iterative convergence for cycles
         max_iterations = 5
         for iteration in range(max_iterations):
-            print(f"    Iteration {iteration + 1}")
+            # print(f"    Iteration {iteration + 1}")  # Commented out for performance
             
             # Execute nodes in internal order
             for node_id in internal_order:
@@ -433,10 +464,26 @@ class JSONSimulationEngine:
         for edge in self.config['edges']:
             if edge['target_node_id'] == node_id:
                 source_id = edge['source_node_id']
-                if source_id in self.streams:
-                    input_streams.append(self.streams[source_id])
+                source_handle = edge.get('source_handle_id', '')
+                
+                # Handle special cases for settler outputs
+                if source_handle == 'out_effluent':
+                    # Use settler effluent output
+                    stream_key = f"{source_id}_eff"
+                elif source_handle == 'out_waste':
+                    # Use settler waste output  
+                    stream_key = f"{source_id}_was"
+                elif source_handle == 'out_sludge' or 'recycle' in edge.get('id', ''):
+                    # Use settler return sludge (primary output)
+                    stream_key = source_id
                 else:
-                    print(f"    Warning: Source {source_id} not found in streams for {node_id}")
+                    # Default to primary output
+                    stream_key = source_id
+                
+                if stream_key in self.streams:
+                    input_streams.append(self.streams[stream_key])
+                else:
+                    print(f"    Warning: Source {stream_key} not found in streams for {node_id}")
                     
         if len(input_streams) == 0:
             return None
@@ -851,10 +898,39 @@ class JSONSimulationEngine:
         for i in range(len(self.simtime)):
             self.step(i)
             
+        # Collect final results from the simulation components
+        effluent_component = None
+        settler_component = None
+        
+        for comp_id, comp in self.components.items():
+            if 'effluent' in comp_id.lower():
+                effluent_component = comp
+            elif 'settler' in comp_id.lower():
+                settler_component = comp
+        
+        # Get effluent stream (final output)
+        if effluent_component and hasattr(effluent_component, 'y_out'):
+            ys_eff = effluent_component.y_out.copy()
+        else:
+            # Fallback: try to find the effluent stream in the streams dict
+            ys_eff = self.streams.get('effluent', np.zeros(21))
+        
+        # Get sludge height from settler
+        if settler_component and hasattr(settler_component, 'sludge_height'):
+            sludge_height = settler_component.sludge_height
+        else:
+            sludge_height = 0.0
+        
+        # Get TSS internal from settler
+        if settler_component and hasattr(settler_component, 'ys_tss_internal'):
+            ys_tss_internal = settler_component.ys_tss_internal.copy()
+        else:
+            ys_tss_internal = np.zeros(10)
+        
         return {
-            'effluent': self.ys_eff,
-            'sludge_height': self.sludge_height,
-            'tss_internal': self.ys_tss_internal
+            'effluent': ys_eff,
+            'sludge_height': sludge_height,
+            'tss_internal': ys_tss_internal
         }
     
     def get_effluent(self) -> np.ndarray:
