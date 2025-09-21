@@ -2,7 +2,7 @@
   "simulation_settings": {
     "mode": "steady",
     "steady_timestep": 0.010416667,
-    "steady_endtime": 200
+    "steady_endtime": 20
   },
   "global_options": {
     "tempmodel": false,
