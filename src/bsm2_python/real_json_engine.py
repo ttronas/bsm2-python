@@ -338,23 +338,58 @@ class JSONSimulationEngine:
         if node_id in self.components:
             component = self.components[node_id]
             
-            # Handle different component types
+            # Handle different component types based on class name
             if hasattr(component, 'output'):
+                component_name = component.__class__.__name__
+                
                 if 'influent' in node_id:
                     # Influent node
                     result = component.output()
                     self.streams[node_id] = result
-                elif 'reactor' in node_id:
-                    # Reactor node - needs inputs from predecessors
+                elif component_name in ['ASM1Reactor', 'Settler']:
+                    # Components that need timestep, step, and input
                     inputs = self._get_node_inputs(node_id)
                     if inputs is not None:
                         result = component.output(stepsize, step, inputs)
                         self.streams[node_id] = result
-                else:
-                    # Other components
+                elif component_name == 'Combiner':
+                    # Combiner needs exactly 2 input streams
                     inputs = self._get_node_inputs(node_id)
                     if inputs is not None:
-                        result = component.output(inputs)
+                        if isinstance(inputs, list) and len(inputs) >= 2:
+                            # Take the first two inputs
+                            result = component.output(inputs[0], inputs[1])
+                        elif isinstance(inputs, list) and len(inputs) == 1:
+                            # Only one input - use it twice (shouldn't normally happen)
+                            result = component.output(inputs[0], inputs[0])
+                        else:
+                            # Single input case - use it twice
+                            result = component.output(inputs, inputs)
+                        self.streams[node_id] = result
+                elif component_name == 'Splitter':
+                    # Splitter needs input and split ratios
+                    inputs = self._get_node_inputs(node_id)
+                    if inputs is not None:
+                        # Get split ratios from configuration or use defaults
+                        split_ratios = self._get_split_ratios(node_id)
+                        if split_ratios is None:
+                            split_ratios = (0.6, 0.4)  # Default split
+                        
+                        result1, result2 = component.output(inputs, split_ratios)
+                        self.streams[node_id] = result1  # Primary output
+                        # Store secondary output with special key
+                        self.streams[f"{node_id}_2"] = result2
+                else:
+                    # Other components - use single input
+                    inputs = self._get_node_inputs(node_id)
+                    if inputs is not None:
+                        # Ensure we pass a single numpy array, not a list or tuple
+                        if isinstance(inputs, (list, tuple)):
+                            # Take the first input if multiple
+                            input_array = inputs[0]
+                        else:
+                            input_array = inputs
+                        result = component.output(input_array)
                         self.streams[node_id] = result
                         
     def _execute_cyclic_stage(self, stage: Dict, y_in_timestep: np.ndarray, stepsize: float, step: float):
@@ -381,6 +416,15 @@ class JSONSimulationEngine:
             # In a real implementation, you'd check if stream values have converged
             break  # For now, just do one iteration
             
+    def _get_split_ratios(self, node_id: str):
+        """Get split ratios for a splitter node from configuration."""
+        # For now, use default split ratios
+        # This could be extended to read from node configuration
+        if 'input_splitter' in node_id:
+            return (0.5, 0.5)  # Equal split for input splitter
+        else:
+            return (0.6, 0.4)  # Default recycle split
+    
     def _get_node_inputs(self, node_id: str):
         """Get input streams for a node based on graph topology."""
         # Find edges that target this node
@@ -399,9 +443,8 @@ class JSONSimulationEngine:
         elif len(input_streams) == 1:
             return input_streams[0]
         else:
-            # Multiple inputs - need to combine them
-            # This is a simplified approach
-            return input_streams[0]  # Use first input for now
+            # Multiple inputs - return as list for combiner
+            return input_streams
             
     def _store_timestep_results(self, i: int):
         """Store the results from this timestep."""
