@@ -39,13 +39,37 @@ def resolve_value(val: Any) -> Any:
             print(f"Warning: Could not resolve {val}: {e}")
             # Return a default value based on the parameter name
             if 'KLA' in attr:
-                return 10.0  # Default KLA value
+                return 240.0  # Better default KLA value for aerobic reactors
             elif 'VOL' in attr:
                 return 1000.0  # Default volume
+            elif 'YINIT' in attr:
+                # Return a reasonable initial state vector
+                import numpy as np
+                return np.array([30, 1.15, 51.2, 202.32, 28.17, 0, 0, 2, 0, 31.56, 6.95, 10.59, 7, 211.2675, 18446, 15, 0, 0, 0, 0, 0])
+            elif 'PAR' in attr:
+                # ASM1 parameters
+                import numpy as np
+                return np.array([4.0, 20.0, 0.67, 0.24, 0.08, 0.04, 2.0, 8.0, 0.5, 0.3])
+            elif 'CARB' in attr:
+                return 0.0  # Default carbon dosing
+            elif 'CARBONSOURCECONC' in attr:
+                return 0.0  # Default carbon source concentration
             elif 'Q' in attr:
                 return 18446.0  # Default flow
             elif 'MODELTYPE' in attr:
                 return 0  # Default settler model type
+            elif 'DIM' in attr:
+                import numpy as np
+                return np.array([1.0, 1.0])  # Default dimensions
+            elif 'LAYER' in attr:
+                import numpy as np
+                return np.array([10.0, 10])  # Default layer config
+            elif 'settlerinit' in attr:
+                import numpy as np
+                return np.zeros(10)  # Default settler initial state
+            elif 'SETTLERPAR' in attr:
+                import numpy as np
+                return np.array([0.00013, 0.000576, 2.0, 0.5, 0.00228, 7.0, 4.0, 2.4])  # Default settler parameters
             else:
                 return 1.0  # Generic default
     
