@@ -84,7 +84,7 @@ def make_influent(node_id: str, params: Dict[str, Any]):
     y = np.array(params["y_in_constant"], dtype=float)
     class InfluentAdapter:
         def __init__(self, y): self.y = y
-        def step(self, dt, inputs): return {"out_main": self.y}
+        def step(self, dt, current_step, inputs): return {"out_main": self.y}
     return InfluentAdapter(y)
 
 @register("effluent")
@@ -92,7 +92,7 @@ def make_effluent(node_id: str, params: Dict[str, Any]):
     class EffluentAdapter:
         def __init__(self): 
             self.last = None
-        def step(self, dt, inputs):
+        def step(self, dt, current_step, inputs):
             # Store the last input for retrieval
             main_input = inputs.get("in_main")
             if main_input is not None:
@@ -105,15 +105,7 @@ def make_combiner(node_id: str, params: Dict[str, Any]):
     Combiner = get_combiner()
     impl = Combiner()
     class CombinerAdapter:
-        def step(self, dt, inputs):
-            # DEBUG: Show what flows are being combined
-            print(f"    Combiner inputs:")
-            for name, flow in inputs.items():
-                if flow is not None:
-                    print(f"      {name}: Q={flow[14]:.1f}")
-                else:
-                    print(f"      {name}: None")
-            
+        def step(self, dt, current_step, inputs):
             # Use BSM2 Combiner.output which does the right flow combination
             flows = [v for _, v in sorted(inputs.items()) if v is not None]
             if len(flows) == 0:
@@ -124,7 +116,6 @@ def make_combiner(node_id: str, params: Dict[str, Any]):
                 # Call the real BSM2 Combiner.output method
                 result = impl.output(*flows)
             
-            print(f"    Combiner result: Q={result[14]:.1f}")
             return {"out_combined": result}
     return CombinerAdapter()
 
@@ -134,24 +125,21 @@ def make_splitter(node_id: str, params: Dict[str, Any]):
     impl = Splitter()
     # Get the qintr parameter - this is critical for BSM1 flow splitting
     qintr = params.get("qintr", 0.0)
-    print(f"🔧 Splitter {node_id} initialized with qintr={qintr}")
     
     class SplitterAdapter:
         def __init__(self, impl, qintr):
             self.impl = impl
             self.qintr = float(qintr) if qintr is not None else 0.0
-        def step(self, dt, inputs):
+        def step(self, dt, current_step, inputs):
             x = inputs.get("in_main")
             if x is None: return {}
             
-            # CRITICAL FIX: Use BSM1 flow splitting logic
+            # Use BSM1 flow splitting logic
             input_flow = x[14]  # Flow rate is at index 14
             
             # BSM1 logic: split based on internal recycle flow (qintr)
             flow_to_settler = max(input_flow - self.qintr, 0.0)
             flow_to_recycle = self.qintr
-            
-            print(f"    Splitter: Input Q={input_flow:.1f} -> Settler Q={flow_to_settler:.1f}, Recycle Q={flow_to_recycle:.1f}")
             
             # Create output streams with proper flow rates
             out_to_settler = x.copy()
@@ -175,10 +163,7 @@ def make_asm1reactor(node_id: str, params: Dict[str, Any]):
     class ReactorAdapter:
         def __init__(self, impl):
             self.impl = impl
-        def step(self, dt, inputs):
-            # Default step for backwards compatibility
-            return self.step_with_time(dt, 0, inputs)
-        def step_with_time(self, dt, current_step, inputs):
+        def step(self, dt, current_step, inputs):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
             # CRITICAL FIX: Pass the correct current_step instead of hardcoded 0
@@ -197,10 +182,7 @@ def make_settler(node_id: str, params: Dict[str, Any]):
     class SettlerAdapter:
         def __init__(self, impl):
             self.impl = impl
-        def step(self, dt, inputs):
-            # Default step for backwards compatibility
-            return self.step_with_time(dt, 0, inputs)
-        def step_with_time(self, dt, current_step, inputs):
+        def step(self, dt, current_step, inputs):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
             # CRITICAL FIX: Pass the correct current_step instead of hardcoded 0
@@ -223,9 +205,7 @@ def make_primaryclar(node_id: str, params: Dict[str, Any]):
     class PrimClarAdapter:
         def __init__(self, impl):
             self.impl = impl
-        def step(self, dt, inputs):
-            return self.step_with_time(dt, 0, inputs)
-        def step_with_time(self, dt, current_step, inputs):
+        def step(self, dt, current_step, inputs):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
             underflow, overflow, internal = self.impl.output(dt, current_step, y_in)
@@ -242,7 +222,7 @@ def make_thickener(node_id: str, params: Dict[str, Any]):
     class ThickenerAdapter:
         def __init__(self, impl):
             self.impl = impl
-        def step(self, dt, inputs):
+        def step(self, dt, current_step, inputs):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
             underflow, overflow = self.impl.output(y_in)
@@ -262,9 +242,7 @@ def make_adm1(node_id: str, params: Dict[str, Any]):
     class ADM1Adapter:
         def __init__(self, impl):
             self.impl = impl
-        def step(self, dt, inputs):
-            return self.step_with_time(dt, 0, inputs)
-        def step_with_time(self, dt, current_step, inputs):
+        def step(self, dt, current_step, inputs):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
             out0, out1, out2 = self.impl.output(dt, current_step, y_in, None)
@@ -278,7 +256,7 @@ def make_dewatering(node_id: str, params: Dict[str, Any]):
     class DewateringAdapter:
         def __init__(self, impl):
             self.impl = impl
-        def step(self, dt, inputs):
+        def step(self, dt, current_step, inputs):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
             cake, reject = self.impl.output(y_in)
@@ -297,9 +275,7 @@ def make_storage(node_id: str, params: Dict[str, Any]):
         def __init__(self, impl, qstorage):
             self.impl = impl
             self.qstorage = qstorage
-        def step(self, dt, inputs):
-            return self.step_with_time(dt, 0, inputs)
-        def step_with_time(self, dt, current_step, inputs):
+        def step(self, dt, current_step, inputs):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
             out, _ = self.impl.output(dt, current_step, y_in, self.qstorage)
