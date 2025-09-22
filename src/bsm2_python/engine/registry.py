@@ -182,11 +182,18 @@ def make_settler(node_id: str, params: Dict[str, Any]):
     class SettlerAdapter:
         def __init__(self, impl):
             self.impl = impl
+            self.sludge_height = 0.0
+            self.ys_tss_internal = np.zeros(10)
         def step(self, dt, current_step, inputs):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
             # CRITICAL FIX: Pass the correct current_step instead of hardcoded 0
             ras, was, eff, sludge_height, tss_internal = self.impl.output(dt, current_step, y_in)
+            
+            # Store settler outputs for later retrieval
+            self.sludge_height = sludge_height
+            self.ys_tss_internal = tss_internal
+            
             return {
                 "out_sludge_recycle": ras,
                 "out_sludge_waste": was,

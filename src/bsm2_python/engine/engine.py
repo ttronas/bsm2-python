@@ -105,7 +105,7 @@ class SimulationEngine:
 
     def _loop_iterate(self, component_nodes: List[str], internal_order: List[str],
                       tear_edge_ids: List[str], dt: float, current_step: int = 0,
-                      tol: float = 1e-6, max_iter: int = 50, relax: float = 0.5):
+                      tol: float = 1e-8, max_iter: int = 100, relax: float = 0.3):
         
         # Initialize ONLY tear edges with _create_copies equivalent
         for eid in tear_edge_ids:
@@ -169,13 +169,16 @@ class SimulationEngine:
             print(f"\n📊 Using default effluent (no effluent node found)")
             
         # Get settler info if available
-        if settler_node:
-            # Mock settler height for now
-            self.sludge_height = 2.5  # Default value
-            self.ys_tss_internal = np.ones(10) * 3000  # Mock TSS profile
+        if settler_node and hasattr(settler_node.instance, 'sludge_height'):
+            # Get actual values from settler adapter
+            self.sludge_height = settler_node.instance.sludge_height
+            self.ys_tss_internal = settler_node.instance.ys_tss_internal
+            print(f"📊 Settler sludge height: {self.sludge_height}")
+            print(f"📊 Settler TSS internal: {self.ys_tss_internal[:5] if self.ys_tss_internal is not None else 'None'}")
         else:
             self.sludge_height = 0.0
             self.ys_tss_internal = np.zeros(10)
+            print(f"📊 Using default settler values (no settler node or data found)")
             
     def simulate(self):
         """Run simulation and return results compatible with real_json_engine."""
