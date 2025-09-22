@@ -184,30 +184,34 @@ def make_primaryclar(node_id: str, params: Dict[str, Any]):
         activate=params.get("activate", False)
     )
     class PrimClarAdapter:
+        def __init__(self, impl):
+            self.impl = impl
         def step(self, dt, inputs):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
-            underflow, overflow = impl.outputs(dt, 0, y_in)
+            underflow, overflow, internal = self.impl.output(dt, 0, y_in)
             return {
                 "out_primary_sludge": underflow,
                 "out_primary_effluent": overflow
             }
-    return PrimClarAdapter()
+    return PrimClarAdapter(impl)
 
 @register("thickener")
 def make_thickener(node_id: str, params: Dict[str, Any]):
     Thickener = get_thickener()
     impl = Thickener(params["THICKENERPAR"])
     class ThickenerAdapter:
+        def __init__(self, impl):
+            self.impl = impl
         def step(self, dt, inputs):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
-            underflow, overflow = impl.outputs(y_in)
+            underflow, overflow = self.impl.output(y_in)
             return {
                 "out_thickened": underflow,
                 "out_supernatant": overflow
             }
-    return ThickenerAdapter()
+    return ThickenerAdapter(impl)
 
 @register("digester")
 def make_adm1(node_id: str, params: Dict[str, Any]):
@@ -217,24 +221,28 @@ def make_adm1(node_id: str, params: Dict[str, Any]):
         params["INTERFACEPAR"], params["DIM_D"]
     )
     class ADM1Adapter:
+        def __init__(self, impl):
+            self.impl = impl
         def step(self, dt, inputs):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
-            out0, out1, out2 = impl.outputs(dt, 0, y_in, None)
+            out0, out1, out2 = self.impl.output(dt, 0, y_in, None)
             return {"out_digested": out0, "out_gas": out1, "out_liquid": out2}
-    return ADM1Adapter()
+    return ADM1Adapter(impl)
 
 @register("dewatering")
 def make_dewatering(node_id: str, params: Dict[str, Any]):
     Dewatering = get_dewatering()
     impl = Dewatering(params["DEWATERINGPAR"])
     class DewateringAdapter:
+        def __init__(self, impl):
+            self.impl = impl
         def step(self, dt, inputs):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
-            cake, reject = impl.outputs(y_in)
+            cake, reject = self.impl.output(y_in)
             return {"out_cake": cake, "out_filtrate": reject}
-    return DewateringAdapter()
+    return DewateringAdapter(impl)
 
 @register("storage")
 def make_storage(node_id: str, params: Dict[str, Any]):
@@ -245,10 +253,12 @@ def make_storage(node_id: str, params: Dict[str, Any]):
     )
     qstorage = params.get("QSTORAGE", None)
     class StorageAdapter:
-        def __init__(self, qstorage): self.qstorage = qstorage
+        def __init__(self, impl, qstorage):
+            self.impl = impl
+            self.qstorage = qstorage
         def step(self, dt, inputs):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
-            out, _ = impl.output(dt, 0, y_in, self.qstorage)
+            out, _ = self.impl.output(dt, 0, y_in, self.qstorage)
             return {"out_main": out}
-    return StorageAdapter(qstorage)
+    return StorageAdapter(impl, qstorage)

@@ -3,10 +3,10 @@ import json
 from typing import Dict, Any, List
 import numpy as np
 
-from scheduler import schedule, build_graph
-from param_resolver import resolve_params
-from nodes import NodeDC, EdgeRef
-from registry import REGISTRY
+from .scheduler import schedule, build_graph
+from .param_resolver import resolve_params
+from .nodes import NodeDC, EdgeRef
+from .registry import REGISTRY
 
 class SimulationEngine:
     def __init__(self, config: Dict[str, Any]):
