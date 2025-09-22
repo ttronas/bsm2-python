@@ -176,9 +176,13 @@ def make_asm1reactor(node_id: str, params: Dict[str, Any]):
         def __init__(self, impl):
             self.impl = impl
         def step(self, dt, inputs):
+            # Default step for backwards compatibility
+            return self.step_with_time(dt, 0, inputs)
+        def step_with_time(self, dt, current_step, inputs):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
-            y_out = self.impl.output(dt, 0, y_in)  # (dt, step, y_in) — step wird außerhalb geführt
+            # CRITICAL FIX: Pass the correct current_step instead of hardcoded 0
+            y_out = self.impl.output(dt, current_step, y_in)
             return {"out_main": y_out}
     return ReactorAdapter(impl)
 
@@ -194,9 +198,13 @@ def make_settler(node_id: str, params: Dict[str, Any]):
         def __init__(self, impl):
             self.impl = impl
         def step(self, dt, inputs):
+            # Default step for backwards compatibility
+            return self.step_with_time(dt, 0, inputs)
+        def step_with_time(self, dt, current_step, inputs):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
-            ras, was, eff, sludge_height, tss_internal = self.impl.output(dt, 0, y_in)
+            # CRITICAL FIX: Pass the correct current_step instead of hardcoded 0
+            ras, was, eff, sludge_height, tss_internal = self.impl.output(dt, current_step, y_in)
             return {
                 "out_sludge_recycle": ras,
                 "out_sludge_waste": was,
@@ -216,9 +224,11 @@ def make_primaryclar(node_id: str, params: Dict[str, Any]):
         def __init__(self, impl):
             self.impl = impl
         def step(self, dt, inputs):
+            return self.step_with_time(dt, 0, inputs)
+        def step_with_time(self, dt, current_step, inputs):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
-            underflow, overflow, internal = self.impl.output(dt, 0, y_in)
+            underflow, overflow, internal = self.impl.output(dt, current_step, y_in)
             return {
                 "out_primary_sludge": underflow,
                 "out_primary_effluent": overflow
@@ -253,9 +263,11 @@ def make_adm1(node_id: str, params: Dict[str, Any]):
         def __init__(self, impl):
             self.impl = impl
         def step(self, dt, inputs):
+            return self.step_with_time(dt, 0, inputs)
+        def step_with_time(self, dt, current_step, inputs):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
-            out0, out1, out2 = self.impl.output(dt, 0, y_in, None)
+            out0, out1, out2 = self.impl.output(dt, current_step, y_in, None)
             return {"out_digested": out0, "out_gas": out1, "out_liquid": out2}
     return ADM1Adapter(impl)
 
@@ -286,8 +298,10 @@ def make_storage(node_id: str, params: Dict[str, Any]):
             self.impl = impl
             self.qstorage = qstorage
         def step(self, dt, inputs):
+            return self.step_with_time(dt, 0, inputs)
+        def step_with_time(self, dt, current_step, inputs):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
-            out, _ = self.impl.output(dt, 0, y_in, self.qstorage)
+            out, _ = self.impl.output(dt, current_step, y_in, self.qstorage)
             return {"out_main": out}
     return StorageAdapter(impl, qstorage)

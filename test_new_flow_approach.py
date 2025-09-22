@@ -27,7 +27,7 @@ def test_new_flow_approach():
         config = json.load(f)
     
     # Very short simulation for testing
-    config['simulation_settings']['steady_endtime'] = 0.1
+    config['simulation_settings']['steady_endtime'] = 1.0  # 1 day instead of 0.1
     
     try:
         engine = SimulationEngine(config)

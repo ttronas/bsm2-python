@@ -96,7 +96,7 @@ class SimulationEngine:
                 # DEBUG: Show flow changes
                 print(f"    Output {src_handle}: Q {old_flow:.1f} -> {new_flow:.1f}")
 
-    def _sweep_order(self, node_ids: List[str], dt: float):
+    def _sweep_order(self, node_ids: List[str], dt: float, current_step: int = 0):
         print(f"\n🔄 Sweeping nodes in order: {node_ids}")
         for nid in node_ids:
             print(f"\n  Processing node: {nid} ({self.nodes[nid].component_type_id})")
@@ -108,7 +108,11 @@ class SimulationEngine:
                 print(f"    WARNING: No inputs for {nid}")
             
             try:
-                outputs = inst.step(dt, inputs) or {}
+                # CRITICAL FIX: Pass current_step to components that need it (like reactors)
+                if hasattr(inst, 'step_with_time'):
+                    outputs = inst.step_with_time(dt, current_step, inputs) or {}
+                else:
+                    outputs = inst.step(dt, inputs) or {}
                 print(f"    Step completed, outputs: {list(outputs.keys())}")
                 self._write_outputs(nid, outputs)
             except Exception as e:
@@ -117,7 +121,7 @@ class SimulationEngine:
                 raise
 
     def _loop_iterate(self, component_nodes: List[str], internal_order: List[str],
-                      tear_edge_ids: List[str], dt: float,
+                      tear_edge_ids: List[str], dt: float, current_step: int = 0,
                       tol: float = 1e-6, max_iter: int = 50, relax: float = 0.5):
         print(f"\n🔁 Starting loop iteration for nodes: {component_nodes}")
         print(f"   Internal order: {internal_order}")
@@ -139,7 +143,7 @@ class SimulationEngine:
         for iteration in range(max_iter):
             print(f"\n  Loop iteration {iteration + 1}/{max_iter}")
             prev = {eid: self.edge_values[eid].copy() for eid in tear_edge_ids}
-            self._sweep_order(internal_order, dt)
+            self._sweep_order(internal_order, dt, current_step)
             
             # Check convergence and relax
             max_res = 0.0
@@ -157,14 +161,14 @@ class SimulationEngine:
         else:
             print(f"  ⚠ Did not converge after {max_iter} iterations")
 
-    def step_steady(self, dt: float):
-        print(f"\n▶ Starting step with dt={dt}")
+    def step_steady(self, dt: float, current_step: int = 0):
+        print(f"\n▶ Starting step with dt={dt}, step={current_step}")
         for i, st in enumerate(self.plan["stages"]):
             print(f"\n📋 Executing Stage {i}: {st['type'].upper()}")
             if st["type"] == "acyclic":
-                self._sweep_order(st["order"], dt)
+                self._sweep_order(st["order"], dt, current_step)
             else:
-                self._loop_iterate(st["nodes"], st["internal_order"], st["tear_edges"], dt)
+                self._loop_iterate(st["nodes"], st["internal_order"], st["tear_edges"], dt, current_step)
 
     def simulate_steady(self, timestep: float, endtime: float):
         steps = int(round(endtime / timestep))
@@ -180,12 +184,12 @@ class SimulationEngine:
             print(f"\n{'='*60}")
             print(f"SIMULATION STEP {i+1}/{steps} (t={i*timestep:.4f} days)")
             print(f"{'='*60}")
-            self.step_steady(timestep)
+            self.step_steady(timestep, i)
             
-            # Stop early if there are numerical issues
-            if i >= 2:  # Allow a few steps for debugging
-                print(f"\n⏹ Stopping early after {i+1} steps for debugging")
-                break
+            # Stop early if there are numerical issues - REMOVED, now that step parameter is fixed
+            # if i >= 2:  # Allow a few steps for debugging
+            #     print(f"\n⏹ Stopping early after {i+1} steps for debugging")
+            #     break
             
         # Extract final results for compatibility
         effluent_node = None
