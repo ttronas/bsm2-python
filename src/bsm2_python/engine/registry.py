@@ -106,37 +106,62 @@ def make_combiner(node_id: str, params: Dict[str, Any]):
     impl = Combiner()
     class CombinerAdapter:
         def step(self, dt, inputs):
-            # Reicht alle vorhandenen Eingänge an Combiner weiter
-            # Erwartet Summation über beliebige Anzahl Ströme
-            flows = [v for _, v in sorted(inputs.items())]
-            y = _sum_vectors(flows)
-            # Falls Combiner eine Methode erfordert, hier anpassen
-            return {"out_combined": y}
+            # DEBUG: Show what flows are being combined
+            print(f"    Combiner inputs:")
+            for name, flow in inputs.items():
+                if flow is not None:
+                    print(f"      {name}: Q={flow[14]:.1f}")
+                else:
+                    print(f"      {name}: None")
+            
+            # Use BSM2 Combiner.output which does the right flow combination
+            flows = [v for _, v in sorted(inputs.items()) if v is not None]
+            if len(flows) == 0:
+                return {"out_combined": np.zeros(21)}
+            elif len(flows) == 1:
+                result = flows[0].copy()
+            else:
+                # Call the real BSM2 Combiner.output method
+                result = impl.output(*flows)
+            
+            print(f"    Combiner result: Q={result[14]:.1f}")
+            return {"out_combined": result}
     return CombinerAdapter()
 
 @register("splitter")
 def make_splitter(node_id: str, params: Dict[str, Any]):
     Splitter = get_splitter()
     impl = Splitter()
-    fractions = params.get("fractions", (0.5, 0.5))
-    q_bypass = params.get("q_bypass", None)
+    # Get the qintr parameter - this is critical for BSM1 flow splitting
+    qintr = params.get("qintr", 0.0)
+    print(f"🔧 Splitter {node_id} initialized with qintr={qintr}")
+    
     class SplitterAdapter:
-        def __init__(self, impl, fractions, q_bypass):
+        def __init__(self, impl, qintr):
             self.impl = impl
-            self.fractions = fractions
-            self.q_bypass = q_bypass
+            self.qintr = float(qintr) if qintr is not None else 0.0
         def step(self, dt, inputs):
             x = inputs.get("in_main")
             if x is None: return {}
-            # Splitter returns a list, not tuple
-            result_list = self.impl.output(x, self.fractions, self.q_bypass or 0)
-            if len(result_list) >= 2:
-                a, b = result_list[0], result_list[1]
-            else:
-                a, b = result_list[0] if result_list else x, x
-            # Map to different output handles
-            return {"out_to_settler": a, "out_recycle_to_combiner": b}
-    return SplitterAdapter(impl, fractions, q_bypass)
+            
+            # CRITICAL FIX: Use BSM1 flow splitting logic
+            input_flow = x[14]  # Flow rate is at index 14
+            
+            # BSM1 logic: split based on internal recycle flow (qintr)
+            flow_to_settler = max(input_flow - self.qintr, 0.0)
+            flow_to_recycle = self.qintr
+            
+            print(f"    Splitter: Input Q={input_flow:.1f} -> Settler Q={flow_to_settler:.1f}, Recycle Q={flow_to_recycle:.1f}")
+            
+            # Create output streams with proper flow rates
+            out_to_settler = x.copy()
+            out_to_settler[14] = flow_to_settler
+            
+            out_to_recycle = x.copy() 
+            out_to_recycle[14] = flow_to_recycle
+            
+            return {"out_to_settler": out_to_settler, "out_recycle_to_combiner": out_to_recycle}
+    return SplitterAdapter(impl, qintr)
 
 @register("reactor")
 def make_asm1reactor(node_id: str, params: Dict[str, Any]):

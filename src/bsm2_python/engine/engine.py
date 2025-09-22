@@ -54,54 +54,15 @@ class SimulationEngine:
                 raise KeyError(f"No factory registered for component_type_id={nd.component_type_id}")
             nd.instance = factory(nid, params)
 
-        # Kantenpuffer - FIXED: Initialize all edges with proper default values
+        # Kantenpuffer - NEW APPROACH: Only initialize tear edges, others start as zeros
         self.edge_values: Dict[str, np.ndarray] = {}
         
         # Schnelle Edge-Indexe pro Node
         _, _, _, _, self.in_edges_by_node, self.out_edges_by_node = build_graph(config["nodes"], config["edges"])
         
-        # CRITICAL FIX: Initialize ALL edges with realistic flow values
-        self._initialize_all_flows()
+        # NEW: Only initialize tear edges during loop iteration, not all edges upfront
+        print(f"\n🔍 DEBUG: Edge initialization strategy changed - only tear edges will be initialized")
 
-    def _initialize_all_flows(self):
-        """Initialize all edge flows with realistic default values like BSM1Base._create_copies"""
-        print(f"\n🔍 DEBUG: Initializing flows for {len(self.config['edges'])} edges")
-        
-        # Default influent composition - same as BSM1 test data
-        default_composition = np.array([
-            30, 69.5, 51.2, 202.32, 28.17, 0, 0, 0, 0, 31.56, 6.95, 10.59, 7, 
-            211.2675, 18446, 15, 0, 0, 0, 0, 0
-        ], dtype=float)
-        
-        # Default low-flow composition for recycle streams (like BSM1Base initial conditions)
-        low_flow_composition = default_composition.copy()
-        low_flow_composition[14] = 100.0  # Start with very low flow rate for recycles
-        
-        for edge in self.config["edges"]:
-            edge_id = edge["id"]
-            source_id = edge["source_node_id"]
-            target_id = edge["target_node_id"]
-            
-            # Identify recycle streams and initialize them with low flows
-            is_recycle_stream = (
-                "recycle" in edge_id.lower() or 
-                "return" in edge_id.lower() or
-                (source_id == "splitter" and "combiner" in target_id) or
-                (source_id == "settler" and "combiner" in target_id)
-            )
-            
-            if is_recycle_stream:
-                # Initialize recycle streams with low flow rates like the class implementation
-                self.edge_values[edge_id] = low_flow_composition.copy()
-                print(f"  Edge {edge_id}: {source_id} -> {target_id} "
-                      f"(RECYCLE) initialized with low flow Q={self.edge_values[edge_id][14]:.1f}")
-            else:
-                # Initialize normal streams with default composition
-                self.edge_values[edge_id] = default_composition.copy()
-                print(f"  Edge {edge_id}: {source_id} -> {target_id} "
-                      f"initialized with flow Q={self.edge_values[edge_id][14]:.1f}")
-        
-        print(f"✓ All {len(self.edge_values)} edges initialized with proper flow values")
 
     @classmethod
     def from_json(cls, path: str):
@@ -112,11 +73,17 @@ class SimulationEngine:
     def _collect_inputs(self, nid: str) -> Dict[str, np.ndarray]:
         inputs: Dict[str, np.ndarray] = {}
         for e in self.in_edges_by_node[nid]:
-            val = self.edge_values.get(e["id"])
+            edge_id = e["id"]
+            val = self.edge_values.get(edge_id)
             if val is not None:
                 inputs[e["target_handle_id"]] = val
                 # DEBUG: Show what inputs are being collected
                 print(f"    Input {e['target_handle_id']}: Q={val[14]:.1f}, TSS={val[13]:.1f}")
+            else:
+                # Initialize non-tear edges with zeros when first accessed
+                self.edge_values[edge_id] = np.zeros(21, dtype=float)
+                inputs[e["target_handle_id"]] = self.edge_values[edge_id]
+                print(f"    Input {e['target_handle_id']}: initialized with zeros")
         return inputs
 
     def _write_outputs(self, nid: str, outputs: Dict[str, np.ndarray]):
@@ -156,16 +123,18 @@ class SimulationEngine:
         print(f"   Internal order: {internal_order}")
         print(f"   Tear edges: {tear_edge_ids}")
         
-        # Enhanced initial guess for tear edges - use realistic values instead of zeros
+        # NEW APPROACH: Initialize ONLY tear edges with _create_copies equivalent
         for eid in tear_edge_ids:
             if eid not in self.edge_values:
-                # Use default composition instead of zeros
-                default_composition = np.array([
+                # Use BSM1Base._create_copies approach - copy from first influent
+                # This is equivalent to what BSM1Base does with self.y_in[0]
+                influent_composition = np.array([
                     30, 69.5, 51.2, 202.32, 28.17, 0, 0, 0, 0, 31.56, 6.95, 10.59, 7, 
                     211.2675, 18446, 15, 0, 0, 0, 0, 0
                 ], dtype=float)
-                self.edge_values[eid] = default_composition.copy()
-                print(f"   Initialized tear edge {eid} with realistic values (Q={default_composition[14]})")
+                # Create a copy like BSM1Base._create_copies does
+                self.edge_values[eid] = influent_composition.copy()
+                print(f"   Initialized tear edge {eid} with _create_copies approach (Q={influent_composition[14]})")
                 
         for iteration in range(max_iter):
             print(f"\n  Loop iteration {iteration + 1}/{max_iter}")
