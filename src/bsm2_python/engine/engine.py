@@ -37,7 +37,7 @@ class SimulationEngine:
         self.plan = schedule(config)
         
         # DEBUG: Print execution plan
-        print(f"\n🔍 DEBUG: Execution Plan:")
+        # print(f"\n🔍 DEBUG: Execution Plan:")
         for i, stage in enumerate(self.plan["stages"]):
             if stage["type"] == "acyclic":
                 print(f"  Stage {i}: ACYCLIC - Order: {stage['order']}")
@@ -61,7 +61,7 @@ class SimulationEngine:
         _, _, _, _, self.in_edges_by_node, self.out_edges_by_node = build_graph(config["nodes"], config["edges"])
         
         # NEW: Only initialize tear edges during loop iteration, not all edges upfront
-        print(f"\n🔍 DEBUG: Edge initialization strategy changed - only tear edges will be initialized")
+        # print(f"\n🔍 DEBUG: Edge initialization strategy changed - only tear edges will be initialized")
 
 
     @classmethod

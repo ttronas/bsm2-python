@@ -246,15 +246,25 @@ def make_adm1(node_id: str, params: Dict[str, Any]):
         params["DIGESTERINIT"], params["DIGESTERPAR"],
         params["INTERFACEPAR"], params["DIM_D"]
     )
+    
+    # Get the operational temperature parameter from reginit_bsm2
+    try:
+        import bsm2_python.bsm2.init.reginit_bsm2 as reginit
+        t_op = reginit.T_OP  # 35 + 273.15 K (operational temperature)
+    except:
+        t_op = 308.15  # Fallback: 35°C + 273.15 = 308.15 K
+    
     class ADM1Adapter:
-        def __init__(self, impl):
+        def __init__(self, impl, t_op):
             self.impl = impl
+            self.t_op = t_op
         def step(self, dt, current_step, inputs):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
-            out0, out1, out2 = self.impl.output(dt, current_step, y_in, None)
+            # CRITICAL FIX: Pass correct t_op temperature parameter instead of None
+            out0, out1, out2 = self.impl.output(dt, current_step, y_in, self.t_op)
             return {"out_digested": out0, "out_gas": out1, "out_liquid": out2}
-    return ADM1Adapter(impl)
+    return ADM1Adapter(impl, t_op)
 
 @register("dewatering")
 def make_dewatering(node_id: str, params: Dict[str, Any]):
@@ -277,7 +287,15 @@ def make_storage(node_id: str, params: Dict[str, Any]):
         params["VOL_S"], params["ystinit"],
         params.get("tempmodel", False), params.get("activate", False)
     )
+    # Get QSTORAGE from parameters or use reginit default
     qstorage = params.get("QSTORAGE", None)
+    if qstorage is None:
+        try:
+            import bsm2_python.bsm2.init.reginit_bsm2 as reginit
+            qstorage = reginit.QSTORAGE  # Default is 0
+        except:
+            qstorage = 0  # Fallback default
+    
     class StorageAdapter:
         def __init__(self, impl, qstorage):
             self.impl = impl
