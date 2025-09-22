@@ -90,9 +90,13 @@ def make_influent(node_id: str, params: Dict[str, Any]):
 @register("effluent")
 def make_effluent(node_id: str, params: Dict[str, Any]):
     class EffluentAdapter:
-        def __init__(self): self.last = None
+        def __init__(self): 
+            self.last = None
         def step(self, dt, inputs):
-            self.last = inputs.get("in_main")
+            # Store the last input for retrieval
+            main_input = inputs.get("in_main")
+            if main_input is not None:
+                self.last = main_input.copy()
             return {}
     return EffluentAdapter()
 
