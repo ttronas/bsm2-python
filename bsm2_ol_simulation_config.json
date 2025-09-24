@@ -25,6 +25,32 @@
     },
 
     {
+      "id": "input_splitter", 
+      "component_type_id": "splitter",
+      "label": "Input Bypass Splitter",
+      "parameters": {
+        "fractions": [1.0, 0.0],
+        "q_bypass": 60000
+      }
+    },
+
+    {
+      "id": "bypass_plant",
+      "component_type_id": "splitter", 
+      "label": "Plant Bypass Splitter",
+      "parameters": {
+        "fractions": [0.0, 1.0]
+      }
+    },
+
+    {
+      "id": "combiner_primclar_pre",
+      "component_type_id": "combiner",
+      "label": "Primary Clarifier Pre-Combiner",
+      "parameters": {}
+    },
+
+    {
       "id": "primaryclar",
       "component_type_id": "primary_clarifier",
       "label": "Primary Clarifier",
@@ -40,9 +66,25 @@
     },
 
     {
-      "id": "combiner_main",
+      "id": "combiner_primclar_post",
       "component_type_id": "combiner",
-      "label": "Main Combiner",
+      "label": "Primary Clarifier Post-Combiner",
+      "parameters": {}
+    },
+
+    {
+      "id": "bypass_reactor",
+      "component_type_id": "splitter",
+      "label": "Reactor Bypass Splitter", 
+      "parameters": {
+        "fractions": [1.0, 0.0]
+      }
+    },
+
+    {
+      "id": "combiner_reactor",
+      "component_type_id": "combiner",
+      "label": "Reactor Combiner",
       "parameters": {}
     },
 
@@ -51,12 +93,12 @@
       "component_type_id": "reactor",
       "label": "Reactor 1",
       "parameters": {
-        "KLA": "asm1init.KLA1",
+        "KLA": "reginit.KLA1",
         "VOL": "asm1init.VOL1",
         "YINIT": "asm1init.YINIT1",
         "PAR": "asm1init.PAR1",
-        "CARB": "asm1init.CARB1",
-        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
+        "CARB": "reginit.CARB1",
+        "CARBONSOURCECONC": "reginit.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
       }
@@ -66,12 +108,12 @@
       "component_type_id": "reactor",
       "label": "Reactor 2",
       "parameters": {
-        "KLA": "asm1init.KLA2",
+        "KLA": "reginit.KLA2",
         "VOL": "asm1init.VOL2",
         "YINIT": "asm1init.YINIT2",
         "PAR": "asm1init.PAR2",
-        "CARB": "asm1init.CARB2",
-        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
+        "CARB": "reginit.CARB2",
+        "CARBONSOURCECONC": "reginit.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
       }
@@ -81,12 +123,12 @@
       "component_type_id": "reactor",
       "label": "Reactor 3",
       "parameters": {
-        "KLA": "asm1init.KLA3",
+        "KLA": "reginit.KLA3",
         "VOL": "asm1init.VOL3",
         "YINIT": "asm1init.YINIT3",
         "PAR": "asm1init.PAR3",
-        "CARB": "asm1init.CARB3",
-        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
+        "CARB": "reginit.CARB3",
+        "CARBONSOURCECONC": "reginit.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
       }
@@ -96,12 +138,12 @@
       "component_type_id": "reactor",
       "label": "Reactor 4",
       "parameters": {
-        "KLA": "asm1init.KLA4",
+        "KLA": "reginit.KLA4",
         "VOL": "asm1init.VOL4",
         "YINIT": "asm1init.YINIT4",
         "PAR": "asm1init.PAR4",
-        "CARB": "asm1init.CARB4",
-        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
+        "CARB": "reginit.CARB4",
+        "CARBONSOURCECONC": "reginit.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
       }
@@ -111,21 +153,21 @@
       "component_type_id": "reactor",
       "label": "Reactor 5",
       "parameters": {
-        "KLA": "asm1init.KLA5",
+        "KLA": "reginit.KLA5",
         "VOL": "asm1init.VOL5",
         "YINIT": "asm1init.YINIT5",
         "PAR": "asm1init.PAR5",
-        "CARB": "asm1init.CARB5",
-        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
+        "CARB": "reginit.CARB5",
+        "CARBONSOURCECONC": "reginit.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
       }
     },
 
     {
-      "id": "splitter_main",
+      "id": "splitter_reactor",
       "component_type_id": "splitter",
-      "label": "Main Splitter",
+      "label": "Reactor Output Splitter",
       "parameters": {
         "qintr": "asm1init.QINTR"
       }
@@ -149,22 +191,21 @@
     },
 
     {
-      "id": "effluent",
-      "component_type_id": "effluent",
-      "label": "Effluent",
+      "id": "combiner_effluent",
+      "component_type_id": "combiner",
+      "label": "Effluent Combiner",
       "parameters": {}
     },
 
     {
-      "id": "ps_thickener",
-      "component_type_id": "thickener",
-      "label": "Primary Sludge Thickener",
-      "parameters": {
-        "THICKENERPAR": "thickenerinit.THICKENERPAR"
-      }
+      "id": "effluent",
+      "component_type_id": "effluent",
+      "label": "Final Effluent",
+      "parameters": {}
     },
+
     {
-      "id": "was_thickener",
+      "id": "thickener",
       "component_type_id": "thickener",
       "label": "WAS Thickener",
       "parameters": {
@@ -173,14 +214,23 @@
     },
 
     {
-      "id": "sludge_combiner",
+      "id": "splitter_thickener",
+      "component_type_id": "splitter",
+      "label": "Thickener Output Splitter",
+      "parameters": {
+        "fractions": [1.0, 0.0]
+      }
+    },
+
+    {
+      "id": "combiner_adm1",
       "component_type_id": "combiner",
-      "label": "Sludge Combiner",
+      "label": "ADM1 Combiner",
       "parameters": {}
     },
 
     {
-      "id": "digester",
+      "id": "adm1_reactor",
       "component_type_id": "digester",
       "label": "Anaerobic Digester (ADM1)",
       "parameters": {
@@ -213,11 +263,14 @@
     },
 
     {
-      "id": "gas_sink",
-      "component_type_id": "effluent",
-      "label": "Biogas Sink",
-      "parameters": {}
+      "id": "splitter_storage",
+      "component_type_id": "splitter",
+      "label": "Storage Output Splitter",
+      "parameters": {
+        "fractions": [1.0, 0.0]
+      }
     },
+
     {
       "id": "sludge_sink",
       "component_type_id": "effluent",
@@ -226,32 +279,80 @@
     },
 
     {
-      "id": "sidestream_combiner",
-      "component_type_id": "combiner",
-      "label": "Sidestream Combiner",
+      "id": "biogas_sink",
+      "component_type_id": "effluent",
+      "label": "Biogas Sink",
       "parameters": {}
     }
   ],
   "edges": [
     {
-      "id": "e_influent_to_pc",
+      "id": "e_influent_to_splitter",
       "source_node_id": "influent_s",
       "source_handle_id": "out_main",
+      "target_node_id": "input_splitter",
+      "target_handle_id": "in_main"
+    },
+
+    {
+      "id": "e_splitter_to_bypass",
+      "source_node_id": "input_splitter",
+      "source_handle_id": "out_b",
+      "target_node_id": "bypass_plant",
+      "target_handle_id": "in_main"
+    },
+
+    {
+      "id": "e_splitter_to_pc_comb",
+      "source_node_id": "input_splitter",
+      "source_handle_id": "out_a",
+      "target_node_id": "combiner_primclar_pre",
+      "target_handle_id": "in_fresh"
+    },
+
+    {
+      "id": "e_pc_comb_to_pc",
+      "source_node_id": "combiner_primclar_pre",
+      "source_handle_id": "out_combined",
       "target_node_id": "primaryclar",
       "target_handle_id": "in_main"
     },
 
     {
-      "id": "e_pc_to_comb",
+      "id": "e_pc_to_post_comb",
       "source_node_id": "primaryclar",
       "source_handle_id": "out_primary_effluent",
-      "target_node_id": "combiner_main",
+      "target_node_id": "combiner_primclar_post",
       "target_handle_id": "in_fresh"
     },
 
     {
-      "id": "e_comb_to_r1",
-      "source_node_id": "combiner_main",
+      "id": "e_bypass_to_post_comb",
+      "source_node_id": "bypass_plant",
+      "source_handle_id": "out_a",
+      "target_node_id": "combiner_primclar_post",
+      "target_handle_id": "in_recycle_process"
+    },
+
+    {
+      "id": "e_post_comb_to_bypass_reactor",
+      "source_node_id": "combiner_primclar_post",
+      "source_handle_id": "out_combined",
+      "target_node_id": "bypass_reactor",
+      "target_handle_id": "in_main"
+    },
+
+    {
+      "id": "e_bypass_reactor_to_combiner",
+      "source_node_id": "bypass_reactor",
+      "source_handle_id": "out_a",
+      "target_node_id": "combiner_reactor",
+      "target_handle_id": "in_fresh"
+    },
+
+    {
+      "id": "e_combiner_to_r1",
+      "source_node_id": "combiner_reactor",
       "source_handle_id": "out_combined",
       "target_node_id": "reactor1",
       "target_handle_id": "in_main"
@@ -286,93 +387,133 @@
     },
 
     {
-      "id": "e_r5_to_split",
+      "id": "e_r5_to_splitter",
       "source_node_id": "reactor5",
       "source_handle_id": "out_main",
-      "target_node_id": "splitter_main",
+      "target_node_id": "splitter_reactor",
       "target_handle_id": "in_main"
     },
 
     {
-      "id": "e_split_to_settler",
-      "source_node_id": "splitter_main",
+      "id": "e_splitter_to_settler",
+      "source_node_id": "splitter_reactor",
       "source_handle_id": "out_to_settler",
       "target_node_id": "settler",
       "target_handle_id": "in_main"
     },
+
     {
-      "id": "e_settler_to_eff",
-      "source_node_id": "settler",
-      "source_handle_id": "out_effluent",
-      "target_node_id": "effluent",
-      "target_handle_id": "in_main"
-    },
-    {
-      "id": "e_intr_to_comb",
-      "source_node_id": "splitter_main",
+      "id": "e_recycle_to_combiner",
+      "source_node_id": "splitter_reactor",
       "source_handle_id": "out_recycle_to_combiner",
-      "target_node_id": "combiner_main",
+      "target_node_id": "combiner_reactor",
       "target_handle_id": "in_recycle_process"
     },
+
     {
-      "id": "e_ras_to_comb",
+      "id": "e_ras_to_combiner",
       "source_node_id": "settler",
       "source_handle_id": "out_sludge_recycle",
-      "target_node_id": "combiner_main",
+      "target_node_id": "combiner_reactor",
       "target_handle_id": "in_recycle_settler"
     },
 
     {
-      "id": "e_ps_to_psthick",
-      "source_node_id": "primaryclar",
-      "source_handle_id": "out_primary_sludge",
-      "target_node_id": "ps_thickener",
-      "target_handle_id": "in_main"
-    },
-    {
-      "id": "e_was_to_wasthick",
+      "id": "e_settler_to_eff_comb",
       "source_node_id": "settler",
-      "source_handle_id": "out_sludge_waste",
-      "target_node_id": "was_thickener",
-      "target_handle_id": "in_main"
-    },
-
-    {
-      "id": "e_psthick_to_scomb",
-      "source_node_id": "ps_thickener",
-      "source_handle_id": "out_thickened",
-      "target_node_id": "sludge_combiner",
+      "source_handle_id": "out_effluent",
+      "target_node_id": "combiner_effluent",
       "target_handle_id": "in_fresh"
     },
+
     {
-      "id": "e_wasthick_to_scomb",
-      "source_node_id": "was_thickener",
-      "source_handle_id": "out_thickened",
-      "target_node_id": "sludge_combiner",
+      "id": "e_bypass_reactor_to_eff_comb",
+      "source_node_id": "bypass_reactor",
+      "source_handle_id": "out_b",
+      "target_node_id": "combiner_effluent",
       "target_handle_id": "in_recycle_process"
     },
+
     {
-      "id": "e_scomb_to_dig",
-      "source_node_id": "sludge_combiner",
+      "id": "e_bypass_plant_to_eff_comb",
+      "source_node_id": "bypass_plant",
+      "source_handle_id": "out_b",
+      "target_node_id": "combiner_effluent",
+      "target_handle_id": "in_recycle_settler"
+    },
+
+    {
+      "id": "e_eff_comb_to_eff",
+      "source_node_id": "combiner_effluent",
       "source_handle_id": "out_combined",
-      "target_node_id": "digester",
+      "target_node_id": "effluent",
       "target_handle_id": "in_main"
     },
 
     {
-      "id": "e_dig_to_dew",
-      "source_node_id": "digester",
+      "id": "e_was_to_thickener",
+      "source_node_id": "settler",
+      "source_handle_id": "out_sludge_waste",
+      "target_node_id": "thickener",
+      "target_handle_id": "in_main"
+    },
+
+    {
+      "id": "e_thickener_to_splitter",
+      "source_node_id": "thickener",
+      "source_handle_id": "out_thickened",
+      "target_node_id": "splitter_thickener",
+      "target_handle_id": "in_main"
+    },
+
+    {
+      "id": "e_thick_split_to_adm1_comb",
+      "source_node_id": "splitter_thickener",
+      "source_handle_id": "out_a",
+      "target_node_id": "combiner_adm1",
+      "target_handle_id": "in_fresh"
+    },
+
+    {
+      "id": "e_ps_to_adm1_comb",
+      "source_node_id": "primaryclar",
+      "source_handle_id": "out_primary_sludge",
+      "target_node_id": "combiner_adm1",
+      "target_handle_id": "in_recycle_process"
+    },
+
+    {
+      "id": "e_adm1_comb_to_adm1",
+      "source_node_id": "combiner_adm1",
+      "source_handle_id": "out_combined",
+      "target_node_id": "adm1_reactor",
+      "target_handle_id": "in_main"
+    },
+
+    {
+      "id": "e_adm1_to_dew",
+      "source_node_id": "adm1_reactor",
       "source_handle_id": "out_digested",
       "target_node_id": "dewatering",
       "target_handle_id": "in_main"
     },
+
     {
-      "id": "e_dew_to_cake_sink",
+      "id": "e_adm1_gas_to_sink",
+      "source_node_id": "adm1_reactor",
+      "source_handle_id": "out_gas",
+      "target_node_id": "biogas_sink",
+      "target_handle_id": "in_main"
+    },
+
+    {
+      "id": "e_dew_to_sludge_sink",
       "source_node_id": "dewatering",
       "source_handle_id": "out_cake",
       "target_node_id": "sludge_sink",
       "target_handle_id": "in_main"
     },
+
     {
       "id": "e_dew_to_storage",
       "source_node_id": "dewatering",
@@ -380,33 +521,28 @@
       "target_node_id": "storage",
       "target_handle_id": "in_main"
     },
+
     {
-      "id": "e_storage_to_side",
+      "id": "e_storage_to_splitter",
       "source_node_id": "storage",
       "source_handle_id": "out_main",
-      "target_node_id": "sidestream_combiner",
-      "target_handle_id": "in_fresh"
+      "target_node_id": "splitter_storage",
+      "target_handle_id": "in_main"
     },
 
     {
-      "id": "e_psthick_to_side",
-      "source_node_id": "ps_thickener",
-      "source_handle_id": "out_supernatant",
-      "target_node_id": "sidestream_combiner",
+      "id": "e_storage_split_to_pc_pre",
+      "source_node_id": "splitter_storage",
+      "source_handle_id": "out_a",
+      "target_node_id": "combiner_primclar_pre",
       "target_handle_id": "in_recycle_process"
     },
+
     {
-      "id": "e_wasthick_to_side",
-      "source_node_id": "was_thickener",
+      "id": "e_thick_overflow_to_pc_pre",
+      "source_node_id": "thickener",
       "source_handle_id": "out_supernatant",
-      "target_node_id": "sidestream_combiner",
-      "target_handle_id": "in_recycle_settler"
-    },
-    {
-      "id": "e_side_to_comb",
-      "source_node_id": "sidestream_combiner",
-      "source_handle_id": "out_combined",
-      "target_node_id": "combiner_main",
+      "target_node_id": "combiner_primclar_pre",
       "target_handle_id": "in_recycle_settler"
     }
   ]
