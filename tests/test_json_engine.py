@@ -53,7 +53,7 @@ def run_json_bsm1_test():
     from bsm2_python.engine.engine import SimulationEngine
     
     # Load BSM1 configuration
-    config_path = '/home/runner/work/bsm2-python/bsm2-python/bsm1_simulation_config.json'
+    config_path = '/home/runner/work/bsm2-python/bsm2-python/bsm1_ol_config.json'
     with open(config_path, 'r') as f:
         config = json.load(f)
     
@@ -72,7 +72,7 @@ def run_json_bsm2_test():
     from bsm2_python.engine.engine import SimulationEngine
     
     # Load BSM2 configuration
-    config_path = '/home/runner/work/bsm2-python/bsm2-python/bsm2_ol_simulation_config.json'
+    config_path = '/home/runner/work/bsm2-python/bsm2-python/bsm2_ol_config.json'
     with open(config_path, 'r') as f:
         config = json.load(f)
     
