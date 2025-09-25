@@ -273,7 +273,7 @@
       "component_type_id": "splitter",
       "label": "Reactor Splitter",
       "parameters": {
-        "mode": "internal_recycle",
+        "mode": "split_ratio",
         "qintr": "asm1init.QINTR"
       },
       "data": {

@@ -140,7 +140,7 @@ def make_splitter(node_id: str, params: Dict[str, Any]):
     
     Splitter = get_splitter()
     
-    # Handle mode-based splitter configuration - remove backward compatibility
+    # Handle mode-based splitter configuration - only threshold and split_ratio modes
     mode = params.get("mode", "split_ratio")  # Default to split_ratio mode
     
     if mode == "threshold":
@@ -169,44 +169,13 @@ def make_splitter(node_id: str, params: Dict[str, Any]):
                 
         return ThresholdSplitterAdapter(impl, threshold, target)
     
-    elif mode == "internal_recycle":
-        # BSM1/BSM2 reactor internal recycle logic
-        impl = Splitter(sp_type=1)
-        qintr = resolve_value(params.get("qintr", 55338.0))  # Default QINTR value
-        
-        class InternalRecycleSplitterAdapter:
-            def __init__(self, impl, qintr):
-                self.impl = impl
-                self.qintr = float(qintr)
-                
-            def step(self, dt, current_step, inputs):
-                x = inputs.get("in_main")
-                if x is None: return {}
-                
-                # BSM reactor recycle: split based on internal recycle flow
-                input_flow = x[14]  # Q is at index 14
-                if input_flow <= 0:
-                    return {"out_to_settler": x * 0, "out_recycle_to_combiner": x * 0}
-                
-                # Calculate flows: recycle gets fixed qintr, rest goes to settler
-                flow_to_settler = max(input_flow - self.qintr, 0.0)
-                flow_to_recycle = min(self.qintr, input_flow)
-                
-                # Create output streams
-                out_to_settler = x.copy()
-                out_to_settler[14] = flow_to_settler
-                
-                out_to_recycle = x.copy()
-                out_to_recycle[14] = flow_to_recycle
-                
-                return {"out_to_settler": out_to_settler, "out_recycle_to_combiner": out_to_recycle}
-                
-        return InternalRecycleSplitterAdapter(impl, qintr)
-    
     else:  # mode == "split_ratio" or default
-        # Standard splitter with split ratios (absolute flows or fractions)
+        # Standard splitter with split ratios - handles both regular splitting and recycle logic
         impl = Splitter(sp_type=1)
         splitratio = params.get("splitratio", [0.5, 0.5])
+        
+        # Support special case for internal recycle via parameters
+        qintr = params.get("qintr", None)
         
         # Resolve parameter references in splitratio
         if isinstance(splitratio, list):
@@ -216,28 +185,51 @@ def make_splitter(node_id: str, params: Dict[str, Any]):
             splitratio = tuple(resolved_ratio)
         
         class SplitRatioSplitterAdapter:
-            def __init__(self, impl, splitratio):
+            def __init__(self, impl, splitratio, qintr):
                 self.impl = impl
                 self.splitratio = splitratio
+                self.qintr = float(resolve_value(qintr)) if qintr is not None else None
                 
             def step(self, dt, current_step, inputs):
                 x = inputs.get("in_main")
                 if x is None: return {}
                 
-                try:
-                    # Use BSM2 splitter logic with ratios
-                    outputs = self.impl.output(x, self.splitratio)
-                    result = {}
-                    if len(outputs) >= 1:
-                        result["out_a"] = outputs[0]
-                    if len(outputs) >= 2:
-                        result["out_b"] = outputs[1]
-                    return result
-                except Exception as e:
-                    # Fallback for edge cases
-                    return {"out_a": x * 0.5, "out_b": x * 0.5}
+                # Special handling for reactor recycle if qintr is specified
+                if self.qintr is not None:
+                    # BSM reactor recycle: split based on internal recycle flow
+                    input_flow = x[14]  # Q is at index 14
+                    if input_flow <= 0:
+                        return {"out_to_settler": x * 0, "out_recycle_to_combiner": x * 0}
+                    
+                    # Calculate flows: recycle gets fixed qintr, rest goes to settler
+                    flow_to_settler = max(input_flow - self.qintr, 0.0)
+                    flow_to_recycle = min(self.qintr, input_flow)
+                    
+                    # Create output streams
+                    out_to_settler = x.copy()
+                    out_to_settler[14] = flow_to_settler
+                    
+                    out_to_recycle = x.copy()
+                    out_to_recycle[14] = flow_to_recycle
+                    
+                    return {"out_to_settler": out_to_settler, "out_recycle_to_combiner": out_to_recycle}
                 
-        return SplitRatioSplitterAdapter(impl, splitratio)
+                else:
+                    # Standard split ratio logic
+                    try:
+                        # Use BSM2 splitter logic with ratios
+                        outputs = self.impl.output(x, self.splitratio)
+                        result = {}
+                        if len(outputs) >= 1:
+                            result["out_a"] = outputs[0]
+                        if len(outputs) >= 2:
+                            result["out_b"] = outputs[1]
+                        return result
+                    except Exception as e:
+                        # Fallback for edge cases
+                        return {"out_a": x * 0.5, "out_b": x * 0.5}
+                
+        return SplitRatioSplitterAdapter(impl, splitratio, qintr)
 
 @register("reactor")
 def make_asm1reactor(node_id: str, params: Dict[str, Any]):
