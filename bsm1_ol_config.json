@@ -37,13 +37,50 @@
           0,
           0
         ]
+      },
+      "data": {
+        "handles": {
+          "inputs": [],
+          "outputs": [
+            {
+              "id": "out_main",
+              "position": 0
+            }
+          ]
+        },
+        "icon": ""
       }
     },
     {
       "id": "combiner",
       "component_type_id": "combiner",
       "label": "Combiner",
-      "parameters": {}
+      "parameters": {},
+      "data": {
+        "handles": {
+          "inputs": [
+            {
+              "id": "in_fresh",
+              "position": 0
+            },
+            {
+              "id": "in_recycle_process",
+              "position": 1
+            },
+            {
+              "id": "in_recycle_settler",
+              "position": 2
+            }
+          ],
+          "outputs": [
+            {
+              "id": "out_combined",
+              "position": 0
+            }
+          ]
+        },
+        "icon": "docs/assets/icons/bsm2python/combiner.svg"
+      }
     },
     {
       "id": "reactor1",
@@ -58,6 +95,23 @@
         "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
+      },
+      "data": {
+        "handles": {
+          "inputs": [
+            {
+              "id": "in_main",
+              "position": 0
+            }
+          ],
+          "outputs": [
+            {
+              "id": "out_main",
+              "position": 0
+            }
+          ]
+        },
+        "icon": "docs/assets/icons/bsm2python/activated-sludge-reactor.svg"
       }
     },
     {
@@ -73,6 +127,23 @@
         "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
+      },
+      "data": {
+        "handles": {
+          "inputs": [
+            {
+              "id": "in_main",
+              "position": 0
+            }
+          ],
+          "outputs": [
+            {
+              "id": "out_main",
+              "position": 0
+            }
+          ]
+        },
+        "icon": "docs/assets/icons/bsm2python/activated-sludge-reactor.svg"
       }
     },
     {
@@ -88,6 +159,23 @@
         "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
+      },
+      "data": {
+        "handles": {
+          "inputs": [
+            {
+              "id": "in_main",
+              "position": 0
+            }
+          ],
+          "outputs": [
+            {
+              "id": "out_main",
+              "position": 0
+            }
+          ]
+        },
+        "icon": "docs/assets/icons/bsm2python/activated-sludge-reactor.svg"
       }
     },
     {
@@ -103,6 +191,23 @@
         "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
+      },
+      "data": {
+        "handles": {
+          "inputs": [
+            {
+              "id": "in_main",
+              "position": 0
+            }
+          ],
+          "outputs": [
+            {
+              "id": "out_main",
+              "position": 0
+            }
+          ]
+        },
+        "icon": "docs/assets/icons/bsm2python/activated-sludge-reactor.svg"
       }
     },
     {
@@ -118,6 +223,23 @@
         "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
+      },
+      "data": {
+        "handles": {
+          "inputs": [
+            {
+              "id": "in_main",
+              "position": 0
+            }
+          ],
+          "outputs": [
+            {
+              "id": "out_main",
+              "position": 0
+            }
+          ]
+        },
+        "icon": "docs/assets/icons/bsm2python/activated-sludge-reactor.svg"
       }
     },
     {
@@ -126,6 +248,27 @@
       "label": "Splitter",
       "parameters": {
         "qintr": "asm1init.QINTR"
+      },
+      "data": {
+        "handles": {
+          "inputs": [
+            {
+              "id": "in_main",
+              "position": 0
+            }
+          ],
+          "outputs": [
+            {
+              "id": "out_to_settler",
+              "position": 0
+            },
+            {
+              "id": "out_recycle_to_combiner",
+              "position": 1
+            }
+          ]
+        },
+        "icon": "docs/assets/icons/bsm2python/splitter.svg"
       }
     },
     {
@@ -142,13 +285,46 @@
         "PAR_ASM": "asm1init.PAR1",
         "MODELTYPE_SETTLER": "settler1dinit.MODELTYPE",
         "tempmodel_settler": false
+      },
+      "data": {
+        "handles": {
+          "inputs": [
+            {
+              "id": "in_main",
+              "position": 0
+            }
+          ],
+          "outputs": [
+            {
+              "id": "out_effluent",
+              "position": 0
+            },
+            {
+              "id": "out_sludge_recycle",
+              "position": 1
+            }
+          ]
+        },
+        "icon": "docs/assets/icons/bsm2python/settler.svg"
       }
     },
     {
       "id": "effluent",
       "component_type_id": "effluent",
       "label": "Effluent",
-      "parameters": {}
+      "parameters": {},
+      "data": {
+        "handles": {
+          "inputs": [
+            {
+              "id": "in_main",
+              "position": 0
+            }
+          ],
+          "outputs": []
+        },
+        "icon": ""
+      }
     }
   ],
   "edges": [
