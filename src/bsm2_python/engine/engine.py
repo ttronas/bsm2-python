@@ -18,11 +18,31 @@ class SimulationEngine:
         for n in config["nodes"]:
             handles = (n.get("data") or {}).get("handles") or {}
             in_defs: List[HandleDC] = []
-            for h in handles.get("inputs") or []:
-                in_defs.append(HandleDC(id=h["id"], position=h.get("position", 0)))
             out_defs: List[HandleDC] = []
-            for h in handles.get("outputs") or []:
-                out_defs.append(HandleDC(id=h["id"], position=h.get("position", 0)))
+            
+            # Handle neue verschachtelte Struktur: inputs: { "asm1": [...], "gas": [...], ... }
+            inputs = handles.get("inputs") or {}
+            if isinstance(inputs, list):
+                # Alte Struktur: inputs: [...]
+                for h in inputs:
+                    in_defs.append(HandleDC(id=h["id"], position=h.get("position", 0)))
+            else:
+                # Neue Struktur: inputs: { "asm1": [...], ... }
+                for input_type, handle_list in inputs.items():
+                    for h in handle_list or []:
+                        in_defs.append(HandleDC(id=h["id"], position=h.get("position", 0)))
+            
+            outputs = handles.get("outputs") or {}
+            if isinstance(outputs, list):
+                # Alte Struktur: outputs: [...]
+                for h in outputs:
+                    out_defs.append(HandleDC(id=h["id"], position=h.get("position", 0)))
+            else:
+                # Neue Struktur: outputs: { "asm1": [...], ... }
+                for output_type, handle_list in outputs.items():
+                    for h in handle_list or []:
+                        out_defs.append(HandleDC(id=h["id"], position=h.get("position", 0)))
+            
             self.nodes[n["id"]] = NodeDC(
                 id=n["id"],
                 component_type_id=n["component_type_id"],

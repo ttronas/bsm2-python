@@ -40,13 +40,15 @@
       },
       "data": {
         "handles": {
-          "inputs": [],
-          "outputs": [
-            {
-              "id": "out_main",
-              "position": 0
-            }
-          ]
+          "inputs": {},
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_main",
+                "position": 0
+              }
+            ]
+          }
         },
         "icon": ""
       }
@@ -56,30 +58,32 @@
       "component_type_id": "splitter",
       "label": "Input Bypass Splitter",
       "parameters": {
-        "fractions": [
-          1.0,
-          0.0
-        ],
-        "q_bypass": 60000
+        "mode": "threshold",
+        "threshold": "reginit.QBYPASS",
+        "target": "out_b"
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_a",
-              "position": 0
-            },
-            {
-              "id": "out_b",
-              "position": 1
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_a",
+                "position": 0
+              },
+              {
+                "id": "out_b",
+                "position": 1
+              }
+            ]
+          }
         },
         "icon": "docs/assets/icons/bsm2python/splitter.svg"
       }
@@ -87,31 +91,33 @@
     {
       "id": "bypass_plant",
       "component_type_id": "splitter",
-      "label": "Plant Bypass Splitter",
+      "label": "Bypass Plant Splitter",
       "parameters": {
-        "fractions": [
-          0.0,
-          1.0
-        ]
+        "mode": "ratio",
+        "splitratio": [1.0, 0.0]
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_a",
-              "position": 0
-            },
-            {
-              "id": "out_b",
-              "position": 1
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_a",
+                "position": 0
+              },
+              {
+                "id": "out_b",
+                "position": 1
+              }
+            ]
+          }
         },
         "icon": "docs/assets/icons/bsm2python/splitter.svg"
       }
@@ -123,26 +129,30 @@
       "parameters": {},
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_fresh",
-              "position": 0
-            },
-            {
-              "id": "in_recycle_process",
-              "position": 1
-            },
-            {
-              "id": "in_recycle_settler",
-              "position": 2
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_combined",
-              "position": 0
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_fresh",
+                "position": 0
+              },
+              {
+                "id": "in_recycle_process",
+                "position": 1
+              },
+              {
+                "id": "in_recycle_settler",
+                "position": 2
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_combined",
+                "position": 0
+              }
+            ]
+          }
         },
         "icon": "docs/assets/icons/bsm2python/combiner.svg"
       }
@@ -162,22 +172,26 @@
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_primary_effluent",
-              "position": 0
-            },
-            {
-              "id": "out_primary_sludge",
-              "position": 1
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_primary_effluent",
+                "position": 0
+              },
+              {
+                "id": "out_primary_sludge",
+                "position": 1
+              }
+            ]
+          }
         },
         "icon": "docs/assets/icons/bsm2python/primary-clarifier.svg"
       }
@@ -189,26 +203,26 @@
       "parameters": {},
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_fresh",
-              "position": 0
-            },
-            {
-              "id": "in_recycle_process",
-              "position": 1
-            },
-            {
-              "id": "in_recycle_settler",
-              "position": 2
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_combined",
-              "position": 0
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_fresh",
+                "position": 0
+              },
+              {
+                "id": "in_recycle_process",
+                "position": 1
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_combined",
+                "position": 0
+              }
+            ]
+          }
         },
         "icon": "docs/assets/icons/bsm2python/combiner.svg"
       }
@@ -216,31 +230,33 @@
     {
       "id": "bypass_reactor",
       "component_type_id": "splitter",
-      "label": "Reactor Bypass Splitter",
+      "label": "Bypass Reactor Splitter",
       "parameters": {
-        "fractions": [
-          1.0,
-          0.0
-        ]
+        "mode": "ratio",
+        "splitratio": [0.6, 0.4]
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_a",
-              "position": 0
-            },
-            {
-              "id": "out_b",
-              "position": 1
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_a",
+                "position": 0
+              },
+              {
+                "id": "out_b",
+                "position": 1
+              }
+            ]
+          }
         },
         "icon": "docs/assets/icons/bsm2python/splitter.svg"
       }
@@ -252,26 +268,30 @@
       "parameters": {},
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_fresh",
-              "position": 0
-            },
-            {
-              "id": "in_recycle_process",
-              "position": 1
-            },
-            {
-              "id": "in_recycle_settler",
-              "position": 2
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_combined",
-              "position": 0
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_fresh",
+                "position": 0
+              },
+              {
+                "id": "in_recycle_process",
+                "position": 1
+              },
+              {
+                "id": "in_recycle_settler",
+                "position": 2
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_combined",
+                "position": 0
+              }
+            ]
+          }
         },
         "icon": "docs/assets/icons/bsm2python/combiner.svg"
       }
@@ -279,188 +299,213 @@
     {
       "id": "reactor1",
       "component_type_id": "reactor",
-      "label": "Reactor 1",
+      "label": "ASM1 Reactor 1",
       "parameters": {
-        "KLA": "reginit.KLA1",
+        "KLA": "asm1init.KLA1",
         "VOL": "asm1init.VOL1",
         "YINIT": "asm1init.YINIT1",
         "PAR": "asm1init.PAR1",
-        "CARB": "reginit.CARB1",
-        "CARBONSOURCECONC": "reginit.CARBONSOURCECONC",
+        "CARB": "asm1init.CARB",
+        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_main",
-              "position": 0
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_main",
+                "position": 0
+              }
+            ]
+          }
         },
-        "icon": "docs/assets/icons/bsm2python/activated-sludge-reactor.svg"
+        "icon": "docs/assets/icons/bsm2python/reactor.svg"
       }
     },
     {
       "id": "reactor2",
       "component_type_id": "reactor",
-      "label": "Reactor 2",
+      "label": "ASM1 Reactor 2",
       "parameters": {
-        "KLA": "reginit.KLA2",
+        "KLA": "asm1init.KLA2",
         "VOL": "asm1init.VOL2",
         "YINIT": "asm1init.YINIT2",
-        "PAR": "asm1init.PAR2",
-        "CARB": "reginit.CARB2",
-        "CARBONSOURCECONC": "reginit.CARBONSOURCECONC",
+        "PAR": "asm1init.PAR1",
+        "CARB": "asm1init.CARB",
+        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_main",
-              "position": 0
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_main",
+                "position": 0
+              }
+            ]
+          }
         },
-        "icon": "docs/assets/icons/bsm2python/activated-sludge-reactor.svg"
+        "icon": "docs/assets/icons/bsm2python/reactor.svg"
       }
     },
     {
       "id": "reactor3",
       "component_type_id": "reactor",
-      "label": "Reactor 3",
+      "label": "ASM1 Reactor 3",
       "parameters": {
-        "KLA": "reginit.KLA3",
+        "KLA": "asm1init.KLA3",
         "VOL": "asm1init.VOL3",
         "YINIT": "asm1init.YINIT3",
-        "PAR": "asm1init.PAR3",
-        "CARB": "reginit.CARB3",
-        "CARBONSOURCECONC": "reginit.CARBONSOURCECONC",
+        "PAR": "asm1init.PAR1",
+        "CARB": "asm1init.CARB",
+        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_main",
-              "position": 0
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_main",
+                "position": 0
+              }
+            ]
+          }
         },
-        "icon": "docs/assets/icons/bsm2python/activated-sludge-reactor.svg"
+        "icon": "docs/assets/icons/bsm2python/reactor.svg"
       }
     },
     {
       "id": "reactor4",
       "component_type_id": "reactor",
-      "label": "Reactor 4",
+      "label": "ASM1 Reactor 4",
       "parameters": {
-        "KLA": "reginit.KLA4",
+        "KLA": "asm1init.KLA4",
         "VOL": "asm1init.VOL4",
         "YINIT": "asm1init.YINIT4",
-        "PAR": "asm1init.PAR4",
-        "CARB": "reginit.CARB4",
-        "CARBONSOURCECONC": "reginit.CARBONSOURCECONC",
+        "PAR": "asm1init.PAR1",
+        "CARB": "asm1init.CARB",
+        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_main",
-              "position": 0
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_main",
+                "position": 0
+              }
+            ]
+          }
         },
-        "icon": "docs/assets/icons/bsm2python/activated-sludge-reactor.svg"
+        "icon": "docs/assets/icons/bsm2python/reactor.svg"
       }
     },
     {
       "id": "reactor5",
       "component_type_id": "reactor",
-      "label": "Reactor 5",
+      "label": "ASM1 Reactor 5",
       "parameters": {
-        "KLA": "reginit.KLA5",
+        "KLA": "asm1init.KLA5",
         "VOL": "asm1init.VOL5",
         "YINIT": "asm1init.YINIT5",
-        "PAR": "asm1init.PAR5",
-        "CARB": "reginit.CARB5",
-        "CARBONSOURCECONC": "reginit.CARBONSOURCECONC",
+        "PAR": "asm1init.PAR1",
+        "CARB": "asm1init.CARB",
+        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_main",
-              "position": 0
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_main",
+                "position": 0
+              }
+            ]
+          }
         },
-        "icon": "docs/assets/icons/bsm2python/activated-sludge-reactor.svg"
+        "icon": "docs/assets/icons/bsm2python/reactor.svg"
       }
     },
     {
       "id": "splitter_reactor",
       "component_type_id": "splitter",
-      "label": "Reactor Output Splitter",
+      "label": "Reactor Splitter",
       "parameters": {
+        "mode": "internal_recycle",
         "qintr": "asm1init.QINTR"
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_to_settler",
-              "position": 0
-            },
-            {
-              "id": "out_recycle_to_combiner",
-              "position": 1
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_to_settler",
+                "position": 0
+              },
+              {
+                "id": "out_recycle_to_combiner",
+                "position": 1
+              }
+            ]
+          }
         },
         "icon": "docs/assets/icons/bsm2python/splitter.svg"
       }
@@ -468,7 +513,7 @@
     {
       "id": "settler",
       "component_type_id": "settler",
-      "label": "Settler (1D Model)",
+      "label": "Settler 1D",
       "parameters": {
         "DIM": "settler1dinit.DIM",
         "LAYER": "settler1dinit.LAYER",
@@ -477,109 +522,68 @@
         "settlerinit": "settler1dinit.settlerinit",
         "SETTLERPAR": "settler1dinit.SETTLERPAR",
         "PAR_ASM": "asm1init.PAR1",
-        "MODELTYPE_SETTLER": "settler1dinit.MODELTYPE",
-        "tempmodel_settler": false
+        "tempmodel_settler": false,
+        "MODELTYPE_SETTLER": "settler1dinit.MODELTYPE"
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_effluent",
-              "position": 0
-            },
-            {
-              "id": "out_sludge_recycle",
-              "position": 1
-            },
-            {
-              "id": "out_sludge_waste",
-              "position": 2
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_sludge_recycle",
+                "position": 0
+              },
+              {
+                "id": "out_sludge_waste",
+                "position": 1
+              },
+              {
+                "id": "out_effluent",
+                "position": 2
+              }
+            ]
+          }
         },
         "icon": "docs/assets/icons/bsm2python/settler.svg"
       }
     },
     {
-      "id": "combiner_effluent",
-      "component_type_id": "combiner",
-      "label": "Effluent Combiner",
-      "parameters": {},
-      "data": {
-        "handles": {
-          "inputs": [
-            {
-              "id": "in_fresh",
-              "position": 0
-            },
-            {
-              "id": "in_recycle_process",
-              "position": 1
-            },
-            {
-              "id": "in_recycle_settler",
-              "position": 2
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_combined",
-              "position": 0
-            }
-          ]
-        },
-        "icon": "docs/assets/icons/bsm2python/combiner.svg"
-      }
-    },
-    {
-      "id": "effluent",
-      "component_type_id": "effluent",
-      "label": "Final Effluent",
-      "parameters": {},
-      "data": {
-        "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": []
-        },
-        "icon": ""
-      }
-    },
-    {
       "id": "thickener",
       "component_type_id": "thickener",
-      "label": "WAS Thickener",
+      "label": "Thickener",
       "parameters": {
         "THICKENERPAR": "thickenerinit.THICKENERPAR"
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_thickened",
-              "position": 0
-            },
-            {
-              "id": "out_supernatant",
-              "position": 1
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_thickened",
+                "position": 0
+              },
+              {
+                "id": "out_supernatant",
+                "position": 1
+              }
+            ]
+          }
         },
         "icon": "docs/assets/icons/bsm2python/thickener.svg"
       }
@@ -587,31 +591,33 @@
     {
       "id": "splitter_thickener",
       "component_type_id": "splitter",
-      "label": "Thickener Output Splitter",
+      "label": "Thickener Splitter",
       "parameters": {
-        "fractions": [
-          1.0,
-          0.0
-        ]
+        "mode": "ratio",
+        "splitratio": [0.6, 0.4]
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_a",
-              "position": 0
-            },
-            {
-              "id": "out_b",
-              "position": 1
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_to_primary",
+                "position": 0
+              },
+              {
+                "id": "out_to_as",
+                "position": 1
+              }
+            ]
+          }
         },
         "icon": "docs/assets/icons/bsm2python/splitter.svg"
       }
@@ -623,26 +629,26 @@
       "parameters": {},
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_fresh",
-              "position": 0
-            },
-            {
-              "id": "in_recycle_process",
-              "position": 1
-            },
-            {
-              "id": "in_recycle_settler",
-              "position": 2
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_combined",
-              "position": 0
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_primary_sludge",
+                "position": 0
+              },
+              {
+                "id": "in_thickened_sludge",
+                "position": 1
+              }
+            ]
+          },
+          "outputs": {
+            "adm1": [
+              {
+                "id": "out_combined",
+                "position": 0
+              }
+            ]
+          }
         },
         "icon": "docs/assets/icons/bsm2python/combiner.svg"
       }
@@ -650,7 +656,7 @@
     {
       "id": "adm1_reactor",
       "component_type_id": "digester",
-      "label": "Anaerobic Digester (ADM1)",
+      "label": "ADM1 Reactor",
       "parameters": {
         "DIGESTERINIT": "adm1init.DIGESTERINIT",
         "DIGESTERPAR": "adm1init.DIGESTERPAR",
@@ -659,24 +665,30 @@
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_digested",
-              "position": 0
-            },
-            {
-              "id": "out_gas",
-              "position": 1
-            }
-          ]
+          "inputs": {
+            "adm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_digested",
+                "position": 0
+              }
+            ],
+            "gas": [
+              {
+                "id": "out_gas",
+                "position": 1
+              }
+            ]
+          }
         },
-        "icon": "docs/assets/icons/bsm2python/anerobic-digester.svg"
+        "icon": "docs/assets/icons/bsm2python/digester.svg"
       }
     },
     {
@@ -688,22 +700,26 @@
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_cake",
-              "position": 0
-            },
-            {
-              "id": "out_filtrate",
-              "position": 1
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_cake",
+                "position": 0
+              },
+              {
+                "id": "out_filtrate",
+                "position": 1
+              }
+            ]
+          }
         },
         "icon": "docs/assets/icons/bsm2python/dewatering.svg"
       }
@@ -711,95 +727,157 @@
     {
       "id": "storage",
       "component_type_id": "storage",
-      "label": "Reject Water Storage",
+      "label": "Storage Tank",
       "parameters": {
-        "VOL_S": "storageinit.VOL_S",
-        "ystinit": "storageinit.ystinit",
+        "VOL_S": 1500.0,
+        "ystinit": [30, 1.15, 51.2, 202.32, 28.17, 0, 0, 2, 0, 31.56, 6.95, 10.59, 7, 211.2675, 18446, 15, 0, 0, 0, 0, 0],
+        "QSTORAGE": 0.0,
         "tempmodel": false,
         "activate": false
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_main",
-              "position": 0
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_main",
+                "position": 0
+              }
+            ]
+          }
         },
-        "icon": "docs/assets/icons/bsm2python/wastewater-storage.svg"
+        "icon": "docs/assets/icons/bsm2python/storage.svg"
       }
     },
     {
       "id": "splitter_storage",
       "component_type_id": "splitter",
-      "label": "Storage Output Splitter",
+      "label": "Storage Splitter",
       "parameters": {
-        "fractions": [
-          1.0,
-          0.0
-        ]
+        "mode": "ratio",
+        "splitratio": [0.4, 0.6]
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_a",
-              "position": 0
-            },
-            {
-              "id": "out_b",
-              "position": 1
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_to_primary",
+                "position": 0
+              },
+              {
+                "id": "out_to_as",
+                "position": 1
+              }
+            ]
+          }
         },
         "icon": "docs/assets/icons/bsm2python/splitter.svg"
       }
     },
     {
-      "id": "sludge_sink",
-      "component_type_id": "effluent",
-      "label": "Sludge Cake Sink",
+      "id": "combiner_effluent",
+      "component_type_id": "combiner",
+      "label": "Effluent Combiner",
       "parameters": {},
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": []
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_settler_effluent",
+                "position": 0
+              },
+              {
+                "id": "in_bypass_effluent",
+                "position": 1
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_combined",
+                "position": 0
+              }
+            ]
+          }
+        },
+        "icon": "docs/assets/icons/bsm2python/combiner.svg"
+      }
+    },
+    {
+      "id": "sludge_sink",
+      "component_type_id": "sink",
+      "label": "Sludge Sink",
+      "parameters": {},
+      "data": {
+        "handles": {
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {}
         },
         "icon": ""
       }
     },
     {
       "id": "biogas_sink",
-      "component_type_id": "effluent",
+      "component_type_id": "sink",
       "label": "Biogas Sink",
       "parameters": {},
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": []
+          "inputs": {
+            "gas": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {}
+        },
+        "icon": ""
+      }
+    },
+    {
+      "id": "effluent",
+      "component_type_id": "effluent",
+      "label": "Effluent",
+      "parameters": {},
+      "data": {
+        "handles": {
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {}
         },
         "icon": ""
       }
@@ -814,39 +892,46 @@
       "target_handle_id": "in_main"
     },
     {
-      "id": "e_splitter_to_bypass",
+      "id": "e_splitter_to_plant",
       "source_node_id": "input_splitter",
-      "source_handle_id": "out_b",
+      "source_handle_id": "out_a",
       "target_node_id": "bypass_plant",
       "target_handle_id": "in_main"
     },
     {
-      "id": "e_splitter_to_pc_comb",
+      "id": "e_bypass_to_effluent_combiner",
       "source_node_id": "input_splitter",
+      "source_handle_id": "out_b",
+      "target_node_id": "combiner_effluent",
+      "target_handle_id": "in_bypass_effluent"
+    },
+    {
+      "id": "e_plant_to_prim_combiner",
+      "source_node_id": "bypass_plant",
       "source_handle_id": "out_a",
       "target_node_id": "combiner_primclar_pre",
       "target_handle_id": "in_fresh"
     },
     {
-      "id": "e_pc_comb_to_pc",
+      "id": "e_prim_comb_to_prim",
       "source_node_id": "combiner_primclar_pre",
       "source_handle_id": "out_combined",
       "target_node_id": "primaryclar",
       "target_handle_id": "in_main"
     },
     {
-      "id": "e_pc_to_post_comb",
+      "id": "e_prim_eff_to_post_comb",
       "source_node_id": "primaryclar",
       "source_handle_id": "out_primary_effluent",
       "target_node_id": "combiner_primclar_post",
       "target_handle_id": "in_fresh"
     },
     {
-      "id": "e_bypass_to_post_comb",
-      "source_node_id": "bypass_plant",
-      "source_handle_id": "out_a",
-      "target_node_id": "combiner_primclar_post",
-      "target_handle_id": "in_recycle_process"
+      "id": "e_prim_sludge_to_adm1_comb",
+      "source_node_id": "primaryclar",
+      "source_handle_id": "out_primary_sludge",
+      "target_node_id": "combiner_adm1",
+      "target_handle_id": "in_primary_sludge"
     },
     {
       "id": "e_post_comb_to_bypass_reactor",
@@ -863,35 +948,35 @@
       "target_handle_id": "in_fresh"
     },
     {
-      "id": "e_combiner_to_r1",
+      "id": "e_reactor_comb_to_r1",
       "source_node_id": "combiner_reactor",
       "source_handle_id": "out_combined",
       "target_node_id": "reactor1",
       "target_handle_id": "in_main"
     },
     {
-      "id": "e_r1_r2",
+      "id": "e_r1_to_r2",
       "source_node_id": "reactor1",
       "source_handle_id": "out_main",
       "target_node_id": "reactor2",
       "target_handle_id": "in_main"
     },
     {
-      "id": "e_r2_r3",
+      "id": "e_r2_to_r3",
       "source_node_id": "reactor2",
       "source_handle_id": "out_main",
       "target_node_id": "reactor3",
       "target_handle_id": "in_main"
     },
     {
-      "id": "e_r3_r4",
+      "id": "e_r3_to_r4",
       "source_node_id": "reactor3",
       "source_handle_id": "out_main",
       "target_node_id": "reactor4",
       "target_handle_id": "in_main"
     },
     {
-      "id": "e_r4_r5",
+      "id": "e_r4_to_r5",
       "source_node_id": "reactor4",
       "source_handle_id": "out_main",
       "target_node_id": "reactor5",
@@ -922,36 +1007,8 @@
       "id": "e_ras_to_combiner",
       "source_node_id": "settler",
       "source_handle_id": "out_sludge_recycle",
-      "target_node_id": "combiner_reactor",
+      "target_node_id": "combiner_primclar_pre",
       "target_handle_id": "in_recycle_settler"
-    },
-    {
-      "id": "e_settler_to_eff_comb",
-      "source_node_id": "settler",
-      "source_handle_id": "out_effluent",
-      "target_node_id": "combiner_effluent",
-      "target_handle_id": "in_fresh"
-    },
-    {
-      "id": "e_bypass_reactor_to_eff_comb",
-      "source_node_id": "bypass_reactor",
-      "source_handle_id": "out_b",
-      "target_node_id": "combiner_effluent",
-      "target_handle_id": "in_recycle_process"
-    },
-    {
-      "id": "e_bypass_plant_to_eff_comb",
-      "source_node_id": "bypass_plant",
-      "source_handle_id": "out_b",
-      "target_node_id": "combiner_effluent",
-      "target_handle_id": "in_recycle_settler"
-    },
-    {
-      "id": "e_eff_comb_to_eff",
-      "source_node_id": "combiner_effluent",
-      "source_handle_id": "out_combined",
-      "target_node_id": "effluent",
-      "target_handle_id": "in_main"
     },
     {
       "id": "e_was_to_thickener",
@@ -961,6 +1018,13 @@
       "target_handle_id": "in_main"
     },
     {
+      "id": "e_settler_eff_to_combiner",
+      "source_node_id": "settler",
+      "source_handle_id": "out_effluent",
+      "target_node_id": "combiner_effluent",
+      "target_handle_id": "in_settler_effluent"
+    },
+    {
       "id": "e_thickener_to_splitter",
       "source_node_id": "thickener",
       "source_handle_id": "out_thickened",
@@ -968,49 +1032,56 @@
       "target_handle_id": "in_main"
     },
     {
-      "id": "e_thick_split_to_adm1_comb",
-      "source_node_id": "splitter_thickener",
-      "source_handle_id": "out_a",
-      "target_node_id": "combiner_adm1",
-      "target_handle_id": "in_fresh"
-    },
-    {
-      "id": "e_ps_to_adm1_comb",
-      "source_node_id": "primaryclar",
-      "source_handle_id": "out_primary_sludge",
-      "target_node_id": "combiner_adm1",
+      "id": "e_thick_super_to_post_comb",
+      "source_node_id": "thickener",
+      "source_handle_id": "out_supernatant",
+      "target_node_id": "combiner_primclar_post",
       "target_handle_id": "in_recycle_process"
     },
     {
-      "id": "e_adm1_comb_to_adm1",
+      "id": "e_thick_split_to_adm1",
+      "source_node_id": "splitter_thickener",
+      "source_handle_id": "out_to_as",
+      "target_node_id": "combiner_adm1",
+      "target_handle_id": "in_thickened_sludge"
+    },
+    {
+      "id": "e_thick_split_to_prim",
+      "source_node_id": "splitter_thickener",
+      "source_handle_id": "out_to_primary",
+      "target_node_id": "combiner_primclar_pre",
+      "target_handle_id": "in_recycle_process"
+    },
+    {
+      "id": "e_adm1_comb_to_digester",
       "source_node_id": "combiner_adm1",
       "source_handle_id": "out_combined",
       "target_node_id": "adm1_reactor",
       "target_handle_id": "in_main"
     },
     {
-      "id": "e_adm1_to_dew",
+      "id": "e_digester_to_dewatering",
       "source_node_id": "adm1_reactor",
       "source_handle_id": "out_digested",
       "target_node_id": "dewatering",
       "target_handle_id": "in_main"
     },
     {
-      "id": "e_adm1_gas_to_sink",
+      "id": "e_biogas_to_sink",
       "source_node_id": "adm1_reactor",
       "source_handle_id": "out_gas",
       "target_node_id": "biogas_sink",
       "target_handle_id": "in_main"
     },
     {
-      "id": "e_dew_to_sludge_sink",
+      "id": "e_cake_to_sink",
       "source_node_id": "dewatering",
       "source_handle_id": "out_cake",
       "target_node_id": "sludge_sink",
       "target_handle_id": "in_main"
     },
     {
-      "id": "e_dew_to_storage",
+      "id": "e_filtrate_to_storage",
       "source_node_id": "dewatering",
       "source_handle_id": "out_filtrate",
       "target_node_id": "storage",
@@ -1024,18 +1095,25 @@
       "target_handle_id": "in_main"
     },
     {
-      "id": "e_storage_split_to_pc_pre",
+      "id": "e_storage_split_to_prim",
       "source_node_id": "splitter_storage",
-      "source_handle_id": "out_a",
+      "source_handle_id": "out_to_primary",
       "target_node_id": "combiner_primclar_pre",
       "target_handle_id": "in_recycle_process"
     },
     {
-      "id": "e_thick_overflow_to_pc_pre",
-      "source_node_id": "thickener",
-      "source_handle_id": "out_supernatant",
-      "target_node_id": "combiner_primclar_pre",
+      "id": "e_storage_split_to_as",
+      "source_node_id": "splitter_storage",
+      "source_handle_id": "out_to_as",
+      "target_node_id": "combiner_reactor",
       "target_handle_id": "in_recycle_settler"
+    },
+    {
+      "id": "e_effluent_comb_to_effluent",
+      "source_node_id": "combiner_effluent",
+      "source_handle_id": "out_combined",
+      "target_node_id": "effluent",
+      "target_handle_id": "in_main"
     }
   ]
 }

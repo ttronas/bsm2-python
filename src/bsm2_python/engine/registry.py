@@ -121,34 +121,66 @@ def make_combiner(node_id: str, params: Dict[str, Any]):
 
 @register("splitter")
 def make_splitter(node_id: str, params: Dict[str, Any]):
+    # Import resolve_value from the correct module
+    try:
+        from .param_resolver import resolve_value
+    except ImportError:
+        # Fallback implementation
+        def resolve_value(val):
+            if isinstance(val, str) and "." in val:
+                # Simple fallback - return a default value
+                if "QBYPASS" in val:
+                    return 3000.0
+                elif "QINTR" in val:
+                    return 55338.0
+                elif "SP_" in val:
+                    return 0.5
+                return 1.0
+            return val
+    
     Splitter = get_splitter()
-    impl = Splitter()
     
-    # Handle different splitter types based on parameters
-    fractions = params.get("fractions", (0.5, 0.5))
-    q_bypass = params.get("q_bypass", None)  # BSM2 bypass threshold
-    qintr = params.get("qintr", None)  # BSM1 internal recycle
+    # Handle new mode-based splitter configuration
+    mode = params.get("mode", "ratio")  # Default to ratio mode
     
-    class SplitterAdapter:
-        def __init__(self, impl, fractions, q_bypass, qintr):
-            self.impl = impl
-            self.fractions = fractions
-            self.q_bypass = q_bypass
-            self.qintr = float(qintr) if qintr is not None else None
-            
-        def step(self, dt, current_step, inputs):
-            x = inputs.get("in_main")
-            if x is None: return {}
-            
-            if self.q_bypass is not None:
-                # BSM2 bypass splitter: type 2 splitter with flow threshold
-                a, b = self.impl.output(x, self.fractions, float(self.q_bypass))
+    if mode == "threshold":
+        # Type 2 splitter with threshold
+        impl = Splitter(sp_type=2)
+        threshold = resolve_value(params.get("threshold", 0.0))
+        target = params.get("target", "out_b")
+        
+        class ThresholdSplitterAdapter:
+            def __init__(self, impl, threshold, target):
+                self.impl = impl
+                self.threshold = float(threshold)
+                self.target = target
+                
+            def step(self, dt, current_step, inputs):
+                x = inputs.get("in_main")
+                if x is None: return {}
+                
+                # Use type 2 splitter logic with threshold
+                a, b = self.impl.output(x, (0.0, 0.0), self.threshold)
                 return {"out_a": a, "out_b": b}
-            elif self.qintr is not None:
-                # BSM1/BSM2 reactor recycle splitter: split based on QINTR
-                input_flow = x[14]  # Flow rate is at index 14
+                
+        return ThresholdSplitterAdapter(impl, threshold, target)
+    
+    elif mode == "internal_recycle":
+        # BSM1/BSM2 internal recycle splitter
+        impl = Splitter(sp_type=1)
+        qintr = resolve_value(params.get("qintr", 0.0))
+        
+        class InternalRecycleSplitterAdapter:
+            def __init__(self, impl, qintr):
+                self.impl = impl
+                self.qintr = float(qintr)
+                
+            def step(self, dt, current_step, inputs):
+                x = inputs.get("in_main")
+                if x is None: return {}
                 
                 # BSM1/BSM2 logic: split based on internal recycle flow (qintr)
+                input_flow = x[14]  # Flow rate is at index 14
                 flow_to_settler = max(input_flow - self.qintr, 0.0)
                 flow_to_recycle = self.qintr
                 
@@ -160,12 +192,40 @@ def make_splitter(node_id: str, params: Dict[str, Any]):
                 out_to_recycle[14] = flow_to_recycle
                 
                 return {"out_to_settler": out_to_settler, "out_recycle_to_combiner": out_to_recycle}
-            else:
-                # Standard splitter with fixed fractions
-                a, b = self.impl.output(x, self.fractions)
-                return {"out_a": a, "out_b": b}
                 
-    return SplitterAdapter(impl, fractions, q_bypass, qintr)
+        return InternalRecycleSplitterAdapter(impl, qintr)
+    
+    else:  # mode == "ratio" or default
+        # Standard ratio-based splitter
+        impl = Splitter(sp_type=1)
+        splitratio = params.get("splitratio", [0.5, 0.5])
+        
+        # Resolve any parameter references in splitratio
+        if isinstance(splitratio, list):
+            resolved_ratio = []
+            for ratio in splitratio:
+                resolved_ratio.append(float(resolve_value(ratio)))
+            splitratio = tuple(resolved_ratio)
+        
+        class RatioSplitterAdapter:
+            def __init__(self, impl, splitratio):
+                self.impl = impl
+                self.splitratio = splitratio
+                
+            def step(self, dt, current_step, inputs):
+                x = inputs.get("in_main")
+                if x is None: return {}
+                
+                # Standard splitter with fixed fractions
+                outputs = self.impl.output(x, self.splitratio)
+                if len(outputs) >= 2:
+                    return {"out_a": outputs[0], "out_b": outputs[1]}
+                elif len(outputs) == 1:
+                    return {"out_a": outputs[0]}
+                else:
+                    return {}
+                
+        return RatioSplitterAdapter(impl, splitratio)
 
 @register("reactor")
 def make_asm1reactor(node_id: str, params: Dict[str, Any]):
@@ -296,6 +356,19 @@ def make_dewatering(node_id: str, params: Dict[str, Any]):
             cake, reject = self.impl.output(y_in)
             return {"out_cake": cake, "out_filtrate": reject}
     return DewateringAdapter(impl)
+
+@register("sink")
+def make_sink(node_id: str, params: Dict[str, Any]):
+    class SinkAdapter:
+        def __init__(self):
+            self.last = None
+        def step(self, dt, current_step, inputs):
+            # Store the last input for retrieval but don't output anything
+            main_input = inputs.get("in_main")
+            if main_input is not None:
+                self.last = main_input.copy()
+            return {}
+    return SinkAdapter()
 
 @register("storage")
 def make_storage(node_id: str, params: Dict[str, Any]):

@@ -40,15 +40,13 @@
       },
       "data": {
         "handles": {
-          "inputs": {},
-          "outputs": {
-            "asm1": [
-              {
-                "id": "out_main",
-                "position": 0
-              }
-            ]
-          }
+          "inputs": [],
+          "outputs": [
+            {
+              "id": "out_main",
+              "position": 0
+            }
+          ]
         },
         "icon": ""
       }
@@ -60,30 +58,26 @@
       "parameters": {},
       "data": {
         "handles": {
-          "inputs": {
-            "asm1": [
-              {
-                "id": "in_fresh",
-                "position": 0
-              },
-              {
-                "id": "in_recycle_process",
-                "position": 1
-              },
-              {
-                "id": "in_recycle_settler",
-                "position": 2
-              }
-            ]
-          },
-          "outputs": {
-            "asm1": [
-              {
-                "id": "out_combined",
-                "position": 0
-              }
-            ]
-          }
+          "inputs": [
+            {
+              "id": "in_fresh",
+              "position": 0
+            },
+            {
+              "id": "in_recycle_process",
+              "position": 1
+            },
+            {
+              "id": "in_recycle_settler",
+              "position": 2
+            }
+          ],
+          "outputs": [
+            {
+              "id": "out_combined",
+              "position": 0
+            }
+          ]
         },
         "icon": "docs/assets/icons/bsm2python/combiner.svg"
       }
@@ -91,213 +85,188 @@
     {
       "id": "reactor1",
       "component_type_id": "reactor",
-      "label": "ASM1 Reactor 1",
+      "label": "Reactor 1",
       "parameters": {
         "KLA": "asm1init.KLA1",
         "VOL": "asm1init.VOL1",
         "YINIT": "asm1init.YINIT1",
         "PAR": "asm1init.PAR1",
-        "CARB": "asm1init.CARB",
+        "CARB": "asm1init.CARB1",
         "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
       },
       "data": {
         "handles": {
-          "inputs": {
-            "asm1": [
-              {
-                "id": "in_main",
-                "position": 0
-              }
-            ]
-          },
-          "outputs": {
-            "asm1": [
-              {
-                "id": "out_main",
-                "position": 0
-              }
-            ]
-          }
+          "inputs": [
+            {
+              "id": "in_main",
+              "position": 0
+            }
+          ],
+          "outputs": [
+            {
+              "id": "out_main",
+              "position": 0
+            }
+          ]
         },
-        "icon": "docs/assets/icons/bsm2python/reactor.svg"
+        "icon": "docs/assets/icons/bsm2python/activated-sludge-reactor.svg"
       }
     },
     {
       "id": "reactor2",
       "component_type_id": "reactor",
-      "label": "ASM1 Reactor 2",
+      "label": "Reactor 2",
       "parameters": {
         "KLA": "asm1init.KLA2",
         "VOL": "asm1init.VOL2",
         "YINIT": "asm1init.YINIT2",
-        "PAR": "asm1init.PAR1",
-        "CARB": "asm1init.CARB",
+        "PAR": "asm1init.PAR2",
+        "CARB": "asm1init.CARB2",
         "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
       },
       "data": {
         "handles": {
-          "inputs": {
-            "asm1": [
-              {
-                "id": "in_main",
-                "position": 0
-              }
-            ]
-          },
-          "outputs": {
-            "asm1": [
-              {
-                "id": "out_main",
-                "position": 0
-              }
-            ]
-          }
+          "inputs": [
+            {
+              "id": "in_main",
+              "position": 0
+            }
+          ],
+          "outputs": [
+            {
+              "id": "out_main",
+              "position": 0
+            }
+          ]
         },
-        "icon": "docs/assets/icons/bsm2python/reactor.svg"
+        "icon": "docs/assets/icons/bsm2python/activated-sludge-reactor.svg"
       }
     },
     {
       "id": "reactor3",
       "component_type_id": "reactor",
-      "label": "ASM1 Reactor 3",
+      "label": "Reactor 3",
       "parameters": {
         "KLA": "asm1init.KLA3",
         "VOL": "asm1init.VOL3",
         "YINIT": "asm1init.YINIT3",
-        "PAR": "asm1init.PAR1",
-        "CARB": "asm1init.CARB",
+        "PAR": "asm1init.PAR3",
+        "CARB": "asm1init.CARB3",
         "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
       },
       "data": {
         "handles": {
-          "inputs": {
-            "asm1": [
-              {
-                "id": "in_main",
-                "position": 0
-              }
-            ]
-          },
-          "outputs": {
-            "asm1": [
-              {
-                "id": "out_main",
-                "position": 0
-              }
-            ]
-          }
+          "inputs": [
+            {
+              "id": "in_main",
+              "position": 0
+            }
+          ],
+          "outputs": [
+            {
+              "id": "out_main",
+              "position": 0
+            }
+          ]
         },
-        "icon": "docs/assets/icons/bsm2python/reactor.svg"
+        "icon": "docs/assets/icons/bsm2python/activated-sludge-reactor.svg"
       }
     },
     {
       "id": "reactor4",
       "component_type_id": "reactor",
-      "label": "ASM1 Reactor 4",
+      "label": "Test",
       "parameters": {
         "KLA": "asm1init.KLA4",
         "VOL": "asm1init.VOL4",
         "YINIT": "asm1init.YINIT4",
-        "PAR": "asm1init.PAR1",
-        "CARB": "asm1init.CARB",
+        "PAR": "asm1init.PAR4",
+        "CARB": "asm1init.CARB4",
         "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
       },
       "data": {
         "handles": {
-          "inputs": {
-            "asm1": [
-              {
-                "id": "in_main",
-                "position": 0
-              }
-            ]
-          },
-          "outputs": {
-            "asm1": [
-              {
-                "id": "out_main",
-                "position": 0
-              }
-            ]
-          }
+          "inputs": [
+            {
+              "id": "in_main",
+              "position": 0
+            }
+          ],
+          "outputs": [
+            {
+              "id": "out_main",
+              "position": 0
+            }
+          ]
         },
-        "icon": "docs/assets/icons/bsm2python/reactor.svg"
+        "icon": "docs/assets/icons/bsm2python/activated-sludge-reactor.svg"
       }
     },
     {
       "id": "reactor5",
       "component_type_id": "reactor",
-      "label": "ASM1 Reactor 5",
+      "label": "Reactor 5",
       "parameters": {
         "KLA": "asm1init.KLA5",
         "VOL": "asm1init.VOL5",
         "YINIT": "asm1init.YINIT5",
-        "PAR": "asm1init.PAR1",
-        "CARB": "asm1init.CARB",
+        "PAR": "asm1init.PAR5",
+        "CARB": "asm1init.CARB5",
         "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
         "tempmodel": false,
         "activate": false
       },
       "data": {
         "handles": {
-          "inputs": {
-            "asm1": [
-              {
-                "id": "in_main",
-                "position": 0
-              }
-            ]
-          },
-          "outputs": {
-            "asm1": [
-              {
-                "id": "out_main",
-                "position": 0
-              }
-            ]
-          }
+          "inputs": [
+            {
+              "id": "in_main",
+              "position": 0
+            }
+          ],
+          "outputs": [
+            {
+              "id": "out_main",
+              "position": 0
+            }
+          ]
         },
-        "icon": "docs/assets/icons/bsm2python/reactor.svg"
+        "icon": "docs/assets/icons/bsm2python/activated-sludge-reactor.svg"
       }
     },
     {
       "id": "splitter",
       "component_type_id": "splitter",
-      "label": "Reactor Splitter",
+      "label": "Splitter",
       "parameters": {
-        "mode": "internal_recycle",
         "qintr": "asm1init.QINTR"
       },
       "data": {
         "handles": {
-          "inputs": {
-            "asm1": [
-              {
-                "id": "in_main",
-                "position": 0
-              }
-            ]
-          },
-          "outputs": {
-            "asm1": [
-              {
-                "id": "out_to_settler",
-                "position": 0
-              },
-              {
-                "id": "out_recycle_to_combiner",
-                "position": 1
-              }
-            ]
-          }
+          "inputs": [
+            {
+              "id": "in_main",
+              "position": 0
+            }
+          ],
+          "outputs": [
+            {
+              "id": "out_to_settler",
+              "position": 0
+            },
+            {
+              "id": "out_recycle_to_combiner",
+              "position": 1
+            }
+          ]
         },
         "icon": "docs/assets/icons/bsm2python/splitter.svg"
       }
@@ -305,7 +274,7 @@
     {
       "id": "settler",
       "component_type_id": "settler",
-      "label": "Settler 1D",
+      "label": "Settler (1D Model)",
       "parameters": {
         "DIM": "settler1dinit.DIM",
         "LAYER": "settler1dinit.LAYER",
@@ -314,35 +283,27 @@
         "settlerinit": "settler1dinit.settlerinit",
         "SETTLERPAR": "settler1dinit.SETTLERPAR",
         "PAR_ASM": "asm1init.PAR1",
-        "tempmodel_settler": false,
-        "MODELTYPE_SETTLER": "settler1dinit.MODELTYPE"
+        "MODELTYPE_SETTLER": "settler1dinit.MODELTYPE",
+        "tempmodel_settler": false
       },
       "data": {
         "handles": {
-          "inputs": {
-            "asm1": [
-              {
-                "id": "in_main",
-                "position": 0
-              }
-            ]
-          },
-          "outputs": {
-            "asm1": [
-              {
-                "id": "out_sludge_recycle",
-                "position": 0
-              },
-              {
-                "id": "out_sludge_waste",
-                "position": 1
-              },
-              {
-                "id": "out_effluent",
-                "position": 2
-              }
-            ]
-          }
+          "inputs": [
+            {
+              "id": "in_main",
+              "position": 0
+            }
+          ],
+          "outputs": [
+            {
+              "id": "out_effluent",
+              "position": 0
+            },
+            {
+              "id": "out_sludge_recycle",
+              "position": 1
+            }
+          ]
         },
         "icon": "docs/assets/icons/bsm2python/settler.svg"
       }
@@ -354,15 +315,13 @@
       "parameters": {},
       "data": {
         "handles": {
-          "inputs": {
-            "asm1": [
-              {
-                "id": "in_main",
-                "position": 0
-              }
-            ]
-          },
-          "outputs": {}
+          "inputs": [
+            {
+              "id": "in_main",
+              "position": 0
+            }
+          ],
+          "outputs": []
         },
         "icon": ""
       }
@@ -370,81 +329,81 @@
   ],
   "edges": [
     {
-      "id": "e_influent_to_combiner",
+      "id": "e_1q859fb1l",
       "source_node_id": "influent_s",
       "source_handle_id": "out_main",
       "target_node_id": "combiner",
       "target_handle_id": "in_fresh"
     },
     {
-      "id": "e_combiner_to_r1",
+      "id": "e_tq3lwnj2p",
       "source_node_id": "combiner",
       "source_handle_id": "out_combined",
       "target_node_id": "reactor1",
       "target_handle_id": "in_main"
     },
     {
-      "id": "e_r1_to_r2",
+      "id": "e_mi1xksup1",
       "source_node_id": "reactor1",
       "source_handle_id": "out_main",
       "target_node_id": "reactor2",
       "target_handle_id": "in_main"
     },
     {
-      "id": "e_r2_to_r3",
+      "id": "e_lm53m5dbq",
       "source_node_id": "reactor2",
       "source_handle_id": "out_main",
       "target_node_id": "reactor3",
       "target_handle_id": "in_main"
     },
     {
-      "id": "e_r3_to_r4",
+      "id": "e_o0bepm1c3",
       "source_node_id": "reactor3",
       "source_handle_id": "out_main",
       "target_node_id": "reactor4",
       "target_handle_id": "in_main"
     },
     {
-      "id": "e_r4_to_r5",
+      "id": "e_wi138cvhg",
       "source_node_id": "reactor4",
       "source_handle_id": "out_main",
       "target_node_id": "reactor5",
       "target_handle_id": "in_main"
     },
     {
-      "id": "e_r5_to_splitter",
+      "id": "e_foj70r1wk",
       "source_node_id": "reactor5",
       "source_handle_id": "out_main",
       "target_node_id": "splitter",
       "target_handle_id": "in_main"
     },
     {
-      "id": "e_splitter_to_settler",
+      "id": "e_0sp59cmaa",
       "source_node_id": "splitter",
       "source_handle_id": "out_to_settler",
       "target_node_id": "settler",
       "target_handle_id": "in_main"
     },
     {
-      "id": "e_recycle_to_combiner",
+      "id": "e_y4m7815gn",
+      "source_node_id": "settler",
+      "source_handle_id": "out_effluent",
+      "target_node_id": "effluent",
+      "target_handle_id": "in_main"
+    },
+    {
+      "id": "e_ixic2izfz",
       "source_node_id": "splitter",
       "source_handle_id": "out_recycle_to_combiner",
       "target_node_id": "combiner",
       "target_handle_id": "in_recycle_process"
     },
     {
-      "id": "e_ras_to_combiner",
+      "id": "e_yreoiqx0d",
       "source_node_id": "settler",
       "source_handle_id": "out_sludge_recycle",
       "target_node_id": "combiner",
       "target_handle_id": "in_recycle_settler"
-    },
-    {
-      "id": "e_effluent_to_sink",
-      "source_node_id": "settler",
-      "source_handle_id": "out_effluent",
-      "target_node_id": "effluent",
-      "target_handle_id": "in_main"
     }
   ]
 }
