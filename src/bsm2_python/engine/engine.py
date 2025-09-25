@@ -48,13 +48,12 @@ class SimulationEngine:
                     f"Edge {eref.id} references unknown node(s): "
                     f"{eref.source_node_id}->{eref.target_node_id}"
                 )
-            # Nur validieren wenn Handles definiert sind, ansonsten überspringen  
-            if len(src.output_handles) > 0 and not src.has_output_handle(eref.source_handle_id):
+            if not src.has_output_handle(eref.source_handle_id):
                 raise ValueError(
                     f"Edge {eref.id} uses unknown source handle "
                     f"'{eref.source_handle_id}' on node '{src.id}'"
                 )
-            if len(tgt.input_handles) > 0 and not tgt.has_input_handle(eref.target_handle_id):
+            if not tgt.has_input_handle(eref.target_handle_id):
                 raise ValueError(
                     f"Edge {eref.id} uses unknown target handle "
                     f"'{eref.target_handle_id}' on node '{tgt.id}'"

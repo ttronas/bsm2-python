@@ -234,12 +234,34 @@ def main():
                     "component_type_id": "influent_static",
                     "parameters": {
                         "y_in_constant": [30, 69.5, 51.2, 202.32, 28.17, 0, 0, 0, 0, 31.56, 6.95, 10.59, 7, 211.2675, 18446, 15, 0, 0, 0, 0, 0]
+                    },
+                    "data": {
+                        "handles": {
+                            "inputs": [],
+                            "outputs": [
+                                {
+                                    "id": "out_main",
+                                    "position": 0
+                                }
+                            ]
+                        }
                     }
                 },
                 {
                     "id": "effluent",
                     "component_type_id": "effluent",
-                    "parameters": {}
+                    "parameters": {},
+                    "data": {
+                        "handles": {
+                            "inputs": [
+                                {
+                                    "id": "in_main",
+                                    "position": 0
+                                }
+                            ],
+                            "outputs": []
+                        }
+                    }
                 }
             ],
             "edges": [
