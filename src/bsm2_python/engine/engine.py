@@ -15,33 +15,29 @@ class SimulationEngine:
 
         # Nodes aus JSON inklusive Handle-Definitionen aufbauen
         self.nodes: Dict[str, NodeDC] = {}
+        
+        def _flatten_handle_section(sec):
+            # sec kann {} (neu, gruppiert), [] (alt) oder None sein
+            if isinstance(sec, dict):
+                items = []
+                for _, lst in sec.items():
+                    if isinstance(lst, list):
+                        items.extend(lst)
+                return items
+            elif isinstance(sec, list):
+                return sec
+            else:
+                return []
+        
         for n in config["nodes"]:
             handles = (n.get("data") or {}).get("handles") or {}
-            in_defs: List[HandleDC] = []
-            out_defs: List[HandleDC] = []
             
-            # Handle neue verschachtelte Struktur: inputs: { "asm1": [...], "gas": [...], ... }
-            inputs = handles.get("inputs") or {}
-            if isinstance(inputs, list):
-                # Alte Struktur: inputs: [...]
-                for h in inputs:
-                    in_defs.append(HandleDC(id=h["id"], position=h.get("position", 0)))
-            else:
-                # Neue Struktur: inputs: { "asm1": [...], ... }
-                for input_type, handle_list in inputs.items():
-                    for h in handle_list or []:
-                        in_defs.append(HandleDC(id=h["id"], position=h.get("position", 0)))
+            # Handle-Sektionen flach machen
+            input_handles = _flatten_handle_section(handles.get("inputs"))
+            output_handles = _flatten_handle_section(handles.get("outputs"))
             
-            outputs = handles.get("outputs") or {}
-            if isinstance(outputs, list):
-                # Alte Struktur: outputs: [...]
-                for h in outputs:
-                    out_defs.append(HandleDC(id=h["id"], position=h.get("position", 0)))
-            else:
-                # Neue Struktur: outputs: { "asm1": [...], ... }
-                for output_type, handle_list in outputs.items():
-                    for h in handle_list or []:
-                        out_defs.append(HandleDC(id=h["id"], position=h.get("position", 0)))
+            in_defs = [HandleDC(id=h["id"], position=h.get("position", 0)) for h in input_handles]
+            out_defs = [HandleDC(id=h["id"], position=h.get("position", 0)) for h in output_handles]
             
             self.nodes[n["id"]] = NodeDC(
                 id=n["id"],

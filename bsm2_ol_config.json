@@ -93,7 +93,7 @@
       "component_type_id": "splitter",
       "label": "Bypass Plant Splitter",
       "parameters": {
-        "mode": "ratio",
+        "mode": "split_ratio",
         "splitratio": [1.0, 0.0]
       },
       "data": {
@@ -232,7 +232,7 @@
       "component_type_id": "splitter",
       "label": "Bypass Reactor Splitter",
       "parameters": {
-        "mode": "ratio",
+        "mode": "split_ratio",
         "splitratio": [0.6, 0.4]
       },
       "data": {
@@ -593,7 +593,7 @@
       "component_type_id": "splitter",
       "label": "Thickener Splitter",
       "parameters": {
-        "mode": "ratio",
+        "mode": "split_ratio",
         "splitratio": [0.6, 0.4]
       },
       "data": {
@@ -762,7 +762,7 @@
       "component_type_id": "splitter",
       "label": "Storage Splitter",
       "parameters": {
-        "mode": "ratio",
+        "mode": "split_ratio",
         "splitratio": [0.4, 0.6]
       },
       "data": {
