@@ -121,51 +121,143 @@ def make_combiner(node_id: str, params: Dict[str, Any]):
 
 @register("splitter")
 def make_splitter(node_id: str, params: Dict[str, Any]):
+    # Neue, deklarative Parameter (rückwärtskompatibel)
+    mode = params.get("mode", None)
+    fractions = params.get("fractions", None)     # z. B. ["", reginit.QBYPASSPLANT] oder [0.7, 0.3]
+    threshold = params.get("threshold", None)     # z. B. reginit.QBYPASS
+    target = params.get("target", None)           # "out_a", "out_b" oder benannte Handles
+    # Legacy-Unterstützung
+    q_bypass = params.get("q_bypass", None)       # alt: Bypass-Schwelle
+    qintr = params.get("qintr", None)             # alt: interne Rezirkulation
+
+    # BSM2-Implementierung bleibt verfügbar, wird aber für neue Modi nicht benötigt
     Splitter = get_splitter()
     impl = Splitter()
-    
-    # Handle different splitter types based on parameters
-    fractions = params.get("fractions", (0.5, 0.5))
-    q_bypass = params.get("q_bypass", None)  # BSM2 bypass threshold
-    qintr = params.get("qintr", None)  # BSM1 internal recycle
-    
+
     class SplitterAdapter:
-        def __init__(self, impl, fractions, q_bypass, qintr):
-            self.impl = impl
+        def __init__(self, mode, fractions, threshold, target, q_bypass, qintr):
+            self.mode = mode
             self.fractions = fractions
+            self.threshold = threshold
+            self.target = target
             self.q_bypass = q_bypass
             self.qintr = float(qintr) if qintr is not None else None
-            
+
+        @staticmethod
+        def _mk_out(x: np.ndarray, Qv: float) -> np.ndarray:
+            y = x.copy()
+            y[14] = max(float(Qv), 0.0)
+            return y
+
+        @staticmethod
+        def _target_pair(target: str):
+            # Wähle passende Handle-Namen-Paare abhängig vom Zielhandle
+            if target in ("out_a", "out_b", None):
+                return ("out_a", "out_b")
+            if target in ("out_to_settler", "out_recycle_to_combiner"):
+                return ("out_to_settler", "out_recycle_to_combiner")
+            # Fallback auf Standard
+            return ("out_a", "out_b")
+
         def step(self, dt, current_step, inputs):
             x = inputs.get("in_main")
-            if x is None: return {}
-            
+            if x is None:
+                return {}
+
+            Q = float(x[14])
+
+            # 0) Legacy: Bypass via BSM2-Hilfsfunktion
             if self.q_bypass is not None:
-                # BSM2 bypass splitter: type 2 splitter with flow threshold
-                a, b = self.impl.output(x, self.fractions, float(self.q_bypass))
+                # Erwartet fractions und q_bypass (ältere Configs)
+                a, b = impl.output(x, self.fractions or (0.5, 0.5), float(self.q_bypass))
                 return {"out_a": a, "out_b": b}
-            elif self.qintr is not None:
-                # BSM1/BSM2 reactor recycle splitter: split based on QINTR
-                input_flow = x[14]  # Flow rate is at index 14
-                
-                # BSM1/BSM2 logic: split based on internal recycle flow (qintr)
-                flow_to_settler = max(input_flow - self.qintr, 0.0)
-                flow_to_recycle = self.qintr
-                
-                # Create output streams with proper flow rates
-                out_to_settler = x.copy()
-                out_to_settler[14] = flow_to_settler
-                
-                out_to_recycle = x.copy() 
-                out_to_recycle[14] = flow_to_recycle
-                
-                return {"out_to_settler": out_to_settler, "out_recycle_to_combiner": out_to_recycle}
+
+            # 1) Neue Schwellenwert-Logik: Überschuss über threshold geht auf 'target'
+            if self.mode == "threshold" and self.threshold is not None:
+                T = float(self.threshold)
+                t1, t2 = self._target_pair(self.target or "out_b")
+
+                # FIXED: For reactor recycle, flow up to threshold goes to recycle, rest to settler
+                if self.target == "out_recycle_to_combiner":
+                    # This is the reactor splitter: first T flow goes to recycle, rest to settler
+                    Q_recycle = min(T, Q)
+                    Q_settler = Q - Q_recycle
+                    return {
+                        "out_to_settler": self._mk_out(x, Q_settler),
+                        "out_recycle_to_combiner": self._mk_out(x, Q_recycle),
+                    }
+                else:
+                    # Standard threshold: excess over T goes to target
+                    if (self.target or t2) == t1:
+                        # Überschuss auf t1
+                        Q1 = max(Q - T, 0.0)
+                        Q2 = Q - Q1
+                    else:
+                        # Überschuss auf t2
+                        Q2 = max(Q - T, 0.0)
+                        Q1 = Q - Q2
+
+                    return {
+                        t1: self._mk_out(x, Q1),
+                        t2: self._mk_out(x, Q2),
+                    }
+
+            # 2) Neue Verhältnis-/Sollstrom-Logik
+            if self.mode == "split_ratio" and isinstance(self.fractions, (list, tuple)) and len(self.fractions) >= 2:
+                fa, fb = self.fractions[0], self.fractions[1]
+
+                if fa == "" and isinstance(fb, (int, float)):
+                    Qb = min(float(fb), Q)
+                    Qa = Q - Qb
+                elif fb == "" and isinstance(fa, (int, float)):
+                    Qa = min(float(fa), Q)
+                    Qb = Q - Qa
+                else:
+                    if isinstance(fa, (int, float)) and 0.0 <= float(fa) <= 1.0:
+                        Qa = Q * float(fa)
+                        Qb = Q - Qa
+                    elif isinstance(fb, (int, float)) and 0.0 <= float(fb) <= 1.0:
+                        Qb = Q * float(fb)
+                        Qa = Q - Qb
+                    elif isinstance(fa, (int, float)):
+                        Qa = min(float(fa), Q)
+                        Qb = Q - Qa
+                    elif isinstance(fb, (int, float)):
+                        Qb = min(float(fb), Q)
+                        Qa = Q - Qb
+                    else:
+                        Qa = 0.5 * Q
+                        Qb = Q - Qa
+
+                return {
+                    "out_a": self._mk_out(x, Qa),
+                    "out_b": self._mk_out(x, Qb),
+                }
+
+            # 3) Legacy: interne Rezirkulation (z. B. Reaktor-Ausgang)
+            if self.qintr is not None:
+                flow_to_recycle = min(self.qintr, Q)
+                flow_to_settler = Q - flow_to_recycle
+                return {
+                    "out_to_settler": self._mk_out(x, flow_to_settler),
+                    "out_recycle_to_combiner": self._mk_out(x, flow_to_recycle),
+                }
+
+            # 4) Legacy/Fallback: feste fractions oder 50/50
+            if isinstance(self.fractions, (list, tuple)) and len(self.fractions) >= 2:
+                fa = float(self.fractions[0])
+                if 0.0 <= fa <= 1.0:
+                    Qa = Q * fa
+                else:
+                    Qa = min(fa, Q)
+                Qb = Q - Qa
             else:
-                # Standard splitter with fixed fractions
-                a, b = self.impl.output(x, self.fractions)
-                return {"out_a": a, "out_b": b}
-                
-    return SplitterAdapter(impl, fractions, q_bypass, qintr)
+                Qa = 0.5 * Q
+                Qb = Q - Qa
+
+            return {"out_a": self._mk_out(x, Qa), "out_b": self._mk_out(x, Qb)}
+
+    return SplitterAdapter(mode, fractions, threshold, target, q_bypass, qintr)
 
 @register("reactor")
 def make_asm1reactor(node_id: str, params: Dict[str, Any]):
@@ -250,9 +342,12 @@ def make_thickener(node_id: str, params: Dict[str, Any]):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
             underflow, overflow = self.impl.output(y_in)
+            # IMPORTANT: Ensure thickener outputs are only ASM1 (21 elements)
+            underflow_21 = underflow[:21] if len(underflow) > 21 else underflow
+            overflow_21 = overflow[:21] if len(overflow) > 21 else overflow
             return {
-                "out_thickened": underflow,
-                "out_supernatant": overflow
+                "out_thickened": underflow_21,
+                "out_supernatant": overflow_21
             }
     return ThickenerAdapter(impl)
 
@@ -280,7 +375,9 @@ def make_adm1(node_id: str, params: Dict[str, Any]):
             if y_in is None: return {}
             # CRITICAL FIX: Pass correct t_op temperature parameter instead of None
             out0, out1, out2 = self.impl.output(dt, current_step, y_in, self.t_op)
-            return {"out_digested": out0, "out_gas": out1, "out_liquid": out2}
+            # IMPORTANT: Ensure liquid output is only ASM1 (21 elements) not ADM1+ASM1 (51 elements)
+            liquid_output = out2[:21] if len(out2) > 21 else out2
+            return {"out_digested": out0, "out_gas": out1[:21] if len(out1) > 21 else out1, "out_liquid": liquid_output}
     return ADM1Adapter(impl, t_op)
 
 @register("dewatering")
@@ -294,7 +391,10 @@ def make_dewatering(node_id: str, params: Dict[str, Any]):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
             cake, reject = self.impl.output(y_in)
-            return {"out_cake": cake, "out_filtrate": reject}
+            # IMPORTANT: Ensure dewatering outputs are only ASM1 (21 elements)
+            cake_21 = cake[:21] if len(cake) > 21 else cake
+            reject_21 = reject[:21] if len(reject) > 21 else reject
+            return {"out_cake": cake_21, "out_filtrate": reject_21}
     return DewateringAdapter(impl)
 
 @register("storage")
@@ -321,5 +421,7 @@ def make_storage(node_id: str, params: Dict[str, Any]):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
             out, _ = self.impl.output(dt, current_step, y_in, self.qstorage)
-            return {"out_main": out}
+            # IMPORTANT: Ensure storage output is only ASM1 (21 elements)
+            storage_output = out[:21] if len(out) > 21 else out
+            return {"out_main": storage_output}
     return StorageAdapter(impl, qstorage)

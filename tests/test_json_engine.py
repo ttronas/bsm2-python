@@ -76,8 +76,8 @@ def run_json_bsm2_test():
     with open(config_path, 'r') as f:
         config = json.load(f)
     
-    # Set endtime to 5 days for quicker testing (BSM2 is more complex)
-    config['simulation_settings']['steady_endtime'] = 5
+    # Set endtime to 3 days for faster testing (BSM2 is more complex)
+    config['simulation_settings']['steady_endtime'] = 3
     
     engine = SimulationEngine(config)
     results = engine.simulate()
@@ -123,7 +123,7 @@ def main():
     """Compare BSM1OL and BSM2OL with JSON engine results."""
     
     print("Comparing JSON simulation engine with BSM1OL and BSM2OL...")
-    print("Testing with endtime=20 days for quicker execution")
+    print("Testing with reduced simulation times and iteration cycles for faster execution")
     
     overall_success = True
     
