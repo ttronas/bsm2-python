@@ -1,23 +1,43 @@
 {
-	"build": {
-		"dockerfile": "../Dockerfile"
-	},
-	"remoteUser": "root",
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"charliermarsh.ruff",
-				"ms-python.python",
-				"ms-python.vscode-pylance",
-				"ms-python.debugpy",
-				"ms-toolsai.jupyter",
-				"streetsidesoftware.code-spell-checker",
-				"streetsidesoftware.code-spell-checker-german",
-				"mhutchie.git-graph"
-			],
-			"settings": {"cSpell.language": "en,de,en-GB",
-			"python.defaultInterpreterPath": "${env:PATH_TO_TEST_ENV}"
-		}
-	}
-}
+  "name": "PythonUV",
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "context": ".."
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bierner.markdown-mermaid",
+        "charliermarsh.ruff",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.debugpy",
+        "ms-toolsai.jupyter",
+        "streetsidesoftware.code-spell-checker",
+        "streetsidesoftware.code-spell-checker-german",
+        "streetsidesoftware.code-spell-checker-british-english",
+        "github.copilot",
+        "github.copilot-chat",
+        "alexcvzz.vscode-sqlite",
+        "janisdd.vscode-edit-csv"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "/bin/bash"
+          }
+        },
+        "[python]": {
+          "editor.wordWrap": "on"
+        },
+        "python.defaultInterpreterPath": "/.venv/bin/python"
+      }
+    }
+  },
+  "forwardPorts": [],
+  "containerEnv": {
+    "PYTHONUNBUFFERED": "1"
+  },
+  "remoteUser": "root"
 }
