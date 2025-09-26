@@ -1,4 +1,6 @@
-# Use a specific Python version for reproducibility
+# ...código existente...
+RUN uv pip install -p $VIRTUAL_ENV/bin/python --break-system-packages -r pyproject.toml
+# ...código existente...# Use a specific Python version for reproducibility
 FROM python:3.11-slim as base
 
 # Install uv
