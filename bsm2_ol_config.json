@@ -482,7 +482,7 @@
       "label": "Reactor Splitter",
       "parameters": {
         "mode": "split_ratio",
-        "qintr": "asm1init.QINTR"
+        "split_ratio": ["", "asm1init.QINTR"]
       },
       "data": {
         "handles": {

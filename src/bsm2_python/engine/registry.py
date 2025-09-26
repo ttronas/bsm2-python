@@ -170,66 +170,61 @@ def make_splitter(node_id: str, params: Dict[str, Any]):
         return ThresholdSplitterAdapter(impl, threshold, target)
     
     else:  # mode == "split_ratio" or default
-        # Standard splitter with split ratios - handles both regular splitting and recycle logic
+        # Standard splitter with split ratios 
         impl = Splitter(sp_type=1)
-        splitratio = params.get("splitratio", [0.5, 0.5])
+        split_ratio = params.get("split_ratio", [0.5, 0.5])
         
-        # Support special case for internal recycle via parameters
-        qintr = params.get("qintr", None)
-        
-        # Resolve parameter references in splitratio
-        if isinstance(splitratio, list):
+        # Resolve parameter references in split_ratio - empty strings mean remainder
+        if isinstance(split_ratio, list):
             resolved_ratio = []
-            for ratio in splitratio:
-                resolved_ratio.append(float(resolve_value(ratio)))
-            splitratio = tuple(resolved_ratio)
+            total_fixed = 0.0
+            empty_indices = []
+            
+            for i, ratio in enumerate(split_ratio):
+                if ratio == "" or ratio is None:
+                    empty_indices.append(i)
+                    resolved_ratio.append(0.0)  # Placeholder
+                else:
+                    val = float(resolve_value(ratio))
+                    resolved_ratio.append(val)
+                    total_fixed += val
+            
+            # Handle empty strings as "remainder"
+            if empty_indices:
+                remaining = 1.0 - total_fixed
+                remainder_per_empty = remaining / len(empty_indices)
+                for idx in empty_indices:
+                    resolved_ratio[idx] = remainder_per_empty
+            
+            split_ratio = tuple(resolved_ratio)
         
         class SplitRatioSplitterAdapter:
-            def __init__(self, impl, splitratio, qintr):
+            def __init__(self, impl, split_ratio):
                 self.impl = impl
-                self.splitratio = splitratio
-                self.qintr = float(resolve_value(qintr)) if qintr is not None else None
+                self.split_ratio = split_ratio
                 
             def step(self, dt, current_step, inputs):
                 x = inputs.get("in_main")
                 if x is None: return {}
                 
-                # Special handling for reactor recycle if qintr is specified
-                if self.qintr is not None:
-                    # BSM reactor recycle: split based on internal recycle flow
-                    input_flow = x[14]  # Q is at index 14
-                    if input_flow <= 0:
-                        return {"out_to_settler": x * 0, "out_recycle_to_combiner": x * 0}
-                    
-                    # Calculate flows: recycle gets fixed qintr, rest goes to settler
-                    flow_to_settler = max(input_flow - self.qintr, 0.0)
-                    flow_to_recycle = min(self.qintr, input_flow)
-                    
-                    # Create output streams
-                    out_to_settler = x.copy()
-                    out_to_settler[14] = flow_to_settler
-                    
-                    out_to_recycle = x.copy()
-                    out_to_recycle[14] = flow_to_recycle
-                    
-                    return {"out_to_settler": out_to_settler, "out_recycle_to_combiner": out_to_recycle}
+                try:
+                    # Use BSM2 splitter logic with ratios
+                    outputs = self.impl.output(x, self.split_ratio)
+                    result = {}
+                    if len(outputs) >= 1:
+                        result["out_a"] = outputs[0]
+                    if len(outputs) >= 2:
+                        result["out_b"] = outputs[1]
+                    if len(outputs) >= 1:  # For reactor splitters 
+                        result["out_to_settler"] = outputs[0]
+                    if len(outputs) >= 2:
+                        result["out_recycle_to_combiner"] = outputs[1]
+                    return result
+                except Exception as e:
+                    # Fallback for edge cases
+                    return {"out_a": x * 0.5, "out_b": x * 0.5}
                 
-                else:
-                    # Standard split ratio logic
-                    try:
-                        # Use BSM2 splitter logic with ratios
-                        outputs = self.impl.output(x, self.splitratio)
-                        result = {}
-                        if len(outputs) >= 1:
-                            result["out_a"] = outputs[0]
-                        if len(outputs) >= 2:
-                            result["out_b"] = outputs[1]
-                        return result
-                    except Exception as e:
-                        # Fallback for edge cases
-                        return {"out_a": x * 0.5, "out_b": x * 0.5}
-                
-        return SplitRatioSplitterAdapter(impl, splitratio, qintr)
+        return SplitRatioSplitterAdapter(impl, split_ratio)
 
 @register("reactor")
 def make_asm1reactor(node_id: str, params: Dict[str, Any]):

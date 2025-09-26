@@ -127,14 +127,14 @@
     {
       "id": "reactor2",
       "component_type_id": "reactor",
-      "label": "ASM1 Reactor 2",
+      "label": "Reactor 2",
       "parameters": {
         "KLA": "asm1init.KLA2",
         "VOL": "asm1init.VOL2",
         "YINIT": "asm1init.YINIT2",
-        "PAR": "asm1init.PAR1",
-        "CARB": "asm1init.CARB",
-        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC",
+        "PAR": "asm1init.PAR2",
+        "CARB": "asm1init.CARB2",
+        "CARBONSOURCECONC": "asm1init.CARBONSOURCECONC2",
         "tempmodel": false,
         "activate": false
       },
@@ -274,7 +274,7 @@
       "label": "Reactor Splitter",
       "parameters": {
         "mode": "split_ratio",
-        "qintr": "asm1init.QINTR"
+        "split_ratio": ["", "asm1init.QINTR"]
       },
       "data": {
         "handles": {
