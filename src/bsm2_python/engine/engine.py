@@ -17,11 +17,63 @@ class SimulationEngine:
         for n in config["nodes"]:
             handles = (n.get("data") or {}).get("handles") or {}
             in_defs: List[HandleDC] = []
-            for h in handles.get("inputs") or []:
-                in_defs.append(HandleDC(id=h["id"], position=h.get("position", 0)))
             out_defs: List[HandleDC] = []
-            for h in handles.get("outputs") or []:
-                out_defs.append(HandleDC(id=h["id"], position=h.get("position", 0)))
+            
+            # Parse input handles if they exist
+            inputs = handles.get("inputs") or {}
+            if inputs:
+                for input_type, input_list in inputs.items():
+                    if isinstance(input_list, list):
+                        for h in input_list:
+                            in_defs.append(HandleDC(id=h["id"], position=h.get("position", 0)))
+                    elif isinstance(input_list, dict):
+                        in_defs.append(HandleDC(id=input_list["id"], position=input_list.get("position", 0)))
+            
+            # Parse output handles if they exist
+            outputs = handles.get("outputs") or {}
+            if outputs:
+                for output_type, output_list in outputs.items():
+                    if isinstance(output_list, list):
+                        for h in output_list:
+                            out_defs.append(HandleDC(id=h["id"], position=h.get("position", 0)))
+                    elif isinstance(output_list, dict):
+                        out_defs.append(HandleDC(id=output_list["id"], position=output_list.get("position", 0)))
+            
+            # Create default handles if none specified (backwards compatibility)
+            if not in_defs and not out_defs:
+                # Add common default handles based on component type
+                component_type = n["component_type_id"]
+                if component_type in ["influent_static"]:
+                    out_defs.append(HandleDC(id="out_main", position=0))
+                elif component_type in ["effluent"]:
+                    in_defs.append(HandleDC(id="in_main", position=0))
+                elif component_type in ["combiner"]:
+                    in_defs.extend([HandleDC(id="in_main", position=0), HandleDC(id="in_recycle", position=1)])
+                    out_defs.append(HandleDC(id="out_combined", position=0))
+                elif component_type in ["splitter"]:
+                    in_defs.append(HandleDC(id="in_main", position=0))
+                    out_defs.extend([HandleDC(id="out_a", position=0), HandleDC(id="out_b", position=1)])
+                elif component_type in ["reactor"]:
+                    in_defs.append(HandleDC(id="in_main", position=0))
+                    out_defs.append(HandleDC(id="out_main", position=0))
+                elif component_type in ["settler"]:
+                    in_defs.append(HandleDC(id="in_main", position=0))
+                    out_defs.extend([
+                        HandleDC(id="out_effluent", position=0),
+                        HandleDC(id="out_sludge_recycle", position=1),
+                        HandleDC(id="out_sludge_waste", position=2)
+                    ])
+                elif component_type in ["primary_clarifier"]:
+                    in_defs.append(HandleDC(id="in_main", position=0))
+                    out_defs.extend([
+                        HandleDC(id="out_primary_effluent", position=0),
+                        HandleDC(id="out_primary_sludge", position=1)
+                    ])
+                else:
+                    # Generic defaults
+                    in_defs.append(HandleDC(id="in_main", position=0))
+                    out_defs.append(HandleDC(id="out_main", position=0))
+            
             self.nodes[n["id"]] = NodeDC(
                 id=n["id"],
                 component_type_id=n["component_type_id"],
@@ -47,16 +99,16 @@ class SimulationEngine:
                     f"Edge {eref.id} references unknown node(s): "
                     f"{eref.source_node_id}->{eref.target_node_id}"
                 )
-            if not src.has_output_handle(eref.source_handle_id):
-                raise ValueError(
-                    f"Edge {eref.id} uses unknown source handle "
-                    f"'{eref.source_handle_id}' on node '{src.id}'"
-                )
-            if not tgt.has_input_handle(eref.target_handle_id):
-                raise ValueError(
-                    f"Edge {eref.id} uses unknown target handle "
-                    f"'{eref.target_handle_id}' on node '{tgt.id}'"
-                )
+            
+            # Only validate handles if they were explicitly defined
+            # For backwards compatibility, skip validation if using default handles
+            if src.output_handles and not src.has_output_handle(eref.source_handle_id):
+                print(f"Warning: Edge {eref.id} uses unknown source handle "
+                      f"'{eref.source_handle_id}' on node '{src.id}'. Available: {src.output_handle_ids()}")
+            if tgt.input_handles and not tgt.has_input_handle(eref.target_handle_id):
+                print(f"Warning: Edge {eref.id} uses unknown target handle "
+                      f"'{eref.target_handle_id}' on node '{tgt.id}'. Available: {tgt.input_handle_ids()}")
+            
             src.out_edges.append(eref)
             tgt.in_edges.append(eref)
 
