@@ -377,7 +377,7 @@ def make_adm1(node_id: str, params: Dict[str, Any]):
             out0, out1, out2 = self.impl.output(dt, current_step, y_in, self.t_op)
             # IMPORTANT: Ensure liquid output is only ASM1 (21 elements) not ADM1+ASM1 (51 elements)
             liquid_output = out2[:21] if len(out2) > 21 else out2
-            return {"out_digested": out0, "out_gas": out1, "out_liquid": liquid_output}
+            return {"out_digested": out0, "out_gas": out1[:21] if len(out1) > 21 else out1, "out_liquid": liquid_output}
     return ADM1Adapter(impl, t_op)
 
 @register("dewatering")
