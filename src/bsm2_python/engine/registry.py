@@ -177,19 +177,30 @@ def make_splitter(node_id: str, params: Dict[str, Any]):
                 T = float(self.threshold)
                 t1, t2 = self._target_pair(self.target or "out_b")
 
-                if (self.target or t2) == t1:
-                    # Überschuss auf t1
-                    Q1 = max(Q - T, 0.0)
-                    Q2 = Q - Q1
+                # FIXED: For reactor recycle, flow up to threshold goes to recycle, rest to settler
+                if self.target == "out_recycle_to_combiner":
+                    # This is the reactor splitter: first T flow goes to recycle, rest to settler
+                    Q_recycle = min(T, Q)
+                    Q_settler = Q - Q_recycle
+                    return {
+                        "out_to_settler": self._mk_out(x, Q_settler),
+                        "out_recycle_to_combiner": self._mk_out(x, Q_recycle),
+                    }
                 else:
-                    # Überschuss auf t2
-                    Q2 = max(Q - T, 0.0)
-                    Q1 = Q - Q2
+                    # Standard threshold: excess over T goes to target
+                    if (self.target or t2) == t1:
+                        # Überschuss auf t1
+                        Q1 = max(Q - T, 0.0)
+                        Q2 = Q - Q1
+                    else:
+                        # Überschuss auf t2
+                        Q2 = max(Q - T, 0.0)
+                        Q1 = Q - Q2
 
-                return {
-                    t1: self._mk_out(x, Q1),
-                    t2: self._mk_out(x, Q2),
-                }
+                    return {
+                        t1: self._mk_out(x, Q1),
+                        t2: self._mk_out(x, Q2),
+                    }
 
             # 2) Neue Verhältnis-/Sollstrom-Logik
             if self.mode == "split_ratio" and isinstance(self.fractions, (list, tuple)) and len(self.fractions) >= 2:
@@ -331,9 +342,12 @@ def make_thickener(node_id: str, params: Dict[str, Any]):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
             underflow, overflow = self.impl.output(y_in)
+            # IMPORTANT: Ensure thickener outputs are only ASM1 (21 elements)
+            underflow_21 = underflow[:21] if len(underflow) > 21 else underflow
+            overflow_21 = overflow[:21] if len(overflow) > 21 else overflow
             return {
-                "out_thickened": underflow,
-                "out_supernatant": overflow
+                "out_thickened": underflow_21,
+                "out_supernatant": overflow_21
             }
     return ThickenerAdapter(impl)
 
@@ -361,7 +375,9 @@ def make_adm1(node_id: str, params: Dict[str, Any]):
             if y_in is None: return {}
             # CRITICAL FIX: Pass correct t_op temperature parameter instead of None
             out0, out1, out2 = self.impl.output(dt, current_step, y_in, self.t_op)
-            return {"out_digested": out0, "out_gas": out1, "out_liquid": out2}
+            # IMPORTANT: Ensure liquid output is only ASM1 (21 elements) not ADM1+ASM1 (51 elements)
+            liquid_output = out2[:21] if len(out2) > 21 else out2
+            return {"out_digested": out0, "out_gas": out1, "out_liquid": liquid_output}
     return ADM1Adapter(impl, t_op)
 
 @register("dewatering")
@@ -375,7 +391,10 @@ def make_dewatering(node_id: str, params: Dict[str, Any]):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
             cake, reject = self.impl.output(y_in)
-            return {"out_cake": cake, "out_filtrate": reject}
+            # IMPORTANT: Ensure dewatering outputs are only ASM1 (21 elements)
+            cake_21 = cake[:21] if len(cake) > 21 else cake
+            reject_21 = reject[:21] if len(reject) > 21 else reject
+            return {"out_cake": cake_21, "out_filtrate": reject_21}
     return DewateringAdapter(impl)
 
 @register("storage")
@@ -402,5 +421,7 @@ def make_storage(node_id: str, params: Dict[str, Any]):
             y_in = inputs.get("in_main")
             if y_in is None: return {}
             out, _ = self.impl.output(dt, current_step, y_in, self.qstorage)
-            return {"out_main": out}
+            # IMPORTANT: Ensure storage output is only ASM1 (21 elements)
+            storage_output = out[:21] if len(out) > 21 else out
+            return {"out_main": storage_output}
     return StorageAdapter(impl, qstorage)
