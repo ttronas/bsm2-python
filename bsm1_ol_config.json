@@ -40,13 +40,15 @@
       },
       "data": {
         "handles": {
-          "inputs": [],
-          "outputs": [
-            {
-              "id": "out_main",
-              "position": 0
-            }
-          ]
+          "inputs": {},
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_main",
+                "position": 0
+              }
+            ]
+          }
         },
         "icon": ""
       }
@@ -58,26 +60,30 @@
       "parameters": {},
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_fresh",
-              "position": 0
-            },
-            {
-              "id": "in_recycle_process",
-              "position": 1
-            },
-            {
-              "id": "in_recycle_settler",
-              "position": 2
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_combined",
-              "position": 0
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_fresh",
+                "position": 0
+              },
+              {
+                "id": "in_recycle_process",
+                "position": 1
+              },
+              {
+                "id": "in_recycle_settler",
+                "position": 2
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_combined",
+                "position": 0
+              }
+            ]
+          }
         },
         "icon": "docs/assets/icons/bsm2python/combiner.svg"
       }
@@ -98,18 +104,22 @@
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_main",
-              "position": 0
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_main",
+                "position": 0
+              }
+            ]
+          }
         },
         "icon": "docs/assets/icons/bsm2python/activated-sludge-reactor.svg"
       }
@@ -130,18 +140,22 @@
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_main",
-              "position": 0
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_main",
+                "position": 0
+              }
+            ]
+          }
         },
         "icon": "docs/assets/icons/bsm2python/activated-sludge-reactor.svg"
       }
@@ -162,18 +176,22 @@
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_main",
-              "position": 0
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_main",
+                "position": 0
+              }
+            ]
+          }
         },
         "icon": "docs/assets/icons/bsm2python/activated-sludge-reactor.svg"
       }
@@ -194,18 +212,22 @@
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_main",
-              "position": 0
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_main",
+                "position": 0
+              }
+            ]
+          }
         },
         "icon": "docs/assets/icons/bsm2python/activated-sludge-reactor.svg"
       }
@@ -226,18 +248,22 @@
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_main",
-              "position": 0
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_main",
+                "position": 0
+              }
+            ]
+          }
         },
         "icon": "docs/assets/icons/bsm2python/activated-sludge-reactor.svg"
       }
@@ -247,26 +273,32 @@
       "component_type_id": "splitter",
       "label": "Splitter",
       "parameters": {
-        "qintr": "asm1init.QINTR"
+        "mode": "threshold",
+        "threshold": "asm1init.QINTR",
+        "target": "out_recycle_to_combiner"
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_to_settler",
-              "position": 0
-            },
-            {
-              "id": "out_recycle_to_combiner",
-              "position": 1
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_to_settler",
+                "position": 0
+              },
+              {
+                "id": "out_recycle_to_combiner",
+                "position": 1
+              }
+            ]
+          }
         },
         "icon": "docs/assets/icons/bsm2python/splitter.svg"
       }
@@ -288,22 +320,26 @@
       },
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": [
-            {
-              "id": "out_effluent",
-              "position": 0
-            },
-            {
-              "id": "out_sludge_recycle",
-              "position": 1
-            }
-          ]
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_effluent",
+                "position": 0
+              },
+              {
+                "id": "out_sludge_recycle",
+                "position": 1
+              }
+            ]
+          }
         },
         "icon": "docs/assets/icons/bsm2python/settler.svg"
       }
@@ -315,13 +351,15 @@
       "parameters": {},
       "data": {
         "handles": {
-          "inputs": [
-            {
-              "id": "in_main",
-              "position": 0
-            }
-          ],
-          "outputs": []
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
+          },
+          "outputs": {}
         },
         "icon": ""
       }
