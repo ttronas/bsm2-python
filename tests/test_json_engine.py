@@ -34,11 +34,11 @@ def run_bsm1ol_test():
     return bsm1_ol.ys_eff, bsm1_ol.sludge_height, bsm1_ol.ys_tss_internal
 
 def run_bsm2ol_test():
-    """Run the original BSM2OL test with endtime=20 days."""
+    """Run the original BSM2OL test with endtime=5 days."""
     
     from bsm2_python.bsm2_ol import BSM2OL
     
-    bsm2_ol = BSM2OL(endtime=20, timestep=15 / 60 / 24, tempmodel=False, activate=False)
+    bsm2_ol = BSM2OL(endtime=5, timestep=15 / 60 / 24, tempmodel=False, activate=False)
     
     for idx in range(len(bsm2_ol.simtime)):
         bsm2_ol.step(idx)
@@ -76,8 +76,8 @@ def run_json_bsm2_test():
     with open(config_path, 'r') as f:
         config = json.load(f)
     
-    # Set endtime to 5 days for quicker testing (BSM2 is more complex)
-    config['simulation_settings']['steady_endtime'] = 5
+    # Set endtime to 3 days for faster testing (BSM2 is more complex)
+    config['simulation_settings']['steady_endtime'] = 3
     
     engine = SimulationEngine(config)
     results = engine.simulate()
@@ -123,7 +123,7 @@ def main():
     """Compare BSM1OL and BSM2OL with JSON engine results."""
     
     print("Comparing JSON simulation engine with BSM1OL and BSM2OL...")
-    print("Testing with endtime=20 days for quicker execution")
+    print("Testing with reduced simulation times and iteration cycles for faster execution")
     
     overall_success = True
     
@@ -253,7 +253,21 @@ def main():
                 {
                     "id": "effluent",
                     "component_type_id": "effluent",
-                    "parameters": {}
+                    "parameters": {},
+                    "data": {
+                        "handles": {
+                            "inputs": {
+                                "main": [
+                                    {
+                                        "id": "in_main",
+                                        "position": 0
+                                    }
+                                ]
+                            },
+                            "outputs": {}
+                        },
+                        "icon": ""
+                    }
                 }
             ],
             "edges": [

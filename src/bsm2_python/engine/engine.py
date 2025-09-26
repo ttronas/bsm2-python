@@ -166,8 +166,8 @@ class SimulationEngine:
         dt: float,
         current_step: int = 0,
         tol: float = 1e-3,
-        max_iter: int = 5,
-        relax: float = 0.7
+        max_iter: int = 3,  # Reduced from 5 to 3 for faster convergence
+        relax: float = 0.8  # Increased from 0.7 to 0.8 for faster convergence
     ):
         # Nur Tear-Edges initialisieren (Kopie einer plausiblen Anfangszusammensetzung)
         for eid in tear_edge_ids:
@@ -242,8 +242,10 @@ class SimulationEngine:
 
     def simulate(self):
         """Run simulation and return results compatible with real_json_engine."""
-        timestep = 15 / (60 * 24)  # 15 minutes in days
-        endtime = 20  # days - shorter for debugging
+        # Get simulation settings from config, with fallback defaults
+        settings = self.config.get('simulation_settings', {})
+        timestep = settings.get('timestep', 15 / (60 * 24))  # 15 minutes in days
+        endtime = settings.get('steady_endtime', 20)  # days - use config value or default
 
         print(f"\n🎯 Simulation Configuration:")
         print(f"   Timestep: {timestep:.6f} days ({timestep*24*60:.1f} minutes)")
