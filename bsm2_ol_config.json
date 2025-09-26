@@ -751,14 +751,13 @@
               {
                 "id": "out_digested",
                 "position": 0
-              },
+              }],
+            "gasbsm2": [
               {
                 "id": "out_gas",
                 "position": 1
-              }
-            ]
-          }
-        },
+              }]
+          },
         "icon": "docs/assets/icons/bsm2python/anerobic-digester.svg"
       }
     },
