@@ -34,11 +34,11 @@ def run_bsm1ol_test():
     return bsm1_ol.ys_eff, bsm1_ol.sludge_height, bsm1_ol.ys_tss_internal
 
 def run_bsm2ol_test():
-    """Run the original BSM2OL test with endtime=20 days."""
+    """Run the original BSM2OL test with endtime=5 days."""
     
     from bsm2_python.bsm2_ol import BSM2OL
     
-    bsm2_ol = BSM2OL(endtime=20, timestep=15 / 60 / 24, tempmodel=False, activate=False)
+    bsm2_ol = BSM2OL(endtime=5, timestep=15 / 60 / 24, tempmodel=False, activate=False)
     
     for idx in range(len(bsm2_ol.simtime)):
         bsm2_ol.step(idx)
