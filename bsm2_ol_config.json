@@ -58,9 +58,8 @@
       "component_type_id": "splitter",
       "label": "Input Bypass Splitter",
       "parameters": {
-        "mode": "threshold",
-        "threshold": ["reginit.QBYPASS", ""],
-
+  "mode": "threshold",
+  "threshold": ["reginit.QBYPASS", ""]
       },
       "data": {
         "handles": {
@@ -492,28 +491,28 @@
       "label": "Reactor Output Splitter",
       "parameters": {
         "mode": "threshold",
-        "threshold": ["", "asm1init.QINTR"],
-
+        "threshold": ["asm1init.QINTR", ""],
+        "target": "out_recycle_to_combiner"
+      },
+      "data": {
+        "handles": {
+          "inputs": {
+            "asm1": [
+              {
+                "id": "in_main",
+                "position": 0
+              }
+            ]
           },
-                "data": {
-                        "handles": {
-                                  "inputs": {
-                                              "asm1": [
-                                                            {
-                                                                            "id": "in_main",
-                                                                                            "position": 0
-                                                                                                          }
-                                                                                                                      ]
-                                                                                                                                },
-                                                                                                                                          "outputs": {
-                                                                                                                                                      "asm1": [
-                                                                                                                                                                    {
-                                                                                                                                                                                    "id": "out_to_settler",
-                                                                                                                                                                                                    "position": 0
-                                                                                                                                                                                                                  },
-                                                                                                                                                                                                                                {
-                                                                                                                                                                                                                                                "id": "out_recycle_to_combiner",
-                                                                                                                                                                                                                                                                "position": 1
+          "outputs": {
+            "asm1": [
+              {
+                "id": "out_to_settler",
+                "position": 0
+              },
+              {
+                "id": "out_recycle_to_combiner",
+                "position": 1
               }
             ]
           }
@@ -751,13 +750,16 @@
               {
                 "id": "out_digested",
                 "position": 0
-              }],
+              }
+            ],
             "gasbsm2": [
               {
                 "id": "out_gas",
-                "position": 1
-              }]
-          },
+                "position": 0
+              }
+            ]
+          }
+        },
         "icon": "docs/assets/icons/bsm2python/anerobic-digester.svg"
       }
     },
