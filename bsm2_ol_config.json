@@ -59,8 +59,8 @@
       "label": "Input Bypass Splitter",
       "parameters": {
         "mode": "threshold",
-        "threshold": "reginit.QBYPASS",
-        "target": "out_b"
+        "threshold": ["reginit.QBYPASS", ""],
+
       },
       "data": {
         "handles": {
@@ -94,7 +94,7 @@
       "label": "Plant Bypass Splitter",
       "parameters": {
         "mode": "split_ratio",
-        "fractions": [
+        "split_ratio": [
           "",
           "reginit.QBYPASSPLANT"
         ]
@@ -240,7 +240,7 @@
       "label": "Reactor Bypass Splitter",
       "parameters": {
         "mode": "split_ratio",
-        "fractions": [
+        "split_ratio": [
           "",
           "reginit.QBYPASSAS"
         ]
@@ -492,28 +492,28 @@
       "label": "Reactor Output Splitter",
       "parameters": {
         "mode": "threshold",
-        "threshold": "asm1init.QINTR",
-        "target": "out_recycle_to_combiner"
-      },
-      "data": {
-        "handles": {
-          "inputs": {
-            "asm1": [
-              {
-                "id": "in_main",
-                "position": 0
-              }
-            ]
+        "threshold": ["", "asm1init.QINTR"],
+
           },
-          "outputs": {
-            "asm1": [
-              {
-                "id": "out_to_settler",
-                "position": 0
-              },
-              {
-                "id": "out_recycle_to_combiner",
-                "position": 1
+                "data": {
+                        "handles": {
+                                  "inputs": {
+                                              "asm1": [
+                                                            {
+                                                                            "id": "in_main",
+                                                                                            "position": 0
+                                                                                                          }
+                                                                                                                      ]
+                                                                                                                                },
+                                                                                                                                          "outputs": {
+                                                                                                                                                      "asm1": [
+                                                                                                                                                                    {
+                                                                                                                                                                                    "id": "out_to_settler",
+                                                                                                                                                                                                    "position": 0
+                                                                                                                                                                                                                  },
+                                                                                                                                                                                                                                {
+                                                                                                                                                                                                                                                "id": "out_recycle_to_combiner",
+                                                                                                                                                                                                                                                                "position": 1
               }
             ]
           }
@@ -660,7 +660,7 @@
       "label": "Thickener Output Splitter",
       "parameters": {
         "mode": "split_ratio",
-        "fractions": [
+        "split_ratio": [
           "",
           "reginit.QTHICKENER2AS"
         ]
@@ -832,7 +832,7 @@
       "label": "Storage Output Splitter",
       "parameters": {
         "mode": "split_ratio",
-        "fractions": [
+        "split_ratio": [
           "",
           "reginit.QSTORAGE2AS"
         ]

@@ -2,8 +2,13 @@
 name = "bsm2-python"
 version = "0.1.0"
 description = "A Python implementation of Benchmark Simulation Models 1 and 2 to simulate wastewater treatment plants."
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 dependencies = [
+    "matplotlib",
+    "numba",
     "numpy",
-    "pytest"
+    "scipy",
+    "tqdm",
+    "control",
+    "pytest",
 ]

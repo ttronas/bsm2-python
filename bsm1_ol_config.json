@@ -274,7 +274,7 @@
       "label": "Splitter",
       "parameters": {
         "mode": "threshold",
-        "threshold": "asm1init.QINTR",
+        "threshold": ["asm1init.QINTR", ""],
         "target": "out_recycle_to_combiner"
       },
       "data": {

@@ -1,26 +1,24 @@
-# ...código existente...
-RUN uv pip install -p $VIRTUAL_ENV/bin/python --break-system-packages -r pyproject.toml
-# ...código existente...# Use a specific Python version for reproducibility
-FROM python:3.11-slim as base
+# Use a devcontainer base image instead of python:3.11-slim
+FROM mcr.microsoft.com/devcontainers/python:3.11-bullseye
 
-# Install uv
+# Instala uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/
 
-# Set up environment
+# Configura el entorno
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     VIRTUAL_ENV=/.venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# Create a virtual environment
-RUN python -m venv $VIRTUAL_ENV
-
-# Copy and install Python dependencies
+# Copia e instala dependencias
 COPY pyproject.toml .
-RUN uv pip install -p $VIRTUAL_ENV/bin/python --system-site-packages -r pyproject.toml
+ENV UV_LINK_MODE=copy
 
-# Set working directory
-WORKDIR /workspace
+RUN uv python install
+RUN uv sync
 
-# Copy the rest of the application code
+# Directorio de trabajo
+WORKDIR /workspaces/bsm2-python
+
+# Copia el resto del código
 COPY . .

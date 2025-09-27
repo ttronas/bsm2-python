@@ -31,13 +31,16 @@
         "[python]": {
           "editor.wordWrap": "on"
         },
-        "python.defaultInterpreterPath": "/.venv/bin/python"
+        "python.defaultInterpreterPath": "/.venv/bin/python",
+        "locale": "en",
+        "github.copilot.chat.localeOverride": "en"
       }
     }
   },
   "forwardPorts": [],
   "containerEnv": {
-    "PYTHONUNBUFFERED": "1"
+    "PYTHONUNBUFFERED": "1",
+    "PYTHONPATH": "/workspaces/bsm2-python/src"
   },
   "remoteUser": "root"
 }
