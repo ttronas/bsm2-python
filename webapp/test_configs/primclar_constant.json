@@ -1,0 +1,42 @@
+{
+  "name": "Primary Clarifier Test - Constant",
+  "description": "Primary clarifier test with constant influent based on tests/primclar_test.py",
+  "nodes": [
+    {
+      "id": "influent_1",
+      "type": "influent",
+      "name": "Influent",
+      "position": { "x": 100, "y": 200 },
+      "parameters": {
+        "flow_rate": 18446.0,
+        "cod": 202.32,
+        "bod": 150.0
+      }
+    },
+    {
+      "id": "primary_clarifier_1",
+      "type": "primary_clarifier",
+      "name": "Primary Clarifier",
+      "position": { "x": 400, "y": 200 },
+      "parameters": {
+        "area": 1500.0,
+        "depth": 4.0
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_1",
+      "source": "influent_1",
+      "target": "primary_clarifier_1",
+      "source_handle": "effluent",
+      "target_handle": "influent"
+    }
+  ],
+  "influent": {
+    "type": "constant",
+    "constant_values": [30, 69.5, 51.2, 202.32, 28.17, 0, 0, 0, 0, 31.56, 6.95, 10.59, 7, 211.2675]
+  },
+  "timestep": 0.0104166667,
+  "end_time": 200.0
+}

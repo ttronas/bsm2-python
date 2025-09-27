@@ -1,0 +1,42 @@
+{
+  "name": "Thickener - Constant Influent Test",
+  "description": "Single thickener with constant influent based on tests/thickener_test.py",
+  "nodes": [
+    {
+      "id": "influent_1",
+      "type": "influent",
+      "name": "Influent",
+      "position": {"x": 100, "y": 200},
+      "parameters": {
+        "type": "constant"
+      }
+    },
+    {
+      "id": "thickener_1",
+      "type": "thickener",
+      "name": "Thickener",
+      "position": {"x": 300, "y": 200},
+      "parameters": {
+        "vol_t": 1000.0,
+        "area_t": 250.0,
+        "height_t": 4.0
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_1",
+      "source": "influent_1",
+      "target": "thickener_1",
+      "source_handle": "effluent",
+      "target_handle": "influent"
+    }
+  ],
+  "influent": {
+    "type": "constant",
+    "constant_values": [30, 69.5, 51.2, 202.32, 28.17, 0, 0, 0, 0, 31.56, 6.95, 10.59, 7, 211.2675, 18446, 15, 0, 0, 0, 0, 0]
+  },
+  "timestep": 0.010416666666666666,
+  "end_time": 50.0,
+  "user_id": "test"
+}

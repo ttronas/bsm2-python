@@ -1,0 +1,40 @@
+{
+  "name": "Dewatering - Constant Influent Test",
+  "description": "Single dewatering unit with constant influent based on tests/dewatering_test.py",
+  "nodes": [
+    {
+      "id": "influent_1",
+      "type": "influent",
+      "name": "Influent",
+      "position": {"x": 100, "y": 200},
+      "parameters": {
+        "type": "constant"
+      }
+    },
+    {
+      "id": "dewatering_1",
+      "type": "dewatering",
+      "name": "Dewatering",
+      "position": {"x": 300, "y": 200},
+      "parameters": {
+        "dry_solids": 0.25
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_1",
+      "source": "influent_1",
+      "target": "dewatering_1",
+      "source_handle": "effluent",
+      "target_handle": "influent"
+    }
+  ],
+  "influent": {
+    "type": "constant",
+    "constant_values": [30, 69.5, 51.2, 202.32, 28.17, 0, 0, 0, 0, 31.56, 6.95, 10.59, 7, 211.2675, 18446, 15, 0, 0, 0, 0, 0]
+  },
+  "timestep": 0.010416666666666666,
+  "end_time": 50.0,
+  "user_id": "test"
+}

@@ -1,0 +1,42 @@
+{
+  "name": "ASM1 Reactor Test",
+  "description": "Simple test case with a single ASM1 reactor based on tests/asm1_test.py",
+  "nodes": [
+    {
+      "id": "influent-1",
+      "type": "influent",
+      "name": "Influent",
+      "position": { "x": 100, "y": 200 },
+      "parameters": {
+        "type": "constant",
+        "constant_values": [30, 69.5, 51.2, 202.32, 28.17, 0, 0, 0, 0, 31.56, 6.95, 10.59, 7, 211.2675, 18446, 15, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "id": "reactor-1",
+      "type": "asm1_reactor",
+      "name": "ASM1 Reactor",
+      "position": { "x": 300, "y": 200 },
+      "parameters": {
+        "kla": 240.0,
+        "volume": 1333.0,
+        "activate": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-1",
+      "source": "influent-1",
+      "target": "reactor-1",
+      "source_handle": "effluent",
+      "target_handle": "influent"
+    }
+  ],
+  "influent": {
+    "type": "constant",
+    "constant_values": [30, 69.5, 51.2, 202.32, 28.17, 0, 0, 0, 0, 31.56, 6.95, 10.59, 7, 211.2675, 18446, 15, 0, 0, 0, 0, 0]
+  },
+  "timestep": 0.010416666666666666,
+  "end_time": 50.0
+}
