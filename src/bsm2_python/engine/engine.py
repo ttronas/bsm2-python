@@ -14,11 +14,28 @@ class SimulationEngine:
         # Nodes als dataclasses anlegen
         self.nodes: Dict[str, NodeDC] = {}
         for n in config["nodes"]:
+            params = dict(n.get("parameters", {}))
+
+            handles = n.get("data", {}).get("handles", {}) or {}
+            output_handles = []
+            for entries in handles.get("outputs", {}).values():
+                ordered = sorted(entries, key=lambda entry: entry.get("position", 0))
+                output_handles.extend(entry["id"] for entry in ordered)
+            input_handles = []
+            for entries in handles.get("inputs", {}).values():
+                ordered = sorted(entries, key=lambda entry: entry.get("position", 0))
+                input_handles.extend(entry["id"] for entry in ordered)
+
+            if output_handles:
+                params["__output_handles__"] = output_handles
+            if input_handles:
+                params["__input_handles__"] = input_handles
+
             self.nodes[n["id"]] = NodeDC(
                 id=n["id"],
                 component_type_id=n["component_type_id"],
                 label=n.get("label", n["id"]),
-                parameters=n.get("parameters", {})
+                parameters=params
             )
 
         # Edges auf Nodes mappen

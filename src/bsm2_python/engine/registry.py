@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Dict, Any, Callable
+from typing import Dict, Any, Callable, List
 import numpy as np
 import sys
 import os
@@ -121,51 +121,198 @@ def make_combiner(node_id: str, params: Dict[str, Any]):
 
 @register("splitter")
 def make_splitter(node_id: str, params: Dict[str, Any]):
-    Splitter = get_splitter()
-    impl = Splitter()
-    
-    # Handle different splitter types based on parameters
-    fractions = params.get("fractions", (0.5, 0.5))
-    q_bypass = params.get("q_bypass", None)  # BSM2 bypass threshold
-    qintr = params.get("qintr", None)  # BSM1 internal recycle
-    
+    output_handles: List[str] = list(params.get("__output_handles__", []))
+    if not output_handles:
+        output_handles = ["out_a", "out_b"]
+
+    raw_mode = params.get("mode")
+    fallback_threshold = params.get("q_bypass")
+    if fallback_threshold is None:
+        fallback_threshold = params.get("qintr")
+
+    if raw_mode is None and fallback_threshold is not None:
+        mode = "threshold"
+    else:
+        mode = str(raw_mode).lower() if raw_mode is not None else "split_ratio"
+    if mode not in {"split_ratio", "threshold"}:
+        mode = "split_ratio"
+
+    split_ratio_spec = params.get("split_ratio")
+    if split_ratio_spec is None:
+        split_ratio_spec = params.get("fractions")
+
+    threshold_spec = params.get("threshold")
+    target_handle = params.get("target")
+
+    if mode == "threshold" and threshold_spec is None and fallback_threshold is not None:
+        threshold_spec = [fallback_threshold]
+        if target_handle is None:
+            target_handle = output_handles[-1]
+
     class SplitterAdapter:
-        def __init__(self, impl, fractions, q_bypass, qintr):
-            self.impl = impl
-            self.fractions = fractions
-            self.q_bypass = q_bypass
-            self.qintr = float(qintr) if qintr is not None else None
-            
+        def __init__(self):
+            self.node_id = node_id
+            self.mode = mode
+            self.output_handles = output_handles
+            self.target_handle = target_handle
+            self.split_ratio_spec = self._to_list(split_ratio_spec)
+            self.threshold_spec = self._to_list(threshold_spec)
+            self.threshold_mapping = self._map_thresholds()
+
+        @staticmethod
+        def _is_blank(value: Any) -> bool:
+            return value is None or (isinstance(value, str) and value.strip() == "")
+
+        @staticmethod
+        def _to_list(value: Any) -> List[Any]:
+            if value is None:
+                return []
+            if isinstance(value, np.ndarray):
+                return value.tolist()
+            if isinstance(value, (list, tuple)):
+                return list(value)
+            return [value]
+
+        def _coerce_float(self, value: Any) -> float | None:
+            if self._is_blank(value):
+                return None
+            if isinstance(value, (int, float, np.floating, np.integer)):
+                numeric = float(value)
+            elif isinstance(value, str):
+                try:
+                    numeric = float(value.strip())
+                except ValueError as exc:
+                    raise ValueError(f"Splitter '{self.node_id}': cannot parse '{value}' as a number.") from exc
+            else:
+                try:
+                    numeric = float(value)
+                except Exception as exc:  # noqa: BLE001
+                    raise ValueError(f"Splitter '{self.node_id}': cannot convert '{value}' to float.") from exc
+            if numeric < 0 or np.isnan(numeric):
+                raise ValueError(f"Splitter '{self.node_id}': values must be non-negative numbers.")
+            return numeric
+
+        def _map_thresholds(self) -> List[Any]:
+            count = len(self.output_handles)
+            mapped = ["" for _ in range(count)]
+            specs = list(self.threshold_spec)
+            if not specs:
+                return mapped
+
+            if self.target_handle and self.target_handle in self.output_handles and specs:
+                idx = self.output_handles.index(self.target_handle)
+                mapped[idx] = specs.pop(0)
+
+            for idx in range(len(mapped)):
+                if mapped[idx] == "" and specs:
+                    mapped[idx] = specs.pop(0)
+
+            return mapped
+
+        def _compute_split_ratio_flows(self, total_flow: float) -> List[float]:
+            count = len(self.output_handles)
+            if count == 0:
+                return []
+
+            specs = list(self.split_ratio_spec)
+            if len(specs) < count:
+                specs.extend(["" for _ in range(count - len(specs))])
+            elif len(specs) > count:
+                specs = specs[:count]
+
+            flows = [0.0] * count
+            explicit: List[tuple[int, float]] = []
+            blank_indices: List[int] = []
+
+            for idx, spec in enumerate(specs):
+                numeric = self._coerce_float(spec)
+                if numeric is None:
+                    blank_indices.append(idx)
+                else:
+                    explicit.append((idx, numeric))
+
+            if not explicit and blank_indices:
+                share = total_flow / len(blank_indices) if blank_indices else 0.0
+                for idx in blank_indices:
+                    flows[idx] = share
+                return flows
+
+            ratio_sum = sum(value for _, value in explicit)
+            scale = 1.0
+            if ratio_sum > 1.0 and ratio_sum > 0:
+                scale = 1.0 / ratio_sum
+
+            assigned = 0.0
+            for idx, value in explicit:
+                ratio = max(value * scale, 0.0)
+                flows[idx] = ratio * total_flow
+                assigned += flows[idx]
+
+            remaining = max(total_flow - assigned, 0.0)
+            if blank_indices:
+                share = remaining / len(blank_indices) if remaining > 0 else 0.0
+                for idx in blank_indices:
+                    flows[idx] = share
+            elif remaining > 0 and explicit:
+                last_idx = explicit[-1][0]
+                flows[last_idx] += remaining
+
+            return flows
+
+        def _compute_threshold_flows(self, total_flow: float) -> List[float]:
+            count = len(self.output_handles)
+            if count == 0:
+                return []
+
+            mapped = list(self.threshold_mapping)
+            if len(mapped) < count:
+                mapped.extend(["" for _ in range(count - len(mapped))])
+            elif len(mapped) > count:
+                mapped = mapped[:count]
+
+            flows = [0.0] * count
+            remaining = max(total_flow, 0.0)
+            blank_indices: List[int] = []
+
+            for idx, spec in enumerate(mapped):
+                numeric = self._coerce_float(spec)
+                if numeric is None:
+                    blank_indices.append(idx)
+                    continue
+                take = min(numeric, remaining)
+                flows[idx] = take
+                remaining = max(remaining - take, 0.0)
+
+            for idx in blank_indices:
+                if remaining <= 0:
+                    break
+                flows[idx] = remaining
+                remaining = 0.0
+
+            return flows
+
         def step(self, dt, current_step, inputs):
             x = inputs.get("in_main")
-            if x is None: return {}
-            
-            if self.q_bypass is not None:
-                # BSM2 bypass splitter: type 2 splitter with flow threshold
-                a, b = self.impl.output(x, self.fractions, float(self.q_bypass))
-                return {"out_a": a, "out_b": b}
-            elif self.qintr is not None:
-                # BSM1/BSM2 reactor recycle splitter: split based on QINTR
-                input_flow = x[14]  # Flow rate is at index 14
-                
-                # BSM1/BSM2 logic: split based on internal recycle flow (qintr)
-                flow_to_settler = max(input_flow - self.qintr, 0.0)
-                flow_to_recycle = self.qintr
-                
-                # Create output streams with proper flow rates
-                out_to_settler = x.copy()
-                out_to_settler[14] = flow_to_settler
-                
-                out_to_recycle = x.copy() 
-                out_to_recycle[14] = flow_to_recycle
-                
-                return {"out_to_settler": out_to_settler, "out_recycle_to_combiner": out_to_recycle}
+            if x is None:
+                return {}
+
+            total_flow = float(x[14]) if len(x) > 14 else 0.0
+            total_flow = max(total_flow, 0.0)
+
+            if self.mode == "threshold":
+                flows = self._compute_threshold_flows(total_flow)
             else:
-                # Standard splitter with fixed fractions
-                a, b = self.impl.output(x, self.fractions)
-                return {"out_a": a, "out_b": b}
-                
-    return SplitterAdapter(impl, fractions, q_bypass, qintr)
+                flows = self._compute_split_ratio_flows(total_flow)
+
+            outputs: Dict[str, np.ndarray] = {}
+            for handle, flow in zip(self.output_handles, flows):
+                stream = x.copy()
+                stream[14] = flow
+                outputs[handle] = stream
+
+            return outputs
+
+    return SplitterAdapter()
 
 @register("reactor")
 def make_asm1reactor(node_id: str, params: Dict[str, Any]):
