@@ -1,0 +1,65 @@
+{
+  "name": "ADM1 Test Case",
+  "description": "Simple ADM1 reactor test based on adm1_test.py",
+  "nodes": [
+    {
+      "id": "influent-1",
+      "type": "Influent",
+      "position": { "x": 100, "y": 200 },
+      "data": {
+        "label": "Influent",
+        "componentType": "influent",
+        "type": "constant",
+        "values": [
+          28.0665048629843,
+          48.9525780251450,
+          10361.7145189587,
+          20375.0163964256,
+          10210.0695779898,
+          553.280744847661,
+          3204.66026217631,
+          0.252251384955929,
+          1.68714307465010,
+          28.9098125063162,
+          4.68341082328394,
+          906.093288634802,
+          7.15490225533614,
+          33528.5561252986,
+          178.467454963180,
+          14.8580800598190,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "adm1-reactor-1",
+      "type": "ADM1 Reactor",
+      "position": { "x": 400, "y": 200 },
+      "data": {
+        "label": "ADM1 Reactor",
+        "componentType": "adm1-reactor",
+        "parameters": {
+          "temperature": 308.15
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1-2",
+      "source": "influent-1",
+      "target": "adm1-reactor-1",
+      "sourceHandle": "output-0",
+      "targetHandle": "input-0"
+    }
+  ],
+  "settings": {
+    "timestep": 15,
+    "endTime": 200,
+    "outputFrequency": 1
+  }
+}
