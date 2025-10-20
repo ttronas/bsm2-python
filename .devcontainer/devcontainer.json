@@ -22,6 +22,7 @@
         "janisdd.vscode-edit-csv"
       ],
       "settings": {
+        "locale": "en",
         "terminal.integrated.defaultProfile.linux": "bash",
         "terminal.integrated.profiles.linux": {
           "bash": {
@@ -32,7 +33,6 @@
           "editor.wordWrap": "on"
         },
         "python.defaultInterpreterPath": "/.venv/bin/python",
-        "locale": "en",
         "github.copilot.chat.localeOverride": "en"
       }
     }
