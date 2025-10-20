@@ -1,0 +1,291 @@
+{
+  "name": "BSM2 Open Loop - Dynamic Test",
+  "description": "Complete BSM2 open loop configuration based on tests/bsm2_ol_test.py with dynamic influent",
+  "nodes": [
+    {
+      "id": "influent_1",
+      "type": "influent",
+      "name": "Influent",
+      "position": {"x": 50, "y": 300},
+      "parameters": {
+        "type": "dynamic"
+      }
+    },
+    {
+      "id": "storage_1",
+      "type": "storage",
+      "name": "Storage Tank",
+      "position": {"x": 200, "y": 500},
+      "parameters": {
+        "vol_st": 6000.0,
+        "area_st": 1500.0,
+        "height_st": 4.0
+      }
+    },
+    {
+      "id": "combiner_1",
+      "type": "combiner",
+      "name": "Combiner 1",
+      "position": {"x": 300, "y": 350},
+      "parameters": {}
+    },
+    {
+      "id": "primary_clarifier_1",
+      "type": "primary_clarifier",
+      "name": "Primary Clarifier",
+      "position": {"x": 450, "y": 300},
+      "parameters": {
+        "vol_p": 900.0,
+        "area_p": 1500.0
+      }
+    },
+    {
+      "id": "asm1_reactor_1",
+      "type": "asm1_reactor",
+      "name": "ASM1 Reactor 1",
+      "position": {"x": 600, "y": 200},
+      "parameters": {
+        "kla": 0.0,
+        "volume": 1500.0,
+        "carb": 2.0,
+        "csourceconc": 400000.0,
+        "tempmodel": false,
+        "activate": false
+      }
+    },
+    {
+      "id": "asm1_reactor_2",
+      "type": "asm1_reactor",
+      "name": "ASM1 Reactor 2",
+      "position": {"x": 750, "y": 200},
+      "parameters": {
+        "kla": 0.0,
+        "volume": 1500.0,
+        "carb": 0.0,
+        "csourceconc": 400000.0,
+        "tempmodel": false,
+        "activate": false
+      }
+    },
+    {
+      "id": "asm1_reactor_3",
+      "type": "asm1_reactor",
+      "name": "ASM1 Reactor 3",
+      "position": {"x": 900, "y": 200},
+      "parameters": {
+        "kla": 120.0,
+        "volume": 3000.0,
+        "carb": 0.0,
+        "csourceconc": 400000.0,
+        "tempmodel": false,
+        "activate": false
+      }
+    },
+    {
+      "id": "asm1_reactor_4",
+      "type": "asm1_reactor",
+      "name": "ASM1 Reactor 4",
+      "position": {"x": 1050, "y": 200},
+      "parameters": {
+        "kla": 120.0,
+        "volume": 3000.0,
+        "carb": 0.0,
+        "csourceconc": 400000.0,
+        "tempmodel": false,
+        "activate": false
+      }
+    },
+    {
+      "id": "asm1_reactor_5",
+      "type": "asm1_reactor",
+      "name": "ASM1 Reactor 5",
+      "position": {"x": 1200, "y": 200},
+      "parameters": {
+        "kla": 60.0,
+        "volume": 3000.0,
+        "carb": 0.0,
+        "csourceconc": 400000.0,
+        "tempmodel": false,
+        "activate": false
+      }
+    },
+    {
+      "id": "secondary_clarifier_1",
+      "type": "settler",
+      "name": "Secondary Clarifier",
+      "position": {"x": 1400, "y": 200},
+      "parameters": {
+        "vol_s": 6000.0,
+        "area_s": 1500.0,
+        "height_s": 4.0,
+        "tempmodel": false
+      }
+    },
+    {
+      "id": "splitter_1",
+      "type": "splitter",
+      "name": "Splitter",
+      "position": {"x": 600, "y": 400},
+      "parameters": {
+        "sp_type": 1
+      }
+    },
+    {
+      "id": "combiner_2",
+      "type": "combiner",
+      "name": "Combiner 2",
+      "position": {"x": 800, "y": 500},
+      "parameters": {}
+    },
+    {
+      "id": "thickener_1",
+      "type": "thickener",
+      "name": "Thickener",
+      "position": {"x": 950, "y": 500},
+      "parameters": {
+        "vol_t": 1000.0,
+        "area_t": 250.0,
+        "height_t": 4.0
+      }
+    },
+    {
+      "id": "adm1_digester_1",
+      "type": "adm1_reactor",
+      "name": "ADM1 Digester",
+      "position": {"x": 1150, "y": 500},
+      "parameters": {
+        "volume": 3400.0,
+        "tempmodel": false
+      }
+    },
+    {
+      "id": "dewatering_1",
+      "type": "dewatering",
+      "name": "Dewatering",
+      "position": {"x": 1350, "y": 500},
+      "parameters": {
+        "dry_solids": 0.25
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_1",
+      "source": "influent_1",
+      "target": "combiner_1",
+      "source_handle": "effluent",
+      "target_handle": "input1"
+    },
+    {
+      "id": "edge_2",
+      "source": "storage_1",
+      "target": "combiner_1",
+      "source_handle": "effluent",
+      "target_handle": "input2"
+    },
+    {
+      "id": "edge_3",
+      "source": "combiner_1",
+      "target": "primary_clarifier_1",
+      "source_handle": "combined",
+      "target_handle": "influent"
+    },
+    {
+      "id": "edge_4",
+      "source": "primary_clarifier_1",
+      "target": "asm1_reactor_1",
+      "source_handle": "effluent",
+      "target_handle": "influent"
+    },
+    {
+      "id": "edge_5",
+      "source": "asm1_reactor_1",
+      "target": "asm1_reactor_2",
+      "source_handle": "effluent",
+      "target_handle": "influent"
+    },
+    {
+      "id": "edge_6",
+      "source": "asm1_reactor_2",
+      "target": "asm1_reactor_3",
+      "source_handle": "effluent",
+      "target_handle": "influent"
+    },
+    {
+      "id": "edge_7",
+      "source": "asm1_reactor_3",
+      "target": "asm1_reactor_4",
+      "source_handle": "effluent",
+      "target_handle": "influent"
+    },
+    {
+      "id": "edge_8",
+      "source": "asm1_reactor_4",
+      "target": "asm1_reactor_5",
+      "source_handle": "effluent",
+      "target_handle": "influent"
+    },
+    {
+      "id": "edge_9",
+      "source": "asm1_reactor_5",
+      "target": "secondary_clarifier_1",
+      "source_handle": "effluent",
+      "target_handle": "influent"
+    },
+    {
+      "id": "edge_10",
+      "source": "primary_clarifier_1",
+      "target": "splitter_1",
+      "source_handle": "sludge",
+      "target_handle": "influent"
+    },
+    {
+      "id": "edge_11",
+      "source": "secondary_clarifier_1",
+      "target": "combiner_2",
+      "source_handle": "sludge",
+      "target_handle": "input1"
+    },
+    {
+      "id": "edge_12",
+      "source": "splitter_1",
+      "target": "combiner_2",
+      "source_handle": "output1",
+      "target_handle": "input2"
+    },
+    {
+      "id": "edge_13",
+      "source": "combiner_2",
+      "target": "thickener_1",
+      "source_handle": "combined",
+      "target_handle": "influent"
+    },
+    {
+      "id": "edge_14",
+      "source": "thickener_1",
+      "target": "adm1_digester_1",
+      "source_handle": "thickened_sludge",
+      "target_handle": "influent"
+    },
+    {
+      "id": "edge_15",
+      "source": "adm1_digester_1",
+      "target": "dewatering_1",
+      "source_handle": "effluent",
+      "target_handle": "influent"
+    },
+    {
+      "id": "edge_16",
+      "source": "splitter_1",
+      "target": "storage_1",
+      "source_handle": "output2",
+      "target_handle": "influent"
+    }
+  ],
+  "influent": {
+    "type": "dynamic"
+  },
+  "timestep": 0.010416666666666666,
+  "end_time": 50.0,
+  "user_id": "test"
+}
