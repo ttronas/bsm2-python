@@ -4,37 +4,52 @@ import importlib.util
 import os
 from typing import Any
 
-def resolve_value(val: Any) -> Any:
+VARIANT_MODULE_ORDER = {
+    "bsm1": ("bsm1", "bsm2"),
+    "bsm2": ("bsm2", "bsm1"),
+}
+
+def resolve_value(val: Any, variant: str = "bsm2") -> Any:
     """
     Löst Strings wie 'asm1init.KLA1' oder 'settler1dinit.DIM' gegen Module unter bsm2_python.init.* auf.
     Andere Typen werden durchgereicht.
     """
     if isinstance(val, str) and "." in val:
         modname, attr = val.split(".", 1)
-        
+
         # Try direct module loading to avoid circular imports
         try:
-            # Get the path to the init module - fix the modname issue
             src_dir = os.path.join(os.path.dirname(__file__), '..', '..')
-            
-            # Handle the bsm1 vs bsm2 suffix issue
-            module_filename = f'{modname}_bsm1.py' if modname == 'asm1init' else f'{modname}.py'
-            module_path = os.path.join(src_dir, 'bsm2_python', 'bsm2', 'init', module_filename)
-            
-            if not os.path.exists(module_path):
-                # Try the bsm2 variant
-                module_filename = f'{modname}_bsm2.py'
-                module_path = os.path.join(src_dir, 'bsm2_python', 'bsm2', 'init', module_filename)
-            
-            if os.path.exists(module_path):
-                spec = importlib.util.spec_from_file_location(f"bsm2_python.bsm2.init.{modname}", module_path)
+
+            module_priorities = VARIANT_MODULE_ORDER.get(variant, VARIANT_MODULE_ORDER["bsm2"])
+            candidate_files = []
+            for suffix in module_priorities:
+                candidate_files.append((f"{modname}_{suffix}", os.path.join(src_dir, 'bsm2_python', 'bsm2', 'init', f'{modname}_{suffix}.py')))
+            candidate_files.append((modname, os.path.join(src_dir, 'bsm2_python', 'bsm2', 'init', f'{modname}.py')))
+
+            for module_alias, module_path in candidate_files:
+                if not os.path.exists(module_path):
+                    continue
+                spec = importlib.util.spec_from_file_location(f"bsm2_python.bsm2.init.{module_alias}", module_path)
+                if spec is None or spec.loader is None:
+                    continue
                 mod = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(mod)
-                return getattr(mod, attr)
-            else:
-                # Try standard import as fallback
-                mod = importlib.import_module(f"bsm2_python.bsm2.init.{modname}")
-                return getattr(mod, attr)
+                if hasattr(mod, attr):
+                    return getattr(mod, attr)
+
+            # Fallback to regular import if no local file was found
+            fallback_modules = [
+                f"bsm2_python.bsm2.init.{modname}_{suffix}" for suffix in module_priorities
+            ] + [f"bsm2_python.bsm2.init.{modname}"]
+
+            for module_name in fallback_modules:
+                try:
+                    mod = importlib.import_module(module_name)
+                except (ModuleNotFoundError, ImportError):
+                    continue
+                if hasattr(mod, attr):
+                    return getattr(mod, attr)
         except Exception as e:
             print(f"Warning: Could not resolve {val}: {e}")
             # Return a default value based on the parameter name
@@ -75,13 +90,13 @@ def resolve_value(val: Any) -> Any:
     
     return val
 
-def resolve_params(params: dict) -> dict:
+def resolve_params(params: dict, variant: str = "bsm2") -> dict:
     out = {}
     for k, v in params.items():
         if isinstance(v, list):
-            out[k] = [resolve_value(x) for x in v]
+            out[k] = [resolve_value(x, variant) for x in v]
         elif isinstance(v, dict):
-            out[k] = resolve_params(v)
+            out[k] = resolve_params(v, variant)
         else:
-            out[k] = resolve_value(v)
+            out[k] = resolve_value(v, variant)
     return out

@@ -33,7 +33,7 @@ def run_json_bsm1_test():
     with open(config_path, 'r') as f:
         config = json.load(f)
     config['simulation_settings']['steady_endtime'] = 20
-    engine = SimulationEngine(config)
+    engine = SimulationEngine(config, source_name=config_path)
     results = engine.simulate()
     return results['effluent'], results['sludge_height'], results['tss_internal']
 
@@ -43,7 +43,7 @@ def run_json_bsm2_test():
     with open(config_path, 'r') as f:
         config = json.load(f)
     config['simulation_settings']['steady_endtime'] = 5
-    engine = SimulationEngine(config)
+    engine = SimulationEngine(config, source_name=config_path)
     results = engine.simulate()
     return results['effluent'], results['sludge_height'], results['tss_internal']
 

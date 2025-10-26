@@ -422,12 +422,23 @@ def make_adm1(node_id: str, params: Dict[str, Any]):
         def __init__(self, impl, t_op):
             self.impl = impl
             self.t_op = t_op
+
         def step(self, dt, current_step, inputs):
             y_in = inputs.get("in_main")
-            if y_in is None: return {}
+            if y_in is None:
+                return {}
+
             # CRITICAL FIX: Pass correct t_op temperature parameter instead of None
-            out0, out1, out2 = self.impl.output(dt, current_step, y_in, self.t_op)
-            return {"out_digested": out0, "out_gas": out1, "out_liquid": out2}
+            digested, adm_states, _ = self.impl.output(dt, current_step, y_in, self.t_op)
+
+            # The ADM1 reactor returns the digested liquor (21 ASM1 states) and the
+            # complete ADM state vector (51 values). In the classic implementation
+            # (`bsm2_base.py`) only these two streams are propagated further, so we
+            # expose exactly the same handles here.
+            return {
+                "out_digested": digested,
+                "out_gas": adm_states,
+            }
     return ADM1Adapter(impl, t_op)
 
 @register("dewatering")
