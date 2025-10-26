@@ -10,9 +10,27 @@ from .nodes import NodeDC, EdgeRef
 from .registry import REGISTRY
 
 class SimulationEngine:
+    """
+    Advanced JSON-based simulation engine with automatic BSM1/BSM2 parameter detection.
+    
+    This engine automatically detects whether a configuration is for BSM1 or BSM2
+    and loads the appropriate variant-specific parameters from the init modules.
+    
+    Parameter Detection Flow:
+    1. __init__ calls _detect_variant() to determine "bsm1" or "bsm2"
+    2. The variant is passed to resolve_params() which resolves all parameter references
+    3. resolve_params() calls resolve_value() for each parameter string (e.g., "asm1init.KLA3")
+    4. resolve_value() uses VARIANT_MODULE_ORDER to prioritize the correct init files
+    5. For BSM1: tries asm1init_bsm1.py first, falls back to asm1init_bsm2.py
+    6. For BSM2: tries asm1init_bsm2.py first, falls back to asm1init_bsm1.py
+    
+    This ensures that BSM1 configurations get BSM1-specific parameters (e.g., KLA3=240)
+    and BSM2 configurations get BSM2-specific parameters (e.g., KLA3=120).
+    """
     def __init__(self, config: Dict[str, Any], source_name: str | None = None):
         self.config = config
         self.source_name = source_name
+        # Detect variant (BSM1 or BSM2) - this drives parameter loading
         self.variant = self._detect_variant(config, source_name)
         # Nodes als dataclasses anlegen
         self.nodes: Dict[str, NodeDC] = {}
@@ -91,6 +109,26 @@ class SimulationEngine:
         return cls(data, source_name=path)
 
     def _detect_variant(self, config: Dict[str, Any], source_name: str | None = None) -> str:
+        """
+        Automatically detect whether this is a BSM1 or BSM2 configuration.
+        
+        This method implements the parameter detection mechanism that determines which
+        variant-specific parameter files to load (e.g., asm1init_bsm1.py vs asm1init_bsm2.py).
+        
+        Detection strategy (in priority order):
+        1. Check filename (e.g., "bsm1_ol_config.json" contains "bsm1")
+        2. Check explicit metadata (config["meta"]["variant"] or config["variant"])
+        3. Check for BSM2-specific components (digester, primary_clarifier, etc.)
+        4. Default to BSM1 if none of the above match
+        
+        Args:
+            config: The simulation configuration dictionary
+            source_name: Optional path to the config file
+        
+        Returns:
+            "bsm1" or "bsm2" indicating the detected variant
+        """
+        # Strategy 1: Check filename
         if not source_name:
             meta = config.get("meta") or {}
             source_name = meta.get("source_path") or config.get("_source_path") or config.get("variant_source")
@@ -102,6 +140,7 @@ class SimulationEngine:
             if "bsm2" in filename:
                 return "bsm2"
 
+        # Strategy 2: Check explicit metadata
         meta = config.get("meta") or {}
         explicit = meta.get("variant") or config.get("variant")
         if isinstance(explicit, str):
@@ -109,6 +148,7 @@ class SimulationEngine:
             if explicit in {"bsm1", "bsm2"}:
                 return explicit
 
+        # Strategy 3: Check for BSM2-specific component markers
         bsm2_markers = {
             "digester",
             "primary_clarifier",
@@ -127,6 +167,7 @@ class SimulationEngine:
             if any(marker in node_id for marker in ("adm1", "digester", "thickener", "dewater", "primaryclar")):
                 return "bsm2"
 
+        # Strategy 4: Default to BSM1
         return "bsm1"
 
     def _collect_inputs(self, nid: str) -> Dict[str, np.ndarray]:

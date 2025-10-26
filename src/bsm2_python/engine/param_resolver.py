@@ -4,15 +4,48 @@ import importlib.util
 import os
 from typing import Any
 
+# Parameter Detection for BSM1 and BSM2
+# =======================================
+# This module implements automatic parameter loading based on the detected variant (BSM1 or BSM2).
+# The variant is detected in engine.py's _detect_variant() method based on:
+# - File name (e.g., "bsm1_ol_config.json" -> BSM1)
+# - Component types present (e.g., "digester" -> BSM2)
+# - Explicit metadata in the config
+#
+# Once the variant is determined, parameters like "asm1init.KLA3" are resolved to the correct
+# variant-specific module:
+# - BSM1: asm1init_bsm1.py (KLA3=240)
+# - BSM2: asm1init_bsm2.py (KLA3 not defined, falls back to reginit_bsm2.py with KLA3=120)
+
 VARIANT_MODULE_ORDER = {
-    "bsm1": ("bsm1", "bsm2"),
-    "bsm2": ("bsm2", "bsm1"),
+    "bsm1": ("bsm1", "bsm2"),  # For BSM1, try bsm1 modules first, then fall back to bsm2
+    "bsm2": ("bsm2", "bsm1"),  # For BSM2, try bsm2 modules first, then fall back to bsm1
 }
+"""Module loading priority order for each variant. This ensures parameters are loaded
+from the correct variant-specific initialization files."""
 
 def resolve_value(val: Any, variant: str = "bsm2") -> Any:
     """
-    Löst Strings wie 'asm1init.KLA1' oder 'settler1dinit.DIM' gegen Module unter bsm2_python.init.* auf.
-    Andere Typen werden durchgereicht.
+    Resolve parameter strings to actual values from variant-specific init modules.
+    
+    Parameters like 'asm1init.KLA1' or 'settler1dinit.DIM' are resolved against modules
+    under bsm2_python.bsm2.init.* with automatic variant detection.
+    
+    Args:
+        val: Value to resolve. If a string with a dot (e.g., "asm1init.KLA3"), 
+             it's treated as a module.attribute reference. Other types are passed through.
+        variant: Model variant to use ("bsm1" or "bsm2"). Determines which parameter
+                 files to prioritize when loading.
+    
+    Returns:
+        The resolved value from the appropriate init module, or the original value if
+        not a parameter reference.
+    
+    Example:
+        >>> resolve_value("asm1init.KLA3", variant="bsm1")
+        240  # From asm1init_bsm1.py
+        >>> resolve_value("reginit.KLA3", variant="bsm2")
+        120  # From reginit_bsm2.py
     """
     if isinstance(val, str) and "." in val:
         modname, attr = val.split(".", 1)
