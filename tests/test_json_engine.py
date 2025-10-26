@@ -7,7 +7,8 @@ import sys
 import numpy as np
 import json
 
-sys.path.insert(0, '/workspaces/bsm2-python/src')
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 def run_bsm1ol_test():
     from bsm2_python.bsm1_ol import BSM1OL
@@ -29,7 +30,7 @@ def run_bsm2ol_test():
 
 def run_json_bsm1_test():
     from bsm2_python.engine.engine import SimulationEngine
-    config_path = '/workspaces/bsm2-python/bsm1_ol_config.json'
+    config_path = os.path.join(os.path.dirname(__file__), '..', 'bsm1_ol_config.json')
     with open(config_path, 'r') as f:
         config = json.load(f)
     config['simulation_settings']['steady_endtime'] = 20
@@ -39,7 +40,7 @@ def run_json_bsm1_test():
 
 def run_json_bsm2_test():
     from bsm2_python.engine.engine import SimulationEngine
-    config_path = '/workspaces/bsm2-python/bsm2_ol_config.json'
+    config_path = os.path.join(os.path.dirname(__file__), '..', 'bsm2_ol_config.json')
     with open(config_path, 'r') as f:
         config = json.load(f)
     config['simulation_settings']['steady_endtime'] = 5
