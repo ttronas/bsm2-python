@@ -31,7 +31,7 @@ def test_module_priority_order():
     assert VARIANT_MODULE_ORDER["bsm2"][1] == "bsm1", "BSM2 should fall back to bsm1 modules"
     
     print("✅ PASS: Module priority order is correctly defined")
-    return True
+
 
 def test_parameter_resolution():
     """Test that parameters resolve to correct variant-specific values"""
@@ -76,7 +76,7 @@ def test_parameter_resolution():
     assert qbypass_bsm2 == 60000, f"BSM2 QBYPASS should be 60000, got {qbypass_bsm2}"
     
     print("\n✅ PASS: Parameters resolve to correct variant-specific values")
-    return True
+
 
 def test_variant_detection():
     """Test that variant detection works correctly"""
@@ -146,7 +146,7 @@ def test_variant_detection():
     assert detected == "bsm2", f"Config with digester in node ID should be BSM2, got {detected}"
     
     print("\n✅ PASS: Variant detection works correctly")
-    return True
+
 
 def test_non_string_passthrough():
     """Test that non-string values pass through unchanged"""
@@ -173,7 +173,7 @@ def test_non_string_passthrough():
     print("  ✓ Simple string passthrough: 'simple' → 'simple'")
     
     print("\n✅ PASS: Non-string values pass through unchanged")
-    return True
+
 
 def main():
     """Run all tests"""
