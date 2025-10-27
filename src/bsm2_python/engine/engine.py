@@ -164,7 +164,7 @@ class SimulationEngine:
 
     def _loop_iterate(self, component_nodes: List[str], internal_order: List[str],
                       tear_edge_ids: List[str], dt: float, current_step: int = 0,
-                      tol: float = 1e-3, max_iter: int = 5, relax: float = 0.7):
+                      tol: float = 1e-3, max_iter: int = 20, relax: float = 0.5):
         
         # Initialize ONLY tear edges with _create_copies equivalent
         for eid in tear_edge_ids:
