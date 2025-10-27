@@ -29,21 +29,23 @@ def run_bsm2ol_test():
 
 def run_json_bsm1_test():
     from bsm2_python.engine.engine import SimulationEngine
-    config_path = '/workspaces/bsm2-python/bsm1_ol_config.json'
+    import os
+    config_path = os.path.join(os.path.dirname(__file__), '..', 'bsm1_ol_config.json')
     with open(config_path, 'r') as f:
         config = json.load(f)
     config['simulation_settings']['steady_endtime'] = 20
-    engine = SimulationEngine(config)
+    engine = SimulationEngine(config, source_name=config_path)
     results = engine.simulate()
     return results['effluent'], results['sludge_height'], results['tss_internal']
 
 def run_json_bsm2_test():
     from bsm2_python.engine.engine import SimulationEngine
-    config_path = '/workspaces/bsm2-python/bsm2_ol_config.json'
+    import os
+    config_path = os.path.join(os.path.dirname(__file__), '..', 'bsm2_ol_config.json')
     with open(config_path, 'r') as f:
         config = json.load(f)
     config['simulation_settings']['steady_endtime'] = 5
-    engine = SimulationEngine(config)
+    engine = SimulationEngine(config, source_name=config_path)
     results = engine.simulate()
     return results['effluent'], results['sludge_height'], results['tss_internal']
 

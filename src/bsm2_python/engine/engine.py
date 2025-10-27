@@ -1,6 +1,7 @@
 from __future__ import annotations
 import json
 from typing import Dict, Any, List
+import os
 import numpy as np
 
 from .scheduler import schedule, build_graph
@@ -9,8 +10,10 @@ from .nodes import NodeDC, EdgeRef
 from .registry import REGISTRY
 
 class SimulationEngine:
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any], source_name: str | None = None):
         self.config = config
+        self.source_name = source_name
+        self.variant = self._detect_variant(config, source_name)
         # Nodes als dataclasses anlegen
         self.nodes: Dict[str, NodeDC] = {}
         for n in config["nodes"]:
@@ -65,7 +68,7 @@ class SimulationEngine:
 
         # Parameter auflösen und Instanzen bauen
         for nid, nd in self.nodes.items():
-            params = resolve_params(nd.parameters or {})
+            params = resolve_params(nd.parameters or {}, self.variant)
             factory = REGISTRY.get(nd.component_type_id)
             if factory is None:
                 raise KeyError(f"No factory registered for component_type_id={nd.component_type_id}")
@@ -85,7 +88,46 @@ class SimulationEngine:
     def from_json(cls, path: str):
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
-        return cls(data)
+        return cls(data, source_name=path)
+
+    def _detect_variant(self, config: Dict[str, Any], source_name: str | None = None) -> str:
+        if not source_name:
+            meta = config.get("meta") or {}
+            source_name = meta.get("source_path") or config.get("_source_path") or config.get("variant_source")
+
+        if source_name:
+            filename = os.path.basename(str(source_name)).lower()
+            if "bsm1" in filename:
+                return "bsm1"
+            if "bsm2" in filename:
+                return "bsm2"
+
+        meta = config.get("meta") or {}
+        explicit = meta.get("variant") or config.get("variant")
+        if isinstance(explicit, str):
+            explicit = explicit.strip().lower()
+            if explicit in {"bsm1", "bsm2"}:
+                return explicit
+
+        bsm2_markers = {
+            "digester",
+            "primary_clarifier",
+            "thickener",
+            "dewatering",
+            "storage",
+            "adm1",
+        }
+
+        for node in config.get("nodes", []):
+            ctype = str(node.get("component_type_id", "")).lower()
+            node_id = str(node.get("id", "")).lower()
+
+            if any(marker in ctype for marker in bsm2_markers):
+                return "bsm2"
+            if any(marker in node_id for marker in ("adm1", "digester", "thickener", "dewater", "primaryclar")):
+                return "bsm2"
+
+        return "bsm1"
 
     def _collect_inputs(self, nid: str) -> Dict[str, np.ndarray]:
         inputs: Dict[str, np.ndarray] = {}
@@ -168,14 +210,19 @@ class SimulationEngine:
             self.step_steady(timestep, i)
             
         # Extract final results for compatibility
-        effluent_node = None
-        settler_node = None
-        
-        for nid, node in self.nodes.items():
-            if node.component_type_id == "effluent":
-                effluent_node = node
-            elif node.component_type_id == "settler":
-                settler_node = node
+        effluent_node = self.nodes.get("effluent")
+        settler_node = self.nodes.get("settler")
+
+        if effluent_node is None:
+            for node in self.nodes.values():
+                if node.component_type_id == "effluent":
+                    effluent_node = node
+                    break
+
+        if settler_node is None:
+            for node in self.nodes.values():
+                if node.component_type_id == "settler":
+                    settler_node = node
                 
         # Get effluent values
         if effluent_node and hasattr(effluent_node.instance, 'last'):
@@ -183,7 +230,7 @@ class SimulationEngine:
             print(f"\n📊 Final effluent from node: {self.ys_eff[:5] if self.ys_eff is not None else 'None'}")
         else:
             self.ys_eff = np.zeros(21)
-            print(f"\n📊 Using default effluent (no effluent node found)")
+            print("\n📊 Using default effluent (no effluent node found)")
             
         # Get settler info if available
         if settler_node and hasattr(settler_node.instance, 'sludge_height'):
@@ -195,21 +242,31 @@ class SimulationEngine:
         else:
             self.sludge_height = 0.0
             self.ys_tss_internal = np.zeros(10)
-            print(f"📊 Using default settler values (no settler node or data found)")
+            print("📊 Using default settler values (no settler node or data found)")
             
     def simulate(self):
         """Run simulation and return results compatible with real_json_engine."""
-        # Default simulation parameters
-        timestep = 15 / (60 * 24)  # 15 minutes in days
-        endtime = 20  # days - shorter for debugging
-        
-        print(f"\n🎯 Simulation Configuration:")
+        sim_settings = self.config.get("simulation_settings", {})
+        mode = sim_settings.get("mode", "steady").lower()
+
+        if mode == "steady":
+            timestep = float(sim_settings.get("steady_timestep", 15 / (60 * 24)))
+            endtime = float(sim_settings.get("steady_endtime", 20))
+        else:
+            timestep = float(sim_settings.get("dynamic_timestep", 15 / (60 * 24)))
+            endtime = float(sim_settings.get("dynamic_endtime", 20))
+
+        print("\n🎯 Simulation Configuration:")
+        print(f"   Mode: {mode}")
         print(f"   Timestep: {timestep:.6f} days ({timestep*24*60:.1f} minutes)")
         print(f"   End time: {endtime} days")
         print(f"   Nodes: {len(self.nodes)}")
         print(f"   Edges: {len(self.config.get('edges', []))}")
-        
-        self.simulate_steady(timestep, endtime)
+
+        if mode == "steady":
+            self.simulate_steady(timestep, endtime)
+        else:
+            raise NotImplementedError("Dynamic simulation mode is not supported yet.")
         
         return {
             'effluent': self.ys_eff,

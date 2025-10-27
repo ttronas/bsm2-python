@@ -24,16 +24,22 @@ class JSONSimulationEngine:
     """
     
     def __init__(self, config):
+        source_name = None
+
         if isinstance(config, str):
             # Load from file
             import json
             with open(config, 'r') as f:
                 config_data = json.load(f)
+            source_name = config
         else:
             config_data = config
+            if isinstance(config_data, dict):
+                meta = config_data.get('meta') or {}
+                source_name = config_data.get('_source_path') or meta.get('source_path')
             
         # Create the advanced engine
-        self.engine = SimulationEngine(config_data)
+        self.engine = SimulationEngine(config_data, source_name=source_name)
         
     def simulate(self):
         """Run simulation and return results compatible with the old engine."""
